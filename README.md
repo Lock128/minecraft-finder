@@ -2,7 +2,45 @@
 
 A TypeScript tool that analyzes Minecraft world seeds to predict diamond and gold locations and optimize your mining strategy.
 
-## Features
+## Flutter Mobile App
+
+A complete Flutter application is included in the `flutter_app/` directory with:
+
+### Features
+- 📱 **Mobile-Friendly Interface**: Native iOS and Android support
+- 🎯 **Interactive Search**: Easy input for coordinates and world seeds
+- 💎 **Dual Ore Support**: Switch between diamond and gold finding
+- 📊 **Top 10 Results**: Shows the most probable locations
+- 📋 **Copy Coordinates**: Tap to copy coordinates to clipboard
+- 🌙 **Dark Mode**: Automatic light/dark theme support
+
+### Running the Flutter App
+
+```bash
+# Navigate to flutter app directory
+cd flutter_app
+
+# Get dependencies
+flutter pub get
+
+# Run on connected device or emulator
+flutter run
+
+# Build for release
+flutter build apk  # Android
+flutter build ios  # iOS
+```
+
+### App Usage
+1. **Enter World Seed**: Your Minecraft world seed
+2. **Set Search Center**: Your current X, Y, Z coordinates
+3. **Choose Search Radius**: How far to search (max 1000 blocks)
+4. **Select Ore Type**: Diamond or Gold
+5. **Optional**: Include Nether Gold for gold searches
+6. **Tap Search**: Get top 10 most probable locations
+7. **Copy Coordinates**: Tap copy icon to use in-game
+
+---
 
 - 🔍 **Seed Analysis**: Uses Minecraft's world generation patterns to predict ore spawns
 - � **LDiamond Finder**: Locate high-probability diamond coordinates
