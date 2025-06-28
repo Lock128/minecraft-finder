@@ -1,0 +1,33 @@
+{
+  "name": "minecraft-diamond-finder",
+  "version": "1.0.0",
+  "description": "Find diamonds in Minecraft using seed analysis",
+  "main": "minecraft-diamond-finder.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "ts-node --esm minecraft-diamond-finder.ts",
+    "build": "tsc",
+    "find-diamonds": "ts-node --esm minecraft-diamond-finder.ts",
+    "find-gold": "ts-node --esm minecraft-gold-finder.ts",
+    "find-all": "./find-all-ores.sh"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
+  "keywords": [
+    "minecraft",
+    "diamonds",
+    "seed",
+    "world-generation"
+  ],
+  "author": "Kiro AI",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.0.7"
+  }
+}
