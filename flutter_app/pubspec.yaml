@@ -1,5 +1,5 @@
 name: minecraft_ore_finder
-description: A Flutter app to find diamonds and gold in Minecraft worlds using seed analysis.
+description: A Flutter app to find diamonds, gold, and netherite in Minecraft worlds using seed analysis.
 publish_to: 'none'
 version: 1.0.0+1
 

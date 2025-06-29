@@ -54,9 +54,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   bool _includeNether = false;
   bool _isLoading = false;
   List<OreLocation> _results = [];
+  bool _findAllNetherite = false;
   
   // Filter states
-  Set<OreType> _visibleOreTypes = {OreType.diamond, OreType.gold};
+  Set<OreType> _visibleOreTypes = {OreType.diamond, OreType.gold, OreType.netherite};
   final _minXController = TextEditingController();
   final _maxXController = TextEditingController();
   final _minYController = TextEditingController();
@@ -90,38 +91,58 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     super.dispose();
   }
 
-  Future<void> _findOres() async {
+  Future<void> _findOres(bool comprehensiveNetherite) async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
       _results.clear();
+      _findAllNetherite = comprehensiveNetherite;
     });
 
     try {
       final finder = OreFinder();
       List<OreLocation> allResults = [];
 
-      // Search for each selected ore type
-      for (OreType oreType in _selectedOreTypes) {
-        final results = await finder.findOres(
+      if (comprehensiveNetherite) {
+        // Comprehensive netherite search - ONLY search for netherite
+        final results = await finder.findAllNetherite(
           seed: _seedController.text,
           centerX: int.parse(_xController.text),
-          centerY: int.parse(_yController.text),
           centerZ: int.parse(_zController.text),
-          radius: int.parse(_radiusController.text),
-          oreType: oreType,
-          includeNether: _includeNether && oreType == OreType.gold,
         );
         allResults.addAll(results);
+      } else {
+        // Regular search for each selected ore type
+        for (OreType oreType in _selectedOreTypes) {
+          final results = await finder.findOres(
+            seed: _seedController.text,
+            centerX: int.parse(_xController.text),
+            centerY: int.parse(_yController.text),
+            centerZ: int.parse(_zController.text),
+            radius: int.parse(_radiusController.text),
+            oreType: oreType,
+            includeNether: _includeNether && oreType == OreType.gold,
+          );
+          allResults.addAll(results);
+        }
       }
 
       // Sort all results by probability
       allResults.sort((a, b) => b.probability.compareTo(a.probability));
 
       setState(() {
-        _results = allResults.take(15 * _selectedOreTypes.length).toList();
+        // Show 150 locations by default, more for comprehensive netherite search
+        int maxResults = comprehensiveNetherite 
+            ? 200  // Even more for comprehensive search
+            : 150; // Default 150 locations
+        _results = allResults.take(maxResults).toList();
         _isLoading = false;
+        
+        // For comprehensive netherite search, ensure only netherite is visible in filters
+        if (comprehensiveNetherite) {
+          _visibleOreTypes = {OreType.netherite};
+        }
       });
 
       // Auto-switch to results tab
@@ -312,8 +333,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         if (radius == null || radius <= 0) {
                           return 'Radius must be a positive number';
                         }
-                        if (radius > 1000) {
-                          return 'Radius too large (max 1000)';
+                        if (radius > 2000) {
+                          return 'Radius too large (max 2000)';
                         }
                         return null;
                       },
@@ -334,40 +355,99 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: SegmentedButton<OreType>(
-                        segments: const [
-                          ButtonSegment<OreType>(
-                            value: OreType.diamond,
-                            label: Text('💎 Diamonds'),
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: SegmentedButton<OreType>(
+                            segments: const [
+                              ButtonSegment<OreType>(
+                                value: OreType.diamond,
+                                label: Text('💎 Diamonds'),
+                              ),
+                              ButtonSegment<OreType>(
+                                value: OreType.gold,
+                                label: Text('🏅 Gold'),
+                              ),
+                            ],
+                            selected: _selectedOreTypes.where((type) => type != OreType.netherite).toSet(),
+                            multiSelectionEnabled: true,
+                            onSelectionChanged: (Set<OreType> newSelection) {
+                              setState(() {
+                                // Keep netherite if it was selected, add/remove others
+                                Set<OreType> updatedSelection = Set.from(newSelection);
+                                if (_selectedOreTypes.contains(OreType.netherite)) {
+                                  updatedSelection.add(OreType.netherite);
+                                }
+                                if (updatedSelection.isNotEmpty) {
+                                  _selectedOreTypes = updatedSelection;
+                                }
+                              });
+                            },
+                            style: SegmentedButton.styleFrom(
+                              minimumSize: const Size(120, 48),
+                            ),
                           ),
-                          ButtonSegment<OreType>(
-                            value: OreType.gold,
-                            label: Text('🏅 Gold'),
-                          ),
-                        ],
-                        selected: _selectedOreTypes,
-                        multiSelectionEnabled: true,
-                        onSelectionChanged: (Set<OreType> newSelection) {
-                          setState(() {
-                            if (newSelection.isNotEmpty) {
-                              _selectedOreTypes = newSelection;
-                            }
-                          });
-                        },
-                        style: SegmentedButton.styleFrom(
-                          minimumSize: const Size(120, 48),
                         ),
-                      ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                if (_selectedOreTypes.contains(OreType.netherite)) {
+                                  _selectedOreTypes.remove(OreType.netherite);
+                                } else {
+                                  _selectedOreTypes.add(OreType.netherite);
+                                }
+                              });
+                            },
+                            icon: Icon(
+                              _selectedOreTypes.contains(OreType.netherite) 
+                                ? Icons.check_circle 
+                                : Icons.local_fire_department,
+                              color: _selectedOreTypes.contains(OreType.netherite) 
+                                ? Colors.deepPurple 
+                                : null,
+                            ),
+                            label: Text(
+                              '🔥 Netherite (Ancient Debris)',
+                              style: TextStyle(
+                                color: _selectedOreTypes.contains(OreType.netherite) 
+                                  ? Colors.deepPurple 
+                                  : null,
+                                fontWeight: _selectedOreTypes.contains(OreType.netherite) 
+                                  ? FontWeight.bold 
+                                  : FontWeight.normal,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.all(16),
+                              side: BorderSide(
+                                color: _selectedOreTypes.contains(OreType.netherite) 
+                                  ? Colors.deepPurple 
+                                  : Colors.grey,
+                                width: _selectedOreTypes.contains(OreType.netherite) ? 2 : 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_selectedOreTypes.contains(OreType.netherite))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Nether only, Y 8-22 (very rare!)',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.deepPurple,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _selectedOreTypes.length == 2 
-                        ? 'Searching for both diamonds and gold'
-                        : _selectedOreTypes.contains(OreType.diamond)
-                          ? 'Searching for diamonds only'
-                          : 'Searching for gold only',
+                      _getSearchDescription(),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     if (_selectedOreTypes.contains(OreType.gold)) ...[
@@ -388,18 +468,90 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               ),
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _findOres,
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.search),
-              label: Text(_isLoading ? 'Searching...' : 'Find Ores'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
+            // Main search buttons
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : () => _findOres(false),
+                    icon: _isLoading && !_findAllNetherite
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.search),
+                    label: Text(_isLoading && !_findAllNetherite ? 'Searching...' : 'Find Ores'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : () => _findOres(true),
+                    icon: _isLoading && _findAllNetherite
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.explore),
+                    label: Text(
+                      _isLoading && _findAllNetherite 
+                        ? 'Searching All Netherite...' 
+                        : 'Find ALL Netherite',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Info text for comprehensive search
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.deepPurple.withOpacity(0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.deepPurple,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Comprehensive Netherite Search',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '• Searches entire world (4000x4000 blocks)\n• May take 30-60 seconds\n• Shows up to 200 netherite locations\n• Ignores other ore selections',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.deepPurple.withOpacity(0.8),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -452,13 +604,24 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
   Widget _buildResultsTab() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Analyzing world generation...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              _findAllNetherite && _selectedOreTypes.contains(OreType.netherite)
+                  ? 'Comprehensive netherite search in progress...'
+                  : 'Analyzing world generation...',
+            ),
+            if (_findAllNetherite && _selectedOreTypes.contains(OreType.netherite)) ...[
+              const SizedBox(height: 8),
+              const Text(
+                'This may take 30-60 seconds',
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+              ),
+            ],
           ],
         ),
       );
@@ -504,49 +667,103 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           ),
           child: Column(
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      'Results: ${filteredResults.length} of ${_results.length}',
-                      style: Theme.of(context).textTheme.titleMedium,
+                  // Show comprehensive search indicator
+                  if (_findAllNetherite && _results.isNotEmpty && _results.first.oreType == OreType.netherite)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.deepPurple.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.explore, color: Colors.deepPurple, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Comprehensive Netherite Search Results',
+                              style: TextStyle(
+                                color: Colors.deepPurple,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(_showFilters ? Icons.filter_list_off : Icons.filter_list),
-                    onPressed: () {
-                      setState(() {
-                        _showFilters = !_showFilters;
-                      });
-                    },
-                    tooltip: _showFilters ? 'Hide filters' : 'Show filters',
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Results: ${filteredResults.length} of ${_results.length}',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(_showFilters ? Icons.filter_list_off : Icons.filter_list),
+                        onPressed: () {
+                          setState(() {
+                            _showFilters = !_showFilters;
+                          });
+                        },
+                        tooltip: _showFilters ? 'Hide filters' : 'Show filters',
+                      ),
+                    ],
                   ),
                 ],
               ),
               // Ore Type Filter (always visible)
               const SizedBox(height: 8),
-              SegmentedButton<OreType>(
-                segments: const [
-                  ButtonSegment<OreType>(
-                    value: OreType.diamond,
-                    label: Text('💎'),
-                    tooltip: 'Show/Hide Diamonds',
+              Wrap(
+                spacing: 8,
+                children: [
+                  FilterChip(
+                    label: const Text('💎 Diamonds'),
+                    selected: _visibleOreTypes.contains(OreType.diamond),
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          _visibleOreTypes.add(OreType.diamond);
+                        } else {
+                          _visibleOreTypes.remove(OreType.diamond);
+                        }
+                      });
+                    },
                   ),
-                  ButtonSegment<OreType>(
-                    value: OreType.gold,
-                    label: Text('🏅'),
-                    tooltip: 'Show/Hide Gold',
+                  FilterChip(
+                    label: const Text('🏅 Gold'),
+                    selected: _visibleOreTypes.contains(OreType.gold),
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          _visibleOreTypes.add(OreType.gold);
+                        } else {
+                          _visibleOreTypes.remove(OreType.gold);
+                        }
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text('🔥 Netherite'),
+                    selected: _visibleOreTypes.contains(OreType.netherite),
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          _visibleOreTypes.add(OreType.netherite);
+                        } else {
+                          _visibleOreTypes.remove(OreType.netherite);
+                        }
+                      });
+                    },
                   ),
                 ],
-                selected: _visibleOreTypes,
-                multiSelectionEnabled: true,
-                onSelectionChanged: (Set<OreType> newSelection) {
-                  setState(() {
-                    if (newSelection.isNotEmpty) {
-                      _visibleOreTypes = newSelection;
-                    }
-                  });
-                },
               ),
               // Coordinate Filters (collapsible)
               if (_showFilters) ...[
@@ -781,6 +998,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         return Colors.cyan;
       case OreType.gold:
         return Colors.amber;
+      case OreType.netherite:
+        return Colors.deepPurple;
     }
   }
 
@@ -790,6 +1009,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         return Icons.diamond;
       case OreType.gold:
         return Icons.star;
+      case OreType.netherite:
+        return Icons.local_fire_department;
     }
   }
 
@@ -799,7 +1020,21 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         return '💎';
       case OreType.gold:
         return '🏅';
+      case OreType.netherite:
+        return '🔥';
     }
+  }
+
+  String _getSearchDescription() {
+    List<String> oreNames = [];
+    if (_selectedOreTypes.contains(OreType.diamond)) oreNames.add('diamonds');
+    if (_selectedOreTypes.contains(OreType.gold)) oreNames.add('gold');
+    if (_selectedOreTypes.contains(OreType.netherite)) oreNames.add('netherite');
+    
+    if (oreNames.isEmpty) return 'No ores selected';
+    if (oreNames.length == 1) return 'Searching for ${oreNames[0]} only';
+    if (oreNames.length == 2) return 'Searching for ${oreNames[0]} and ${oreNames[1]}';
+    return 'Searching for ${oreNames.sublist(0, oreNames.length - 1).join(', ')}, and ${oreNames.last}';
   }
 
   void _copyCoordinates(OreLocation location) {

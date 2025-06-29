@@ -26,10 +26,32 @@ flutter pub get
 # Run on connected device or emulator
 flutter run
 
+# Run on specific platform
+flutter run -d chrome          # Web browser
+flutter run -d android         # Android device/emulator
+flutter run -d ios             # iOS device/simulator
+
 # Build for release
-flutter build apk  # Android
-flutter build ios  # iOS
+flutter build apk              # Android APK
+flutter build appbundle        # Android App Bundle (for Play Store)
+flutter build ios             # iOS (requires Xcode)
+flutter build web             # Web deployment
 ```
+
+### Platform Requirements
+
+**Android:**
+- Android Studio with Android SDK
+- Android device or emulator
+- Minimum SDK: API 21 (Android 5.0)
+
+**iOS:**
+- macOS with Xcode installed
+- iOS device or iOS Simulator
+- Apple Developer account (for device deployment)
+
+**Web:**
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ### App Usage
 1. **Enter World Seed**: Your Minecraft world seed

@@ -52,6 +52,8 @@ class OreFinder {
           default:
             return false;
         }
+      case OreType.netherite:
+        return biome == 'nether' && y >= 8 && y <= 22; // Ancient debris spawns in nether Y 8-22
     }
   }
 
@@ -59,12 +61,17 @@ class OreFinder {
   double _calculateOreProbability(int x, int y, int z, OreType oreType, int worldSeed, {bool includeNether = false}) {
     String biome = _getBiomeType(x, z, worldSeed);
     
-    // Handle nether inclusion
-    if (includeNether && oreType == OreType.gold) {
-      // Randomly assign some areas as nether for demonstration
-      double netherRandom = _getChunkRandom((x / 128).floor(), (z / 128).floor(), 1, worldSeed) / 0xFFFFFFFF;
-      if (netherRandom > 0.8) {
+    // Handle nether inclusion or netherite search
+    if ((includeNether && oreType == OreType.gold) || oreType == OreType.netherite) {
+      // For netherite, always treat as nether biome
+      if (oreType == OreType.netherite) {
         biome = 'nether';
+      } else {
+        // For gold with nether inclusion, randomly assign some areas as nether
+        double netherRandom = _getChunkRandom((x / 128).floor(), (z / 128).floor(), 1, worldSeed) / 0xFFFFFFFF;
+        if (netherRandom > 0.8) {
+          biome = 'nether';
+        }
       }
     }
     
@@ -118,6 +125,19 @@ class OreFinder {
             break;
         }
         break;
+        
+      case OreType.netherite:
+        // Ancient debris (netherite) spawns in nether Y 8-22, most common at Y 15
+        if (y >= 13 && y <= 17) {
+          probability += 0.9; // Peak ancient debris layer
+        } else if (y >= 10 && y <= 19) {
+          probability += 0.7; // Good ancient debris layers
+        } else if (y >= 8 && y <= 22) {
+          probability += 0.5; // Decent ancient debris layers
+        }
+        // Make netherite more findable for testing
+        probability *= 0.8; // Increased multiplier
+        break;
     }
 
     // Add randomness based on chunk and coordinates
@@ -142,6 +162,11 @@ class OreFinder {
     bool includeNether = false,
     double minProbability = 0.5,
   }) async {
+    // Lower minimum probability for netherite since it's much rarer
+    if (oreType == OreType.netherite) {
+      minProbability = 0.15; // Even lower threshold
+      print('Searching for netherite with minProbability: $minProbability');
+    }
     int worldSeed = int.tryParse(seed) ?? _stringToSeed(seed);
     List<OreLocation> locations = [];
     int step = 8; // Check every 8 blocks for performance
@@ -174,10 +199,20 @@ class OreFinder {
               yMax = 117;
             }
             break;
+          case OreType.netherite:
+            yMin = 8;
+            yMax = 22;
+            yStep = 1; // Very small steps for rare netherite to ensure we don't miss spots
+            break;
         }
         
         for (int y = yMin; y <= yMax; y += yStep) {
           double probability = _calculateOreProbability(x, y, z, oreType, worldSeed, includeNether: includeNether);
+          
+          // Debug logging for netherite
+          if (oreType == OreType.netherite && probability > 0) {
+            print('Netherite found at ($x, $y, $z) with probability: $probability');
+          }
           
           if (probability >= minProbability) {
             locations.add(OreLocation(
@@ -203,6 +238,108 @@ class OreFinder {
     // Sort by probability (highest first)
     locations.sort((a, b) => b.probability.compareTo(a.probability));
     
+    // Debug logging
+    if (oreType == OreType.netherite) {
+      print('Netherite search complete. Found ${locations.length} locations');
+      if (locations.isNotEmpty) {
+        print('Top netherite location: (${locations.first.x}, ${locations.first.y}, ${locations.first.z}) - ${locations.first.probability}');
+      }
+    }
+    
     return locations;
+  }
+
+  /// Comprehensive search for all netherite (Ancient Debris) in a world seed
+  Future<List<OreLocation>> findAllNetherite({
+    required String seed,
+    required int centerX,
+    required int centerZ,
+    int searchRadius = 2000,
+  }) async {
+    int worldSeed = int.tryParse(seed) ?? _stringToSeed(seed);
+    List<OreLocation> locations = [];
+    
+    // Use smaller step size for comprehensive search
+    int step = 16; // Search every chunk (16 blocks)
+    int totalChunks = ((searchRadius * 2) / step).ceil();
+    int processedChunks = 0;
+    
+    print('Starting comprehensive netherite search...');
+    print('Searching ${totalChunks * totalChunks} chunks in a ${searchRadius * 2}x${searchRadius * 2} area');
+    
+    for (int x = centerX - searchRadius; x <= centerX + searchRadius; x += step) {
+      for (int z = centerZ - searchRadius; z <= centerZ + searchRadius; z += step) {
+        // Ancient debris spawns in nether, Y 8-22
+        for (int y = 8; y <= 22; y++) {
+          double probability = _calculateOreProbability(x, y, z, OreType.netherite, worldSeed);
+          
+          // Use very low threshold for comprehensive search to find more locations
+          if (probability >= 0.05) {
+            locations.add(OreLocation(
+              x: x,
+              y: y,
+              z: z,
+              chunkX: (x / 16).floor(),
+              chunkZ: (z / 16).floor(),
+              probability: (probability * 100).round() / 100,
+              oreType: OreType.netherite,
+              biome: 'nether',
+            ));
+          }
+        }
+        
+        processedChunks++;
+        
+        // Add progress updates and prevent UI blocking
+        if (processedChunks % 100 == 0) {
+          double progress = (processedChunks / (totalChunks * totalChunks)) * 100;
+          print('Progress: ${progress.toStringAsFixed(1)}% - Found ${locations.length} netherite locations');
+          await Future.delayed(const Duration(milliseconds: 1));
+        }
+      }
+    }
+
+    // Sort by probability (highest first)
+    locations.sort((a, b) => b.probability.compareTo(a.probability));
+    
+    print('Comprehensive search complete! Found ${locations.length} netherite locations');
+    
+    // Return more results for comprehensive search
+    return locations.take(300).toList();
+  }
+
+  /// Get netherite statistics for a seed
+  Future<Map<String, dynamic>> getNetheriteStats({
+    required String seed,
+    int sampleRadius = 1000,
+  }) async {
+    int worldSeed = int.tryParse(seed) ?? _stringToSeed(seed);
+    int totalLocations = 0;
+    double avgProbability = 0.0;
+    List<double> probabilities = [];
+    
+    // Sample a smaller area for statistics
+    for (int x = -sampleRadius; x <= sampleRadius; x += 32) {
+      for (int z = -sampleRadius; z <= sampleRadius; z += 32) {
+        for (int y = 8; y <= 22; y += 2) {
+          double probability = _calculateOreProbability(x, y, z, OreType.netherite, worldSeed);
+          if (probability >= 0.1) {
+            totalLocations++;
+            probabilities.add(probability);
+          }
+        }
+      }
+    }
+    
+    if (probabilities.isNotEmpty) {
+      avgProbability = probabilities.reduce((a, b) => a + b) / probabilities.length;
+    }
+    
+    return {
+      'totalLocations': totalLocations,
+      'averageProbability': avgProbability,
+      'maxProbability': probabilities.isNotEmpty ? probabilities.reduce((a, b) => a > b ? a : b) : 0.0,
+      'searchArea': '${sampleRadius * 2}x${sampleRadius * 2} blocks',
+    };
   }
 }

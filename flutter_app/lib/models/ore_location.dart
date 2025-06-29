@@ -1,4 +1,4 @@
-enum OreType { diamond, gold }
+enum OreType { diamond, gold, netherite }
 
 class OreLocation {
   final int x;
@@ -29,7 +29,11 @@ class OreLocation {
       chunkX: json['chunkX'] as int,
       chunkZ: json['chunkZ'] as int,
       probability: (json['probability'] as num).toDouble(),
-      oreType: json['oreType'] == 'diamond' ? OreType.diamond : OreType.gold,
+      oreType: json['oreType'] == 'diamond' 
+          ? OreType.diamond 
+          : json['oreType'] == 'gold' 
+              ? OreType.gold 
+              : OreType.netherite,
       biome: json['biome'] as String?,
     );
   }
@@ -42,7 +46,11 @@ class OreLocation {
       'chunkX': chunkX,
       'chunkZ': chunkZ,
       'probability': probability,
-      'oreType': oreType == OreType.diamond ? 'diamond' : 'gold',
+      'oreType': oreType == OreType.diamond 
+          ? 'diamond' 
+          : oreType == OreType.gold 
+              ? 'gold' 
+              : 'netherite',
       'biome': biome,
     };
   }
