@@ -1,6 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cloud.lockhead.minecraft_finder">
     <application
-        android:label="Minecraft Ore Finder"
+        android:label="Minecraft Ore and Structure Finder"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

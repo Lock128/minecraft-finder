@@ -1,4 +1,4 @@
-name: minecraft_ore_finder
+name: minecraft_finder
 description: Advanced Minecraft Ore & Structure Finder - Discover diamonds, gold, netherite, villages, strongholds and more using world seed analysis. Features biome filtering, coordinate search, and probability-based results for optimal mining efficiency.
 publish_to: 'none'
 version: 1.0.0+1

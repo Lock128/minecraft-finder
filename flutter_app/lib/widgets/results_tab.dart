@@ -26,7 +26,7 @@ class ResultsTab extends StatefulWidget {
 }
 
 class _ResultsTabState extends State<ResultsTab> {
-  Set<OreType> _visibleOreTypes = {
+  final Set<OreType> _visibleOreTypes = {
     OreType.diamond,
     OreType.gold,
     OreType.netherite
