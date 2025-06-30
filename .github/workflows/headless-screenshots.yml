@@ -1,0 +1,280 @@
+name: Headless Screenshot Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message for screenshots'
+        required: false
+        default: 'Generate headless screenshots'
+
+jobs:
+  generate-headless-screenshots:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.3'
+        channel: 'stable'
+        cache: true
+
+    - name: Get Flutter dependencies
+      run: |
+        cd flutter_app
+        flutter pub get
+
+    - name: Add test dependencies
+      run: |
+        cd flutter_app
+        if ! grep -q "integration_test:" pubspec.yaml; then
+          echo "Adding integration_test dependency..."
+          sed -i '/dev_dependencies:/a\  integration_test:\n    sdk: flutter' pubspec.yaml
+          flutter pub get
+        fi
+
+    - name: Create headless screenshot test
+      run: |
+        mkdir -p flutter_app/test
+        
+        # Create a widget test that generates screenshots
+        cat > flutter_app/test/screenshot_test.dart << 'EOF'
+        import 'dart:io';
+        import 'dart:typed_data';
+        import 'dart:ui' as ui;
+        import 'package:flutter/material.dart';
+        import 'package:flutter/rendering.dart';
+        import 'package:flutter_test/flutter_test.dart';
+        import 'package:minecraft_ore_finder/main.dart';
+        
+        void main() {
+          group('Headless Screenshot Tests', () {
+            testWidgets('Generate app screenshots without emulator', (WidgetTester tester) async {
+              // Configure test environment
+              tester.binding.window.physicalSizeTestValue = Size(1080, 1920);
+              tester.binding.window.devicePixelRatioTestValue = 2.0;
+              
+              print('🚀 Starting headless screenshot generation...');
+              
+              // Device configurations
+              final configs = [
+                {'name': 'android_phone_1080x1920', 'width': 1080.0, 'height': 1920.0, 'dpr': 2.0},
+                {'name': 'android_phone_1440x2560', 'width': 1440.0, 'height': 2560.0, 'dpr': 3.0},
+                {'name': 'android_phone_1080x2340', 'width': 1080.0, 'height': 2340.0, 'dpr': 2.5},
+              ];
+              
+              for (final config in configs) {
+                await generateScreenshotsForDevice(tester, config);
+              }
+              
+              print('✅ Headless screenshot generation completed!');
+            });
+          });
+        }
+        
+        Future<void> generateScreenshotsForDevice(
+          WidgetTester tester,
+          Map<String, dynamic> config,
+        ) async {
+          final deviceName = config['name'] as String;
+          final width = config['width'] as double;
+          final height = config['height'] as double;
+          final dpr = config['dpr'] as double;
+          
+          print('📱 Generating screenshots for $deviceName (${width}x$height)');
+          
+          // Set device size
+          tester.binding.window.physicalSizeTestValue = Size(width, height);
+          tester.binding.window.devicePixelRatioTestValue = dpr;
+          
+          // Create output directory
+          final outputDir = Directory('../screenshots/android/phone/$deviceName');
+          await outputDir.create(recursive: true);
+          
+          // Build and render the app
+          await tester.pumpWidget(MyApp());
+          await tester.pumpAndSettle(Duration(seconds: 2));
+          
+          // Take screenshot 1: Main screen
+          await takeScreenshot(tester, '${outputDir.path}/01_main_screen.png', 'Main Screen');
+          
+          // Try to interact with the app for more screenshots
+          await interactAndScreenshot(tester, outputDir.path, deviceName);
+          
+          print('✅ Completed screenshots for $deviceName');
+        }
+        
+        Future<void> interactAndScreenshot(WidgetTester tester, String outputPath, String deviceName) async {
+          try {
+            // Screenshot 2: Try to find and tap buttons
+            final buttons = find.byType(ElevatedButton);
+            if (buttons.evaluate().isNotEmpty) {
+              await tester.tap(buttons.first);
+              await tester.pumpAndSettle();
+              await takeScreenshot(tester, '$outputPath/02_button_interaction.png', 'Button Interaction');
+            } else {
+              await takeScreenshot(tester, '$outputPath/02_no_buttons.png', 'No Buttons Found');
+            }
+            
+            // Screenshot 3: Try to find text fields
+            final textFields = find.byType(TextField);
+            if (textFields.evaluate().isNotEmpty) {
+              await tester.enterText(textFields.first, 'Diamond Ore');
+              await tester.pumpAndSettle();
+              await takeScreenshot(tester, '$outputPath/03_text_input.png', 'Text Input');
+            } else {
+              await takeScreenshot(tester, '$outputPath/03_no_text_fields.png', 'No Text Fields');
+            }
+            
+            // Screenshot 4: Try to find floating action button
+            final fabs = find.byType(FloatingActionButton);
+            if (fabs.evaluate().isNotEmpty) {
+              await tester.tap(fabs.first);
+              await tester.pumpAndSettle();
+              await takeScreenshot(tester, '$outputPath/04_fab_interaction.png', 'FAB Interaction');
+            } else {
+              await takeScreenshot(tester, '$outputPath/04_no_fab.png', 'No FAB Found');
+            }
+            
+            // Screenshot 5: Final state
+            await takeScreenshot(tester, '$outputPath/05_final_state.png', 'Final State');
+            
+          } catch (e) {
+            print('⚠️ Error during interaction: $e');
+            await takeScreenshot(tester, '$outputPath/error_state.png', 'Error State');
+          }
+        }
+        
+        Future<void> takeScreenshot(WidgetTester tester, String path, String description) async {
+          try {
+            print('📸 Taking screenshot: $description');
+            
+            // Find the root widget
+            final RenderRepaintBoundary repaintBoundary = tester.binding.renderView.debugLayer!.find<RenderRepaintBoundary>((layer) => true)!.owner as RenderRepaintBoundary;
+            
+            // Capture the image
+            final ui.Image image = await repaintBoundary.toImage(pixelRatio: tester.binding.window.devicePixelRatio);
+            final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+            
+            if (byteData != null) {
+              final Uint8List pngBytes = byteData.buffer.asUint8List();
+              final File file = File(path);
+              await file.writeAsBytes(pngBytes);
+              print('✅ Screenshot saved: $path');
+            } else {
+              print('❌ Failed to convert image to bytes for $path');
+            }
+          } catch (e) {
+            print('❌ Failed to take screenshot $path: $e');
+            
+            // Create a placeholder file
+            final File file = File(path);
+            await file.parent.create(recursive: true);
+            await file.writeAsString('Screenshot failed: $e\nDescription: $description\nTimestamp: ${DateTime.now()}');
+          }
+        }
+        EOF
+
+    - name: Run headless screenshot generation
+      run: |
+        cd flutter_app
+        echo "🧪 Running headless screenshot tests..."
+        
+        # Enable headless mode
+        export FLUTTER_TEST=true
+        export HEADLESS=true
+        
+        # Run the test
+        flutter test test/screenshot_test.dart --verbose || echo "Test completed with warnings"
+        
+        echo "📸 Checking generated screenshots..."
+        if [ -d "../screenshots" ]; then
+          find ../screenshots -name "*.png" -type f | head -20
+          echo "Total PNG files: $(find ../screenshots -name "*.png" -type f | wc -l)"
+          echo "Total files: $(find ../screenshots -type f | wc -l)"
+        else
+          echo "❌ No screenshots directory found"
+        fi
+
+    - name: Verify screenshot files
+      run: |
+        if [ -d "screenshots" ]; then
+          echo "📊 Screenshot file sizes:"
+          find screenshots -name "*.png" -type f -exec ls -lh {} \; | head -10
+          
+          echo ""
+          echo "📁 Directory structure:"
+          find screenshots -type d | sort
+          
+          echo ""
+          echo "📄 All files:"
+          find screenshots -type f | sort
+        else
+          echo "No screenshots directory to verify"
+        fi
+
+    - name: Create detailed report
+      run: |
+        echo "# Headless Screenshot Generation Report" > screenshot_report.md
+        echo "" >> screenshot_report.md
+        echo "**Generated on:** $(date)" >> screenshot_report.md
+        echo "**Method:** Headless Flutter Widget Testing" >> screenshot_report.md
+        echo "**Workflow:** Headless Screenshot Generation" >> screenshot_report.md
+        echo "" >> screenshot_report.md
+        
+        if [ -d "screenshots" ]; then
+          echo "## ✅ Generated Screenshots:" >> screenshot_report.md
+          echo "" >> screenshot_report.md
+          find screenshots -name "*.png" -type f | while read file; do
+            size=$(ls -lh "$file" | awk '{print $5}')
+            echo "- \`$file\` ($size)" >> screenshot_report.md
+          done
+          
+          echo "" >> screenshot_report.md
+          echo "**Total PNG screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
+          echo "**Total files:** $(find screenshots -type f | wc -l)" >> screenshot_report.md
+          
+          # Check for any error files
+          error_files=$(find screenshots -name "*.png" -type f -exec grep -l "Screenshot failed" {} \; 2>/dev/null || true)
+          if [ -n "$error_files" ]; then
+            echo "" >> screenshot_report.md
+            echo "## ⚠️ Files with Errors:" >> screenshot_report.md
+            echo "$error_files" | while read file; do
+              echo "- \`$file\`" >> screenshot_report.md
+            done
+          fi
+        else
+          echo "## ❌ No Screenshots Generated" >> screenshot_report.md
+          echo "" >> screenshot_report.md
+          echo "The headless screenshot generation failed to create any files." >> screenshot_report.md
+        fi
+
+    - name: Commit screenshots
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add screenshots/ || echo "No screenshots to add"
+        git add screenshot_report.md || echo "No report to add"
+        
+        if ! git diff --staged --quiet; then
+          git commit -m "${{ github.event.inputs.commit_message }}"
+          git push origin ${{ github.ref_name }}
+          echo "✅ Screenshots committed successfully!"
+        else
+          echo "No changes to commit"
+        fi
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: headless-screenshots
+        path: |
+          screenshots/
+          screenshot_report.md
+        retention-days: 7
