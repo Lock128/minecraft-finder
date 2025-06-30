@@ -19,10 +19,16 @@ on:
 jobs:
   generate-android-screenshots:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
@@ -459,9 +465,9 @@ jobs:
 
     - name: Commit and push screenshots
       run: |
-        # Configure git
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        # Configure git with proper bot identity
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
         
         # Add screenshots to git
         git add screenshots/ || echo "No screenshots directory to add"
@@ -475,8 +481,8 @@ jobs:
           COMMIT_MSG="${{ github.event.inputs.commit_message || 'Update Android screenshots [automated]' }}"
           git commit -m "$COMMIT_MSG"
           
-          # Push changes
-          git push origin ${{ github.ref_name }}
+          # Push changes with explicit token
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
           
           echo "✅ Screenshots committed and pushed successfully!"
         fi
