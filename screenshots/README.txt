@@ -1,0 +1,1 @@
+No screenshots were generated
