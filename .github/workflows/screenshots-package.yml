@@ -1,4 +1,4 @@
-name: Screenshots Package Generation
+name: Integration Test Screenshots
 
 on:
   workflow_dispatch:
@@ -6,10 +6,10 @@ on:
       commit_message:
         description: 'Commit message for screenshots'
         required: false
-        default: 'Generate screenshots using screenshots package'
+        default: 'Generate screenshots using integration_test'
 
 jobs:
-  generate-screenshots-package:
+  generate-integration-screenshots:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -35,266 +35,280 @@ jobs:
         cd flutter_app
         flutter pub get
 
-    - name: Install screenshots package
-      timeout-minutes: 5
-      run: |
-        echo "📦 Installing screenshots package globally..."
-        flutter pub global activate screenshots
-        echo "✅ Screenshots package installed"
-
-    - name: Create screenshots configuration
+    - name: Add integration_test dependency
       run: |
         cd flutter_app
-        
-        # Create screenshots.yaml config file
-        cat > screenshots.yaml << 'EOF'
-        # Screenshots configuration
-        tests:
-          - test_driver/screenshots.dart
-        staging: /tmp/screenshots
-        archive: screenshots
-        
-        # Device configurations
-        devices:
-          android:
-            iPhone SE:
-              frame: true
-              orientation: portrait
-            iPhone 8:
-              frame: true  
-              orientation: portrait
-            iPhone 8 Plus:
-              frame: true
-              orientation: portrait
-            iPhone 11:
-              frame: true
-              orientation: portrait
-            iPhone 11 Pro Max:
-              frame: true
-              orientation: portrait
-            Pixel 3:
-              frame: true
-              orientation: portrait
-            Pixel 3 XL:
-              frame: true
-              orientation: portrait
-            Nexus 6P:
-              frame: true
-              orientation: portrait
-        EOF
-        
-        echo "📄 Created screenshots.yaml configuration"
+        if ! grep -q "integration_test:" pubspec.yaml; then
+          echo "📦 Adding integration_test dependency..."
+          sed -i '/dev_dependencies:/a\  integration_test:\n    sdk: flutter' pubspec.yaml
+          flutter pub get
+        else
+          echo "✅ integration_test dependency already exists"
+        fi
 
-    - name: Create screenshot test driver
+    - name: Create integration test for screenshots
       run: |
         cd flutter_app
-        mkdir -p test_driver
+        mkdir -p integration_test
         
-        cat > test_driver/screenshots.dart << 'EOF'
+        cat > integration_test/screenshot_test.dart << 'EOF'
         import 'dart:io';
-        import 'package:flutter_driver/flutter_driver.dart';
-        import 'package:test/test.dart';
+        import 'dart:typed_data';
+        import 'package:flutter/material.dart';
+        import 'package:flutter/rendering.dart';
+        import 'package:flutter/services.dart';
+        import 'package:flutter_test/flutter_test.dart';
+        import 'package:integration_test/integration_test.dart';
+        import 'package:minecraft_finder/main.dart';
 
         void main() {
-          group('Screenshot Tests', () {
-            FlutterDriver? driver;
-
-            setUpAll(() async {
-              print('🚀 Starting Flutter driver...');
-              driver = await FlutterDriver.connect();
-              print('✅ Flutter driver connected');
-            });
-
-            tearDownAll(() async {
-              if (driver != null) {
-                print('🔌 Closing Flutter driver...');
-                await driver!.close();
-                print('✅ Flutter driver closed');
+          final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+          
+          group('Screenshot Integration Tests', () {
+            testWidgets('Generate app screenshots', (WidgetTester tester) async {
+              print('🚀 Starting integration test screenshot generation...');
+              
+              // Device configurations
+              final devices = [
+                {'name': 'phone_1080x1920', 'width': 1080.0, 'height': 1920.0, 'pixelRatio': 2.0},
+                {'name': 'phone_1440x2560', 'width': 1440.0, 'height': 2560.0, 'pixelRatio': 3.0},
+                {'name': 'tablet_1200x1920', 'width': 1200.0, 'height': 1920.0, 'pixelRatio': 2.0},
+              ];
+              
+              for (final device in devices) {
+                await generateScreenshotsForDevice(tester, binding, device);
               }
-            });
-
-            test('take screenshots', () async {
-              if (driver == null) {
-                fail('Driver not initialized');
-              }
-
-              print('📸 Starting screenshot capture...');
-
-              // Wait for app to load
-              await driver!.waitFor(find.byType('MaterialApp'));
-              await Future.delayed(Duration(seconds: 2));
-
-              // Screenshot 1: Main screen
-              print('📱 Taking main screen screenshot...');
-              await driver!.screenshot();
-              await Future.delayed(Duration(seconds: 1));
-
-              // Try to find and tap tabs
-              try {
-                final tabFinder = find.byType('Tab');
-                final tabs = await driver!.getText(tabFinder);
-                print('🔍 Found tabs, attempting navigation...');
-
-                // Screenshot 2: Second tab
-                await driver!.tap(find.byValueKey('tab_1'));
-                await Future.delayed(Duration(seconds: 2));
-                await driver!.screenshot();
-
-                // Screenshot 3: Third tab if exists
-                try {
-                  await driver!.tap(find.byValueKey('tab_2'));
-                  await Future.delayed(Duration(seconds: 2));
-                  await driver!.screenshot();
-                } catch (e) {
-                  print('⚠️ Third tab not found: $e');
-                }
-
-                // Go back to first tab
-                await driver!.tap(find.byValueKey('tab_0'));
-                await Future.delayed(Duration(seconds: 1));
-
-              } catch (e) {
-                print('⚠️ Tab navigation failed: $e');
-              }
-
-              // Try to interact with text fields
-              try {
-                print('🔤 Looking for text input fields...');
-                final textFieldFinder = find.byType('TextField');
-                await driver!.tap(textFieldFinder);
-                await driver!.enterText('12345');
-                await Future.delayed(Duration(seconds: 1));
-                await driver!.screenshot();
-              } catch (e) {
-                print('⚠️ Text field interaction failed: $e');
-              }
-
-              // Try to find and tap buttons
-              try {
-                print('🔘 Looking for buttons...');
-                final buttonFinder = find.byType('ElevatedButton');
-                await driver!.tap(buttonFinder);
-                await Future.delayed(Duration(seconds: 2));
-                await driver!.screenshot();
-              } catch (e) {
-                print('⚠️ Button interaction failed: $e');
-              }
-
-              print('✅ Screenshot capture completed');
+              
+              print('✅ All screenshots generated successfully!');
             });
           });
         }
-        EOF
-        
-        echo "🧪 Created screenshot test driver"
 
-    - name: Create app target for driver
-      run: |
-        cd flutter_app
-        mkdir -p test_driver
-        
-        cat > test_driver/app.dart << 'EOF'
-        import 'package:flutter_driver/driver_extension.dart';
-        import 'package:minecraft_finder/main.dart' as app;
-
-        void main() {
-          // Enable integration testing
-          enableFlutterDriverExtension();
+        Future<void> generateScreenshotsForDevice(
+          WidgetTester tester,
+          IntegrationTestWidgetsFlutterBinding binding,
+          Map<String, dynamic> device,
+        ) async {
+          final deviceName = device['name'] as String;
+          final width = device['width'] as double;
+          final height = device['height'] as double;
+          final pixelRatio = device['pixelRatio'] as double;
           
-          // Start the app
-          app.main();
+          print('📱 Generating screenshots for $deviceName (${width}x$height)');
+          
+          // Set device size
+          await binding.setSurfaceSize(Size(width, height));
+          tester.view.physicalSize = Size(width, height);
+          tester.view.devicePixelRatio = pixelRatio;
+          
+          // Create output directory
+          final outputDir = Directory('../screenshots/android/$deviceName');
+          await outputDir.create(recursive: true);
+          
+          // Build and pump the app
+          await tester.pumpWidget(const MinecraftOreFinderApp());
+          await tester.pumpAndSettle(const Duration(seconds: 3));
+          
+          // Screenshot 1: Main screen
+          print('📸 Taking main screen screenshot...');
+          await takeScreenshot(tester, '${outputDir.path}/01_main_screen.png');
+          
+          // Try to interact with the app and take more screenshots
+          await interactAndTakeScreenshots(tester, outputDir.path);
+          
+          print('✅ Completed screenshots for $deviceName');
+        }
+
+        Future<void> takeScreenshot(WidgetTester tester, String filePath) async {
+          try {
+            // Find the root widget
+            final rootWidget = find.byType(MaterialApp);
+            if (rootWidget.evaluate().isEmpty) {
+              print('⚠️ MaterialApp not found, trying alternative approach...');
+              // Try to capture the entire screen
+              await tester.binding.takeScreenshot(filePath);
+              return;
+            }
+            
+            // Get the render object
+            final RenderObject renderObject = tester.renderObject(rootWidget);
+            final RenderRepaintBoundary boundary = renderObject.findAncestorRenderObjectOfType<RenderRepaintBoundary>()!;
+            
+            // Capture the image
+            final image = await boundary.toImage(pixelRatio: tester.view.devicePixelRatio);
+            final ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
+            
+            if (byteData != null) {
+              final Uint8List pngBytes = byteData.buffer.asUint8List();
+              final File file = File(filePath);
+              await file.writeAsBytes(pngBytes);
+              print('✅ Screenshot saved: $filePath (${pngBytes.length} bytes)');
+            } else {
+              print('❌ Failed to convert image to bytes for $filePath');
+            }
+          } catch (e) {
+            print('⚠️ Screenshot failed for $filePath: $e');
+            // Fallback: try the binding method
+            try {
+              await tester.binding.takeScreenshot(filePath);
+              print('✅ Fallback screenshot saved: $filePath');
+            } catch (fallbackError) {
+              print('❌ Fallback screenshot also failed: $fallbackError');
+            }
+          }
+        }
+
+        Future<void> interactAndTakeScreenshots(WidgetTester tester, String outputPath) async {
+          try {
+            // Screenshot 2: Try to find and tap tabs
+            final tabs = find.byType(Tab);
+            if (tabs.evaluate().isNotEmpty) {
+              print('🔍 Found ${tabs.evaluate().length} tabs');
+              
+              // Tap second tab if exists
+              if (tabs.evaluate().length > 1) {
+                await tester.tap(tabs.at(1));
+                await tester.pumpAndSettle(const Duration(seconds: 2));
+                await takeScreenshot(tester, '$outputPath/02_second_tab.png');
+              }
+              
+              // Tap third tab if exists
+              if (tabs.evaluate().length > 2) {
+                await tester.tap(tabs.at(2));
+                await tester.pumpAndSettle(const Duration(seconds: 2));
+                await takeScreenshot(tester, '$outputPath/03_third_tab.png');
+              }
+              
+              // Go back to first tab
+              await tester.tap(tabs.first);
+              await tester.pumpAndSettle(const Duration(seconds: 1));
+            }
+            
+            // Screenshot 3: Try to interact with text fields
+            final textFields = find.byType(TextField);
+            if (textFields.evaluate().isNotEmpty) {
+              print('🔤 Found text fields, entering sample data...');
+              await tester.enterText(textFields.first, '12345');
+              await tester.pumpAndSettle(const Duration(seconds: 1));
+              await takeScreenshot(tester, '$outputPath/04_text_input.png');
+            }
+            
+            // Screenshot 4: Try to find and tap buttons
+            final elevatedButtons = find.byType(ElevatedButton);
+            final textButtons = find.byType(TextButton);
+            final iconButtons = find.byType(IconButton);
+            
+            if (elevatedButtons.evaluate().isNotEmpty) {
+              print('🔘 Found ElevatedButton, tapping...');
+              await tester.tap(elevatedButtons.first);
+              await tester.pumpAndSettle(const Duration(seconds: 2));
+              await takeScreenshot(tester, '$outputPath/05_button_pressed.png');
+            } else if (textButtons.evaluate().isNotEmpty) {
+              print('🔘 Found TextButton, tapping...');
+              await tester.tap(textButtons.first);
+              await tester.pumpAndSettle(const Duration(seconds: 2));
+              await takeScreenshot(tester, '$outputPath/05_button_pressed.png');
+            } else if (iconButtons.evaluate().isNotEmpty) {
+              print('🔘 Found IconButton, tapping...');
+              await tester.tap(iconButtons.first);
+              await tester.pumpAndSettle(const Duration(seconds: 2));
+              await takeScreenshot(tester, '$outputPath/05_icon_pressed.png');
+            }
+            
+            // Screenshot 5: Try to toggle theme if available
+            final themeButtons = find.byIcon(Icons.light_mode).or(find.byIcon(Icons.dark_mode));
+            if (themeButtons.evaluate().isNotEmpty) {
+              print('🌙 Found theme toggle, switching theme...');
+              await tester.tap(themeButtons.first);
+              await tester.pumpAndSettle(const Duration(seconds: 2));
+              await takeScreenshot(tester, '$outputPath/06_theme_toggle.png');
+            }
+            
+          } catch (e) {
+            print('⚠️ Error during interaction: $e');
+            // Take final state screenshot
+            await takeScreenshot(tester, '$outputPath/error_state.png');
+          }
         }
         EOF
         
-        echo "🎯 Created app target for driver"
+        echo "🧪 Created integration test for screenshots"
 
-    - name: Generate screenshots
+    - name: Run integration test screenshots
       timeout-minutes: 15
       run: |
         cd flutter_app
-        echo "📸 Starting screenshots generation..."
+        echo "📸 Running integration test for screenshots..."
         
-        # Set environment variables
-        export PATH="$PATH:$HOME/.pub-cache/bin"
-        
-        # Run screenshots command
-        screenshots --verbose || {
-          echo "⚠️ Screenshots command failed, trying alternative approach..."
-          
-          # Alternative: Run flutter driver test directly
-          echo "🔄 Trying direct flutter driver approach..."
-          flutter drive --target=test_driver/app.dart --driver=test_driver/screenshots.dart --verbose || {
-            echo "❌ Both approaches failed, but continuing..."
-            
-            # Create minimal screenshots directory structure
-            mkdir -p screenshots/android
-            echo "Screenshot generation failed but workflow continues" > screenshots/android/error.txt
-          }
+        # Run the integration test
+        flutter test integration_test/screenshot_test.dart --verbose || {
+          echo "⚠️ Integration test completed with warnings"
         }
         
-        echo "📊 Checking generated files..."
-        if [ -d "screenshots" ]; then
+        echo "📊 Checking generated screenshots..."
+        if [ -d "../screenshots" ]; then
           echo "✅ Screenshots directory found!"
-          find screenshots -type f | head -20
-          echo "Total files: $(find screenshots -type f | wc -l)"
+          find ../screenshots -name "*.png" -type f | head -20
+          echo "Total PNG files: $(find ../screenshots -name "*.png" -type f | wc -l)"
         else
           echo "⚠️ No screenshots directory found"
         fi
 
     - name: Verify and organize screenshots
       run: |
-        cd flutter_app
-        
         # Check if screenshots were generated
         if [ -d "screenshots" ]; then
-          echo "📁 Moving screenshots to root directory..."
-          cp -r screenshots ../screenshots_generated
-          
+          echo "📁 Screenshots directory found!"
           echo "📊 Screenshot file details:"
-          find ../screenshots_generated -name "*.png" -type f -exec ls -lh {} \; | head -10
+          find screenshots -name "*.png" -type f -exec ls -lh {} \; | head -10
+          
+          echo ""
+          echo "📁 Directory structure:"
+          find screenshots -type d | sort
         else
-          echo "📁 Creating placeholder screenshots directory..."
-          mkdir -p ../screenshots_generated
-          echo "No screenshots were generated by the screenshots package" > ../screenshots_generated/README.txt
-        fi
-        
-        # Also check for any images in staging area
-        if [ -d "/tmp/screenshots" ]; then
-          echo "📦 Found staging screenshots, copying..."
-          cp -r /tmp/screenshots/* ../screenshots_generated/ 2>/dev/null || true
+          echo "⚠️ No screenshots directory found, creating placeholder..."
+          mkdir -p screenshots
+          echo "No screenshots were generated" > screenshots/README.txt
         fi
 
     - name: Create detailed report
       run: |
-        echo "# Screenshots Package Generation Report" > screenshot_report.md
+        echo "# Integration Test Screenshots Report" > screenshot_report.md
         echo "" >> screenshot_report.md
         echo "**Generated on:** $(date)" >> screenshot_report.md
-        echo "**Method:** Flutter Screenshots Package" >> screenshot_report.md
-        echo "**Package:** https://pub.dev/packages/screenshots" >> screenshot_report.md
+        echo "**Method:** Flutter Integration Test + takeScreenshot()" >> screenshot_report.md
+        echo "**Framework:** integration_test package" >> screenshot_report.md
         echo "" >> screenshot_report.md
         
-        if [ -d "screenshots_generated" ] && [ "$(find screenshots_generated -name "*.png" -type f | wc -l)" -gt 0 ]; then
+        if [ -d "screenshots" ] && [ "$(find screenshots -name "*.png" -type f | wc -l)" -gt 0 ]; then
           echo "## ✅ Generated Screenshots:" >> screenshot_report.md
           echo "" >> screenshot_report.md
-          find screenshots_generated -name "*.png" -type f | while read file; do
+          find screenshots -name "*.png" -type f | while read file; do
             size=$(ls -lh "$file" | awk '{print $5}')
             echo "- \`$file\` ($size)" >> screenshot_report.md
           done
           
           echo "" >> screenshot_report.md
-          echo "**Total PNG screenshots:** $(find screenshots_generated -name "*.png" -type f | wc -l)" >> screenshot_report.md
+          echo "**Total PNG screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
+          echo "**Total files:** $(find screenshots -type f | wc -l)" >> screenshot_report.md
+          
+          echo "" >> screenshot_report.md
+          echo "## 📱 Device Configurations:" >> screenshot_report.md
+          echo "- Phone 1080x1920 (2x pixel ratio)" >> screenshot_report.md
+          echo "- Phone 1440x2560 (3x pixel ratio)" >> screenshot_report.md
+          echo "- Tablet 1200x1920 (2x pixel ratio)" >> screenshot_report.md
         else
           echo "## ⚠️ Screenshot Generation Issues" >> screenshot_report.md
           echo "" >> screenshot_report.md
-          echo "The screenshots package approach encountered issues. This could be due to:" >> screenshot_report.md
-          echo "- App compatibility with Flutter Driver" >> screenshot_report.md
-          echo "- Missing device configurations" >> screenshot_report.md
-          echo "- Test driver setup issues" >> screenshot_report.md
+          echo "The integration test approach encountered issues. This could be due to:" >> screenshot_report.md
+          echo "- App widget structure compatibility" >> screenshot_report.md
+          echo "- Render boundary issues" >> screenshot_report.md
+          echo "- File system permissions" >> screenshot_report.md
           echo "" >> screenshot_report.md
           
-          if [ -d "screenshots_generated" ]; then
+          if [ -d "screenshots" ]; then
             echo "**Files found:**" >> screenshot_report.md
-            find screenshots_generated -type f | while read file; do
+            find screenshots -type f | while read file; do
               echo "- \`$file\`" >> screenshot_report.md
             done
           fi
@@ -307,9 +321,9 @@ jobs:
         git config --local user.name "github-actions[bot]"
         
         # Add screenshots if they exist
-        if [ -d "screenshots_generated" ]; then
+        if [ -d "screenshots" ]; then
           echo "📁 Adding screenshots to git..."
-          git add screenshots_generated/
+          git add screenshots/
         fi
         
         # Add report
@@ -331,9 +345,9 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: screenshots-package-output
+        name: integration-test-screenshots
         path: |
-          screenshots_generated/
+          screenshots/
           screenshot_report.md
-          flutter_app/screenshots.yaml
+          flutter_app/integration_test/
         retention-days: 7

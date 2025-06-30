@@ -1,0 +1,40 @@
+name: Generate Play Store Screenshots
+
+on:
+  workflow_dispatch:
+
+jobs:
+  android-screenshots:
+    name: Run integration tests and capture screenshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Create Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: Pixel_4
+          script: cd fluter_app && flutter test flutter_app/integration_test/screenshot_test.dart
+
+      - name: Upload screenshots as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: play-store-screenshots
+          path: integration_test/screenshots/
