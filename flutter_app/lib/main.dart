@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'models/ore_finder.dart';
 import 'models/ore_location.dart';
+import 'models/structure_finder.dart';
+import 'models/structure_location.dart';
 
 void main() {
   runApp(const MinecraftOreFinderApp());
@@ -111,11 +113,17 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   bool _includeNether = false;
   bool _isLoading = false;
   List<OreLocation> _results = [];
+  List<StructureLocation> _structureResults = [];
   bool _findAllNetherite = false;
   bool _isDarkMode = false;
+  bool _includeStructures = false;
+  Set<StructureType> _selectedStructures = {};
+  bool _includeOres = true;
   
   // Filter states
   Set<OreType> _visibleOreTypes = {OreType.diamond, OreType.gold, OreType.netherite};
+  Set<StructureType> _visibleStructures = {};
+  bool _showStructures = true;
   final _minXController = TextEditingController();
   final _maxXController = TextEditingController();
   final _minYController = TextEditingController();
@@ -155,39 +163,57 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     setState(() {
       _isLoading = true;
       _results.clear();
+      _structureResults.clear();
       _findAllNetherite = comprehensiveNetherite;
     });
 
     try {
       final finder = OreFinder();
+      final structureFinder = StructureFinder();
       List<OreLocation> allResults = [];
 
-      if (comprehensiveNetherite) {
-        // Comprehensive netherite search - ONLY search for netherite
-        final results = await finder.findAllNetherite(
+      // Only search for ores if ore search is enabled
+      if (_includeOres) {
+        if (comprehensiveNetherite) {
+          // Comprehensive netherite search - ONLY search for netherite
+          final results = await finder.findAllNetherite(
+            seed: _seedController.text,
+            centerX: int.parse(_xController.text),
+            centerZ: int.parse(_zController.text),
+          );
+          allResults.addAll(results);
+        } else {
+          // Regular search for each selected ore type
+          for (OreType oreType in _selectedOreTypes) {
+            final results = await finder.findOres(
+              seed: _seedController.text,
+              centerX: int.parse(_xController.text),
+              centerY: int.parse(_yController.text),
+              centerZ: int.parse(_zController.text),
+              radius: int.parse(_radiusController.text),
+              oreType: oreType,
+              includeNether: _includeNether && oreType == OreType.gold,
+            );
+            allResults.addAll(results);
+          }
+        }
+      }
+
+      // Search for structures if enabled
+      if (_includeStructures && _selectedStructures.isNotEmpty) {
+        final structureResults = await structureFinder.findStructures(
           seed: _seedController.text,
           centerX: int.parse(_xController.text),
           centerZ: int.parse(_zController.text),
+          radius: int.parse(_radiusController.text),
+          structureTypes: _selectedStructures,
         );
-        allResults.addAll(results);
-      } else {
-        // Regular search for each selected ore type
-        for (OreType oreType in _selectedOreTypes) {
-          final results = await finder.findOres(
-            seed: _seedController.text,
-            centerX: int.parse(_xController.text),
-            centerY: int.parse(_yController.text),
-            centerZ: int.parse(_zController.text),
-            radius: int.parse(_radiusController.text),
-            oreType: oreType,
-            includeNether: _includeNether && oreType == OreType.gold,
-          );
-          allResults.addAll(results);
-        }
+        _structureResults.addAll(structureResults);
       }
 
       // Sort all results by probability
       allResults.sort((a, b) => b.probability.compareTo(a.probability));
+      _structureResults.sort((a, b) => b.probability.compareTo(a.probability));
 
       setState(() {
         // Show 150 locations by default, more for comprehensive netherite search
@@ -195,6 +221,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             ? 200  // Even more for comprehensive search
             : 150; // Default 150 locations
         _results = allResults.take(maxResults).toList();
+        _structureResults = _structureResults.take(50).toList(); // Limit structures
         _isLoading = false;
         
         // For comprehensive netherite search, ensure only netherite is visible in filters
@@ -284,7 +311,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           tabs: const [
             Tab(
               icon: Icon(Icons.search),
-              text: 'Find Ores',
+              text: 'Search',
             ),
             Tab(
               icon: Icon(Icons.inventory),
@@ -648,11 +675,62 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: SegmentedButton<OreType>(
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: _includeOres
+                          ? LinearGradient(
+                              colors: [const Color(0xFF4CAF50), const Color(0xFF2E7D32)],
+                            )
+                          : null,
+                        border: Border.all(
+                          color: _includeOres 
+                            ? const Color(0xFF4CAF50)
+                            : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _includeOres = !_includeOres;
+                          });
+                        },
+                        icon: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF9C27B0),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: const Center(
+                            child: Text('💎', style: TextStyle(fontSize: 10)),
+                          ),
+                        ),
+                        label: Text(
+                          'Include Ores in Search',
+                          style: TextStyle(
+                            color: _includeOres 
+                              ? Colors.white 
+                              : const Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.all(16),
+                          backgroundColor: Colors.transparent,
+                          side: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    if (_includeOres) ...[
+                      const SizedBox(height: 16),
+                      Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: SegmentedButton<OreType>(
                             segments: [
                               ButtonSegment<OreType>(
                                 value: OreType.diamond,
@@ -787,6 +865,122 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                 ),
               ),
             ),
+            ],
+            const SizedBox(height: 16),
+            Card(
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: widget.isDarkMode
+                      ? [
+                          const Color(0xFF2E2E2E),
+                          const Color(0xFF1E1E1E),
+                        ]
+                      : [
+                          Colors.white,
+                          const Color(0xFFF1F8E9),
+                        ],
+                  ),
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF8B4513),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: const Center(
+                            child: Text('🏰', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Structure Search',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: const Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: _includeStructures
+                          ? LinearGradient(
+                              colors: [const Color(0xFF4CAF50), const Color(0xFF2E7D32)],
+                            )
+                          : null,
+                        border: Border.all(
+                          color: _includeStructures 
+                            ? const Color(0xFF4CAF50)
+                            : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _includeStructures = !_includeStructures;
+                          });
+                        },
+                        icon: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF8B4513),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: const Center(
+                            child: Text('🏰', style: TextStyle(fontSize: 10)),
+                          ),
+                        ),
+                        label: Text(
+                          'Include Structures in Search',
+                          style: TextStyle(
+                            color: _includeStructures 
+                              ? Colors.white 
+                              : const Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.all(16),
+                          backgroundColor: Colors.transparent,
+                          side: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    if (_includeStructures) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'Select Structures to Find:',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: const Color(0xFF2E7D32),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStructureSelection(),
+                    ],
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
             // Main search buttons
             Row(
@@ -827,7 +1021,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                               ),
                             ),
                       label: Text(
-                        _isLoading && !_findAllNetherite ? 'Searching...' : 'Find Ores',
+                        _isLoading && !_findAllNetherite ? 'Searching...' : 'Find',
                         style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -981,7 +1175,54 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     }).toList();
   }
 
+  List<StructureLocation> get _filteredStructureResults {
+    return _structureResults.where((location) {
+      // Filter by structure type
+      // If _visibleStructures is empty, show all structures
+      // If _visibleStructures has items, only show those structures
+      if (_visibleStructures.isNotEmpty && !_visibleStructures.contains(location.structureType)) {
+        return false;
+      }
+      
+      // Filter by coordinates
+      if (_minXController.text.isNotEmpty) {
+        final minX = int.tryParse(_minXController.text);
+        if (minX != null && location.x < minX) return false;
+      }
+      
+      if (_maxXController.text.isNotEmpty) {
+        final maxX = int.tryParse(_maxXController.text);
+        if (maxX != null && location.x > maxX) return false;
+      }
+      
+      if (_minYController.text.isNotEmpty) {
+        final minY = int.tryParse(_minYController.text);
+        if (minY != null && location.y < minY) return false;
+      }
+      
+      if (_maxYController.text.isNotEmpty) {
+        final maxY = int.tryParse(_maxYController.text);
+        if (maxY != null && location.y > maxY) return false;
+      }
+      
+      if (_minZController.text.isNotEmpty) {
+        final minZ = int.tryParse(_minZController.text);
+        if (minZ != null && location.z < minZ) return false;
+      }
+      
+      if (_maxZController.text.isNotEmpty) {
+        final maxZ = int.tryParse(_maxZController.text);
+        if (maxZ != null && location.z > maxZ) return false;
+      }
+      
+      return true;
+    }).toList();
+  }
+
   Widget _buildResultsTab() {
+    final filteredResults = _filteredResults;
+    final filteredStructureResults = _filteredStructureResults;
+    
     if (_isLoading) {
       return Center(
         child: Column(
@@ -1027,8 +1268,6 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         ),
       );
     }
-
-    final filteredResults = _filteredResults;
 
     return Column(
       children: [
@@ -1081,7 +1320,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                     children: [
                       Expanded(
                         child: Text(
-                          'Results: ${filteredResults.length} of ${_results.length}',
+                          'Results: ${filteredResults.length + filteredStructureResults.length} (${filteredResults.length} ores, ${filteredStructureResults.length} structures)',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),
@@ -1098,52 +1337,140 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                   ),
                 ],
               ),
-              // Ore Type Filter (always visible)
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  FilterChip(
-                    label: const Text('💎 Diamonds'),
-                    selected: _visibleOreTypes.contains(OreType.diamond),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        if (selected) {
-                          _visibleOreTypes.add(OreType.diamond);
-                        } else {
-                          _visibleOreTypes.remove(OreType.diamond);
-                        }
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text('🏅 Gold'),
-                    selected: _visibleOreTypes.contains(OreType.gold),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        if (selected) {
-                          _visibleOreTypes.add(OreType.gold);
-                        } else {
-                          _visibleOreTypes.remove(OreType.gold);
-                        }
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text('🔥 Netherite'),
-                    selected: _visibleOreTypes.contains(OreType.netherite),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        if (selected) {
-                          _visibleOreTypes.add(OreType.netherite);
-                        } else {
-                          _visibleOreTypes.remove(OreType.netherite);
-                        }
-                      });
-                    },
-                  ),
-                ],
-              ),
+              // Ore Type Filter (only visible if ores were searched)
+              if (_results.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Ore Filters:',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    FilterChip(
+                      label: const Text('💎 Diamonds'),
+                      selected: _visibleOreTypes.contains(OreType.diamond),
+                      onSelected: (bool selected) {
+                        setState(() {
+                          if (selected) {
+                            _visibleOreTypes.add(OreType.diamond);
+                          } else {
+                            _visibleOreTypes.remove(OreType.diamond);
+                          }
+                        });
+                      },
+                    ),
+                    FilterChip(
+                      label: const Text('🏅 Gold'),
+                      selected: _visibleOreTypes.contains(OreType.gold),
+                      onSelected: (bool selected) {
+                        setState(() {
+                          if (selected) {
+                            _visibleOreTypes.add(OreType.gold);
+                          } else {
+                            _visibleOreTypes.remove(OreType.gold);
+                          }
+                        });
+                      },
+                    ),
+                    FilterChip(
+                      label: const Text('🔥 Netherite'),
+                      selected: _visibleOreTypes.contains(OreType.netherite),
+                      onSelected: (bool selected) {
+                        setState(() {
+                          if (selected) {
+                            _visibleOreTypes.add(OreType.netherite);
+                          } else {
+                            _visibleOreTypes.remove(OreType.netherite);
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+              // Structure Filters
+              if (_structureResults.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Structure Filters:',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _getUniqueStructureTypes().map((structureType) {
+                    return FilterChip(
+                      label: Text(
+                        '${_getStructureEmoji(structureType)} ${_getStructureName(structureType)}',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                      selected: _visibleStructures.isEmpty || _visibleStructures.contains(structureType),
+                      onSelected: (bool selected) {
+                        setState(() {
+                          if (selected) {
+                            // If no specific filters, show all except the deselected ones
+                            if (_visibleStructures.isEmpty) {
+                              _visibleStructures = _getUniqueStructureTypes().toSet();
+                            } else {
+                              _visibleStructures.add(structureType);
+                            }
+                          } else {
+                            // If no specific filters, create filter set excluding this one
+                            if (_visibleStructures.isEmpty) {
+                              _visibleStructures = _getUniqueStructureTypes().toSet();
+                            }
+                            _visibleStructures.remove(structureType);
+                          }
+                        });
+                      },
+                      selectedColor: Colors.brown.withOpacity(0.3),
+                      checkmarkColor: Colors.brown[700],
+                      backgroundColor: Colors.grey.withOpacity(0.1),
+                      side: BorderSide(
+                        color: _visibleStructures.isEmpty || _visibleStructures.contains(structureType)
+                          ? Colors.brown
+                          : Colors.grey,
+                        width: 1,
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _visibleStructures.clear(); // Show all structures
+                        });
+                      },
+                      icon: const Icon(Icons.visibility, size: 16),
+                      label: const Text('Show All'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.brown,
+                        textStyle: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _visibleStructures = _getUniqueStructureTypes().toSet(); // Hide all structures
+                        });
+                      },
+                      icon: const Icon(Icons.visibility_off, size: 16),
+                      label: const Text('Hide All'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.brown,
+                        textStyle: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               // Coordinate Filters (collapsible)
               if (_showFilters) ...[
                 const SizedBox(height: 16),
@@ -1154,7 +1481,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         ),
         // Results List
         Expanded(
-          child: filteredResults.isEmpty
+          child: (filteredResults.isEmpty && filteredStructureResults.isEmpty)
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1176,55 +1503,104 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: filteredResults.length,
+                  itemCount: filteredResults.length + filteredStructureResults.length,
                   itemBuilder: (context, index) {
-                    final location = filteredResults[index];
-                    final originalIndex = _results.indexOf(location) + 1;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: _getOreColor(location.oreType),
-                          child: Text(
-                            '$originalIndex',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        title: Row(
-                          children: [
-                            Text(
-                              _getOreEmoji(location.oreType),
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Coordinates: (${location.x}, ${location.y}, ${location.z})',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                    if (index < filteredResults.length) {
+                      // Ore result
+                      final location = filteredResults[index];
+                      final originalIndex = _results.indexOf(location) + 1;
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: _getOreColor(location.oreType),
+                            child: Text(
+                              '$originalIndex',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
                               ),
                             ),
-                          ],
+                          ),
+                          title: Row(
+                            children: [
+                              Text(
+                                _getOreEmoji(location.oreType),
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Coordinates: (${location.x}, ${location.y}, ${location.z})',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Chunk: (${location.chunkX}, ${location.chunkZ})'),
+                              Text('Probability: ${(location.probability * 100).toStringAsFixed(1)}%'),
+                              if (location.biome != null)
+                                Text('Biome: ${location.biome}'),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.copy),
+                            onPressed: () => _copyCoordinates(location),
+                            tooltip: 'Copy coordinates',
+                          ),
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Chunk: (${location.chunkX}, ${location.chunkZ})'),
-                            Text('Probability: ${(location.probability * 100).toStringAsFixed(1)}%'),
-                            if (location.biome != null)
-                              Text('Biome: ${location.biome}'),
-                          ],
+                      );
+                    } else {
+                      // Structure result
+                      final structureIndex = index - filteredResults.length;
+                      final structure = filteredStructureResults[structureIndex];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        color: Colors.brown.withOpacity(0.1),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.brown,
+                            child: Text(
+                              '🏰',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          title: Row(
+                            children: [
+                              Text(
+                                _getStructureEmoji(structure.structureType),
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '${_getStructureName(structure.structureType)}: (${structure.x}, ${structure.y}, ${structure.z})',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Chunk: (${structure.chunkX}, ${structure.chunkZ})'),
+                              Text('Probability: ${(structure.probability * 100).toStringAsFixed(1)}%'),
+                              if (structure.biome != null)
+                                Text('Biome: ${structure.biome}'),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.copy),
+                            onPressed: () => _copyStructureCoordinates(structure),
+                            tooltip: 'Copy coordinates',
+                          ),
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.copy),
-                          onPressed: () => _copyCoordinates(location),
-                          tooltip: 'Copy coordinates',
-                        ),
-                      ),
-                    );
+                      );
+                    }
                   },
                 ),
         ),
@@ -1405,15 +1781,28 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   }
 
   String _getSearchDescription() {
-    List<String> oreNames = [];
-    if (_selectedOreTypes.contains(OreType.diamond)) oreNames.add('diamonds');
-    if (_selectedOreTypes.contains(OreType.gold)) oreNames.add('gold');
-    if (_selectedOreTypes.contains(OreType.netherite)) oreNames.add('netherite');
+    List<String> searchItems = [];
     
-    if (oreNames.isEmpty) return 'No ores selected';
-    if (oreNames.length == 1) return 'Searching for ${oreNames[0]} only';
-    if (oreNames.length == 2) return 'Searching for ${oreNames[0]} and ${oreNames[1]}';
-    return 'Searching for ${oreNames.sublist(0, oreNames.length - 1).join(', ')}, and ${oreNames.last}';
+    // Add ore types if ore search is enabled
+    if (_includeOres) {
+      if (_selectedOreTypes.contains(OreType.diamond)) searchItems.add('diamonds');
+      if (_selectedOreTypes.contains(OreType.gold)) searchItems.add('gold');
+      if (_selectedOreTypes.contains(OreType.netherite)) searchItems.add('netherite');
+    }
+    
+    // Add structure info if structure search is enabled
+    if (_includeStructures) {
+      if (_selectedStructures.isEmpty) {
+        searchItems.add('all structures');
+      } else {
+        searchItems.add('${_selectedStructures.length} structure types');
+      }
+    }
+    
+    if (searchItems.isEmpty) return 'No search items selected';
+    if (searchItems.length == 1) return 'Searching for ${searchItems[0]} only';
+    if (searchItems.length == 2) return 'Searching for ${searchItems[0]} and ${searchItems[1]}';
+    return 'Searching for ${searchItems.sublist(0, searchItems.length - 1).join(', ')}, and ${searchItems.last}';
   }
 
   Widget _buildExplanationsTab() {
@@ -1603,6 +1992,51 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                 '• Comprehensive netherite search for complete coverage',
               ],
             ),
+            const SizedBox(height: 16),
+            _buildExplanationCard(
+              title: '🏰 Structure Generation',
+              icon: '🏰',
+              iconColor: Colors.brown,
+              content: [
+                'Structures are generated based on biome compatibility and rarity patterns.',
+                '',
+                '🏘️ Common Structures (High Spawn Rate):',
+                '• Villages: Plains, desert, savanna, taiga biomes',
+                '• Pillager Outposts: Same biomes as villages',
+                '• Ruined Portals: Can spawn in any dimension',
+                '• Shipwrecks: Ocean biomes and beaches',
+                '',
+                '🏛️ Rare Structures (Low Spawn Rate):',
+                '• Strongholds: Underground, only 128 per world',
+                '• End Cities: End dimension outer islands',
+                '• Ocean Monuments: Deep ocean biomes',
+                '• Ancient Cities: Deep dark biome (Y -52)',
+                '• Woodland Mansions: Dark forest biomes',
+                '',
+                '🔥 Nether Structures:',
+                '• Nether Fortresses: Nether wastes and soul sand valleys',
+                '• Bastion Remnants: All nether biomes except basalt deltas',
+                '',
+                '🎲 Generation Algorithm:',
+                '• Biome-specific spawning rules',
+                '• Chunk-based probability calculations',
+                '• Distance-based rarity adjustments',
+                '• Dimension-aware coordinate mapping',
+                '',
+                '📊 Structure Probability Factors:',
+                '1. Base rarity (varies by structure type)',
+                '2. Biome compatibility (must match requirements)',
+                '3. Chunk-based randomness using world seed',
+                '4. Coordinate-based variation patterns',
+                '5. Distance from world spawn (some structures)',
+                '',
+                '🔍 Search Optimization:',
+                '• Samples every 4 chunks (64 blocks) for efficiency',
+                '• Filters by biome compatibility first',
+                '• Uses structure-specific Y levels',
+                '• Combines multiple structure types in one search',
+              ],
+            ),
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(16),
@@ -1749,6 +2183,139 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     );
   }
 
+  Widget _buildStructureSelection() {
+    final structures = [
+      {'type': StructureType.village, 'name': '🏘️ Village', 'rarity': 'Common'},
+      {'type': StructureType.stronghold, 'name': '🏛️ Stronghold', 'rarity': 'Rare'},
+      {'type': StructureType.endCity, 'name': '🌃 End City', 'rarity': 'Rare'},
+      {'type': StructureType.netherFortress, 'name': '🏰 Nether Fortress', 'rarity': 'Uncommon'},
+      {'type': StructureType.bastionRemnant, 'name': '🏯 Bastion Remnant', 'rarity': 'Uncommon'},
+      {'type': StructureType.ancientCity, 'name': '🏛️ Ancient City', 'rarity': 'Very Rare'},
+      {'type': StructureType.oceanMonument, 'name': '🌊 Ocean Monument', 'rarity': 'Rare'},
+      {'type': StructureType.woodlandMansion, 'name': '🏚️ Woodland Mansion', 'rarity': 'Very Rare'},
+      {'type': StructureType.pillagerOutpost, 'name': '🗼 Pillager Outpost', 'rarity': 'Common'},
+      {'type': StructureType.ruinedPortal, 'name': '🌀 Ruined Portal', 'rarity': 'Very Common'},
+      {'type': StructureType.shipwreck, 'name': '🚢 Shipwreck', 'rarity': 'Common'},
+      {'type': StructureType.buriedTreasure, 'name': '💰 Buried Treasure', 'rarity': 'Uncommon'},
+      {'type': StructureType.desertTemple, 'name': '🏜️ Desert Temple', 'rarity': 'Uncommon'},
+      {'type': StructureType.jungleTemple, 'name': '🌿 Jungle Temple', 'rarity': 'Rare'},
+      {'type': StructureType.witchHut, 'name': '🧙 Witch Hut', 'rarity': 'Rare'},
+    ];
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedStructures = structures.map((s) => s['type'] as StructureType).toSet();
+                  });
+                },
+                child: const Text('Select All'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4CAF50),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedStructures.clear();
+                  });
+                },
+                child: const Text('Clear All'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: SingleChildScrollView(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: structures.map((structure) {
+                final structureType = structure['type'] as StructureType;
+                final isSelected = _selectedStructures.contains(structureType);
+                
+                return FilterChip(
+                  label: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        structure['name'] as String,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        structure['rarity'] as String,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: _getRarityColor(structure['rarity'] as String),
+                        ),
+                      ),
+                    ],
+                  ),
+                  selected: isSelected,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      if (selected) {
+                        _selectedStructures.add(structureType);
+                      } else {
+                        _selectedStructures.remove(structureType);
+                      }
+                    });
+                  },
+                  selectedColor: const Color(0xFF4CAF50).withOpacity(0.3),
+                  checkmarkColor: const Color(0xFF2E7D32),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        if (_selectedStructures.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            '${_selectedStructures.length} structures selected',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: const Color(0xFF2E7D32),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Color _getRarityColor(String rarity) {
+    switch (rarity) {
+      case 'Very Common':
+        return Colors.green;
+      case 'Common':
+        return Colors.lightGreen;
+      case 'Uncommon':
+        return Colors.orange;
+      case 'Rare':
+        return Colors.red;
+      case 'Very Rare':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
   void _copyCoordinates(OreLocation location) {
     final coordinates = '${location.x} ${location.y} ${location.z}';
     Clipboard.setData(ClipboardData(text: coordinates));
@@ -1756,6 +2323,92 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Copied coordinates: $coordinates'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  String _getStructureEmoji(StructureType structureType) {
+    switch (structureType) {
+      case StructureType.village:
+        return '🏘️';
+      case StructureType.stronghold:
+        return '🏛️';
+      case StructureType.endCity:
+        return '🌃';
+      case StructureType.netherFortress:
+        return '🏰';
+      case StructureType.bastionRemnant:
+        return '🏯';
+      case StructureType.ancientCity:
+        return '🏛️';
+      case StructureType.oceanMonument:
+        return '🌊';
+      case StructureType.woodlandMansion:
+        return '🏚️';
+      case StructureType.pillagerOutpost:
+        return '🗼';
+      case StructureType.ruinedPortal:
+        return '🌀';
+      case StructureType.shipwreck:
+        return '🚢';
+      case StructureType.buriedTreasure:
+        return '💰';
+      case StructureType.desertTemple:
+        return '🏜️';
+      case StructureType.jungleTemple:
+        return '🌿';
+      case StructureType.witchHut:
+        return '🧙';
+    }
+  }
+
+  String _getStructureName(StructureType structureType) {
+    switch (structureType) {
+      case StructureType.village:
+        return 'Village';
+      case StructureType.stronghold:
+        return 'Stronghold';
+      case StructureType.endCity:
+        return 'End City';
+      case StructureType.netherFortress:
+        return 'Nether Fortress';
+      case StructureType.bastionRemnant:
+        return 'Bastion Remnant';
+      case StructureType.ancientCity:
+        return 'Ancient City';
+      case StructureType.oceanMonument:
+        return 'Ocean Monument';
+      case StructureType.woodlandMansion:
+        return 'Woodland Mansion';
+      case StructureType.pillagerOutpost:
+        return 'Pillager Outpost';
+      case StructureType.ruinedPortal:
+        return 'Ruined Portal';
+      case StructureType.shipwreck:
+        return 'Shipwreck';
+      case StructureType.buriedTreasure:
+        return 'Buried Treasure';
+      case StructureType.desertTemple:
+        return 'Desert Temple';
+      case StructureType.jungleTemple:
+        return 'Jungle Temple';
+      case StructureType.witchHut:
+        return 'Witch Hut';
+    }
+  }
+
+  List<StructureType> _getUniqueStructureTypes() {
+    return _structureResults.map((s) => s.structureType).toSet().toList();
+  }
+
+  void _copyStructureCoordinates(StructureLocation location) {
+    final coordinates = '${location.x} ${location.y} ${location.z}';
+    Clipboard.setData(ClipboardData(text: coordinates));
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Copied structure coordinates: $coordinates'),
         duration: const Duration(seconds: 2),
       ),
     );
