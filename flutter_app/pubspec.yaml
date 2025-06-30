@@ -1,7 +1,27 @@
 name: minecraft_ore_finder
-description: A Flutter app to find diamonds, gold, and netherite in Minecraft worlds using seed analysis.
+description: Advanced Minecraft Ore & Structure Finder - Discover diamonds, gold, netherite, villages, strongholds and more using world seed analysis. Features biome filtering, coordinate search, and probability-based results for optimal mining efficiency.
 publish_to: 'none'
 version: 1.0.0+1
+
+# SEO and App Store metadata
+homepage: https://github.com/Lock128/minecraft-finder
+repository: https://github.com/Lock128/minecraft-finder
+issue_tracker: https://github.com/Lock128/minecraft-finder/issues
+documentation: https://github.com/Lock128/minecraft-finder/wiki
+
+# App metadata for stores
+metadata:
+  keywords: 
+    - minecraft
+    - ore finder
+    - diamond finder
+    - seed analysis
+    - mining tool
+    - netherite finder
+    - structure finder
+    - biome filter
+    - world generation
+    - gaming utility
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

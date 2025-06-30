@@ -31,7 +31,8 @@ class _MinecraftOreFinderAppState extends State<MinecraftOreFinderApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Minecraft Ore Finder',
+      title:
+          'Minecraft Ore & Structure Finder - Find Diamonds, Gold, Netherite & More',
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),

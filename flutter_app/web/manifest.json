@@ -1,13 +1,15 @@
 {
-    "name": "minecraft_ore_finder",
-    "short_name": "minecraft_ore_finder",
+    "name": "Minecraft Ore & Structure Finder",
+    "short_name": "Ore Finder",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#4CAF50",
+    "theme_color": "#4CAF50",
+    "description": "Advanced Minecraft tool to find diamonds, gold, netherite, villages, strongholds and more using world seed analysis. Features biome filtering and probability-based results for optimal mining.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "categories": ["games", "utilities", "productivity"],
+    "lang": "en-US",
     "icons": [
         {
             "src": "icons/Icon-192.png",
