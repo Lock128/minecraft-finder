@@ -148,9 +148,18 @@ jobs:
             }
             
             // Screenshot 5: Try to show theme toggle
-            final themeButtons = find.byIcon(Icons.light_mode).or(find.byIcon(Icons.dark_mode));
-            if (themeButtons.evaluate().isNotEmpty) {
-              await tester.tap(themeButtons.first);
+            final lightModeButton = find.byIcon(Icons.light_mode);
+            final darkModeButton = find.byIcon(Icons.dark_mode);
+            
+            if (lightModeButton.evaluate().isNotEmpty) {
+              await tester.tap(lightModeButton.first);
+              await tester.pumpAndSettle();
+              await expectLater(
+                find.byType(MaterialApp),
+                matchesGoldenFile('$outputPath/05_theme_toggle.png'),
+              );
+            } else if (darkModeButton.evaluate().isNotEmpty) {
+              await tester.tap(darkModeButton.first);
               await tester.pumpAndSettle();
               await expectLater(
                 find.byType(MaterialApp),
