@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
 import 'world_settings_card.dart';
@@ -96,6 +95,8 @@ class SearchTab extends StatelessWidget {
                 includeNether: includeNether,
                 includeOres: includeOres,
                 isDarkMode: isDarkMode,
+                includeStructures: includeStructures,
+                selectedStructures: selectedStructures,
                 onOreTypesChanged: onOreTypesChanged,
                 onIncludeNetherChanged: onIncludeNetherChanged,
                 onIncludeOresChanged: onIncludeOresChanged,

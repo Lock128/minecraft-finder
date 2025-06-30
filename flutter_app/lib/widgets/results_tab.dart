@@ -102,7 +102,7 @@ class _ResultsTabState extends State<ResultsTab> {
       return _buildLoadingView();
     }
 
-    if (widget.results.isEmpty) {
+    if (widget.results.isEmpty && widget.structureResults.isEmpty) {
       return _buildEmptyView();
     }
 

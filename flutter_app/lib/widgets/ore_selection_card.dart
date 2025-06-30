@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/ore_location.dart';
+import '../models/structure_location.dart';
 import '../utils/ore_utils.dart';
 
 class OreSelectionCard extends StatelessWidget {
@@ -7,6 +8,8 @@ class OreSelectionCard extends StatelessWidget {
   final bool includeNether;
   final bool includeOres;
   final bool isDarkMode;
+  final bool includeStructures;
+  final Set<StructureType> selectedStructures;
   final Function(Set<OreType>) onOreTypesChanged;
   final Function(bool) onIncludeNetherChanged;
   final Function(bool) onIncludeOresChanged;
@@ -17,6 +20,8 @@ class OreSelectionCard extends StatelessWidget {
     required this.includeNether,
     required this.includeOres,
     required this.isDarkMode,
+    required this.includeStructures,
+    required this.selectedStructures,
     required this.onOreTypesChanged,
     required this.onIncludeNetherChanged,
     required this.onIncludeOresChanged,
@@ -122,8 +127,8 @@ class OreSelectionCard extends StatelessWidget {
               _buildOreSelection(context),
               const SizedBox(height: 8),
               Text(
-                OreUtils.getSearchDescription(
-                    selectedOreTypes, includeOres, false, {}),
+                OreUtils.getSearchDescription(selectedOreTypes, includeOres,
+                    includeStructures, selectedStructures),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               if (selectedOreTypes.contains(OreType.gold)) ...[

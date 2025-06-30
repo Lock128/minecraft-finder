@@ -23,11 +23,15 @@ class OreUtils {
 
     // Add ore types if ore search is enabled
     if (includeOres) {
-      if (selectedOreTypes.contains(OreType.diamond))
+      if (selectedOreTypes.contains(OreType.diamond)) {
         searchItems.add('diamonds');
-      if (selectedOreTypes.contains(OreType.gold)) searchItems.add('gold');
-      if (selectedOreTypes.contains(OreType.netherite))
+      }
+      if (selectedOreTypes.contains(OreType.gold)) {
+        searchItems.add('gold');
+      }
+      if (selectedOreTypes.contains(OreType.netherite)) {
         searchItems.add('netherite');
+      }
     }
 
     // Add structure info if structure search is enabled

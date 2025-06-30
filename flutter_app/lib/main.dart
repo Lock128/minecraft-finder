@@ -149,6 +149,41 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   Future<void> _findOres(bool comprehensiveNetherite) async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Validate that at least one search type is enabled
+    if (!_includeOres && !_includeStructures) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Please enable at least one search type (Ores or Structures)'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Validate that if structures are enabled, at least one structure type is selected
+    if (_includeStructures && _selectedStructures.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Please select at least one structure type to search for'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Validate that if ores are enabled, at least one ore type is selected
+    if (_includeOres && _selectedOreTypes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one ore type to search for'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _results.clear();
