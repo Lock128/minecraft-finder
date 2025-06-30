@@ -32,6 +32,7 @@ class _ResultsTabState extends State<ResultsTab> {
     OreType.netherite
   };
   Set<StructureType> _visibleStructures = {};
+  Set<String> _visibleBiomes = {};
   bool _showFilters = false;
 
   // Filter controllers
@@ -56,6 +57,7 @@ class _ResultsTabState extends State<ResultsTab> {
   List<OreLocation> get _filteredResults {
     return widget.results.where((location) {
       if (!_visibleOreTypes.contains(location.oreType)) return false;
+      if (!_passesBiomeFilter(location.biome)) return false;
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
   }
@@ -66,6 +68,7 @@ class _ResultsTabState extends State<ResultsTab> {
           !_visibleStructures.contains(location.structureType)) {
         return false;
       }
+      if (!_passesBiomeFilter(location.biome)) return false;
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
   }
@@ -96,6 +99,39 @@ class _ResultsTabState extends State<ResultsTab> {
       if (maxZ != null && z > maxZ) return false;
     }
     return true;
+  }
+
+  bool _passesBiomeFilter(String? biome) {
+    // If no biome filters are set, show all
+    if (_visibleBiomes.isEmpty) return true;
+    // If biome is null, only show if "Unknown" is selected
+    if (biome == null) return _visibleBiomes.contains('Unknown');
+    // Otherwise check if the biome is in the visible set
+    return _visibleBiomes.contains(biome);
+  }
+
+  List<String> _getUniqueBiomes() {
+    Set<String> biomes = {};
+
+    // Add biomes from ore results
+    for (final ore in widget.results) {
+      if (ore.biome != null) {
+        biomes.add(ore.biome!);
+      } else {
+        biomes.add('Unknown');
+      }
+    }
+
+    // Add biomes from structure results
+    for (final structure in widget.structureResults) {
+      if (structure.biome != null) {
+        biomes.add(structure.biome!);
+      } else {
+        biomes.add('Unknown');
+      }
+    }
+
+    return biomes.toList()..sort();
   }
 
   @override
@@ -214,6 +250,9 @@ class _ResultsTabState extends State<ResultsTab> {
           if (widget.results.isNotEmpty) _buildOreFilters(),
           // Structure filters
           if (widget.structureResults.isNotEmpty) _buildStructureFilters(),
+          // Biome filters
+          if (widget.results.isNotEmpty || widget.structureResults.isNotEmpty)
+            _buildBiomeFilters(),
           // Coordinate filters
           if (_showFilters) _buildCoordinateFilters(),
         ],
@@ -307,6 +346,64 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
+  Widget _buildBiomeFilters() {
+    final uniqueBiomes = _getUniqueBiomes();
+    if (uniqueBiomes.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        Text('Biome Filters:',
+            style:
+                Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 12)),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: uniqueBiomes.map((biome) {
+            return FilterChip(
+              label: Text(
+                '${_getBiomeEmoji(biome)} $biome',
+                style:
+                    const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+              ),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+              selected:
+                  _visibleBiomes.isEmpty || _visibleBiomes.contains(biome),
+              onSelected: (bool selected) {
+                setState(() {
+                  if (selected) {
+                    if (_visibleBiomes.isEmpty) {
+                      _visibleBiomes = uniqueBiomes.toSet();
+                    } else {
+                      _visibleBiomes.add(biome);
+                    }
+                  } else {
+                    if (_visibleBiomes.isEmpty) {
+                      _visibleBiomes = uniqueBiomes.toSet();
+                    }
+                    _visibleBiomes.remove(biome);
+                  }
+                });
+              },
+              selectedColor: Colors.green.withValues(alpha: 0.3),
+              checkmarkColor: Colors.green[700],
+              backgroundColor: Colors.grey.withValues(alpha: 0.1),
+              side: BorderSide(
+                color: _visibleBiomes.isEmpty || _visibleBiomes.contains(biome)
+                    ? Colors.green
+                    : Colors.grey,
+                width: 1,
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCoordinateFilters() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,7 +442,7 @@ class _ResultsTabState extends State<ResultsTab> {
         TextButton.icon(
           onPressed: _clearFilters,
           icon: const Icon(Icons.clear),
-          label: const Text('Clear Filters'),
+          label: const Text('Clear All Filters'),
         ),
       ],
     );
@@ -516,6 +613,41 @@ class _ResultsTabState extends State<ResultsTab> {
       _maxYController.clear();
       _minZController.clear();
       _maxZController.clear();
+      _visibleBiomes.clear(); // Also clear biome filters
     });
+  }
+
+  String _getBiomeEmoji(String biome) {
+    switch (biome.toLowerCase()) {
+      case 'plains':
+        return '🌾';
+      case 'forest':
+        return '🌲';
+      case 'desert':
+        return '🏜️';
+      case 'jungle':
+        return '🌿';
+      case 'swamp':
+        return '🐸';
+      case 'taiga':
+        return '🌲';
+      case 'savanna':
+        return '🦁';
+      case 'badlands':
+      case 'mesa':
+        return '🏔️';
+      case 'ocean':
+        return '🌊';
+      case 'nether':
+        return '🔥';
+      case 'end':
+        return '🌌';
+      case 'overworld':
+        return '🌍';
+      case 'unknown':
+        return '❓';
+      default:
+        return '🌍';
+    }
   }
 }
