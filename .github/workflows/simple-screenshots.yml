@@ -1,0 +1,213 @@
+name: Simple Android Screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message for screenshots'
+        required: false
+        default: 'Update Android screenshots [simple]'
+
+jobs:
+  generate-screenshots:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.3'
+        channel: 'stable'
+        cache: true
+
+    - name: Get Flutter dependencies
+      run: |
+        cd flutter_app
+        flutter pub get
+
+    - name: Add integration test dependency
+      run: |
+        cd flutter_app
+        if ! grep -q "integration_test:" pubspec.yaml; then
+          echo "Adding integration_test dependency..."
+          sed -i '/dev_dependencies:/a\  integration_test:\n    sdk: flutter' pubspec.yaml
+          flutter pub get
+        fi
+
+    - name: Create test files
+      run: |
+        mkdir -p flutter_app/integration_test
+        mkdir -p flutter_app/test_driver
+        
+        # Create test driver
+        cat > flutter_app/test_driver/integration_test.dart << 'EOF'
+        import 'package:integration_test/integration_test_driver.dart';
+        Future<void> main() => integrationDriver();
+        EOF
+        
+        # Create simple screenshot test
+        cat > flutter_app/integration_test/simple_screenshot_test.dart << 'EOF'
+        import 'dart:io';
+        import 'package:flutter/material.dart';
+        import 'package:flutter_test/flutter_test.dart';
+        import 'package:integration_test/integration_test.dart';
+        import 'package:minecraft_ore_finder/main.dart' as app;
+        
+        void main() {
+          final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+          
+          group('Simple Screenshot Tests', () {
+            testWidgets('Generate basic screenshots', (WidgetTester tester) async {
+              print('🚀 Starting simple screenshot generation...');
+              
+              // Android phone sizes
+              final sizes = [
+                {'name': 'android_phone_1080x1920', 'width': 1080.0, 'height': 1920.0},
+                {'name': 'android_phone_1440x2560', 'width': 1440.0, 'height': 2560.0},
+              ];
+              
+              for (final size in sizes) {
+                await generateForSize(tester, binding, size);
+              }
+            });
+          });
+        }
+        
+        Future<void> generateForSize(
+          WidgetTester tester,
+          IntegrationTestWidgetsFlutterBinding binding,
+          Map<String, dynamic> size,
+        ) async {
+          final name = size['name'] as String;
+          final width = size['width'] as double;
+          final height = size['height'] as double;
+          
+          print('📱 Generating for $name (${width}x$height)');
+          
+          // Set size
+          await binding.setSurfaceSize(Size(width, height));
+          
+          // Start app
+          app.main();
+          await tester.pumpAndSettle(Duration(seconds: 5));
+          
+          // Create output directory
+          final outputDir = '../screenshots/android/phone/$name';
+          await Directory(outputDir).create(recursive: true);
+          
+          // Take screenshots
+          await takeScreenshot(binding, '$outputDir/01_main_screen.png');
+          await tester.pump(Duration(seconds: 2));
+          
+          await takeScreenshot(binding, '$outputDir/02_app_view.png');
+          await tester.pump(Duration(seconds: 2));
+          
+          await takeScreenshot(binding, '$outputDir/03_final_view.png');
+          
+          print('✅ Completed $name');
+        }
+        
+        Future<void> takeScreenshot(IntegrationTestWidgetsFlutterBinding binding, String path) async {
+          try {
+            final file = File(path);
+            await file.parent.create(recursive: true);
+            await binding.takeScreenshot(path);
+            print('📸 Screenshot: $path');
+          } catch (e) {
+            print('❌ Screenshot failed: $e');
+          }
+        }
+        EOF
+
+    - name: Run Android Emulator and Generate Screenshots
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        target: google_apis
+        arch: x86_64
+        profile: pixel_4
+        ram-size: 2048M
+        heap-size: 256M
+        disk-size: 4096M
+        script: |
+          echo "🚀 Emulator started successfully!"
+          adb devices
+          
+          cd flutter_app
+          
+          echo "🧪 Running screenshot generation..."
+          flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/simple_screenshot_test.dart \
+            --verbose || echo "Test completed with warnings"
+          
+          echo "📸 Checking generated screenshots..."
+          if [ -d "../screenshots" ]; then
+            find ../screenshots -name "*.png" -type f
+            echo "Total: $(find ../screenshots -name "*.png" -type f | wc -l) screenshots"
+          else
+            echo "No screenshots generated"
+          fi
+
+    - name: List all generated files
+      run: |
+        echo "📁 All generated files:"
+        if [ -d "screenshots" ]; then
+          find screenshots -type f | sort
+        else
+          echo "No screenshots directory found"
+        fi
+
+    - name: Create summary
+      run: |
+        echo "# Simple Screenshot Generation Report" > screenshot_report.md
+        echo "" >> screenshot_report.md
+        echo "**Generated on:** $(date)" >> screenshot_report.md
+        echo "**Workflow:** Simple Android Screenshots" >> screenshot_report.md
+        echo "" >> screenshot_report.md
+        
+        if [ -d "screenshots" ]; then
+          echo "## Generated Screenshots:" >> screenshot_report.md
+          find screenshots -name "*.png" -type f | while read file; do
+            echo "- \`$file\`" >> screenshot_report.md
+          done
+          echo "" >> screenshot_report.md
+          echo "**Total screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
+        else
+          echo "❌ No screenshots were generated." >> screenshot_report.md
+        fi
+
+    - name: Commit screenshots
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add screenshots/ || echo "No screenshots to add"
+        git add screenshot_report.md || echo "No report to add"
+        
+        if ! git diff --staged --quiet; then
+          git commit -m "${{ github.event.inputs.commit_message }}"
+          git push origin ${{ github.ref_name }}
+          echo "✅ Screenshots committed successfully!"
+        else
+          echo "No changes to commit"
+        fi
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: simple-android-screenshots
+        path: |
+          screenshots/
+          screenshot_report.md
+        retention-days: 7

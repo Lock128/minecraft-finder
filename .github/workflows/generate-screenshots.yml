@@ -50,31 +50,106 @@ jobs:
     - name: Accept Android licenses
       run: yes | sdkmanager --licenses
 
+    - name: Enable KVM group perms
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
     - name: Create Android AVD
       run: |
-        echo "Creating Android Virtual Device..."
-        sdkmanager "system-images;android-34;google_apis;x86_64"
-        echo "no" | avdmanager create avd --force --name test_emulator --abi google_apis/x86_64 --package 'system-images;android-34;google_apis;x86_64'
+        echo "📱 Creating Android Virtual Device..."
         
-        # Configure AVD for different screen sizes
-        echo "hw.lcd.density=420" >> ~/.android/avd/test_emulator.avd/config.ini
-        echo "hw.lcd.width=1080" >> ~/.android/avd/test_emulator.avd/config.ini
-        echo "hw.lcd.height=1920" >> ~/.android/avd/test_emulator.avd/config.ini
+        # Install system image
+        echo "📦 Installing system image..."
+        sdkmanager "system-images;android-34;google_apis;x86_64"
+        
+        # Accept all licenses
+        yes | sdkmanager --licenses
+        
+        # List available system images
+        echo "📋 Available system images:"
+        sdkmanager --list | grep "system-images;android-34" || echo "No system images found"
+        
+        # Create AVD with explicit device profile
+        echo "🔧 Creating AVD..."
+        echo "no" | avdmanager create avd \
+          --force \
+          --name test_emulator \
+          --abi google_apis/x86_64 \
+          --package 'system-images;android-34;google_apis;x86_64' \
+          --device "pixel_4"
+        
+        # Verify AVD creation
+        echo "✅ Verifying AVD creation..."
+        avdmanager list avd
+        ls -la ~/.android/avd/ || echo "AVD directory not found"
+        
+        # Configure AVD
+        AVD_PATH="$HOME/.android/avd/test_emulator.avd"
+        if [ -d "$AVD_PATH" ]; then
+          echo "⚙️ Configuring AVD..."
+          echo "hw.lcd.density=420" >> "$AVD_PATH/config.ini"
+          echo "hw.lcd.width=1080" >> "$AVD_PATH/config.ini"
+          echo "hw.lcd.height=1920" >> "$AVD_PATH/config.ini"
+          echo "hw.keyboard=yes" >> "$AVD_PATH/config.ini"
+          echo "hw.ramSize=2048" >> "$AVD_PATH/config.ini"
+          echo "vm.heapSize=256" >> "$AVD_PATH/config.ini"
+          echo "hw.gpu.enabled=yes" >> "$AVD_PATH/config.ini"
+          echo "hw.gpu.mode=swiftshader_indirect" >> "$AVD_PATH/config.ini"
+          echo "disk.dataPartition.size=4096MB" >> "$AVD_PATH/config.ini"
+        else
+          echo "❌ AVD directory not found at $AVD_PATH"
+          exit 1
+        fi
 
     - name: Start Android Emulator
       run: |
-        echo "Starting Android emulator..."
-        $ANDROID_HOME/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -wipe-data &
+        echo "🚀 Starting Android emulator..."
         
-        # Wait for emulator to be ready
-        echo "Waiting for emulator to boot..."
-        adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+        # Start emulator with comprehensive configuration
+        $ANDROID_HOME/emulator/emulator \
+          -avd test_emulator \
+          -no-audio \
+          -no-window \
+          -gpu swiftshader_indirect \
+          -no-snapshot \
+          -wipe-data \
+          -memory 2048 \
+          -partition-size 4096 \
+          -verbose &
         
-        # Additional wait to ensure emulator is fully ready
-        sleep 30
+        # Store emulator PID
+        EMULATOR_PID=$!
+        echo "Emulator PID: $EMULATOR_PID"
         
-        echo "Emulator is ready!"
+        # Wait for device with timeout
+        echo "⏳ Waiting for emulator to boot (timeout: 5 minutes)..."
+        timeout 300 adb wait-for-device || {
+          echo "❌ Timeout waiting for emulator"
+          kill $EMULATOR_PID 2>/dev/null || true
+          exit 1
+        }
+        
+        # Wait for boot completion
+        echo "⏳ Waiting for boot completion..."
+        timeout 300 adb shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 2; done' || {
+          echo "❌ Timeout waiting for boot completion"
+          kill $EMULATOR_PID 2>/dev/null || true
+          exit 1
+        }
+        
+        # Unlock screen
+        adb shell input keyevent 82
+        
+        # Additional wait for stability
+        sleep 15
+        
+        # Verify emulator is working
+        echo "✅ Emulator status:"
         adb devices
+        adb shell getprop sys.boot_completed
+        adb shell getprop ro.build.version.release
 
     - name: Get Flutter dependencies
       run: |
@@ -296,24 +371,57 @@ jobs:
         cd flutter_app
         flutter build apk --debug
 
+    - name: Verify emulator is ready
+      run: |
+        echo "🔍 Final emulator verification..."
+        adb devices -l
+        adb shell dumpsys window displays
+        adb shell wm size
+        adb shell wm density
+
     - name: Run screenshot tests
       run: |
         cd flutter_app
         echo "🧪 Running integration tests to generate screenshots..."
         
-        # Run the integration test
-        flutter drive \
-          --driver=test_driver/integration_test.dart \
-          --target=integration_test/screenshot_test.dart \
-          --verbose || echo "Integration test completed with warnings"
+        # Set environment variables for better Flutter performance
+        export FLUTTER_TEST_TIMEOUT=300
+        export PUB_CACHE="$HOME/.pub-cache"
+        
+        # Run the integration test with retries
+        for i in {1..3}; do
+          echo "Attempt $i of 3..."
+          
+          if flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/screenshot_test.dart \
+            --verbose; then
+            echo "✅ Integration test completed successfully on attempt $i"
+            break
+          else
+            echo "⚠️ Integration test failed on attempt $i"
+            if [ $i -eq 3 ]; then
+              echo "❌ All attempts failed, but continuing..."
+            else
+              echo "🔄 Retrying in 10 seconds..."
+              sleep 10
+            fi
+          fi
+        done
         
         # Check if screenshots were generated
         if [ -d "../screenshots" ]; then
           echo "✅ Screenshots generated successfully!"
           find ../screenshots -name "*.png" -type f | head -10
+          echo "Total screenshots: $(find ../screenshots -name "*.png" -type f | wc -l)"
         else
-          echo "⚠️ No screenshots directory found, creating sample structure..."
-          mkdir -p ../screenshots/android/phone
+          echo "⚠️ No screenshots directory found, creating fallback screenshots..."
+          mkdir -p ../screenshots/android/phone/android_phone_1080x1920
+          
+          # Create placeholder files to indicate the workflow ran
+          echo "Screenshot generation attempted but failed" > ../screenshots/android/phone/android_phone_1080x1920/generation_log.txt
+          echo "Timestamp: $(date)" >> ../screenshots/android/phone/android_phone_1080x1920/generation_log.txt
+          echo "Emulator status: $(adb devices)" >> ../screenshots/android/phone/android_phone_1080x1920/generation_log.txt
         fi
 
     - name: Create screenshot summary
