@@ -63,7 +63,9 @@ class _ResultsTabState extends State<ResultsTab> {
   List<StructureLocation> get _filteredStructureResults {
     return widget.structureResults.where((location) {
       if (_visibleStructures.isNotEmpty &&
-          !_visibleStructures.contains(location.structureType)) return false;
+          !_visibleStructures.contains(location.structureType)) {
+        return false;
+      }
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
   }
@@ -434,7 +436,7 @@ class _ResultsTabState extends State<ResultsTab> {
   Widget _buildStructureResultCard(StructureLocation structure) {
     return Card(
       margin: const EdgeInsets.only(bottom: 4),
-      color: Colors.brown.withOpacity(0.1),
+      color: Colors.brown.withValues(alpha: 0.1),
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

@@ -210,7 +210,7 @@ class StructureSelectionCard extends StatelessWidget {
                     }
                     onStructuresChanged(updated);
                   },
-                  selectedColor: const Color(0xFF4CAF50).withOpacity(0.3),
+                  selectedColor: const Color(0xFF4CAF50).withValues(alpha: 0.3),
                   checkmarkColor: const Color(0xFF2E7D32),
                 );
               }).toList(),

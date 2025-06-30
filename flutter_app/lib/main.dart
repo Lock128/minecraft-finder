@@ -3,6 +3,7 @@ import 'models/ore_finder.dart';
 import 'models/ore_location.dart';
 import 'models/structure_finder.dart';
 import 'models/structure_location.dart';
+import 'models/search_result.dart';
 import 'widgets/search_tab.dart';
 import 'widgets/results_tab.dart';
 import 'widgets/guide_tab.dart';
@@ -222,25 +223,53 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       }
 
       // Search for structures if enabled
+      List<StructureLocation> structureResults = [];
       if (_includeStructures && _selectedStructures.isNotEmpty) {
-        final structureResults = await structureFinder.findStructures(
+        structureResults = await structureFinder.findStructures(
           seed: _seedController.text,
           centerX: int.parse(_xController.text),
           centerZ: int.parse(_zController.text),
           radius: int.parse(_radiusController.text),
           structureTypes: _selectedStructures,
         );
-        _structureResults.addAll(structureResults);
       }
 
-      // Sort results by probability
-      allResults.sort((a, b) => b.probability.compareTo(a.probability));
-      _structureResults.sort((a, b) => b.probability.compareTo(a.probability));
+      // Combine all results into a unified list for proper sorting
+      List<SearchResult> combinedResults = [];
+
+      // Add ore results
+      for (final ore in allResults) {
+        combinedResults.add(SearchResult.fromOre(ore));
+      }
+
+      // Add structure results
+      for (final structure in structureResults) {
+        combinedResults.add(SearchResult.fromStructure(structure));
+      }
+
+      // Sort all results by probability (highest first)
+      combinedResults.sort((a, b) => b.probability.compareTo(a.probability));
+
+      // Take top 250 results (or 300 for comprehensive netherite search)
+      int maxResults = comprehensiveNetherite ? 300 : 250;
+      final topResults = combinedResults.take(maxResults).toList();
+
+      // Separate back into ore and structure lists for the UI
+      final topOreResults = <OreLocation>[];
+      final topStructureResults = <StructureLocation>[];
+
+      for (final result in topResults) {
+        if (result.type == SearchResultType.ore && result.oreLocation != null) {
+          topOreResults.add(result.oreLocation!);
+        } else if (result.type == SearchResultType.structure &&
+            result.structureLocation != null) {
+          topStructureResults.add(result.structureLocation!);
+        }
+      }
 
       setState(() {
-        int maxResults = comprehensiveNetherite ? 200 : 150;
-        _results = allResults.take(maxResults).toList();
-        _structureResults = _structureResults.take(50).toList();
+        _results = topOreResults;
+        _structureResults = topStructureResults;
         _isLoading = false;
       });
 

@@ -125,6 +125,31 @@ class SearchButtons extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _buildInfoContainer(),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.green.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.green, size: 14),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Regular search shows top 250 results (all types combined)',
+                  style: TextStyle(
+                    color: Colors.green.withValues(alpha: 0.8),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -133,9 +158,9 @@ class SearchButtons extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.deepPurple.withOpacity(0.1),
+        color: Colors.deepPurple.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.deepPurple.withOpacity(0.2)),
+        border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,9 +181,9 @@ class SearchButtons extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '• Searches entire world (4000x4000 blocks)\n• May take 30-60 seconds\n• Shows up to 200 netherite locations\n• Ignores other ore selections',
+            '• Searches entire world (4000x4000 blocks)\n• May take 30-60 seconds\n• Shows up to 300 best locations (all types combined)\n• Ignores other ore selections',
             style: TextStyle(
-              color: Colors.deepPurple.withOpacity(0.8),
+              color: Colors.deepPurple.withValues(alpha: 0.8),
               height: 1.3,
               fontSize: 11,
             ),

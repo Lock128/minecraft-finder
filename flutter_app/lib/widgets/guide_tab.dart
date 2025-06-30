@@ -95,9 +95,9 @@ class GuideTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
               ),
               child: const Column(
                 children: [
@@ -137,7 +137,7 @@ class GuideTab extends StatelessWidget {
       elevation: 6,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: iconColor.withOpacity(0.3), width: 2),
+        side: BorderSide(color: iconColor.withValues(alpha: 0.3), width: 2),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -156,9 +156,9 @@ class GuideTab extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.2),
+                    color: iconColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: iconColor.withOpacity(0.5)),
+                    border: Border.all(color: iconColor.withValues(alpha: 0.5)),
                   ),
                   child: Center(
                     child: Text(icon, style: const TextStyle(fontSize: 18)),
