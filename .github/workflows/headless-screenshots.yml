@@ -41,7 +41,6 @@ jobs:
       run: |
         mkdir -p flutter_app/test
         
-        # Create a widget test that generates screenshots
         cat > flutter_app/test/screenshot_test.dart << 'EOF'
         import 'dart:io';
         import 'dart:typed_data';
@@ -54,13 +53,11 @@ jobs:
         void main() {
           group('Headless Screenshot Tests', () {
             testWidgets('Generate app screenshots without emulator', (WidgetTester tester) async {
-              // Configure test environment
               tester.binding.window.physicalSizeTestValue = Size(1080, 1920);
               tester.binding.window.devicePixelRatioTestValue = 2.0;
               
               print('🚀 Starting headless screenshot generation...');
               
-              // Device configurations
               final configs = [
                 {'name': 'android_phone_1080x1920', 'width': 1080.0, 'height': 1920.0, 'dpr': 2.0},
                 {'name': 'android_phone_1440x2560', 'width': 1440.0, 'height': 2560.0, 'dpr': 3.0},
@@ -85,24 +82,18 @@ jobs:
           final height = config['height'] as double;
           final dpr = config['dpr'] as double;
           
-          print('📱 Generating screenshots for $deviceName (${width}x$height)');
+          print('📱 Generating screenshots for $deviceName');
           
-          // Set device size
           tester.binding.window.physicalSizeTestValue = Size(width, height);
           tester.binding.window.devicePixelRatioTestValue = dpr;
           
-          // Create output directory
           final outputDir = Directory('../screenshots/android/phone/$deviceName');
           await outputDir.create(recursive: true);
           
-          // Build and render the app
           await tester.pumpWidget(const MinecraftOreFinderApp());
           await tester.pumpAndSettle(Duration(seconds: 2));
           
-          // Take screenshot 1: Main screen
           await takeScreenshot(tester, '${outputDir.path}/01_main_screen.png', 'Main Screen');
-          
-          // Try to interact with the app for more screenshots
           await interactAndScreenshot(tester, outputDir.path, deviceName);
           
           print('✅ Completed screenshots for $deviceName');
@@ -110,7 +101,6 @@ jobs:
         
         Future<void> interactAndScreenshot(WidgetTester tester, String outputPath, String deviceName) async {
           try {
-            // Screenshot 2: Try to find and tap buttons
             final buttons = find.byType(ElevatedButton);
             if (buttons.evaluate().isNotEmpty) {
               await tester.tap(buttons.first);
@@ -120,7 +110,6 @@ jobs:
               await takeScreenshot(tester, '$outputPath/02_no_buttons.png', 'No Buttons Found');
             }
             
-            // Screenshot 3: Try to find text fields
             final textFields = find.byType(TextField);
             if (textFields.evaluate().isNotEmpty) {
               await tester.enterText(textFields.first, 'Diamond Ore');
@@ -130,7 +119,6 @@ jobs:
               await takeScreenshot(tester, '$outputPath/03_no_text_fields.png', 'No Text Fields');
             }
             
-            // Screenshot 4: Try to find floating action button
             final fabs = find.byType(FloatingActionButton);
             if (fabs.evaluate().isNotEmpty) {
               await tester.tap(fabs.first);
@@ -140,7 +128,6 @@ jobs:
               await takeScreenshot(tester, '$outputPath/04_no_fab.png', 'No FAB Found');
             }
             
-            // Screenshot 5: Final state
             await takeScreenshot(tester, '$outputPath/05_final_state.png', 'Final State');
             
           } catch (e) {
@@ -153,31 +140,28 @@ jobs:
           try {
             print('📸 Taking screenshot: $description');
             
-            // Ensure directory exists
             final File file = File(path);
             await file.parent.create(recursive: true);
             
-            // Use Flutter's built-in screenshot capability
             await tester.binding.takeScreenshot(path);
             print('✅ Screenshot saved: $path');
             
           } catch (e) {
             print('❌ Failed to take screenshot $path: $e');
             
-            // Create a text file with error info instead
             final File file = File(path.replaceAll('.png', '.txt'));
             await file.parent.create(recursive: true);
             await file.writeAsString('''
-Screenshot Generation Failed
-===========================
-Description: $description
-Error: $e
-Timestamp: ${DateTime.now()}
-Device Size: ${tester.binding.window.physicalSize}
-Device Pixel Ratio: ${tester.binding.window.devicePixelRatio}
-
-This file was created because the screenshot could not be generated.
-The Flutter widget test ran successfully, but image capture failed.
+        Screenshot Generation Failed
+        ===========================
+        Description: $description
+        Error: $e
+        Timestamp: ${DateTime.now()}
+        Device Size: ${tester.binding.window.physicalSize}
+        Device Pixel Ratio: ${tester.binding.window.devicePixelRatio}
+        
+        This file was created because the screenshot could not be generated.
+        The Flutter widget test ran successfully, but image capture failed.
             ''');
             print('📄 Error log saved: ${file.path}');
           }
@@ -189,11 +173,9 @@ The Flutter widget test ran successfully, but image capture failed.
         cd flutter_app
         echo "🧪 Running headless screenshot tests..."
         
-        # Enable headless mode
         export FLUTTER_TEST=true
         export HEADLESS=true
         
-        # Run the test
         flutter test test/screenshot_test.dart --verbose || echo "Test completed with warnings"
         
         echo "📸 Checking generated screenshots..."
@@ -243,7 +225,6 @@ The Flutter widget test ran successfully, but image capture failed.
           echo "**Total PNG screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
           echo "**Total files:** $(find screenshots -type f | wc -l)" >> screenshot_report.md
           
-          # Check for any error files
           error_files=$(find screenshots -name "*.png" -type f -exec grep -l "Screenshot failed" {} \; 2>/dev/null || true)
           if [ -n "$error_files" ]; then
             echo "" >> screenshot_report.md
