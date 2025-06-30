@@ -7,35 +7,92 @@ void main() {
   runApp(const MinecraftOreFinderApp());
 }
 
-class MinecraftOreFinderApp extends StatelessWidget {
+class MinecraftOreFinderApp extends StatefulWidget {
   const MinecraftOreFinderApp({super.key});
+
+  @override
+  State<MinecraftOreFinderApp> createState() => _MinecraftOreFinderAppState();
+}
+
+class _MinecraftOreFinderAppState extends State<MinecraftOreFinderApp> {
+  bool _isDarkMode = false;
+
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Minecraft Ore Finder',
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: const Color(0xFF4CAF50), // Minecraft green
           brightness: Brightness.light,
+        ).copyWith(
+          primary: const Color(0xFF4CAF50),
+          secondary: const Color(0xFF8BC34A),
+          surface: const Color(0xFFF1F8E9),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: const Color(0xFF4CAF50),
           brightness: Brightness.dark,
+        ).copyWith(
+          primary: const Color(0xFF66BB6A),
+          secondary: const Color(0xFF8BC34A),
+          surface: const Color(0xFF1E1E1E),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ),
-      home: const OreFinderScreen(),
+      home: OreFinderScreen(onThemeToggle: _toggleTheme, isDarkMode: _isDarkMode),
     );
   }
 }
 
 class OreFinderScreen extends StatefulWidget {
-  const OreFinderScreen({super.key});
+  final VoidCallback onThemeToggle;
+  final bool isDarkMode;
+  
+  const OreFinderScreen({
+    super.key,
+    required this.onThemeToggle,
+    required this.isDarkMode,
+  });
 
   @override
   State<OreFinderScreen> createState() => _OreFinderScreenState();
@@ -55,6 +112,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   bool _isLoading = false;
   List<OreLocation> _results = [];
   bool _findAllNetherite = false;
+  bool _isDarkMode = false;
   
   // Filter states
   Set<OreType> _visibleOreTypes = {OreType.diamond, OreType.gold, OreType.netherite};
@@ -71,7 +129,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -167,13 +225,75 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Minecraft Ore Finder'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B4513), // Brown like dirt block
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: const Color(0xFF654321), width: 2),
+              ),
+              child: const Center(
+                child: Text(
+                  '⛏️',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Minecraft Ore Finder',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: widget.isDarkMode ? const Color(0xFF2E7D32) : const Color(0xFF4CAF50),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: IconButton(
+              onPressed: widget.onThemeToggle,
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: Icon(
+                  widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  key: ValueKey(widget.isDarkMode),
+                  color: Colors.white,
+                ),
+              ),
+              tooltip: widget.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
           tabs: const [
-            Tab(icon: Icon(Icons.search), text: 'Find Ores'),
-            Tab(icon: Icon(Icons.list), text: 'Results'),
+            Tab(
+              icon: Icon(Icons.search),
+              text: 'Find Ores',
+            ),
+            Tab(
+              icon: Icon(Icons.inventory),
+              text: 'Results',
+            ),
+            Tab(
+              icon: Icon(Icons.info),
+              text: 'How It Works',
+            ),
           ],
         ),
       ),
@@ -182,37 +302,112 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         children: [
           _buildSearchTab(),
           _buildResultsTab(),
+          _buildExplanationsTab(),
         ],
       ),
     );
   }
 
   Widget _buildSearchTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'World Settings',
-                      style: Theme.of(context).textTheme.headlineSmall,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: widget.isDarkMode 
+            ? [
+                const Color(0xFF1A237E), // Dark blue
+                const Color(0xFF2E7D32), // Dark green
+              ]
+            : [
+                const Color(0xFF87CEEB), // Sky blue
+                const Color(0xFF98FB98), // Pale green
+              ],
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: widget.isDarkMode
+                        ? [
+                            const Color(0xFF2E2E2E),
+                            const Color(0xFF1E1E1E),
+                          ]
+                        : [
+                            Colors.white,
+                            const Color(0xFFF1F8E9),
+                          ],
                     ),
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF8B4513),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: const Center(
+                              child: Text('🌍', style: TextStyle(fontSize: 12)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'World Settings',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: const Color(0xFF2E7D32),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _seedController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'World Seed',
                         hintText: 'Enter your world seed',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.public),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: const Color(0xFF4CAF50)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: const Color(0xFF2E7D32), width: 2),
+                        ),
+                        prefixIcon: Container(
+                          margin: const EdgeInsets.all(8),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF8B4513),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: const Center(
+                            child: Text('🌱', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -227,14 +422,47 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             ),
             const SizedBox(height: 16),
             Card(
-              child: Padding(
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white,
+                      const Color(0xFFF1F8E9),
+                    ],
+                  ),
+                ),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Search Center',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF795548),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: const Center(
+                            child: Text('📍', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Search Center',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: const Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -242,9 +470,13 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         Expanded(
                           child: TextFormField(
                             controller: _xController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'X',
-                              border: OutlineInputBorder(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
                             ),
                             keyboardType: TextInputType.number,
                             inputFormatters: [
@@ -265,9 +497,13 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         Expanded(
                           child: TextFormField(
                             controller: _yController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Y',
-                              border: OutlineInputBorder(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
                             ),
                             keyboardType: TextInputType.number,
                             inputFormatters: [
@@ -292,9 +528,13 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         Expanded(
                           child: TextFormField(
                             controller: _zController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Z',
-                              border: OutlineInputBorder(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
                             ),
                             keyboardType: TextInputType.number,
                             inputFormatters: [
@@ -316,10 +556,25 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _radiusController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Search Radius (blocks)',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.radar),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: Container(
+                          margin: const EdgeInsets.all(8),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF607D8B),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: const Center(
+                            child: Text('🔍', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
@@ -345,14 +600,52 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             ),
             const SizedBox(height: 16),
             Card(
-              child: Padding(
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: widget.isDarkMode
+                      ? [
+                          const Color(0xFF2E2E2E),
+                          const Color(0xFF1E1E1E),
+                        ]
+                      : [
+                          Colors.white,
+                          const Color(0xFFF1F8E9),
+                        ],
+                  ),
+                ),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Ore Type',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF9C27B0),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: const Center(
+                            child: Text('💎', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Ore Type',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: const Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Column(
@@ -360,14 +653,26 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         SizedBox(
                           width: double.infinity,
                           child: SegmentedButton<OreType>(
-                            segments: const [
+                            segments: [
                               ButtonSegment<OreType>(
                                 value: OreType.diamond,
-                                label: Text('💎 Diamonds'),
+                                label: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text('💎 Diamonds', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
                               ),
                               ButtonSegment<OreType>(
                                 value: OreType.gold,
-                                label: Text('🏅 Gold'),
+                                label: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text('🏅 Gold', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
                               ),
                             ],
                             selected: _selectedOreTypes.where((type) => type != OreType.netherite).toSet(),
@@ -386,12 +691,30 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                             },
                             style: SegmentedButton.styleFrom(
                               minimumSize: const Size(120, 48),
+                              backgroundColor: widget.isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
+                              selectedBackgroundColor: const Color(0xFF4CAF50),
+                              selectedForegroundColor: Colors.white,
+                              side: BorderSide(color: const Color(0xFF4CAF50)),
                             ),
                           ),
                         ),
                         const SizedBox(height: 12),
-                        SizedBox(
+                        Container(
                           width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            gradient: _selectedOreTypes.contains(OreType.netherite)
+                              ? LinearGradient(
+                                  colors: [Colors.deepPurple, Colors.purple[700]!],
+                                )
+                              : null,
+                            border: Border.all(
+                              color: _selectedOreTypes.contains(OreType.netherite) 
+                                ? Colors.deepPurple 
+                                : Colors.grey,
+                              width: 2,
+                            ),
+                          ),
                           child: OutlinedButton.icon(
                             onPressed: () {
                               setState(() {
@@ -402,33 +725,30 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                                 }
                               });
                             },
-                            icon: Icon(
-                              _selectedOreTypes.contains(OreType.netherite) 
-                                ? Icons.check_circle 
-                                : Icons.local_fire_department,
-                              color: _selectedOreTypes.contains(OreType.netherite) 
-                                ? Colors.deepPurple 
-                                : null,
+                            icon: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2C1810),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: const Center(
+                                child: Text('🔥', style: TextStyle(fontSize: 12)),
+                              ),
                             ),
                             label: Text(
-                              '🔥 Netherite (Ancient Debris)',
+                              'Netherite (Ancient Debris)',
                               style: TextStyle(
                                 color: _selectedOreTypes.contains(OreType.netherite) 
-                                  ? Colors.deepPurple 
-                                  : null,
-                                fontWeight: _selectedOreTypes.contains(OreType.netherite) 
-                                  ? FontWeight.bold 
-                                  : FontWeight.normal,
+                                  ? Colors.white 
+                                  : Colors.deepPurple,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.all(16),
-                              side: BorderSide(
-                                color: _selectedOreTypes.contains(OreType.netherite) 
-                                  ? Colors.deepPurple 
-                                  : Colors.grey,
-                                width: _selectedOreTypes.contains(OreType.netherite) ? 2 : 1,
-                              ),
+                              backgroundColor: Colors.transparent,
+                              side: BorderSide.none,
                             ),
                           ),
                         ),
@@ -473,42 +793,100 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               children: [
                 Expanded(
                   flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : () => _findOres(false),
-                    icon: _isLoading && !_findAllNetherite
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.search),
-                    label: Text(_isLoading && !_findAllNetherite ? 'Searching...' : 'Find Ores'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        colors: [const Color(0xFF4CAF50), const Color(0xFF2E7D32)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : () => _findOres(false),
+                      icon: _isLoading && !_findAllNetherite
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF8B4513),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: const Center(
+                                child: Text('⛏️', style: TextStyle(fontSize: 10)),
+                              ),
+                            ),
+                      label: Text(
+                        _isLoading && !_findAllNetherite ? 'Searching...' : 'Find Ores',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(16),
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 3,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : () => _findOres(true),
-                    icon: _isLoading && _findAllNetherite
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.explore),
-                    label: Text(
-                      _isLoading && _findAllNetherite 
-                        ? 'Searching All Netherite...' 
-                        : 'Find ALL Netherite',
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        colors: [Colors.deepPurple, Colors.purple[800]!],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 4),
+                          blurRadius: 8,
+                        ),
+                      ],
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(16),
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : () => _findOres(true),
+                      icon: _isLoading && _findAllNetherite
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2C1810),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: const Center(
+                                child: Text('🔥', style: TextStyle(fontSize: 10)),
+                              ),
+                            ),
+                      label: Text(
+                        _isLoading && _findAllNetherite 
+                          ? 'Searching All Netherite...' 
+                          : 'Find ALL Netherite',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                        padding: const EdgeInsets.all(16),
+                      ),
                     ),
                   ),
                 ),
@@ -554,7 +932,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1035,6 +1414,339 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     if (oreNames.length == 1) return 'Searching for ${oreNames[0]} only';
     if (oreNames.length == 2) return 'Searching for ${oreNames[0]} and ${oreNames[1]}';
     return 'Searching for ${oreNames.sublist(0, oreNames.length - 1).join(', ')}, and ${oreNames.last}';
+  }
+
+  Widget _buildExplanationsTab() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: widget.isDarkMode 
+            ? [
+                const Color(0xFF1A237E), // Dark blue
+                const Color(0xFF2E7D32), // Dark green
+              ]
+            : [
+                const Color(0xFF87CEEB), // Sky blue
+                const Color(0xFF98FB98), // Pale green
+              ],
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildExplanationCard(
+              title: '💎 Diamond Generation',
+              icon: '💎',
+              iconColor: Colors.cyan,
+              content: [
+                'Diamonds spawn in the Overworld between Y -64 and Y 16.',
+                '',
+                '🎯 Optimal Y Levels:',
+                '• Y -64 to -54: Peak diamond layer (80% base probability)',
+                '• Y -53 to -48: Good diamond layer (60% base probability)',
+                '• Y -47 to -32: Decent diamond layer (40% base probability)',
+                '• Y -31 to 16: Lower diamond layer (20% base probability)',
+                '',
+                '⚙️ Algorithm Factors:',
+                '• Chunk-based randomness using world seed',
+                '• Coordinate-based variation patterns',
+                '• Simulated ore vein generation',
+                '• Linear Congruential Generator for predictability',
+                '',
+                '📊 Probability Calculation:',
+                'Final probability = Base probability × (0.5 + random factors)',
+                'Random factors include chunk seed, coordinate position, and vein patterns.',
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildExplanationCard(
+              title: '🏅 Gold Generation',
+              icon: '🏅',
+              iconColor: Colors.amber,
+              content: [
+                'Gold has different generation patterns based on biome and dimension.',
+                '',
+                '🌍 Overworld Gold (Y -64 to 32):',
+                '• Y -47 to -16: Peak gold layer (60% base probability)',
+                '• Y -64 to -48: Lower levels (40% base probability)',
+                '• Y -15 to 32: Higher levels (30% base probability)',
+                '',
+                '🏜️ Badlands/Mesa Biome (BONUS!):',
+                '• Y 32 to 80: Excellent surface gold (90% base probability)',
+                '• Y -64 to 31: Good underground gold (70% base probability)',
+                '• Y 81 to 256: Surface gold (50% base probability)',
+                '• 6x more gold than regular biomes!',
+                '',
+                '🔥 Nether Gold Ore (Y 10 to 117):',
+                '• Spawns throughout middle Nether layers',
+                '• High probability (80% base probability)',
+                '• Different ore type (Nether Gold Ore)',
+                '',
+                '🎲 Biome Detection:',
+                'Algorithm simulates biome generation using chunk-based randomness.',
+                '~5% of areas are classified as Badlands for bonus gold rates.',
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildExplanationCard(
+              title: '🔥 Netherite (Ancient Debris)',
+              icon: '🔥',
+              iconColor: Colors.deepPurple,
+              content: [
+                'Ancient Debris is the rarest ore, found only in the Nether.',
+                '',
+                '🎯 Nether Y Levels (Y 8 to 22):',
+                '• Y 13 to 17: Peak ancient debris layer (90% base probability)',
+                '• Y 10 to 19: Good ancient debris layer (70% base probability)',
+                '• Y 8 to 22: Decent ancient debris layer (50% base probability)',
+                '',
+                '⚠️ Rarity Multiplier:',
+                'Final probability is multiplied by 0.8 to reflect extreme rarity.',
+                'This makes Ancient Debris much harder to find than other ores.',
+                '',
+                '🔍 Search Modes:',
+                '• Regular Search: Uses minimum 15% probability threshold',
+                '• Comprehensive Search: Uses 5% threshold, covers 4000x4000 blocks',
+                '• Searches every Y level from 8-22 with 1-block precision',
+                '',
+                '🧮 Special Algorithm:',
+                '• Always treats coordinates as Nether biome',
+                '• Uses smaller search steps for maximum coverage',
+                '• Focuses on chunk-center coordinates for efficiency',
+                '',
+                '💡 Mining Tips:',
+                '• Ancient Debris is blast-resistant',
+                '• Use beds or TNT for efficient mining',
+                '• 4 Ancient Debris + 4 Gold Ingots = 1 Netherite Ingot',
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildExplanationCard(
+              title: '🔬 Technical Details',
+              icon: '⚙️',
+              iconColor: Colors.blueGrey,
+              content: [
+                'Understanding the algorithm behind ore prediction.',
+                '',
+                '🌱 Seed Processing:',
+                '• String seeds converted to numeric using hash function',
+                '• Numeric seeds used directly',
+                '• Same seed always produces same results',
+                '',
+                '🎲 Random Number Generation:',
+                '• Linear Congruential Generator (LCG) for predictability',
+                '• Formula: (seed × 1664525 + 1013904223) mod 2³²',
+                '• Chunk-based seeding for spatial consistency',
+                '',
+                '📐 Coordinate System:',
+                '• Chunks are 16×16 block areas',
+                '• Algorithm samples every 8 blocks for performance',
+                '• Netherite uses 1-block precision for accuracy',
+                '',
+                '🧮 Probability Factors:',
+                '1. Base probability by Y level and ore type',
+                '2. Chunk-based randomness (30% weight)',
+                '3. Coordinate-based randomness (20% weight)',
+                '4. Simulated vein patterns (30% weight)',
+                '5. Biome multipliers (Badlands bonus)',
+                '',
+                '⚡ Performance Optimizations:',
+                '• Async processing prevents UI blocking',
+                '• Progress updates every 100 chunks',
+                '• Result limiting to prevent memory issues',
+                '• Efficient chunk-based sampling',
+                '',
+                '🎯 Accuracy Notes:',
+                'This is a simulation based on known Minecraft mechanics.',
+                'Actual results may vary due to:',
+                '• Cave generation interference',
+                '• Structure placement conflicts',
+                '• Version-specific generation changes',
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildExplanationCard(
+              title: '📊 Probability Guide',
+              icon: '📈',
+              iconColor: Colors.green,
+              content: [
+                'Understanding what the probability percentages mean.',
+                '',
+                '🎯 Probability Ranges:',
+                '• 90-100%: Extremely likely to find ore',
+                '• 70-89%: Very high chance',
+                '• 50-69%: Good chance',
+                '• 30-49%: Moderate chance',
+                '• 15-29%: Lower chance but worth checking',
+                '• Below 15%: Filtered out (except comprehensive search)',
+                '',
+                '💡 Interpretation Tips:',
+                '• Higher percentages = better mining spots',
+                '• Focus on top 10-20 results for efficiency',
+                '• Multiple nearby locations = potential vein area',
+                '• Consider travel distance vs probability',
+                '',
+                '⛏️ Mining Strategy:',
+                '1. Start with highest probability locations',
+                '2. Create branch mines connecting multiple spots',
+                '3. Use coordinates as starting points, not exact locations',
+                '4. Explore surrounding areas once you find ore',
+                '',
+                '🔍 Search Tips:',
+                '• Larger radius = more options but longer search time',
+                '• Center search around your base or current location',
+                '• Use filters to focus on specific coordinate ranges',
+                '• Comprehensive netherite search for complete coverage',
+              ],
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: widget.isDarkMode 
+                  ? Colors.blue.withOpacity(0.1)
+                  : Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: widget.isDarkMode 
+                    ? Colors.blue.withOpacity(0.3)
+                    : Colors.blue.withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.lightbulb,
+                    color: Colors.blue,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Pro Tip',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'This tool provides statistical predictions based on Minecraft\'s generation algorithms. '
+                    'Use the coordinates as starting points for your mining expeditions, and always explore '
+                    'the surrounding areas once you find ore veins!',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExplanationCard({
+    required String title,
+    required String icon,
+    required Color iconColor,
+    required List<String> content,
+  }) {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: iconColor.withOpacity(0.3), width: 2),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: widget.isDarkMode
+              ? [
+                  const Color(0xFF2E2E2E),
+                  const Color(0xFF1E1E1E),
+                ]
+              : [
+                  Colors.white,
+                  const Color(0xFFF8F9FA),
+                ],
+          ),
+        ),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: iconColor.withOpacity(0.5)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      icon,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: iconColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...content.map((line) {
+              if (line.isEmpty) {
+                return const SizedBox(height: 8);
+              } else if (line.startsWith('🎯') || line.startsWith('⚙️') || 
+                        line.startsWith('📊') || line.startsWith('🌍') ||
+                        line.startsWith('🏜️') || line.startsWith('🔥') ||
+                        line.startsWith('🎲') || line.startsWith('⚠️') ||
+                        line.startsWith('🔍') || line.startsWith('🧮') ||
+                        line.startsWith('💡') || line.startsWith('🌱') ||
+                        line.startsWith('📐') || line.startsWith('⚡') ||
+                        line.startsWith('💎') || line.startsWith('⛏️')) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 4),
+                  child: Text(
+                    line,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: iconColor,
+                    ),
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    line,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      height: 1.4,
+                    ),
+                  ),
+                );
+              }
+            }).toList(),
+          ],
+        ),
+      ),
+    );
   }
 
   void _copyCoordinates(OreLocation location) {
