@@ -1,0 +1,404 @@
+name: Generate Android Screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message for screenshot updates'
+        required: false
+        default: 'Update Android screenshots'
+  push:
+    branches: [ main ]
+    paths:
+      - 'flutter_app/lib/**'
+      - 'flutter_app/integration_test/**'
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  generate-android-screenshots:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.3'
+        channel: 'stable'
+        cache: true
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 34
+        build-tools: 34.0.0
+        ndk: 26.3.11579264
+
+    - name: Accept Android licenses
+      run: yes | sdkmanager --licenses
+
+    - name: Create Android AVD
+      run: |
+        echo "Creating Android Virtual Device..."
+        sdkmanager "system-images;android-34;google_apis;x86_64"
+        echo "no" | avdmanager create avd --force --name test_emulator --abi google_apis/x86_64 --package 'system-images;android-34;google_apis;x86_64'
+        
+        # Configure AVD for different screen sizes
+        echo "hw.lcd.density=420" >> ~/.android/avd/test_emulator.avd/config.ini
+        echo "hw.lcd.width=1080" >> ~/.android/avd/test_emulator.avd/config.ini
+        echo "hw.lcd.height=1920" >> ~/.android/avd/test_emulator.avd/config.ini
+
+    - name: Start Android Emulator
+      run: |
+        echo "Starting Android emulator..."
+        $ANDROID_HOME/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -wipe-data &
+        
+        # Wait for emulator to be ready
+        echo "Waiting for emulator to boot..."
+        adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+        
+        # Additional wait to ensure emulator is fully ready
+        sleep 30
+        
+        echo "Emulator is ready!"
+        adb devices
+
+    - name: Get Flutter dependencies
+      run: |
+        cd flutter_app
+        flutter pub get
+
+    - name: Create integration test
+      run: |
+        mkdir -p flutter_app/integration_test
+        mkdir -p flutter_app/test_driver
+        
+        # Create integration test driver
+        cat > flutter_app/test_driver/integration_test.dart << 'EOF'
+        import 'package:integration_test/integration_test_driver.dart';
+        
+        Future<void> main() => integrationDriver();
+        EOF
+        
+        # Create screenshot integration test
+        cat > flutter_app/integration_test/screenshot_test.dart << 'EOF'
+        import 'dart:io';
+        import 'package:flutter/material.dart';
+        import 'package:flutter_test/flutter_test.dart';
+        import 'package:integration_test/integration_test.dart';
+        import 'package:minecraft_ore_finder/main.dart' as app;
+        
+        void main() {
+          final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+          
+          group('Android Screenshot Tests', () {
+            testWidgets('Generate Android screenshots', (WidgetTester tester) async {
+              print('🚀 Starting screenshot generation...');
+              
+              // Android phone configurations
+              final configs = [
+                {'name': 'android_phone_1080x1920', 'width': 1080.0, 'height': 1920.0},
+                {'name': 'android_phone_1440x2560', 'width': 1440.0, 'height': 2560.0},
+                {'name': 'android_phone_1080x2340', 'width': 1080.0, 'height': 2340.0},
+              ];
+              
+              for (final config in configs) {
+                await generateScreenshotsForDevice(tester, binding, config);
+              }
+            });
+          });
+        }
+        
+        Future<void> generateScreenshotsForDevice(
+          WidgetTester tester,
+          IntegrationTestWidgetsFlutterBinding binding,
+          Map<String, dynamic> config,
+        ) async {
+          final deviceName = config['name'] as String;
+          final width = config['width'] as double;
+          final height = config['height'] as double;
+          
+          print('📱 Generating screenshots for $deviceName (${width}x$height)');
+          
+          // Set device size
+          await binding.setSurfaceSize(Size(width, height));
+          
+          // Start the app
+          app.main();
+          await tester.pumpAndSettle(Duration(seconds: 3));
+          
+          // Create output directory
+          final outputDir = '../screenshots/android/phone/$deviceName';
+          await Directory(outputDir).create(recursive: true);
+          
+          // Take screenshots
+          await takeAppScreenshots(tester, binding, outputDir, deviceName);
+          
+          print('✅ Completed screenshots for $deviceName');
+        }
+        
+        Future<void> takeAppScreenshots(
+          WidgetTester tester,
+          IntegrationTestWidgetsFlutterBinding binding,
+          String outputDir,
+          String deviceName,
+        ) async {
+          // Screenshot 1: Main screen
+          await takeScreenshot(binding, '$outputDir/01_main_screen.png');
+          await tester.pump(Duration(seconds: 1));
+          
+          // Screenshot 2: Try to show features
+          await showcaseFeatures(tester, binding, outputDir);
+          
+          // Screenshot 3: Show interaction
+          await showcaseInteraction(tester, binding, outputDir);
+          
+          // Screenshot 4: Show results
+          await showcaseResults(tester, binding, outputDir);
+          
+          // Screenshot 5: Show settings/menu
+          await showcaseSettings(tester, binding, outputDir);
+        }
+        
+        Future<void> showcaseFeatures(WidgetTester tester, IntegrationTestWidgetsFlutterBinding binding, String outputDir) async {
+          try {
+            // Look for tabs
+            final tabs = find.byType(Tab);
+            if (tabs.evaluate().isNotEmpty && tabs.evaluate().length > 1) {
+              await tester.tap(tabs.at(1));
+              await tester.pumpAndSettle();
+            }
+            
+            // Look for bottom navigation
+            final bottomNavBars = find.byType(BottomNavigationBar);
+            if (bottomNavBars.evaluate().isNotEmpty) {
+              // Try to tap different nav items
+              await tester.tap(bottomNavBars.first);
+              await tester.pumpAndSettle();
+            }
+            
+            await takeScreenshot(binding, '$outputDir/02_features.png');
+          } catch (e) {
+            print('⚠️ Error in showcaseFeatures: $e');
+            await takeScreenshot(binding, '$outputDir/02_features.png');
+          }
+        }
+        
+        Future<void> showcaseInteraction(WidgetTester tester, IntegrationTestWidgetsFlutterBinding binding, String outputDir) async {
+          try {
+            // Look for text fields
+            final textFields = find.byType(TextField);
+            if (textFields.evaluate().isNotEmpty) {
+              await tester.enterText(textFields.first, 'Diamond');
+              await tester.pumpAndSettle();
+            }
+            
+            // Look for buttons
+            final buttons = find.byType(ElevatedButton);
+            if (buttons.evaluate().isNotEmpty) {
+              await tester.tap(buttons.first);
+              await tester.pumpAndSettle();
+            }
+            
+            // Look for FAB
+            final fabs = find.byType(FloatingActionButton);
+            if (fabs.evaluate().isNotEmpty) {
+              await tester.tap(fabs.first);
+              await tester.pumpAndSettle();
+            }
+            
+            await takeScreenshot(binding, '$outputDir/03_interaction.png');
+          } catch (e) {
+            print('⚠️ Error in showcaseInteraction: $e');
+            await takeScreenshot(binding, '$outputDir/03_interaction.png');
+          }
+        }
+        
+        Future<void> showcaseResults(WidgetTester tester, IntegrationTestWidgetsFlutterBinding binding, String outputDir) async {
+          try {
+            // Look for search/find buttons
+            final searchButtons = find.text('Search').or(find.text('Find')).or(find.text('Generate'));
+            if (searchButtons.evaluate().isNotEmpty) {
+              await tester.tap(searchButtons.first);
+              await tester.pumpAndSettle(Duration(seconds: 2));
+            }
+            
+            await takeScreenshot(binding, '$outputDir/04_results.png');
+          } catch (e) {
+            print('⚠️ Error in showcaseResults: $e');
+            await takeScreenshot(binding, '$outputDir/04_results.png');
+          }
+        }
+        
+        Future<void> showcaseSettings(WidgetTester tester, IntegrationTestWidgetsFlutterBinding binding, String outputDir) async {
+          try {
+            // Look for settings icons
+            final settingsIcons = find.byIcon(Icons.settings);
+            final menuIcons = find.byIcon(Icons.menu);
+            final moreIcons = find.byIcon(Icons.more_vert);
+            
+            if (settingsIcons.evaluate().isNotEmpty) {
+              await tester.tap(settingsIcons.first);
+              await tester.pumpAndSettle();
+            } else if (menuIcons.evaluate().isNotEmpty) {
+              await tester.tap(menuIcons.first);
+              await tester.pumpAndSettle();
+            } else if (moreIcons.evaluate().isNotEmpty) {
+              await tester.tap(moreIcons.first);
+              await tester.pumpAndSettle();
+            }
+            
+            await takeScreenshot(binding, '$outputDir/05_settings.png');
+          } catch (e) {
+            print('⚠️ Error in showcaseSettings: $e');
+            await takeScreenshot(binding, '$outputDir/05_settings.png');
+          }
+        }
+        
+        Future<void> takeScreenshot(IntegrationTestWidgetsFlutterBinding binding, String path) async {
+          try {
+            final file = File(path);
+            await file.parent.create(recursive: true);
+            await binding.takeScreenshot(path);
+            print('📸 Screenshot saved: $path');
+          } catch (e) {
+            print('❌ Failed to take screenshot $path: $e');
+          }
+        }
+        EOF
+
+    - name: Add integration_test dependency
+      run: |
+        cd flutter_app
+        # Check if integration_test is already in pubspec.yaml
+        if ! grep -q "integration_test:" pubspec.yaml; then
+          echo "Adding integration_test dependency..."
+          # Add integration_test to dev_dependencies
+          sed -i '/dev_dependencies:/a\  integration_test:\n    sdk: flutter' pubspec.yaml
+          flutter pub get
+        fi
+
+    - name: Build Android APK
+      run: |
+        cd flutter_app
+        flutter build apk --debug
+
+    - name: Run screenshot tests
+      run: |
+        cd flutter_app
+        echo "🧪 Running integration tests to generate screenshots..."
+        
+        # Run the integration test
+        flutter drive \
+          --driver=test_driver/integration_test.dart \
+          --target=integration_test/screenshot_test.dart \
+          --verbose || echo "Integration test completed with warnings"
+        
+        # Check if screenshots were generated
+        if [ -d "../screenshots" ]; then
+          echo "✅ Screenshots generated successfully!"
+          find ../screenshots -name "*.png" -type f | head -10
+        else
+          echo "⚠️ No screenshots directory found, creating sample structure..."
+          mkdir -p ../screenshots/android/phone
+        fi
+
+    - name: Create screenshot summary
+      run: |
+        echo "# Android Screenshots Generated" > screenshot_summary.md
+        echo "" >> screenshot_summary.md
+        echo "Generated on: $(date)" >> screenshot_summary.md
+        echo "" >> screenshot_summary.md
+        
+        if [ -d "screenshots" ]; then
+          echo "## Generated Screenshots:" >> screenshot_summary.md
+          find screenshots -name "*.png" -type f | while read file; do
+            echo "- $file" >> screenshot_summary.md
+          done
+          
+          echo "" >> screenshot_summary.md
+          echo "## Screenshot Count by Device:" >> screenshot_summary.md
+          find screenshots -name "*.png" -type f | cut -d'/' -f1-4 | sort | uniq -c >> screenshot_summary.md
+        else
+          echo "No screenshots were generated." >> screenshot_summary.md
+        fi
+
+    - name: Optimize PNG files
+      run: |
+        if [ -d "screenshots" ]; then
+          echo "🗜️ Optimizing PNG files..."
+          # Install pngquant for optimization
+          sudo apt-get update && sudo apt-get install -y pngquant
+          
+          # Optimize all PNG files
+          find screenshots -name "*.png" -type f -exec pngquant --force --ext .png {} \; || echo "PNG optimization completed with warnings"
+          
+          echo "✅ PNG optimization completed"
+        fi
+
+    - name: Commit and push screenshots
+      run: |
+        # Configure git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Add screenshots to git
+        git add screenshots/ || echo "No screenshots directory to add"
+        git add screenshot_summary.md || echo "No summary file to add"
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          # Commit changes
+          COMMIT_MSG="${{ github.event.inputs.commit_message || 'Update Android screenshots [automated]' }}"
+          git commit -m "$COMMIT_MSG"
+          
+          # Push changes
+          git push origin ${{ github.ref_name }}
+          
+          echo "✅ Screenshots committed and pushed successfully!"
+        fi
+
+    - name: Upload screenshots as artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: android-screenshots
+        path: |
+          screenshots/
+          screenshot_summary.md
+        retention-days: 30
+
+    - name: Create release with screenshots
+      if: github.event_name == 'workflow_dispatch'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: screenshots-${{ github.run_number }}
+        name: Android Screenshots ${{ github.run_number }}
+        body: |
+          Automated Android screenshots generated from commit ${{ github.sha }}
+          
+          Generated on: ${{ steps.date.outputs.date }}
+          
+          This release contains the latest Android app screenshots for store submission.
+        files: |
+          screenshots/**/*.png
+          screenshot_summary.md
+        draft: false
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

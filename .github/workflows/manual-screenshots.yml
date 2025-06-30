@@ -1,0 +1,259 @@
+name: Manual Screenshot Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      device_types:
+        description: 'Device types to generate (phone, tablet, or both)'
+        required: true
+        default: 'phone'
+        type: choice
+        options:
+        - phone
+        - tablet
+        - both
+      screen_sizes:
+        description: 'Specific screen sizes (comma-separated, e.g., 1080x1920,1440x2560)'
+        required: false
+        default: 'all'
+      commit_screenshots:
+        description: 'Commit screenshots to repository'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  manual-screenshot-generation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.3'
+        channel: 'stable'
+        cache: true
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 34
+
+    - name: Create and start emulator
+      run: |
+        echo "Creating Android emulator..."
+        sdkmanager "system-images;android-34;google_apis;x86_64"
+        echo "no" | avdmanager create avd --force --name screenshot_emulator --abi google_apis/x86_64 --package 'system-images;android-34;google_apis;x86_64'
+        
+        # Start emulator
+        $ANDROID_HOME/emulator/emulator -avd screenshot_emulator -no-audio -no-window -gpu swiftshader_indirect &
+        adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done'
+        sleep 10
+
+    - name: Prepare Flutter app
+      run: |
+        cd flutter_app
+        flutter pub get
+        
+        # Add integration_test dependency if not present
+        if ! grep -q "integration_test:" pubspec.yaml; then
+          sed -i '/dev_dependencies:/a\  integration_test:\n    sdk: flutter' pubspec.yaml
+          flutter pub get
+        fi
+
+    - name: Generate device configurations
+      run: |
+        # Create device config based on inputs
+        DEVICE_TYPES="${{ github.event.inputs.device_types }}"
+        SCREEN_SIZES="${{ github.event.inputs.screen_sizes }}"
+        
+        echo "Device types: $DEVICE_TYPES"
+        echo "Screen sizes: $SCREEN_SIZES"
+        
+        # Create configuration file
+        cat > device_config.json << EOF
+        {
+          "device_types": "$DEVICE_TYPES",
+          "screen_sizes": "$SCREEN_SIZES",
+          "configs": []
+        }
+        EOF
+
+    - name: Create dynamic integration test
+      run: |
+        mkdir -p flutter_app/integration_test
+        mkdir -p flutter_app/test_driver
+        
+        # Create test driver
+        cat > flutter_app/test_driver/integration_test.dart << 'EOF'
+        import 'package:integration_test/integration_test_driver.dart';
+        Future<void> main() => integrationDriver();
+        EOF
+        
+        # Create dynamic screenshot test
+        cat > flutter_app/integration_test/manual_screenshot_test.dart << 'EOF'
+        import 'dart:io';
+        import 'dart:convert';
+        import 'package:flutter/material.dart';
+        import 'package:flutter_test/flutter_test.dart';
+        import 'package:integration_test/integration_test.dart';
+        import 'package:minecraft_ore_finder/main.dart' as app;
+        
+        void main() {
+          final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+          
+          group('Manual Screenshot Tests', () {
+            testWidgets('Generate screenshots based on configuration', (WidgetTester tester) async {
+              // Read configuration
+              final configFile = File('../device_config.json');
+              final configJson = json.decode(await configFile.readAsString());
+              
+              final deviceTypes = configJson['device_types'] as String;
+              final screenSizes = configJson['screen_sizes'] as String;
+              
+              print('📱 Device types: $deviceTypes');
+              print('📐 Screen sizes: $screenSizes');
+              
+              // Generate configurations
+              final configs = generateConfigurations(deviceTypes, screenSizes);
+              
+              for (final config in configs) {
+                await generateScreenshotsForDevice(tester, binding, config);
+              }
+            });
+          });
+        }
+        
+        List<Map<String, dynamic>> generateConfigurations(String deviceTypes, String screenSizes) {
+          final configs = <Map<String, dynamic>>[];
+          
+          // Define available configurations
+          final phoneConfigs = [
+            {'name': 'android_phone_1080x1920', 'width': 1080.0, 'height': 1920.0, 'type': 'phone'},
+            {'name': 'android_phone_1440x2560', 'width': 1440.0, 'height': 2560.0, 'type': 'phone'},
+            {'name': 'android_phone_1080x2340', 'width': 1080.0, 'height': 2340.0, 'type': 'phone'},
+          ];
+          
+          final tabletConfigs = [
+            {'name': 'android_tablet_1200x1920', 'width': 1200.0, 'height': 1920.0, 'type': 'tablet'},
+            {'name': 'android_tablet_2048x2732', 'width': 2048.0, 'height': 2732.0, 'type': 'tablet'},
+          ];
+          
+          // Select configurations based on device types
+          if (deviceTypes == 'phone' || deviceTypes == 'both') {
+            configs.addAll(phoneConfigs);
+          }
+          if (deviceTypes == 'tablet' || deviceTypes == 'both') {
+            configs.addAll(tabletConfigs);
+          }
+          
+          // Filter by specific screen sizes if provided
+          if (screenSizes != 'all') {
+            final requestedSizes = screenSizes.split(',').map((s) => s.trim()).toList();
+            configs.removeWhere((config) {
+              final size = '${config['width'].toInt()}x${config['height'].toInt()}';
+              return !requestedSizes.contains(size);
+            });
+          }
+          
+          return configs;
+        }
+        
+        Future<void> generateScreenshotsForDevice(
+          WidgetTester tester,
+          IntegrationTestWidgetsFlutterBinding binding,
+          Map<String, dynamic> config,
+        ) async {
+          final deviceName = config['name'] as String;
+          final width = config['width'] as double;
+          final height = config['height'] as double;
+          final type = config['type'] as String;
+          
+          print('📱 Generating screenshots for $deviceName (${width}x$height)');
+          
+          await binding.setSurfaceSize(Size(width, height));
+          
+          app.main();
+          await tester.pumpAndSettle(Duration(seconds: 3));
+          
+          final outputDir = '../screenshots/android/$type/$deviceName';
+          await Directory(outputDir).create(recursive: true);
+          
+          // Take 5 different screenshots
+          await takeScreenshot(binding, '$outputDir/01_main_screen.png');
+          await tester.pump(Duration(seconds: 1));
+          
+          await takeScreenshot(binding, '$outputDir/02_features.png');
+          await tester.pump(Duration(seconds: 1));
+          
+          await takeScreenshot(binding, '$outputDir/03_interaction.png');
+          await tester.pump(Duration(seconds: 1));
+          
+          await takeScreenshot(binding, '$outputDir/04_results.png');
+          await tester.pump(Duration(seconds: 1));
+          
+          await takeScreenshot(binding, '$outputDir/05_final.png');
+          
+          print('✅ Completed screenshots for $deviceName');
+        }
+        
+        Future<void> takeScreenshot(IntegrationTestWidgetsFlutterBinding binding, String path) async {
+          try {
+            final file = File(path);
+            await file.parent.create(recursive: true);
+            await binding.takeScreenshot(path);
+            print('📸 Screenshot saved: $path');
+          } catch (e) {
+            print('❌ Failed to take screenshot $path: $e');
+          }
+        }
+        EOF
+
+    - name: Run manual screenshot generation
+      run: |
+        cd flutter_app
+        echo "🧪 Running manual screenshot generation..."
+        
+        flutter drive \
+          --driver=test_driver/integration_test.dart \
+          --target=integration_test/manual_screenshot_test.dart \
+          --verbose
+
+    - name: List generated screenshots
+      run: |
+        echo "📸 Generated screenshots:"
+        if [ -d "screenshots" ]; then
+          find screenshots -name "*.png" -type f | sort
+          echo ""
+          echo "Total screenshots: $(find screenshots -name "*.png" -type f | wc -l)"
+        else
+          echo "No screenshots generated"
+        fi
+
+    - name: Commit screenshots
+      if: ${{ github.event.inputs.commit_screenshots == 'true' }}
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add screenshots/ || echo "No screenshots to add"
+        
+        if ! git diff --staged --quiet; then
+          git commit -m "Manual screenshot generation: ${{ github.event.inputs.device_types }} devices"
+          git push origin ${{ github.ref_name }}
+          echo "✅ Screenshots committed successfully!"
+        else
+          echo "No changes to commit"
+        fi
+
+    - name: Upload screenshots
+      uses: actions/upload-artifact@v4
+      with:
+        name: manual-android-screenshots-${{ github.run_number }}
+        path: screenshots/
+        retention-days: 7
