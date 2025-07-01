@@ -6,9 +6,12 @@ library;
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:minecraft_finder/main.dart';
+
+import 'package:flutter/rendering.dart';
 
 void main() {
   group('Screenshot:', () {
@@ -66,6 +69,12 @@ void _screenshotWidget({
   required Widget child,
 }) {
   group(goldenFileName, () {
+    tearDown(() {
+      // Reset all painting debug variables after each test
+      debugDisableShadows = false;
+      debugPaintSizeEnabled = false;
+    });
+
     for (final goldenDevice in GoldenScreenshotDevices.values) {
       testGoldens('for ${goldenDevice.name}', (tester) async {
         final device = goldenDevice.device;
@@ -95,9 +104,20 @@ void _screenshotWidget({
                 '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
           );
         } finally {
-          // Reset view settings to original values to prevent debug variable issues
+          // Reset view settings to original values
           tester.view.physicalSize = originalSize;
           tester.view.devicePixelRatio = originalPixelRatio;
+
+          // Clear any painting debug variables that might have been set
+          debugDisableShadows = false;
+          debugPaintSizeEnabled = false;
+
+          // Force a pump to clear any cached painting state
+          try {
+            await tester.pump();
+          } catch (e) {
+            // Ignore pump errors during cleanup
+          }
         }
       });
     }
