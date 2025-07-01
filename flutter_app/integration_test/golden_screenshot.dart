@@ -84,9 +84,7 @@ void _screenshotWidget({
         await tester.precacheImagesInWidgetTree();
         await tester.precacheTopbarImages();
         await tester.loadFonts();
-
-        // Pump the widget for a second to ensure animations are complete
-        await tester.pumpFrames(child, const Duration(seconds: 1));
+        await tester.pumpAndSettle(const Duration(seconds: 10));
 
         // Take the screenshot of the MaterialApp directly
         await expectLater(
