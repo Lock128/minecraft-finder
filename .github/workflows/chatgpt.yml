@@ -69,42 +69,58 @@ jobs:
           disable-animations: true
           script: cd flutter_app && echo "🚀 Running golden screenshot tests..." && flutter test test/golden_screenshot.dart --update-goldens || echo "✅ Test completed"
 
-      - name: Copy golden screenshots from temp directory
+      - name: Copy golden screenshots from test directories
         run: |
-          echo "🔍 Looking for golden screenshots in temp directories..."
+          echo "🔍 Looking for generated golden screenshots..."
           
-          # Find golden screenshot temp directories
+          # Look for golden files in Flutter's test directories
+          cd flutter_app
+          
+          # Check integration_test directory for golden files
+          if [ -d "integration_test" ]; then
+            echo "📁 Checking integration_test directory..."
+            find integration_test -name "*.png" -type f 2>/dev/null || true
+          fi
+          
+          # Check test directory for golden files  
+          if [ -d "test" ]; then
+            echo "📁 Checking test directory..."
+            find test -name "*.png" -type f 2>/dev/null || true
+          fi
+          
+          # Look for golden files in temp directories
+          echo "📁 Checking temp directories..."
           GOLDEN_DIRS=$(find /tmp -name "golden_screenshots*" -type d 2>/dev/null || true)
           
           if [ -n "$GOLDEN_DIRS" ]; then
-            echo "📁 Found golden screenshot directories:"
+            echo "📁 Found golden screenshot temp directories:"
             echo "$GOLDEN_DIRS"
             
             # Create golden screenshots directory
-            mkdir -p flutter_app/integration_test/goldens
+            mkdir -p integration_test/goldens
             
             # Copy all golden files
             for dir in $GOLDEN_DIRS; do
               if [ -d "$dir" ] && [ "$(ls -A $dir 2>/dev/null)" ]; then
                 echo "📋 Copying from $dir"
-                cp -r "$dir"/* flutter_app/integration_test/goldens/ 2>/dev/null || true
+                find "$dir" -name "*.png" -type f -exec cp {} integration_test/goldens/ \; 2>/dev/null || true
               fi
             done
             
-            echo "✅ Golden screenshots copied to flutter_app/integration_test/goldens/"
-            ls -la flutter_app/integration_test/goldens/ || echo "No files copied"
-          else
-            echo "⚠️ No golden screenshot temp directories found"
+            echo "✅ Golden screenshots copied to integration_test/goldens/"
+            ls -la integration_test/goldens/ 2>/dev/null || echo "No files in goldens directory"
           fi
           
-          # Also check for regular screenshots
-          if [ -d "screenshots" ]; then
-            echo "✅ Regular screenshots directory found!"
-            find screenshots -name "*.png" -type f | head -20
-            echo "Total PNG files: $(find screenshots -name "*.png" -type f | wc -l)"
-          else
-            echo "⚠️ No regular screenshots directory found"
-          fi
+          # Look for golden files in Flutter's default locations
+          echo "📁 Checking Flutter's default golden file locations..."
+          find . -name "*.png" -path "*/goldens/*" -type f 2>/dev/null || true
+          find . -name "*golden*.png" -type f 2>/dev/null || true
+          
+          # Look for any PNG files that might be golden screenshots
+          echo "📁 All PNG files in project:"
+          find . -name "*.png" -type f 2>/dev/null | head -20 || true
+          
+          cd ..
 
       - name: Create report
         run: |
@@ -115,35 +131,78 @@ jobs:
           echo "**Emulator:** Pixel 6 (API 34)" >> screenshot_report.md
           echo "" >> screenshot_report.md
           
-          # Check for golden screenshots
+          # Count all PNG files in the project
+          TOTAL_PNGS=$(find . -name "*.png" -type f | wc -l)
+          echo "**Total PNG files found:** $TOTAL_PNGS" >> screenshot_report.md
+          echo "" >> screenshot_report.md
+          
+          # Check for golden screenshots in various locations
+          FOUND_SCREENSHOTS=false
+          
+          # Check integration_test/goldens
           if [ -d "flutter_app/integration_test/goldens" ] && [ "$(find flutter_app/integration_test/goldens -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Generated Golden Screenshots:" >> screenshot_report.md
+            echo "## ✅ Golden Screenshots (integration_test/goldens):" >> screenshot_report.md
             echo "" >> screenshot_report.md
             find flutter_app/integration_test/goldens -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
               echo "- \`$file\` ($size)" >> screenshot_report.md
             done
             echo "" >> screenshot_report.md
-            echo "**Total golden screenshots:** $(find flutter_app/integration_test/goldens -name "*.png" -type f | wc -l)" >> screenshot_report.md
+            FOUND_SCREENSHOTS=true
+          fi
+          
+          # Check for any golden files in integration_test
+          if [ -d "flutter_app/integration_test" ] && [ "$(find flutter_app/integration_test -name "*.png" -type f | wc -l)" -gt 0 ]; then
+            echo "## ✅ Screenshots in integration_test:" >> screenshot_report.md
+            echo "" >> screenshot_report.md
+            find flutter_app/integration_test -name "*.png" -type f | while read file; do
+              size=$(ls -lh "$file" | awk '{print $5}')
+              echo "- \`$file\` ($size)" >> screenshot_report.md
+            done
+            echo "" >> screenshot_report.md
+            FOUND_SCREENSHOTS=true
+          fi
+          
+          # Check for any golden files in test directory
+          if [ -d "flutter_app/test" ] && [ "$(find flutter_app/test -name "*.png" -type f | wc -l)" -gt 0 ]; then
+            echo "## ✅ Screenshots in test directory:" >> screenshot_report.md
+            echo "" >> screenshot_report.md
+            find flutter_app/test -name "*.png" -type f | while read file; do
+              size=$(ls -lh "$file" | awk '{print $5}')
+              echo "- \`$file\` ($size)" >> screenshot_report.md
+            done
+            echo "" >> screenshot_report.md
+            FOUND_SCREENSHOTS=true
           fi
           
           # Check for regular screenshots
           if [ -d "screenshots" ] && [ "$(find screenshots -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Generated Regular Screenshots:" >> screenshot_report.md
+            echo "## ✅ Regular Screenshots:" >> screenshot_report.md
             echo "" >> screenshot_report.md
             find screenshots -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
               echo "- \`$file\` ($size)" >> screenshot_report.md
             done
             echo "" >> screenshot_report.md
-            echo "**Total regular screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
+            FOUND_SCREENSHOTS=true
+          fi
+          
+          # List all PNG files for debugging
+          if [ "$TOTAL_PNGS" -gt 0 ]; then
+            echo "## 🔍 All PNG Files Found:" >> screenshot_report.md
+            echo "" >> screenshot_report.md
+            find . -name "*.png" -type f | while read file; do
+              size=$(ls -lh "$file" | awk '{print $5}')
+              echo "- \`$file\` ($size)" >> screenshot_report.md
+            done
+            echo "" >> screenshot_report.md
           fi
           
           # If no screenshots found
-          if [ ! -d "flutter_app/integration_test/goldens" ] && [ ! -d "screenshots" ]; then
+          if [ "$TOTAL_PNGS" -eq 0 ]; then
             echo "## ⚠️ No Screenshots Generated" >> screenshot_report.md
             echo "" >> screenshot_report.md
-            echo "The golden screenshot generation did not produce files." >> screenshot_report.md
+            echo "The golden screenshot generation did not produce any PNG files." >> screenshot_report.md
           fi
 
       - name: Commit screenshots
@@ -151,16 +210,32 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
+          # Add any PNG files found in the project
+          if [ "$(find . -name "*.png" -type f | wc -l)" -gt 0 ]; then
+            echo "📁 Adding all PNG files..."
+            find . -name "*.png" -type f -exec git add {} \;
+          fi
+          
           # Add regular screenshots if they exist
           if [ -d "screenshots" ]; then
-            echo "📁 Adding regular screenshots..."
+            echo "📁 Adding regular screenshots directory..."
             git add screenshots/
           fi
 
-          # Add golden screenshots if they exist
+          # Add golden screenshots if they exist in various locations
           if [ -d "flutter_app/integration_test/goldens" ]; then
-            echo "📁 Adding golden screenshots..."
+            echo "� Addding golden screenshots from integration_test/goldens..."
             git add flutter_app/integration_test/goldens/
+          fi
+          
+          if [ -d "flutter_app/integration_test" ] && [ "$(find flutter_app/integration_test -name "*.png" -type f | wc -l)" -gt 0 ]; then
+            echo "📁 Adding screenshots from integration_test..."
+            git add flutter_app/integration_test/
+          fi
+          
+          if [ -d "flutter_app/test" ] && [ "$(find flutter_app/test -name "*.png" -type f | wc -l)" -gt 0 ]; then
+            echo "📁 Adding screenshots from test directory..."
+            git add flutter_app/test/
           fi
           
           # Add report

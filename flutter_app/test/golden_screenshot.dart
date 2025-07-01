@@ -97,6 +97,8 @@ void _screenshotWidget({
             matchesGoldenFile(
                 '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
           );
+          print('Screenshot taken for ${goldenDevice.name}');
+          print('${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png')
         } finally {
           // Reset view settings to original values
           tester.view.physicalSize = originalSize;
