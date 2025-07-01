@@ -69,13 +69,16 @@ void _screenshotWidget({
     for (final goldenDevice in GoldenScreenshotDevices.values) {
       testGoldens('for ${goldenDevice.name}', (tester) async {
         final device = goldenDevice.device;
-        final widget = ScreenshotApp(
-          theme: theme,
-          device: device,
-          child: child,
-        );
 
-        await tester.pumpWidget(widget);
+        // Set the device size directly on the tester
+        tester.view.physicalSize = Size(
+          device.resolution.width,
+          device.resolution.height,
+        );
+        tester.view.devicePixelRatio = device.pixelRatio;
+
+        // Pump the app directly without ScreenshotApp wrapper
+        await tester.pumpWidget(child);
 
         // Precache the images and fonts so they're ready for the screenshot
         await tester.precacheImagesInWidgetTree();
@@ -83,10 +86,14 @@ void _screenshotWidget({
         await tester.loadFonts();
 
         // Pump the widget for a second to ensure animations are complete
-        await tester.pumpFrames(widget, const Duration(seconds: 1));
+        await tester.pumpFrames(child, const Duration(seconds: 1));
 
-        // Take the screenshot and compare it to the golden file
-        await tester.expectScreenshot(device, goldenFileName);
+        // Take the screenshot of the MaterialApp directly
+        await expectLater(
+          find.byType(MaterialApp).first,
+          matchesGoldenFile(
+              '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
+        );
       });
     }
   });

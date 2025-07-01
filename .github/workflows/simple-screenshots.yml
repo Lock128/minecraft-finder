@@ -1,4 +1,4 @@
-name: Simple Android Screenshots
+name: OLD Simple Android Screenshots
 
 on:
   workflow_dispatch:

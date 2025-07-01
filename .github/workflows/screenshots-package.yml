@@ -1,4 +1,4 @@
-name: Integration Test Screenshots
+name: OLD Integration Test Screenshots
 
 on:
   workflow_dispatch:

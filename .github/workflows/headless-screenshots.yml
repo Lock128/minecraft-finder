@@ -1,4 +1,4 @@
-name: Headless Screenshot Generation
+name: OLD Headless Screenshot Generation
 
 on:
   workflow_dispatch:

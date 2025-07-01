@@ -1,4 +1,4 @@
-name: Generate Android Screenshots
+name: OLD Generate Android Screenshots
 
 on:
   workflow_dispatch:
