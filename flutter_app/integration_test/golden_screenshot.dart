@@ -81,8 +81,8 @@ void _screenshotWidget({
         await tester.pumpWidget(child);
 
         // Precache the images and fonts so they're ready for the screenshot
-        await tester.precacheImagesInWidgetTree();
-        await tester.precacheTopbarImages();
+        // await tester.precacheImagesInWidgetTree();
+        // await tester.precacheTopbarImages();
         await tester.loadFonts();
         await tester.pumpAndSettle(const Duration(seconds: 10));
 
