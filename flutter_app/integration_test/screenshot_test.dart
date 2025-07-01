@@ -22,6 +22,9 @@ void main() {
       await tester.pumpWidget(const MinecraftOreFinderApp());
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
+      // Convert Flutter surface to image (required for emulator screenshots)
+      await binding.convertFlutterSurfaceToImage();
+
       // Screenshot 1: Main search screen
       print('📸 Taking main search screen screenshot...');
       await binding.takeScreenshot('01_main_search_screen');
