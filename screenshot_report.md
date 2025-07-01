@@ -1,10 +1,41 @@
 # Golden Screenshots Report
 
-**Generated on:** Tue Jul  1 11:06:17 UTC 2025
+**Generated on:** Tue Jul  1 11:39:01 UTC 2025
 **Method:** Golden Screenshot Package + Android Emulator
 **Emulator:** Pixel 6 (API 34)
 
-**Total PNG files found:** 33
+**Total PNG files found:** 61
+
+## ✅ Screenshots in test directory:
+
+- `flutter_app/test/2_search_tab_olderIpad_2048x2732.png` (746K)
+- `flutter_app/test/2_search_tab_android_1440x3120.png` (745K)
+- `flutter_app/test/3_results_tab_android_1440x3120.png` (745K)
+- `flutter_app/test/2_search_tab_macbook_2880x1800.png` (700K)
+- `flutter_app/test/4_guide_tab_flathub_1920x1080.png` (313K)
+- `flutter_app/test/1_main_screen_newerIpad_2064x2752.png` (753K)
+- `flutter_app/test/4_guide_tab_olderIphone_1242x2208.png` (466K)
+- `flutter_app/test/1_main_screen_flathub_1920x1080.png` (313K)
+- `flutter_app/test/1_main_screen_olderIphone_1242x2208.png` (466K)
+- `flutter_app/test/4_guide_tab_android_1440x3120.png` (745K)
+- `flutter_app/test/3_results_tab_olderIphone_1242x2208.png` (466K)
+- `flutter_app/test/4_guide_tab_newerIpad_2064x2752.png` (753K)
+- `flutter_app/test/4_guide_tab_olderIpad_2048x2732.png` (746K)
+- `flutter_app/test/3_results_tab_newerIpad_2064x2752.png` (753K)
+- `flutter_app/test/3_results_tab_newerIphone_1320x2868.png` (708K)
+- `flutter_app/test/3_results_tab_macbook_2880x1800.png` (700K)
+- `flutter_app/test/4_guide_tab_newerIphone_1320x2868.png` (708K)
+- `flutter_app/test/2_search_tab_olderIphone_1242x2208.png` (466K)
+- `flutter_app/test/1_main_screen_android_1440x3120.png` (745K)
+- `flutter_app/test/2_search_tab_flathub_1920x1080.png` (313K)
+- `flutter_app/test/4_guide_tab_macbook_2880x1800.png` (700K)
+- `flutter_app/test/3_results_tab_flathub_1920x1080.png` (313K)
+- `flutter_app/test/1_main_screen_macbook_2880x1800.png` (700K)
+- `flutter_app/test/2_search_tab_newerIphone_1320x2868.png` (708K)
+- `flutter_app/test/2_search_tab_newerIpad_2064x2752.png` (753K)
+- `flutter_app/test/1_main_screen_newerIphone_1320x2868.png` (708K)
+- `flutter_app/test/1_main_screen_olderIpad_2048x2732.png` (746K)
+- `flutter_app/test/3_results_tab_olderIpad_2048x2732.png` (746K)
 
 ## 🔍 All PNG Files Found:
 
@@ -13,6 +44,34 @@
 - `./flutter_app/web/icons/Icon-maskable-192.png` (5.5K)
 - `./flutter_app/web/icons/Icon-192.png` (5.2K)
 - `./flutter_app/web/icons/Icon-maskable-512.png` (21K)
+- `./flutter_app/test/2_search_tab_olderIpad_2048x2732.png` (746K)
+- `./flutter_app/test/2_search_tab_android_1440x3120.png` (745K)
+- `./flutter_app/test/3_results_tab_android_1440x3120.png` (745K)
+- `./flutter_app/test/2_search_tab_macbook_2880x1800.png` (700K)
+- `./flutter_app/test/4_guide_tab_flathub_1920x1080.png` (313K)
+- `./flutter_app/test/1_main_screen_newerIpad_2064x2752.png` (753K)
+- `./flutter_app/test/4_guide_tab_olderIphone_1242x2208.png` (466K)
+- `./flutter_app/test/1_main_screen_flathub_1920x1080.png` (313K)
+- `./flutter_app/test/1_main_screen_olderIphone_1242x2208.png` (466K)
+- `./flutter_app/test/4_guide_tab_android_1440x3120.png` (745K)
+- `./flutter_app/test/3_results_tab_olderIphone_1242x2208.png` (466K)
+- `./flutter_app/test/4_guide_tab_newerIpad_2064x2752.png` (753K)
+- `./flutter_app/test/4_guide_tab_olderIpad_2048x2732.png` (746K)
+- `./flutter_app/test/3_results_tab_newerIpad_2064x2752.png` (753K)
+- `./flutter_app/test/3_results_tab_newerIphone_1320x2868.png` (708K)
+- `./flutter_app/test/3_results_tab_macbook_2880x1800.png` (700K)
+- `./flutter_app/test/4_guide_tab_newerIphone_1320x2868.png` (708K)
+- `./flutter_app/test/2_search_tab_olderIphone_1242x2208.png` (466K)
+- `./flutter_app/test/1_main_screen_android_1440x3120.png` (745K)
+- `./flutter_app/test/2_search_tab_flathub_1920x1080.png` (313K)
+- `./flutter_app/test/4_guide_tab_macbook_2880x1800.png` (700K)
+- `./flutter_app/test/3_results_tab_flathub_1920x1080.png` (313K)
+- `./flutter_app/test/1_main_screen_macbook_2880x1800.png` (700K)
+- `./flutter_app/test/2_search_tab_newerIphone_1320x2868.png` (708K)
+- `./flutter_app/test/2_search_tab_newerIpad_2064x2752.png` (753K)
+- `./flutter_app/test/1_main_screen_newerIphone_1320x2868.png` (708K)
+- `./flutter_app/test/1_main_screen_olderIpad_2048x2732.png` (746K)
+- `./flutter_app/test/3_results_tab_olderIpad_2048x2732.png` (746K)
 - `./flutter_app/build/unit_test_assets/packages/golden_screenshot/assets/topbars/android_topbar.png` (4.4K)
 - `./flutter_app/build/unit_test_assets/packages/golden_screenshot/assets/topbars/newer_iphone_topbar.png` (11K)
 - `./flutter_app/build/unit_test_assets/packages/golden_screenshot/assets/topbars/newer_ipad_topbar.png` (7.2K)
