@@ -67,11 +67,11 @@ jobs:
           disk-size: 8192M
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -no-audio -no-boot-anim
           disable-animations: true
-          script: cd flutter_app && echo "🚀 Running golden screenshot tests..." && flutter test test/create_screenshots.dart || echo "✅ Test completed"
+          script: cd flutter_app && echo "🚀 Running screenshot tests..." && flutter test test/create_screenshots.dart --verbose || echo "✅ Test completed"
 
       - name: Copy golden screenshots from test directories
         run: |
-          echo "🔍 Looking for generated golden screenshots..."
+          echo "🔍 Looking for generated screenshots..."
           
           # Look for golden files in Flutter's test directories
           cd flutter_app
@@ -82,41 +82,13 @@ jobs:
             find integration_test -name "*.png" -type f 2>/dev/null || true
           fi
           
-          # Check test directory for golden files  
+          # Check test directory for files  
           if [ -d "test" ]; then
             echo "📁 Checking test directory..."
             find test -name "*.png" -type f 2>/dev/null || true
           fi
           
-          # Look for golden files in temp directories
-          echo "📁 Checking temp directories..."
-          GOLDEN_DIRS=$(find /tmp -name "golden_screenshots*" -type d 2>/dev/null || true)
-          
-          if [ -n "$GOLDEN_DIRS" ]; then
-            echo "📁 Found golden screenshot temp directories:"
-            echo "$GOLDEN_DIRS"
-            
-            # Create golden screenshots directory
-            mkdir -p integration_test/goldens
-            
-            # Copy all golden files
-            for dir in $GOLDEN_DIRS; do
-              if [ -d "$dir" ] && [ "$(ls -A $dir 2>/dev/null)" ]; then
-                echo "📋 Copying from $dir"
-                find "$dir" -name "*.png" -type f -exec cp {} integration_test/goldens/ \; 2>/dev/null || true
-              fi
-            done
-            
-            echo "✅ Golden screenshots copied to integration_test/goldens/"
-            ls -la integration_test/goldens/ 2>/dev/null || echo "No files in goldens directory"
-          fi
-          
-          # Look for golden files in Flutter's default locations
-          echo "📁 Checking Flutter's default golden file locations..."
-          find . -name "*.png" -path "*/goldens/*" -type f 2>/dev/null || true
-          find . -name "*golden*.png" -type f 2>/dev/null || true
-          
-          # Look for any PNG files that might be golden screenshots
+          # Look for any PNG files that might be screenshots
           echo "📁 All PNG files in project:"
           find . -name "*.png" -type f 2>/dev/null | head -20 || true
           
@@ -124,7 +96,7 @@ jobs:
 
       - name: Create report
         run: |
-          echo "# Golden Screenshots Report" > screenshot_report.md
+          echo "# Screenshots Report" > screenshot_report.md
           echo "" >> screenshot_report.md
           echo "**Generated on:** $(date)" >> screenshot_report.md
           echo "**Method:** Golden Screenshot Package + Android Emulator" >> screenshot_report.md

@@ -124,85 +124,85 @@ jobs:
 
       - name: Create report
         run: |
-          echo "# Golden Screenshots Report" > screenshot_report.md
-          echo "" >> screenshot_report.md
-          echo "**Generated on:** $(date)" >> screenshot_report.md
-          echo "**Method:** Golden Screenshot Package + Android Emulator" >> screenshot_report.md
-          echo "**Emulator:** Pixel 6 (API 34)" >> screenshot_report.md
-          echo "" >> screenshot_report.md
+          echo "# Golden Screenshots Report" > screenshot_report_golden.md
+          echo "" >> screenshot_report_golden.md
+          echo "**Generated on:** $(date)" >> screenshot_report_golden.md
+          echo "**Method:** Golden Screenshot Package + Android Emulator" >> screenshot_report_golden.md
+          echo "**Emulator:** Pixel 6 (API 34)" >> screenshot_report_golden.md
+          echo "" >> screenshot_report_golden.md
           
           # Count all PNG files in the project
           TOTAL_PNGS=$(find . -name "*.png" -type f | wc -l)
-          echo "**Total PNG files found:** $TOTAL_PNGS" >> screenshot_report.md
-          echo "" >> screenshot_report.md
+          echo "**Total PNG files found:** $TOTAL_PNGS" >> screenshot_report_golden.md
+          echo "" >> screenshot_report_golden.md
           
           # Check for golden screenshots in various locations
           FOUND_SCREENSHOTS=false
           
           # Check integration_test/goldens
           if [ -d "flutter_app/integration_test/goldens" ] && [ "$(find flutter_app/integration_test/goldens -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Golden Screenshots (integration_test/goldens):" >> screenshot_report.md
-            echo "" >> screenshot_report.md
+            echo "## ✅ Golden Screenshots (integration_test/goldens):" >> screenshot_report_golden.md
+            echo "" >> screenshot_report_golden.md
             find flutter_app/integration_test/goldens -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
-              echo "- \`$file\` ($size)" >> screenshot_report.md
+              echo "- \`$file\` ($size)" >> screenshot_report_golden.md
             done
-            echo "" >> screenshot_report.md
+            echo "" >> screenshot_report_golden.md
             FOUND_SCREENSHOTS=true
           fi
           
           # Check for any golden files in integration_test
           if [ -d "flutter_app/integration_test" ] && [ "$(find flutter_app/integration_test -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Screenshots in integration_test:" >> screenshot_report.md
-            echo "" >> screenshot_report.md
+            echo "## ✅ Screenshots in integration_test:" >> screenshot_report_golden.md
+            echo "" >> screenshot_report_golden.md
             find flutter_app/integration_test -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
-              echo "- \`$file\` ($size)" >> screenshot_report.md
+              echo "- \`$file\` ($size)" >> screenshot_report_golden.md
             done
-            echo "" >> screenshot_report.md
+            echo "" >> screenshot_report_golden.md
             FOUND_SCREENSHOTS=true
           fi
           
           # Check for any golden files in test directory
           if [ -d "flutter_app/test" ] && [ "$(find flutter_app/test -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Screenshots in test directory:" >> screenshot_report.md
-            echo "" >> screenshot_report.md
+            echo "## ✅ Screenshots in test directory:" >> screenshot_report_golden.md
+            echo "" >> screenshot_report_golden.md
             find flutter_app/test -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
-              echo "- \`$file\` ($size)" >> screenshot_report.md
+              echo "- \`$file\` ($size)" >> screenshot_report_golden.md
             done
-            echo "" >> screenshot_report.md
+            echo "" >> screenshot_report_golden.md
             FOUND_SCREENSHOTS=true
           fi
           
           # Check for regular screenshots
           if [ -d "screenshots" ] && [ "$(find screenshots -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Regular Screenshots:" >> screenshot_report.md
-            echo "" >> screenshot_report.md
+            echo "## ✅ Regular Screenshots:" >> screenshot_report_golden.md
+            echo "" >> screenshot_report_golden.md
             find screenshots -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
-              echo "- \`$file\` ($size)" >> screenshot_report.md
+              echo "- \`$file\` ($size)" >> screenshot_report_golden.md
             done
-            echo "" >> screenshot_report.md
+            echo "" >> screenshot_report_golden.md
             FOUND_SCREENSHOTS=true
           fi
           
           # List all PNG files for debugging
           if [ "$TOTAL_PNGS" -gt 0 ]; then
-            echo "## 🔍 All PNG Files Found:" >> screenshot_report.md
-            echo "" >> screenshot_report.md
+            echo "## 🔍 All PNG Files Found:" >> screenshot_report_golden.md
+            echo "" >> screenshot_report_golden.md
             find . -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
-              echo "- \`$file\` ($size)" >> screenshot_report.md
+              echo "- \`$file\` ($size)" >> screenshot_report_golden.md
             done
-            echo "" >> screenshot_report.md
+            echo "" >> screenshot_report_golden.md
           fi
           
           # If no screenshots found
           if [ "$TOTAL_PNGS" -eq 0 ]; then
-            echo "## ⚠️ No Screenshots Generated" >> screenshot_report.md
-            echo "" >> screenshot_report.md
-            echo "The golden screenshot generation did not produce any PNG files." >> screenshot_report.md
+            echo "## ⚠️ No Screenshots Generated" >> screenshot_report_golden.md
+            echo "" >> screenshot_report_golden.md
+            echo "The golden screenshot generation did not produce any PNG files." >> screenshot_report_golden.md
           fi
 
       - name: Commit screenshots
@@ -239,9 +239,9 @@ jobs:
           fi
           
           # Add report
-          if [ -f "screenshot_report.md" ]; then
+          if [ -f "screenshot_report_golden.md" ]; then
             echo "📄 Adding screenshot report..."
-            git add screenshot_report.md
+            git add screenshot_report_golden.md
           fi
           
           # Check if there are changes to commit
@@ -262,5 +262,5 @@ jobs:
           path: |
             screenshots/
             flutter_app/integration_test/goldens/
-            screenshot_report.md
+            screenshot_report_golden.md
           retention-days: 7

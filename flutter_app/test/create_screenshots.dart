@@ -52,10 +52,8 @@ void main() {
 
     // Create screenshots directory if it doesn't exist
     setUpAll(() async {
-      final screenshotsDir = Directory('screenshots');
-      if (!await screenshotsDir.exists()) {
-        await screenshotsDir.create(recursive: true);
-      }
+      final screenshotsDir =
+          await Directory.systemTemp.createTemp('screenshots_');
     });
 
     final appTheme = ThemeData(
@@ -79,7 +77,7 @@ void main() {
             fileName: '1_main_screen_${device.name}',
             child: const MinecraftOreFinderApp(),
           );
-        });
+        }, timeout: const Timeout(Duration(minutes: 2)));
 
         testWidgets('search tab with form filled', (tester) async {
           await _takeScreenshot(
@@ -101,7 +99,7 @@ void main() {
               }
             },
           );
-        });
+        }, timeout: const Timeout(Duration(minutes: 2)));
 
         testWidgets('results tab', (tester) async {
           await _takeScreenshot(
@@ -122,7 +120,7 @@ void main() {
               }
             },
           );
-        });
+        }, timeout: const Timeout(Duration(minutes: 2)));
 
         testWidgets('guide tab', (tester) async {
           await _takeScreenshot(
@@ -143,7 +141,7 @@ void main() {
               }
             },
           );
-        });
+        }, timeout: const Timeout(Duration(minutes: 2)));
       });
     }
   });
