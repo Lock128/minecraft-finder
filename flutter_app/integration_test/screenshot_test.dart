@@ -13,10 +13,10 @@ void main() {
       print('🚀 Starting Play Store screenshot generation...');
 
       // Create screenshots directory
-      final screenshotsDir = Directory('../screenshots');
-      if (!await screenshotsDir.exists()) {
-        await screenshotsDir.create(recursive: true);
-      }
+      // final screenshotsDir = Directory('../screenshots');
+      // if (!await screenshotsDir.exists()) {
+      //   await screenshotsDir.create(recursive: true);
+      // }
 
       // Build the app
       await tester.pumpWidget(const MinecraftOreFinderApp());
