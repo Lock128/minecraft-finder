@@ -6,12 +6,9 @@ library;
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:minecraft_finder/main.dart';
-
-import 'package:flutter/rendering.dart';
 
 void main() {
   group('Screenshot:', () {
@@ -98,7 +95,8 @@ void _screenshotWidget({
                 '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
           );
           print('Screenshot taken for ${goldenDevice.name}');
-          print('${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png')
+          print(
+              '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png');
         } finally {
           // Reset view settings to original values
           tester.view.physicalSize = originalSize;
