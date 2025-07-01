@@ -91,7 +91,8 @@ void _screenshotWidget({
 
         await expectLater(
           innerApp,
-          matchesGoldenFile('${device.name}/$goldenFileName.png'),
+          matchesGoldenFile(
+              '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
         );
       });
     }
