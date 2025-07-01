@@ -211,11 +211,14 @@ Future<void> _takeScreenshot({
   try {
     // Capture screenshot
     print('Await capture');
+    await Future.delayed(const Duration(seconds: 1));
 
-    final Uint8List? imageBytes = await controller.capture(
-      delay: const Duration(milliseconds: 500),
-      //pixelRatio: device.pixelRatio,
-    );
+    final Uint8List? imageBytes = await controller
+        .capture(
+          delay: const Duration(milliseconds: 500),
+          //pixelRatio: device.pixelRatio,
+        )
+        .timeout(const Duration(seconds: 30));
     print('Await capture finished');
     if (imageBytes != null) {
       // Save screenshot to file
