@@ -54,10 +54,13 @@ class SearchButtons extends StatelessWidget {
                             child: Text('⛏️', style: TextStyle(fontSize: 10)),
                           ),
                         ),
-                  label: Text(
-                    isLoading && !findAllNetherite ? 'Searching...' : 'Find',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                  label: Flexible(
+                    child: Text(
+                      isLoading && !findAllNetherite ? 'Searching...' : 'Find',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(16),
@@ -105,12 +108,15 @@ class SearchButtons extends StatelessWidget {
                             child: Text('🔥', style: TextStyle(fontSize: 10)),
                           ),
                         ),
-                  label: Text(
-                    isLoading && findAllNetherite
-                        ? 'Searching All Netherite...'
-                        : 'Find ALL Netherite',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                  label: Flexible(
+                    child: Text(
+                      isLoading && findAllNetherite
+                          ? 'Searching All Netherite...'
+                          : 'Find ALL Netherite',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,

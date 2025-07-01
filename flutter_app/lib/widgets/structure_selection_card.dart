@@ -59,12 +59,14 @@ class StructureSelectionCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  'Structure Search',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: const Color(0xFF2E7D32),
-                        fontWeight: FontWeight.bold,
-                      ),
+                Expanded(
+                  child: Text(
+                    'Structure Search',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: const Color(0xFF2E7D32),
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
                 ),
               ],
             ),

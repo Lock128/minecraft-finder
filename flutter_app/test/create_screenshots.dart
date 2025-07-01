@@ -45,6 +45,7 @@ const List<DeviceConfig> devices = [
 void main() {
   group('Screenshot Tests:', () {
     late ScreenshotController screenshotController;
+    late Directory screenshotsDir;
 
     setUp(() {
       screenshotController = ScreenshotController();
@@ -52,8 +53,7 @@ void main() {
 
     // Create screenshots directory if it doesn't exist
     setUpAll(() async {
-      final screenshotsDir =
-          await Directory.systemTemp.createTemp('screenshots_');
+      screenshotsDir = await Directory.systemTemp.createTemp('screenshots_');
     });
 
     final appTheme = ThemeData(
@@ -69,6 +69,7 @@ void main() {
     for (final device in devices) {
       group('${device.name} screenshots', () {
         testWidgets('main screen', (tester) async {
+          print('📱 Starting main screen test for ${device.name}');
           await _takeScreenshot(
             tester: tester,
             controller: screenshotController,
@@ -76,10 +77,13 @@ void main() {
             theme: appTheme,
             fileName: '1_main_screen_${device.name}',
             child: const MinecraftOreFinderApp(),
+            screenshotsDir: screenshotsDir,
           );
+          print('✅ Completed main screen test for ${device.name}');
         }, timeout: const Timeout(Duration(minutes: 2)));
 
         testWidgets('search tab with form filled', (tester) async {
+          print('🔍 Starting search tab test for ${device.name}');
           await _takeScreenshot(
             tester: tester,
             controller: screenshotController,
@@ -87,21 +91,28 @@ void main() {
             theme: appTheme,
             fileName: '2_search_tab_${device.name}',
             child: const MinecraftOreFinderApp(),
+            screenshotsDir: screenshotsDir,
             setupAction: (tester) async {
+              print('  🔧 Setting up search tab - waiting for app to load');
               // Wait for app to load
               await tester.pumpAndSettle();
 
               // Fill in some form fields to make it look more realistic
               final seedField = find.byType(TextFormField).first;
               if (seedField.evaluate().isNotEmpty) {
+                print('  ✏️ Filling in seed field');
                 await tester.enterText(seedField, '8674308105921866736');
                 await tester.pumpAndSettle();
+              } else {
+                print('  ⚠️ No TextFormField found');
               }
             },
           );
+          print('✅ Completed search tab test for ${device.name}');
         }, timeout: const Timeout(Duration(minutes: 2)));
 
         testWidgets('results tab', (tester) async {
+          print('📊 Starting results tab test for ${device.name}');
           await _takeScreenshot(
             tester: tester,
             controller: screenshotController,
@@ -109,17 +120,23 @@ void main() {
             theme: appTheme,
             fileName: '3_results_tab_${device.name}',
             child: const MinecraftOreFinderApp(),
+            screenshotsDir: screenshotsDir,
             setupAction: (tester) async {
+              print('  🔧 Setting up results tab - waiting for app to load');
               await tester.pumpAndSettle();
 
               // Try to navigate to results tab
               final resultsTabs = find.text('Results');
               if (resultsTabs.evaluate().isNotEmpty) {
+                print('  👆 Tapping Results tab');
                 await tester.tap(resultsTabs);
                 await tester.pumpAndSettle();
+              } else {
+                print('  ⚠️ Results tab not found');
               }
             },
           );
+          print('✅ Completed results tab test for ${device.name}');
         }, timeout: const Timeout(Duration(minutes: 2)));
 
         testWidgets('guide tab', (tester) async {
@@ -130,6 +147,7 @@ void main() {
             theme: appTheme,
             fileName: '4_guide_tab_${device.name}',
             child: const MinecraftOreFinderApp(),
+            screenshotsDir: screenshotsDir,
             setupAction: (tester) async {
               await tester.pumpAndSettle();
 
@@ -154,6 +172,7 @@ Future<void> _takeScreenshot({
   required ThemeData theme,
   required String fileName,
   required Widget child,
+  required Directory screenshotsDir,
   Future<void> Function(WidgetTester)? setupAction,
 }) async {
   // Set device size
@@ -192,7 +211,7 @@ Future<void> _takeScreenshot({
     if (imageBytes != null) {
       // Save screenshot to file
       final file = File(
-          'screenshots/${fileName}_${device.size.width.toInt()}x${device.size.height.toInt()}.png');
+          '${screenshotsDir.path}/${fileName}_${device.size.width.toInt()}x${device.size.height.toInt()}.png');
       await file.writeAsBytes(imageBytes);
 
       print('Screenshot saved: ${file.path}');
