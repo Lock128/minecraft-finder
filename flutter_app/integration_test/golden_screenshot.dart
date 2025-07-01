@@ -83,7 +83,16 @@ void _screenshotWidget({
         await tester.pumpFrames(widget, const Duration(seconds: 1));
 
         // Take the screenshot and compare it to the golden file
-        await tester.expectScreenshot(device, goldenFileName);
+        // Find the inner MaterialApp (your app) instead of the wrapper
+        final innerApp = find.descendant(
+          of: find.byType(ScreenshotApp),
+          matching: find.byType(MinecraftOreFinderApp),
+        );
+
+        await expectLater(
+          innerApp,
+          matchesGoldenFile('${device.name}/$goldenFileName.png'),
+        );
       });
     }
   });
