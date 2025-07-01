@@ -13,6 +13,18 @@ import 'package:minecraft_finder/main.dart';
 
 import 'package:flutter/rendering.dart';
 
+void _resetPaintingDebugFlags() {
+  debugPaintSizeEnabled = false;
+  debugPaintBaselinesEnabled = false;
+  debugRepaintRainbowEnabled = false;
+  debugDisableClipLayers = false;
+  debugDisablePhysicalShapeLayers = false;
+  debugInvertOversizedImages = false;
+  //debugAllowBannerOverride = false;
+  debugDisableShadows = false;
+  //debugCheckElevationsEnabled = false;
+}
+
 void main() {
   group('Screenshot:', () {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -77,6 +89,10 @@ void _screenshotWidget({
 
     for (final goldenDevice in GoldenScreenshotDevices.values) {
       testGoldens('for ${goldenDevice.name}', (tester) async {
+        addTearDown(() {
+          _resetPaintingDebugFlags();
+        });
+
         final device = goldenDevice.device;
 
         // Store original view settings
