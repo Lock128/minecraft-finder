@@ -13,6 +13,15 @@ void main() {
   group('Screenshot:', () {
     TestWidgetsFlutterBinding.ensureInitialized();
 
+    // Set up proper golden file comparator for CI environments
+    setUpAll(() {
+      // This fixes the LocalFileComparator issue in CI environments
+      if (goldenFileComparator is! LocalFileComparator) {
+        goldenFileComparator =
+            LocalFileComparator(Uri.parse('integration_test/'));
+      }
+    });
+
     final appTheme = ThemeData(
       primarySwatch: Colors.green,
       useMaterial3: true,
