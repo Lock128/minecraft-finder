@@ -1,14 +1,22 @@
-import 'dart:io';
+/// This file contains the tests that take screenshots of the app.
+///
+/// Run it with `flutter test --update-goldens` to generate the screenshots
+/// or `flutter test` to compare the screenshots to the golden files.
+library;
 
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart'; // Import for debug flags
+import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:minecraft_finder/main.dart';
 
+import 'package:flutter/rendering.dart';
+
 void main() {
   group('Screenshot:', () {
     TestWidgetsFlutterBinding.ensureInitialized();
+
     // Set up proper golden file comparator for CI environments
     setUpAll(() {
       // This fixes the LocalFileComparator issue in CI environments
@@ -19,6 +27,7 @@ void main() {
         goldenFileComparator = LocalFileComparator(tempDir.uri);
       }
     });
+
     final appTheme = ThemeData(
       primarySwatch: Colors.green,
       useMaterial3: true,
@@ -27,12 +36,30 @@ void main() {
         brightness: Brightness.light,
       ),
     );
+
     _screenshotWidget(
       theme: appTheme,
       goldenFileName: '1_main_screen',
       child: const MinecraftOreFinderApp(),
     );
-    // ... other calls to _screenshotWidget
+
+    _screenshotWidget(
+      theme: appTheme,
+      goldenFileName: '2_search_tab',
+      child: const MinecraftOreFinderApp(),
+    );
+
+    _screenshotWidget(
+      theme: appTheme,
+      goldenFileName: '3_results_tab',
+      child: const MinecraftOreFinderApp(),
+    );
+
+    _screenshotWidget(
+      theme: appTheme,
+      goldenFileName: '4_guide_tab',
+      child: const MinecraftOreFinderApp(),
+    );
   });
 }
 
@@ -44,58 +71,36 @@ void _screenshotWidget({
   group(goldenFileName, () {
     for (final goldenDevice in GoldenScreenshotDevices.values) {
       testGoldens('for ${goldenDevice.name}', (tester) async {
+        final device = goldenDevice.device;
+
         // Store original view settings
         final originalSize = tester.view.physicalSize;
         final originalPixelRatio = tester.view.devicePixelRatio;
 
-        // Store original painting debug values
-        final originalDebugValues = {
-          'debugPaintSizeEnabled': debugPaintSizeEnabled,
-          'debugPaintBaselinesEnabled': debugPaintBaselinesEnabled,
-          'debugRepaintRainbowEnabled': debugRepaintRainbowEnabled,
-          'debugDisableClipLayers': debugDisableClipLayers,
-          'debugDisablePhysicalShapeLayers': debugDisablePhysicalShapeLayers,
-          'debugInvertOversizedImages': debugInvertOversizedImages,
-          'debugDisableShadows': debugDisableShadows,
-        };
-
         try {
-          // Set the device size for the golden test
-          final device = goldenDevice.device;
+          // Set the device size directly on the tester
           tester.view.physicalSize = Size(
             device.resolution.width,
             device.resolution.height,
           );
           tester.view.devicePixelRatio = device.pixelRatio;
 
-          // Pump the widget tree
-          await tester.pumpWidget(MaterialApp(theme: theme, home: child));
+          // Pump the app directly without ScreenshotApp wrapper
+          await tester.pumpWidget(child);
+
+          // Wait for the app to settle and load
           await tester.pumpAndSettle(const Duration(seconds: 10));
 
-          // Perform the golden file comparison
+          // Take the screenshot of the MaterialApp directly
           await expectLater(
             find.byType(MaterialApp).first,
             matchesGoldenFile(
                 '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
           );
         } finally {
-          // ALWAYS reset values in the finally block
+          // Reset view settings to original values
           tester.view.physicalSize = originalSize;
           tester.view.devicePixelRatio = originalPixelRatio;
-
-          // Reset all painting debug values to their original state
-          debugPaintSizeEnabled = originalDebugValues['debugPaintSizeEnabled']!;
-          debugPaintBaselinesEnabled =
-              originalDebugValues['debugPaintBaselinesEnabled']!;
-          debugRepaintRainbowEnabled =
-              originalDebugValues['debugRepaintRainbowEnabled']!;
-          debugDisableClipLayers =
-              originalDebugValues['debugDisableClipLayers']!;
-          debugDisablePhysicalShapeLayers =
-              originalDebugValues['debugDisablePhysicalShapeLayers']!;
-          debugInvertOversizedImages =
-              originalDebugValues['debugInvertOversizedImages']!;
-          debugDisableShadows = originalDebugValues['debugDisableShadows']!;
         }
       });
     }
