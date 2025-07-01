@@ -176,6 +176,7 @@ Future<void> _takeScreenshot({
   Future<void> Function(WidgetTester)? setupAction,
 }) async {
   // Set device size
+  print('Await setSurfaceSize');
   await tester.binding.setSurfaceSize(device.size);
   tester.view.devicePixelRatio = device.pixelRatio;
 
@@ -190,15 +191,21 @@ Future<void> _takeScreenshot({
   );
 
   // Pump the widget
+  print('Await pumpWidget');
+
   await tester.pumpWidget(app);
+  print('Await pumpAndSettle');
+
   await tester.pumpAndSettle(const Duration(seconds: 3));
 
   // Run setup action if provided
   if (setupAction != null) {
+    print('Await setupAction');
     await setupAction(tester);
   }
 
   // Wait a bit more for any animations to complete
+  print('Await pumpAndSettle');
   await tester.pumpAndSettle(const Duration(seconds: 2));
 
   try {
