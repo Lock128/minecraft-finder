@@ -212,13 +212,9 @@ Future<void> _takeScreenshot({
     // Capture screenshot
     print('Await capture');
 
-// Add this before the capture call
-    await tester.pumpAndSettle(const Duration(seconds: 5));
-    await Future.delayed(const Duration(seconds: 1));
-    print('Await capture delay finished');
     final Uint8List? imageBytes = await controller.capture(
       delay: const Duration(milliseconds: 500),
-      pixelRatio: device.pixelRatio,
+      //pixelRatio: device.pixelRatio,
     );
     print('Await capture finished');
     if (imageBytes != null) {
