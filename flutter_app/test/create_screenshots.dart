@@ -210,6 +210,8 @@ Future<void> _takeScreenshot({
 
   try {
     // Capture screenshot
+    print('Await capture');
+
     final Uint8List? imageBytes = await controller.capture(
       delay: const Duration(milliseconds: 500),
       pixelRatio: device.pixelRatio,
@@ -219,6 +221,8 @@ Future<void> _takeScreenshot({
       // Save screenshot to file
       final file = File(
           '${screenshotsDir.path}/${fileName}_${device.size.width.toInt()}x${device.size.height.toInt()}.png');
+      print('Await writeAsBytes');
+
       await file.writeAsBytes(imageBytes);
 
       print('Screenshot saved: ${file.path}');
