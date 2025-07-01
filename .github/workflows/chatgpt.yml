@@ -67,7 +67,7 @@ jobs:
           disk-size: 8192M
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -no-audio -no-boot-anim
           disable-animations: true
-          script: cd flutter_app && echo "🚀 Running golden screenshot tests..." && flutter test integration_test/golden_screenshot.dart --update-goldens --verbose || echo "✅ Test completed"
+          script: cd flutter_app && echo "🚀 Running golden screenshot tests..." && flutter test integration_test/golden_screenshot.dart --update-goldens || echo "✅ Test completed"
 
       - name: Copy golden screenshots from temp directory
         run: |

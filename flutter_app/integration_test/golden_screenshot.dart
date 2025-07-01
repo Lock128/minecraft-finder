@@ -70,28 +70,35 @@ void _screenshotWidget({
       testGoldens('for ${goldenDevice.name}', (tester) async {
         final device = goldenDevice.device;
 
-        // Set the device size directly on the tester
-        tester.view.physicalSize = Size(
-          device.resolution.width,
-          device.resolution.height,
-        );
-        tester.view.devicePixelRatio = device.pixelRatio;
+        // Store original view settings
+        final originalSize = tester.view.physicalSize;
+        final originalPixelRatio = tester.view.devicePixelRatio;
 
-        // Pump the app directly without ScreenshotApp wrapper
-        await tester.pumpWidget(child);
+        try {
+          // Set the device size directly on the tester
+          tester.view.physicalSize = Size(
+            device.resolution.width,
+            device.resolution.height,
+          );
+          tester.view.devicePixelRatio = device.pixelRatio;
 
-        // Precache the images and fonts so they're ready for the screenshot
-        // await tester.precacheImagesInWidgetTree();
-        // await tester.precacheTopbarImages();
-        await tester.loadFonts();
-        await tester.pumpAndSettle(const Duration(seconds: 10));
+          // Pump the app directly without ScreenshotApp wrapper
+          await tester.pumpWidget(child);
 
-        // Take the screenshot of the MaterialApp directly
-        await expectLater(
-          find.byType(MaterialApp).first,
-          matchesGoldenFile(
-              '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
-        );
+          // Wait for the app to settle and load
+          await tester.pumpAndSettle(const Duration(seconds: 10));
+
+          // Take the screenshot of the MaterialApp directly
+          await expectLater(
+            find.byType(MaterialApp).first,
+            matchesGoldenFile(
+                '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
+          );
+        } finally {
+          // Reset view settings to original values to prevent debug variable issues
+          tester.view.physicalSize = originalSize;
+          tester.view.devicePixelRatio = originalPixelRatio;
+        }
       });
     }
   });
