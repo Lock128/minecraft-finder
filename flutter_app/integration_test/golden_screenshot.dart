@@ -25,7 +25,23 @@ void _resetPaintingDebugFlags() {
   //debugCheckElevationsEnabled = false;
 }
 
+void printPaintingFlags() {
+  print('debugPaintSizeEnabled=$debugPaintSizeEnabled');
+  print('debugPaintBaselinesEnabled=$debugPaintBaselinesEnabled');
+  print('debugRepaintRainbowEnabled=$debugRepaintRainbowEnabled');
+  print('debugDisableClipLayers=$debugDisableClipLayers');
+  print('debugDisablePhysicalShapeLayers=$debugDisablePhysicalShapeLayers');
+  print('debugInvertOversizedImages=$debugInvertOversizedImages');
+  print('debugAllowBannerOverride=$debugAllowBannerOverride');
+  print('debugDisableShadows=$debugDisableShadows');
+  print('debugCheckElevationsEnabled=$debugCheckElevationsEnabled');
+}
+
 void main() {
+  setUp(() {
+    _resetPaintingDebugFlags();
+  });
+
   group('Screenshot:', () {
     TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -93,6 +109,8 @@ void _screenshotWidget({
           _resetPaintingDebugFlags();
         });
 
+        printPaintingFlags();
+
         final device = goldenDevice.device;
 
         // Store original view settings
@@ -128,8 +146,13 @@ void _screenshotWidget({
           debugDisableShadows = false;
           debugPaintSizeEnabled = false;
 
+          _resetPaintingDebugFlags();
+
+          printPaintingFlags();
+
           // Force a pump to clear any cached painting state
           try {
+            await tester.pump();
             await tester.pump();
           } catch (e) {
             // Ignore pump errors during cleanup
