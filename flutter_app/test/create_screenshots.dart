@@ -206,7 +206,7 @@ Future<void> _takeScreenshot({
 
   // Wait a bit more for any animations to complete
   print('Await pumpAndSettle');
-  await tester.pumpAndSettle(const Duration(seconds: 2));
+  await tester.pumpAndSettle(const Duration(seconds: 5));
 
   try {
     // Capture screenshot
