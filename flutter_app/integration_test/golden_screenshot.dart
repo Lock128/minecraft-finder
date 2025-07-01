@@ -99,8 +99,9 @@ void _screenshotWidget({
   group(goldenFileName, () {
     tearDown(() {
       // Reset all painting debug variables after each test
-      debugDisableShadows = false;
-      debugPaintSizeEnabled = false;
+      _resetPaintingDebugFlags();
+      print('End Test:');
+      printPaintingFlags();
     });
 
     for (final goldenDevice in GoldenScreenshotDevices.values) {
@@ -108,7 +109,7 @@ void _screenshotWidget({
         addTearDown(() {
           _resetPaintingDebugFlags();
         });
-
+        print('Start Test:');
         printPaintingFlags();
 
         final device = goldenDevice.device;
