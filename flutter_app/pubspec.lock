@@ -93,14 +93,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  golden_screenshot:
-    dependency: "direct main"
-    description:
-      name: golden_screenshot
-      sha256: "8178266a5827eb74caf7547a19d42051e7493a4bbcc206917f62f4830729b6c3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.0"
   http:
     dependency: "direct main"
     description:
@@ -202,6 +194,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.3"
+  screenshot:
+    dependency: "direct main"
+    description:
+      name: screenshot
+      sha256: "63817697a7835e6ce82add4228e15d233b74d42975c143ad8cfe07009fab866b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -305,4 +305,4 @@ packages:
     version: "3.1.0"
 sdks:
   dart: ">=3.8.0 <4.0.0"
-  flutter: ">=3.28.0-0.1.pre"
+  flutter: ">=3.22.0"
