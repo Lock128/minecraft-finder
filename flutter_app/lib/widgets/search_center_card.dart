@@ -76,7 +76,8 @@ class SearchCenterCard extends StatelessWidget {
                       filled: true,
                       fillColor: Colors.white,
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(signed: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
                     ],
@@ -103,7 +104,8 @@ class SearchCenterCard extends StatelessWidget {
                       filled: true,
                       fillColor: Colors.white,
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(signed: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
                     ],
@@ -134,7 +136,8 @@ class SearchCenterCard extends StatelessWidget {
                       filled: true,
                       fillColor: Colors.white,
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(signed: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
                     ],
