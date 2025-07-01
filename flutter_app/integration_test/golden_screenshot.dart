@@ -17,8 +17,9 @@ void main() {
     setUpAll(() {
       // This fixes the LocalFileComparator issue in CI environments
       if (goldenFileComparator is! LocalFileComparator) {
-        goldenFileComparator =
-            LocalFileComparator(Uri.parse('integration_test/'));
+        goldenFileComparator = LocalFileComparator(
+          Uri.parse('integration_test/goldens/'),
+        );
       }
     });
 
@@ -92,7 +93,7 @@ void _screenshotWidget({
         await expectLater(
           innerApp,
           matchesGoldenFile(
-              '${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
+              'goldens/${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
         );
       });
     }

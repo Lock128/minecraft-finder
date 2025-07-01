@@ -107,6 +107,10 @@ jobs:
           if [ -d "screenshots" ]; then
             git add screenshots/
           fi
+
+          if [ -d "integration_test/goldens/" ]; then
+            git add integration_test/goldens/
+          fi
           
           if [ -f "screenshot_report.md" ]; then
             git add screenshot_report.md
@@ -127,5 +131,6 @@ jobs:
           name: play-store-screenshots
           path: |
             screenshots/
+            integration_test/goldens/
             screenshot_report.md
           retention-days: 7
