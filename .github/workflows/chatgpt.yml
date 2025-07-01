@@ -52,6 +52,8 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          ls -al
+          pwd
 
       - name: Create Android emulator and run tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -63,40 +65,88 @@ jobs:
           ram-size: 4096M
           heap-size: 1024M
           disk-size: 8192M
-          script: cd flutter_app && flutter test integration_test/golden_screenshot.dart --update-goldens --verbose || echo "Test completed with warnings"
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -no-audio -no-boot-anim
+          disable-animations: true
+          script: |
+            cd flutter_app
+            echo "🚀 Running golden screenshot tests..."
+            flutter test integration_test/golden_screenshot.dart --update-goldens --verbose || echo "✅ Test completed"
 
-      - name: Verify screenshots
+      - name: Copy golden screenshots from temp directory
         run: |
+          echo "🔍 Looking for golden screenshots in temp directories..."
+          
+          # Find golden screenshot temp directories
+          GOLDEN_DIRS=$(find /tmp -name "golden_screenshots*" -type d 2>/dev/null || true)
+          
+          if [ -n "$GOLDEN_DIRS" ]; then
+            echo "📁 Found golden screenshot directories:"
+            echo "$GOLDEN_DIRS"
+            
+            # Create golden screenshots directory
+            mkdir -p flutter_app/integration_test/goldens
+            
+            # Copy all golden files
+            for dir in $GOLDEN_DIRS; do
+              if [ -d "$dir" ] && [ "$(ls -A $dir 2>/dev/null)" ]; then
+                echo "📋 Copying from $dir"
+                cp -r "$dir"/* flutter_app/integration_test/goldens/ 2>/dev/null || true
+              fi
+            done
+            
+            echo "✅ Golden screenshots copied to flutter_app/integration_test/goldens/"
+            ls -la flutter_app/integration_test/goldens/ || echo "No files copied"
+          else
+            echo "⚠️ No golden screenshot temp directories found"
+          fi
+          
+          # Also check for regular screenshots
           if [ -d "screenshots" ]; then
-            echo "✅ Screenshots directory found!"
+            echo "✅ Regular screenshots directory found!"
             find screenshots -name "*.png" -type f | head -20
             echo "Total PNG files: $(find screenshots -name "*.png" -type f | wc -l)"
           else
-            echo "⚠️ No screenshots directory found"
+            echo "⚠️ No regular screenshots directory found"
           fi
 
       - name: Create report
         run: |
-          echo "# Play Store Screenshots Report" > screenshot_report.md
+          echo "# Golden Screenshots Report" > screenshot_report.md
           echo "" >> screenshot_report.md
           echo "**Generated on:** $(date)" >> screenshot_report.md
-          echo "**Method:** Android Emulator + Integration Test" >> screenshot_report.md
+          echo "**Method:** Golden Screenshot Package + Android Emulator" >> screenshot_report.md
           echo "**Emulator:** Pixel 6 (API 34)" >> screenshot_report.md
           echo "" >> screenshot_report.md
           
+          # Check for golden screenshots
+          if [ -d "flutter_app/integration_test/goldens" ] && [ "$(find flutter_app/integration_test/goldens -name "*.png" -type f | wc -l)" -gt 0 ]; then
+            echo "## ✅ Generated Golden Screenshots:" >> screenshot_report.md
+            echo "" >> screenshot_report.md
+            find flutter_app/integration_test/goldens -name "*.png" -type f | while read file; do
+              size=$(ls -lh "$file" | awk '{print $5}')
+              echo "- \`$file\` ($size)" >> screenshot_report.md
+            done
+            echo "" >> screenshot_report.md
+            echo "**Total golden screenshots:** $(find flutter_app/integration_test/goldens -name "*.png" -type f | wc -l)" >> screenshot_report.md
+          fi
+          
+          # Check for regular screenshots
           if [ -d "screenshots" ] && [ "$(find screenshots -name "*.png" -type f | wc -l)" -gt 0 ]; then
-            echo "## ✅ Generated Screenshots:" >> screenshot_report.md
+            echo "## ✅ Generated Regular Screenshots:" >> screenshot_report.md
             echo "" >> screenshot_report.md
             find screenshots -name "*.png" -type f | while read file; do
               size=$(ls -lh "$file" | awk '{print $5}')
               echo "- \`$file\` ($size)" >> screenshot_report.md
             done
             echo "" >> screenshot_report.md
-            echo "**Total screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
-          else
+            echo "**Total regular screenshots:** $(find screenshots -name "*.png" -type f | wc -l)" >> screenshot_report.md
+          fi
+          
+          # If no screenshots found
+          if [ ! -d "flutter_app/integration_test/goldens" ] && [ ! -d "screenshots" ]; then
             echo "## ⚠️ No Screenshots Generated" >> screenshot_report.md
             echo "" >> screenshot_report.md
-            echo "The emulator-based screenshot generation did not produce files." >> screenshot_report.md
+            echo "The golden screenshot generation did not produce files." >> screenshot_report.md
           fi
 
       - name: Commit screenshots
@@ -104,19 +154,27 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
+          # Add regular screenshots if they exist
           if [ -d "screenshots" ]; then
+            echo "📁 Adding regular screenshots..."
             git add screenshots/
           fi
 
-          if [ -d "integration_test/goldens/" ]; then
-            git add integration_test/goldens/
+          # Add golden screenshots if they exist
+          if [ -d "flutter_app/integration_test/goldens" ]; then
+            echo "📁 Adding golden screenshots..."
+            git add flutter_app/integration_test/goldens/
           fi
           
+          # Add report
           if [ -f "screenshot_report.md" ]; then
+            echo "📄 Adding screenshot report..."
             git add screenshot_report.md
           fi
           
+          # Check if there are changes to commit
           if ! git diff --staged --quiet; then
+            echo "📝 Committing changes..."
             git commit -m "${{ github.event.inputs.commit_message }}"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
             echo "✅ Screenshots committed successfully!"
@@ -128,9 +186,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: play-store-screenshots
+          name: golden-screenshots
           path: |
             screenshots/
-            integration_test/goldens/
+            flutter_app/integration_test/goldens/
             screenshot_report.md
           retention-days: 7

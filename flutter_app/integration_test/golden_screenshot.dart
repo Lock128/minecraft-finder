@@ -4,6 +4,7 @@
 /// or `flutter test` to compare the screenshots to the golden files.
 library;
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
@@ -17,9 +18,10 @@ void main() {
     setUpAll(() {
       // This fixes the LocalFileComparator issue in CI environments
       if (goldenFileComparator is! LocalFileComparator) {
-        goldenFileComparator = LocalFileComparator(
-          Uri.parse('integration_test/goldens/'),
-        );
+        // Use system temp directory which is writable in CI
+        final tempDir =
+            Directory.systemTemp.createTempSync('golden_screenshots');
+        goldenFileComparator = LocalFileComparator(tempDir.uri);
       }
     });
 
@@ -84,17 +86,7 @@ void _screenshotWidget({
         await tester.pumpFrames(widget, const Duration(seconds: 1));
 
         // Take the screenshot and compare it to the golden file
-        // Find the inner MaterialApp (your app) instead of the wrapper
-        final innerApp = find.descendant(
-          of: find.byType(ScreenshotApp),
-          matching: find.byType(MinecraftOreFinderApp),
-        );
-
-        await expectLater(
-          innerApp,
-          matchesGoldenFile(
-              'goldens/${goldenFileName}_${goldenDevice.name}_${device.resolution.width.toInt()}x${device.resolution.height.toInt()}.png'),
-        );
+        await tester.expectScreenshot(device, goldenFileName);
       });
     }
   });
