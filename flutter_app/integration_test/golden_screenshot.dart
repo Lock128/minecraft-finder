@@ -32,9 +32,9 @@ void printPaintingFlags() {
   print('debugDisableClipLayers=$debugDisableClipLayers');
   print('debugDisablePhysicalShapeLayers=$debugDisablePhysicalShapeLayers');
   print('debugInvertOversizedImages=$debugInvertOversizedImages');
-  print('debugAllowBannerOverride=$debugAllowBannerOverride');
+  // print('debugAllowBannerOverride=$debugAllowBannerOverride'); // Not available in current Flutter version
   print('debugDisableShadows=$debugDisableShadows');
-  print('debugCheckElevationsEnabled=$debugCheckElevationsEnabled');
+  // print('debugCheckElevationsEnabled=$debugCheckElevationsEnabled'); // Not available in current Flutter version
 }
 
 void main() {
