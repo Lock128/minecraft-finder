@@ -12,7 +12,13 @@ void main() {
     app.main();
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    print('📱 App launched, taking first screenshot...');
+    print('📱 App launched, converting surface...');
+
+    // Convert Flutter surface to image (required for emulator screenshots)
+    await binding.convertFlutterSurfaceToImage();
+    print('✅ Surface converted');
+
+    print('📸 Taking first screenshot...');
 
     // Take screenshot 1: Main screen
     await binding.takeScreenshot('01_main_screen');
