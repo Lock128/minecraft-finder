@@ -79,16 +79,25 @@ void main() {
       }
 
       // Try to toggle theme
-      final themeButtons =
-          find.byIcon(Icons.dark_mode).or(find.byIcon(Icons.light_mode));
-      if (themeButtons.evaluate().isNotEmpty) {
-        print('🌙 Toggling theme...');
-        await tester.tap(themeButtons.first);
+      final darkModeButton = find.byIcon(Icons.dark_mode);
+      final lightModeButton = find.byIcon(Icons.light_mode);
+
+      if (darkModeButton.evaluate().isNotEmpty) {
+        print('🌙 Toggling to dark mode...');
+        await tester.tap(darkModeButton);
         await tester.pumpAndSettle(const Duration(seconds: 2));
 
-        // Screenshot 6: Dark/Light theme
-        print('📸 Taking theme toggle screenshot...');
-        await binding.takeScreenshot('06_theme_toggle');
+        // Screenshot 6: Dark theme
+        print('📸 Taking dark theme screenshot...');
+        await binding.takeScreenshot('06_dark_theme');
+      } else if (lightModeButton.evaluate().isNotEmpty) {
+        print('☀️ Toggling to light mode...');
+        await tester.tap(lightModeButton);
+        await tester.pumpAndSettle(const Duration(seconds: 2));
+
+        // Screenshot 6: Light theme
+        print('📸 Taking light theme screenshot...');
+        await binding.takeScreenshot('06_light_theme');
       }
 
       print('✅ Play Store screenshots generation completed!');
