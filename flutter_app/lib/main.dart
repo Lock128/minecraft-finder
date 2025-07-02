@@ -7,6 +7,7 @@ import 'models/search_result.dart';
 import 'widgets/search_tab.dart';
 import 'widgets/results_tab.dart';
 import 'widgets/guide_tab.dart';
+import 'widgets/release_notes_dialog.dart';
 
 void main() {
   runApp(const MinecraftOreFinderApp());
@@ -372,6 +373,16 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       foregroundColor: Colors.white,
       elevation: 2,
       actions: [
+        Container(
+          margin: const EdgeInsets.only(right: 2),
+          child: IconButton(
+            onPressed: () => ReleaseNotesDialog.show(context),
+            icon: const Icon(Icons.info_outline, color: Colors.white, size: 20),
+            tooltip: 'Release Notes',
+            padding: const EdgeInsets.all(8),
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          ),
+        ),
         Container(
           margin: const EdgeInsets.only(right: 4),
           child: IconButton(

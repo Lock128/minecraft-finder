@@ -1,10 +1,10 @@
 # Minecraft Ore & Structure Finder - English Store Listing
 
 ## App Title
-**Minecraft Ore & Structure Finder - Find Diamonds, Gold, Netherite & More**
+**Minecraft Ore & Structure Finder - Find All Ores, Villages & Strongholds**
 
 ## Short Description (80 characters)
-Find diamonds, gold, netherite, villages & strongholds using world seed analysis
+Find all 6 ore types, villages & structures using advanced world seed analysis
 
 ## Long Description
 
@@ -14,10 +14,13 @@ Transform your Minecraft experience with this comprehensive ore and structure fi
 
 Key Features:
 
-Advanced Ore Discovery
-- Diamond Finder: Locate diamond ore with optimal Y-level analysis
-- Gold Finder: Find gold ore including bonus badlands generation
-- Netherite Finder: Discover ancient debris with comprehensive search modes
+Complete Ore Discovery (All 6 Types!)
+- Diamond Finder: Locate diamond ore with optimal Y-level analysis (Y -64 to 16)
+- Gold Finder: Find gold ore including bonus badlands generation (Y -64 to 32)
+- Iron Finder: Discover iron ore with dual peak zones (Y 15 & Y 232)
+- Redstone Finder: Locate redstone for automation projects (Y -64 to 15)
+- Coal Finder: Find the most common fuel source (Y 0 to 256)
+- Netherite Finder: Discover ancient debris with comprehensive search modes (Y 8-22)
 - Probability-based results show the most likely locations first
 
 Complete Structure Discovery
@@ -34,11 +37,13 @@ Smart Search Technology
 - Real-time result filtering and sorting
 
 Perfect For:
-- Speedrunners: Quickly locate diamonds and strongholds
-- Builders: Find specific biomes and structures
-- Miners: Optimize efficiency with probability data
+- Speedrunners: Quickly locate diamonds, iron, and strongholds
+- Builders: Find iron for tools and redstone for mechanisms
+- Miners: Optimize efficiency with all 6 ore types and probability data
+- Automation Enthusiasts: Locate redstone for complex contraptions
+- New Players: Learn optimal mining levels for each resource
 - Explorers: Discover rare locations and biomes
-- Server Admins: Plan world layouts and resources
+- Server Admins: Plan world layouts and comprehensive resource distribution
 
 How It Works:
 1. Enter your Minecraft world seed
@@ -56,7 +61,7 @@ Compatible with current Minecraft world generation algorithms for accurate resul
 Enhance your Minecraft gameplay with precise location data and never waste time mining in the wrong places again.
 
 ## Keywords
-minecraft, ore finder, diamond finder, gold finder, netherite finder, structure finder, village finder, stronghold finder, seed analysis, world generation, mining tool, speedrun, biome filter, minecraft utility, gaming tool
+minecraft, ore finder, diamond finder, gold finder, iron finder, redstone finder, coal finder, netherite finder, structure finder, village finder, stronghold finder, seed analysis, world generation, mining tool, speedrun, biome filter, minecraft utility, gaming tool, automation, y level guide
 
 ## App Store Categories
 - Primary: Games > Utilities
@@ -70,11 +75,14 @@ minecraft, ore finder, diamond finder, gold finder, netherite finder, structure 
 5. **Dark Mode** - Beautiful dark theme for comfortable nighttime use
 
 ## What's New (Update Notes)
-- Enhanced netherite finding algorithm with comprehensive search mode
-- Added structure discovery for villages, strongholds, and rare structures
-- Improved biome filtering with more precise coordinate ranges
-- Performance optimizations for faster search results
-- Updated UI with better accessibility and responsive design
+🆕 **Major Update: Extended Ore Discovery**
+- Added 3 new essential ore types: Iron ⚪, Redstone 🔴, and Coal ⚫
+- Now supports all 6 major Minecraft ore types with optimal Y-level data
+- Redesigned compact ore selection interface with visual legend
+- Enhanced results filtering with complete ore type coverage
+- Updated comprehensive mining guide with detailed information for all ores
+- Improved UI layout for better space efficiency on all devices
+- Performance optimizations for faster multi-ore search results
 
 ## Developer Response to Reviews Template
 Thank you for your feedback! We're constantly working to improve the app. If you encounter any issues or have suggestions, please contact us at [support email]. We appreciate your support of the Minecraft community!

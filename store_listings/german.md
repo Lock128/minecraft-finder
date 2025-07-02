@@ -1,10 +1,10 @@
 # Minecraft Erz & Struktur Finder - Deutsche Store-Beschreibung
 
 ## App-Titel
-**Minecraft Erz & Struktur Finder - Finde Diamanten, Gold, Netherit & Mehr**
+**Minecraft Erz & Struktur Finder - Finde Alle Erze, Dörfer & Festungen**
 
 ## Kurzbeschreibung (80 Zeichen)
-Finde Diamanten, Gold, Netherit, Dörfer & Festungen mit Welt-Seed-Analyse
+Finde alle 6 Erztypen, Dörfer & Strukturen mit fortschrittlicher Seed-Analyse
 
 ## Lange Beschreibung
 
@@ -14,10 +14,13 @@ Verwandle dein Minecraft-Erlebnis mit dem fortschrittlichsten Erz- und Strukturf
 
 ✨ **Hauptfunktionen:**
 
-🔍 **Erweiterte Erz-Entdeckung**
-• 💎 Diamanten-Finder - Lokalisiere Diamanterz mit optimaler Y-Level-Analyse
-• 🏅 Gold-Finder - Finde Golderz inklusive Bonus-Ödland-Generierung
-• 🔥 Netherit-Finder - Entdecke uralte Trümmer mit umfassenden Suchmodi
+🔍 **Vollständige Erz-Entdeckung (Alle 6 Typen!)**
+• 💎 Diamanten-Finder - Lokalisiere Diamanterz mit optimaler Y-Level-Analyse (Y -64 bis 16)
+• 🏅 Gold-Finder - Finde Golderz inklusive Bonus-Ödland-Generierung (Y -64 bis 32)
+• ⚪ Eisen-Finder - Entdecke Eisenerz mit dualen Spitzenzonen (Y 15 & Y 232)
+• 🔴 Redstone-Finder - Lokalisiere Redstone für Automatisierungsprojekte (Y -64 bis 15)
+• ⚫ Kohle-Finder - Finde die häufigste Brennstoffquelle (Y 0 bis 256)
+• 🔥 Netherit-Finder - Entdecke uralte Trümmer mit umfassenden Suchmodi (Y 8-22)
 • Wahrscheinlichkeitsbasierte Ergebnisse zeigen die wahrscheinlichsten Orte zuerst
 
 🏰 **Vollständige Struktur-Entdeckung**
@@ -34,11 +37,13 @@ Verwandle dein Minecraft-Erlebnis mit dem fortschrittlichsten Erz- und Strukturf
 • Echtzeit-Ergebnisfilterung und -sortierung
 
 🚀 **Perfekt für:**
-• **Speedrunner** - Schnell Diamanten und Festungen lokalisieren
-• **Baumeister** - Spezifische Biome und Strukturen finden
-• **Bergarbeiter** - Effizienz mit Wahrscheinlichkeitsdaten optimieren
+• **Speedrunner** - Schnell Diamanten, Eisen und Festungen lokalisieren
+• **Baumeister** - Eisen für Werkzeuge und Redstone für Mechanismen finden
+• **Bergarbeiter** - Effizienz mit allen 6 Erztypen und Wahrscheinlichkeitsdaten optimieren
+• **Automatisierungs-Enthusiasten** - Redstone für komplexe Konstruktionen lokalisieren
+• **Neue Spieler** - Optimale Abbau-Level für jede Ressource lernen
 • **Entdecker** - Seltene Orte und Biome entdecken
-• **Server-Admins** - Weltlayouts und Ressourcen planen
+• **Server-Admins** - Weltlayouts und umfassende Ressourcenverteilung planen
 
 🔧 **So funktioniert's:**
 1. Gib deinen Minecraft-Welt-Seed ein
@@ -56,7 +61,7 @@ Kompatibel mit aktuellen Minecraft-Weltgenerierungsalgorithmen für genaue Ergeb
 Lade jetzt herunter und revolutioniere dein Minecraft-Gameplay! Verschwende nie wieder Zeit mit dem Graben an den falschen Stellen.
 
 ## Schlüsselwörter
-minecraft, erz finder, diamanten finder, gold finder, netherit finder, struktur finder, dorf finder, festung finder, seed analyse, weltgenerierung, bergbau tool, speedrun, biom filter, minecraft utility, gaming tool
+minecraft, erz finder, diamanten finder, gold finder, eisen finder, redstone finder, kohle finder, netherit finder, struktur finder, dorf finder, festung finder, seed analyse, weltgenerierung, bergbau tool, speedrun, biom filter, minecraft utility, gaming tool, automatisierung, y level guide
 
 ## App Store Kategorien
 - Primär: Spiele > Dienstprogramme
@@ -70,11 +75,14 @@ minecraft, erz finder, diamanten finder, gold finder, netherit finder, struktur 
 5. **Dunkler Modus** - Schönes dunkles Theme für komfortable Nachtnutzung
 
 ## Was ist neu (Update-Notizen)
-- Verbesserter Netherit-Findungsalgorithmus mit umfassendem Suchmodus
-- Struktur-Entdeckung für Dörfer, Festungen und seltene Strukturen hinzugefügt
-- Verbesserte Biom-Filterung mit präziseren Koordinatenbereichen
-- Leistungsoptimierungen für schnellere Suchergebnisse
-- Aktualisierte Benutzeroberfläche mit besserer Barrierefreiheit und responsivem Design
+🆕 **Großes Update: Erweiterte Erz-Entdeckung**
+- 3 neue essentielle Erztypen hinzugefügt: Eisen ⚪, Redstone 🔴 und Kohle ⚫
+- Unterstützt jetzt alle 6 wichtigen Minecraft-Erztypen mit optimalen Y-Level-Daten
+- Neu gestaltete kompakte Erz-Auswahlschnittstelle mit visueller Legende
+- Erweiterte Ergebnisfilterung mit vollständiger Erztyp-Abdeckung
+- Aktualisierter umfassender Bergbau-Leitfaden mit detaillierten Informationen für alle Erze
+- Verbesserte UI-Layout für bessere Platzeffizienz auf allen Geräten
+- Leistungsoptimierungen für schnellere Multi-Erz-Suchergebnisse
 
 ## Entwickler-Antwort auf Bewertungen Vorlage
 Vielen Dank für dein Feedback! Wir arbeiten kontinuierlich daran, die App zu verbessern. Falls du Probleme hast oder Vorschläge machst, kontaktiere uns bitte unter [Support-E-Mail]. Wir schätzen deine Unterstützung der Minecraft-Community!

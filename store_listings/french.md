@@ -1,10 +1,10 @@
 # Minecraft Chercheur de Minerais & Structures - Description Store Française
 
 ## Titre de l'App
-**Minecraft Chercheur de Minerais & Structures - Trouvez Diamants, Or, Netherite & Plus**
+**Minecraft Chercheur de Minerais & Structures - Trouvez Tous les Minerais & Villages**
 
 ## Description Courte (80 caractères)
-Trouvez diamants, or, netherite, villages & forteresses avec analyse de seed
+Trouvez les 6 types de minerais, villages & structures avec analyse avancée
 
 ## Description Longue
 
@@ -14,10 +14,13 @@ Transformez votre expérience Minecraft avec le chercheur de minerais et structu
 
 ✨ **Fonctionnalités Principales :**
 
-🔍 **Découverte Avancée de Minerais**
-• 💎 Chercheur de Diamants - Localisez le minerai de diamant avec analyse optimale du niveau Y
-• 🏅 Chercheur d'Or - Trouvez le minerai d'or incluant la génération bonus des badlands
-• 🔥 Chercheur de Netherite - Découvrez les débris anciens avec modes de recherche complets
+🔍 **Découverte Complète de Minerais (Tous les 6 Types !)**
+• 💎 Chercheur de Diamants - Localisez le minerai de diamant avec analyse optimale du niveau Y (Y -64 à 16)
+• 🏅 Chercheur d'Or - Trouvez le minerai d'or incluant la génération bonus des badlands (Y -64 à 32)
+• ⚪ Chercheur de Fer - Découvrez le minerai de fer avec zones de pic duales (Y 15 & Y 232)
+• 🔴 Chercheur de Redstone - Localisez la redstone pour projets d'automatisation (Y -64 à 15)
+• ⚫ Chercheur de Charbon - Trouvez la source de combustible la plus commune (Y 0 à 256)
+• 🔥 Chercheur de Netherite - Découvrez les débris anciens avec modes de recherche complets (Y 8-22)
 • Résultats basés sur la probabilité montrant les emplacements les plus probables en premier
 
 🏰 **Découverte Complète de Structures**
@@ -34,11 +37,13 @@ Transformez votre expérience Minecraft avec le chercheur de minerais et structu
 • Filtrage et tri des résultats en temps réel
 
 🚀 **Parfait Pour :**
-• **Speedrunners** - Localiser rapidement diamants et forteresses
-• **Constructeurs** - Trouver des biomes et structures spécifiques
-• **Mineurs** - Optimiser l'efficacité avec données de probabilité
+• **Speedrunners** - Localiser rapidement diamants, fer et forteresses
+• **Constructeurs** - Trouver du fer pour outils et redstone pour mécanismes
+• **Mineurs** - Optimiser l'efficacité avec tous les 6 types de minerais et données de probabilité
+• **Passionnés d'Automatisation** - Localiser la redstone pour constructions complexes
+• **Nouveaux Joueurs** - Apprendre les niveaux de minage optimaux pour chaque ressource
 • **Explorateurs** - Découvrir des lieux et biomes rares
-• **Admins de Serveur** - Planifier les layouts de monde et ressources
+• **Admins de Serveur** - Planifier les layouts de monde et distribution complète des ressources
 
 🔧 **Comment Ça Marche :**
 1. Entrez votre seed de monde Minecraft
@@ -56,7 +61,7 @@ Compatible avec les algorithmes actuels de génération de monde Minecraft pour 
 Téléchargez maintenant et révolutionnez votre gameplay Minecraft ! Ne perdez plus jamais de temps à miner aux mauvais endroits.
 
 ## Mots-Clés
-minecraft, chercheur minerai, chercheur diamant, chercheur or, chercheur netherite, chercheur structure, chercheur village, chercheur forteresse, analyse seed, génération monde, outil minage, speedrun, filtre biome, utilitaire minecraft, outil gaming
+minecraft, chercheur minerai, chercheur diamant, chercheur or, chercheur fer, chercheur redstone, chercheur charbon, chercheur netherite, chercheur structure, chercheur village, chercheur forteresse, analyse seed, génération monde, outil minage, speedrun, filtre biome, utilitaire minecraft, outil gaming, automatisation, guide niveau y
 
 ## Catégories App Store
 - Primaire : Jeux > Utilitaires
@@ -70,11 +75,14 @@ minecraft, chercheur minerai, chercheur diamant, chercheur or, chercheur netheri
 5. **Mode Sombre** - Beau thème sombre pour une utilisation confortable de nuit
 
 ## Quoi de Neuf (Notes de Mise à Jour)
-- Algorithme amélioré de recherche de netherite avec mode de recherche complet
-- Ajout de la découverte de structures pour villages, forteresses et structures rares
-- Filtrage de biome amélioré avec plages de coordonnées plus précises
-- Optimisations de performance pour des résultats de recherche plus rapides
-- Interface utilisateur mise à jour avec meilleure accessibilité et design responsive
+🆕 **Mise à Jour Majeure : Découverte de Minerais Étendue**
+- Ajout de 3 nouveaux types de minerais essentiels : Fer ⚪, Redstone 🔴 et Charbon ⚫
+- Supporte maintenant tous les 6 types de minerais Minecraft majeurs avec données optimales de niveau Y
+- Interface de sélection de minerais compacte redessinée avec légende visuelle
+- Filtrage des résultats amélioré avec couverture complète des types de minerais
+- Guide de minage complet mis à jour avec informations détaillées pour tous les minerais
+- Layout d'interface amélioré pour une meilleure efficacité d'espace sur tous les appareils
+- Optimisations de performance pour des résultats de recherche multi-minerais plus rapides
 
 ## Modèle de Réponse Développeur aux Avis
 Merci pour votre retour ! Nous travaillons constamment à améliorer l'app. Si vous rencontrez des problèmes ou avez des suggestions, contactez-nous à [email support]. Nous apprécions votre soutien à la communauté Minecraft !
