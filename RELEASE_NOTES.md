@@ -1,3 +1,8 @@
+# Release Notes - Version 1.0.27
+## Minor Update
+Updated splash screen and icons
+
+
 # Release Notes - Version 1.0.22
 ## Major Update: Extended Ore Discovery & Enhanced UI
 

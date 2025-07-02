@@ -33,7 +33,7 @@ class ReleaseNotesDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Release Notes - Version 1.0.22',
+                      'Release Notes - Version 1.0.27',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -59,6 +59,13 @@ class ReleaseNotesDialog extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _buildSectionHeader('🆕 Minor update'),
+                      const SizedBox(height: 12),
+                      _buildFeatureItem(
+                        'Updated App icon',
+                        'The app icon and splash images have been updated',
+                      ),
+                      const SizedBox(height: 12),
                       _buildSectionHeader(
                           '🆕 Major Update: Extended Ore Discovery'),
                       const SizedBox(height: 12),
