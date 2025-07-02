@@ -75,9 +75,23 @@ class SearchCenterCard extends StatelessWidget {
                       ),
                       filled: true,
                       fillColor: Colors.white,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.swap_horiz, size: 16),
+                        onPressed: () {
+                          final currentText = xController.text;
+                          if (currentText.isEmpty) return;
+                          if (currentText.startsWith('-')) {
+                            xController.text = currentText.substring(1);
+                          } else {
+                            xController.text = '-$currentText';
+                          }
+                        },
+                        tooltip: 'Toggle +/-',
+                        padding: const EdgeInsets.all(4),
+                      ),
                     ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(signed: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                        signed: true, decimal: false),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
                     ],
@@ -97,15 +111,49 @@ class SearchCenterCard extends StatelessWidget {
                   child: TextFormField(
                     controller: yController,
                     decoration: InputDecoration(
-                      labelText: 'Y',
+                      labelText: 'Y (Height)',
+                      hintText: 'e.g. -59 for diamonds',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                       filled: true,
                       fillColor: Colors.white,
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove, size: 16),
+                            onPressed: () {
+                              final currentText = yController.text;
+                              if (currentText.isEmpty) {
+                                yController.text = '-';
+                              } else if (!currentText.startsWith('-')) {
+                                yController.text = '-$currentText';
+                              }
+                            },
+                            tooltip: 'Make negative',
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                                minWidth: 24, minHeight: 24),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add, size: 16),
+                            onPressed: () {
+                              final currentText = yController.text;
+                              if (currentText.startsWith('-')) {
+                                yController.text = currentText.substring(1);
+                              }
+                            },
+                            tooltip: 'Make positive',
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                                minWidth: 24, minHeight: 24),
+                          ),
+                        ],
+                      ),
                     ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(signed: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                        signed: true, decimal: false),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
                     ],
@@ -118,7 +166,7 @@ class SearchCenterCard extends StatelessWidget {
                         return 'Invalid';
                       }
                       if (y < -64 || y > 320) {
-                        return 'Y must be between -64 and 320';
+                        return 'Y: -64 to 320';
                       }
                       return null;
                     },
@@ -135,9 +183,23 @@ class SearchCenterCard extends StatelessWidget {
                       ),
                       filled: true,
                       fillColor: Colors.white,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.swap_horiz, size: 16),
+                        onPressed: () {
+                          final currentText = zController.text;
+                          if (currentText.isEmpty) return;
+                          if (currentText.startsWith('-')) {
+                            zController.text = currentText.substring(1);
+                          } else {
+                            zController.text = '-$currentText';
+                          }
+                        },
+                        tooltip: 'Toggle +/-',
+                        padding: const EdgeInsets.all(4),
+                      ),
                     ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(signed: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                        signed: true, decimal: false),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
                     ],
