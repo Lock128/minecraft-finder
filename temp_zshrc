@@ -1,0 +1,19 @@
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="$PATH:$HOME/tools/flutter/bin"
+export PATH="$PATH:$HOME/tools"
+
+sso() {
+    export AWS_PROFILE=$1
+    aws sso login
+}
+
+alias caws="/Users/JohannesKoch/git/tachyon-manual/Boto3CliV1Artifacts/python-sdk-test/bin/aws"
+alias aws2="/usr/local/bin/aws"
+
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+export ANDROID_HOME=/Users/JohannesKoch/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools

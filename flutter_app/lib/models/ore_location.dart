@@ -1,4 +1,4 @@
-enum OreType { diamond, gold, netherite }
+enum OreType { diamond, gold, netherite, redstone, iron, coal }
 
 class OreLocation {
   final int x;
@@ -29,13 +29,28 @@ class OreLocation {
       chunkX: json['chunkX'] as int,
       chunkZ: json['chunkZ'] as int,
       probability: (json['probability'] as num).toDouble(),
-      oreType: json['oreType'] == 'diamond' 
-          ? OreType.diamond 
-          : json['oreType'] == 'gold' 
-              ? OreType.gold 
-              : OreType.netherite,
+      oreType: _parseOreType(json['oreType'] as String),
       biome: json['biome'] as String?,
     );
+  }
+
+  static OreType _parseOreType(String oreTypeStr) {
+    switch (oreTypeStr) {
+      case 'diamond':
+        return OreType.diamond;
+      case 'gold':
+        return OreType.gold;
+      case 'netherite':
+        return OreType.netherite;
+      case 'redstone':
+        return OreType.redstone;
+      case 'iron':
+        return OreType.iron;
+      case 'coal':
+        return OreType.coal;
+      default:
+        return OreType.diamond;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -46,13 +61,26 @@ class OreLocation {
       'chunkX': chunkX,
       'chunkZ': chunkZ,
       'probability': probability,
-      'oreType': oreType == OreType.diamond 
-          ? 'diamond' 
-          : oreType == OreType.gold 
-              ? 'gold' 
-              : 'netherite',
+      'oreType': _oreTypeToString(oreType),
       'biome': biome,
     };
+  }
+
+  static String _oreTypeToString(OreType oreType) {
+    switch (oreType) {
+      case OreType.diamond:
+        return 'diamond';
+      case OreType.gold:
+        return 'gold';
+      case OreType.netherite:
+        return 'netherite';
+      case OreType.redstone:
+        return 'redstone';
+      case OreType.iron:
+        return 'iron';
+      case OreType.coal:
+        return 'coal';
+    }
   }
 
   @override

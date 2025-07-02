@@ -29,7 +29,10 @@ class _ResultsTabState extends State<ResultsTab> {
   final Set<OreType> _visibleOreTypes = {
     OreType.diamond,
     OreType.gold,
-    OreType.netherite
+    OreType.netherite,
+    OreType.redstone,
+    OreType.iron,
+    OreType.coal
   };
   Set<StructureType> _visibleStructures = {};
   Set<String> _visibleBiomes = {};
@@ -275,6 +278,9 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             _buildOreFilterChip(OreType.diamond, '💎 Diamonds'),
             _buildOreFilterChip(OreType.gold, '🏅 Gold'),
+            _buildOreFilterChip(OreType.iron, '⚪ Iron'),
+            _buildOreFilterChip(OreType.redstone, '🔴 Redstone'),
+            _buildOreFilterChip(OreType.coal, '⚫ Coal'),
             _buildOreFilterChip(OreType.netherite, '🔥 Netherite'),
           ],
         ),
@@ -587,6 +593,12 @@ class _ResultsTabState extends State<ResultsTab> {
         return Colors.amber;
       case OreType.netherite:
         return Colors.deepPurple;
+      case OreType.redstone:
+        return Colors.red;
+      case OreType.iron:
+        return Colors.grey;
+      case OreType.coal:
+        return Colors.black87;
     }
   }
 

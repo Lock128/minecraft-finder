@@ -151,6 +151,7 @@ class OreSelectionCard extends StatelessWidget {
   Widget _buildOreSelection(BuildContext context) {
     return Column(
       children: [
+        // First row: Diamond, Gold, Iron
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<OreType>(
@@ -159,42 +160,48 @@ class OreSelectionCard extends StatelessWidget {
                 value: OreType.diamond,
                 label: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text('💎 Diamonds',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: const Text('💎', style: TextStyle(fontSize: 16)),
                 ),
               ),
               ButtonSegment<OreType>(
                 value: OreType.gold,
                 label: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text('🏅 Gold',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: const Text('🏅', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+              ButtonSegment<OreType>(
+                value: OreType.iron,
+                label: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: const Text('⚪', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
             selected: selectedOreTypes
-                .where((type) => type != OreType.netherite)
+                .where((type) => [OreType.diamond, OreType.gold, OreType.iron]
+                    .contains(type))
                 .toSet(),
             multiSelectionEnabled: true,
+            emptySelectionAllowed: true,
             onSelectionChanged: (Set<OreType> newSelection) {
-              Set<OreType> updatedSelection = Set.from(newSelection);
-              if (selectedOreTypes.contains(OreType.netherite)) {
-                updatedSelection.add(OreType.netherite);
+              Set<OreType> updatedSelection = Set.from(selectedOreTypes);
+              // Remove the three types from this row
+              updatedSelection.removeWhere((type) =>
+                  [OreType.diamond, OreType.gold, OreType.iron].contains(type));
+              // Add the new selections
+              updatedSelection.addAll(newSelection);
+              // Ensure at least one ore type is selected, default to diamond if empty
+              if (updatedSelection.isEmpty) {
+                updatedSelection.add(OreType.diamond);
               }
-              if (updatedSelection.isNotEmpty) {
-                onOreTypesChanged(updatedSelection);
-              }
+              onOreTypesChanged(updatedSelection);
             },
             style: SegmentedButton.styleFrom(
-              minimumSize: const Size(120, 48),
+              minimumSize: const Size(60, 40),
               backgroundColor:
                   isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
               selectedBackgroundColor: const Color(0xFF4CAF50),
@@ -202,6 +209,76 @@ class OreSelectionCard extends StatelessWidget {
               side: BorderSide(color: const Color(0xFF4CAF50)),
             ),
           ),
+        ),
+        const SizedBox(height: 8),
+        // Second row: Redstone, Coal
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<OreType>(
+            segments: [
+              ButtonSegment<OreType>(
+                value: OreType.redstone,
+                label: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: const Text('🔴', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+              ButtonSegment<OreType>(
+                value: OreType.coal,
+                label: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: const Text('⚫', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
+            selected: selectedOreTypes
+                .where(
+                    (type) => [OreType.redstone, OreType.coal].contains(type))
+                .toSet(),
+            multiSelectionEnabled: true,
+            emptySelectionAllowed: true,
+            onSelectionChanged: (Set<OreType> newSelection) {
+              Set<OreType> updatedSelection = Set.from(selectedOreTypes);
+              // Remove the two types from this row
+              updatedSelection.removeWhere(
+                  (type) => [OreType.redstone, OreType.coal].contains(type));
+              // Add the new selections
+              updatedSelection.addAll(newSelection);
+              // Ensure at least one ore type is selected, default to diamond if empty
+              if (updatedSelection.isEmpty) {
+                updatedSelection.add(OreType.diamond);
+              }
+              onOreTypesChanged(updatedSelection);
+            },
+            style: SegmentedButton.styleFrom(
+              minimumSize: const Size(60, 40),
+              backgroundColor:
+                  isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
+              selectedBackgroundColor: const Color(0xFF4CAF50),
+              selectedForegroundColor: Colors.white,
+              side: BorderSide(color: const Color(0xFF4CAF50)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Legend
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 12,
+          children: [
+            Text('💎 Diamond',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            Text('🏅 Gold',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            Text('⚪ Iron',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            Text('🔴 Redstone',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            Text('⚫ Coal',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+          ],
         ),
         const SizedBox(height: 12),
         _buildNetheriteButton(),

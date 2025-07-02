@@ -33,6 +33,7 @@ class _MinecraftOreFinderAppState extends State<MinecraftOreFinderApp> {
     return MaterialApp(
       title:
           'Minecraft Ore & Structure Finder - Find Diamonds, Gold, Netherite & More',
+      debugShowCheckedModeBanner: false,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),

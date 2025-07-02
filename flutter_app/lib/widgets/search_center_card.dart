@@ -118,38 +118,19 @@ class SearchCenterCard extends StatelessWidget {
                       ),
                       filled: true,
                       fillColor: Colors.white,
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove, size: 16),
-                            onPressed: () {
-                              final currentText = yController.text;
-                              if (currentText.isEmpty) {
-                                yController.text = '-';
-                              } else if (!currentText.startsWith('-')) {
-                                yController.text = '-$currentText';
-                              }
-                            },
-                            tooltip: 'Make negative',
-                            padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(
-                                minWidth: 24, minHeight: 24),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add, size: 16),
-                            onPressed: () {
-                              final currentText = yController.text;
-                              if (currentText.startsWith('-')) {
-                                yController.text = currentText.substring(1);
-                              }
-                            },
-                            tooltip: 'Make positive',
-                            padding: const EdgeInsets.all(4),
-                            constraints: const BoxConstraints(
-                                minWidth: 24, minHeight: 24),
-                          ),
-                        ],
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.swap_horiz, size: 16),
+                        onPressed: () {
+                          final currentText = yController.text;
+                          if (currentText.isEmpty) return;
+                          if (currentText.startsWith('-')) {
+                            yController.text = currentText.substring(1);
+                          } else {
+                            yController.text = '-$currentText';
+                          }
+                        },
+                        tooltip: 'Toggle +/-',
+                        padding: const EdgeInsets.all(4),
                       ),
                     ),
                     keyboardType: TextInputType.numberWithOptions(

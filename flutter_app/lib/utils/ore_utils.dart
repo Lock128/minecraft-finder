@@ -10,6 +10,12 @@ class OreUtils {
         return '🏅';
       case OreType.netherite:
         return '🔥';
+      case OreType.redstone:
+        return '🔴';
+      case OreType.iron:
+        return '⚪';
+      case OreType.coal:
+        return '⚫';
     }
   }
 
@@ -31,6 +37,15 @@ class OreUtils {
       }
       if (selectedOreTypes.contains(OreType.netherite)) {
         searchItems.add('netherite');
+      }
+      if (selectedOreTypes.contains(OreType.redstone)) {
+        searchItems.add('redstone');
+      }
+      if (selectedOreTypes.contains(OreType.iron)) {
+        searchItems.add('iron');
+      }
+      if (selectedOreTypes.contains(OreType.coal)) {
+        searchItems.add('coal');
       }
     }
 
