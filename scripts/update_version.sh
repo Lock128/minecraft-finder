@@ -6,7 +6,7 @@
 set -e
 
 # Default values
-DEFAULT_VERSION_NAME="1.0."+${PROJECT_BUILD_NUMBER}
+DEFAULT_VERSION_NAME="1.0."${PROJECT_BUILD_NUMBER}
 DEFAULT_BUILD_NUMBER=${PROJECT_BUILD_NUMBER:-"1"}
 
 # Get version name and build number from environment variables or use defaults
