@@ -1,4 +1,4 @@
-# Release Notes - Version 1.0.21
+# Release Notes - Version 1.0.22
 ## Major Update: Extended Ore Discovery & Enhanced UI
 
 ### 🆕 New Ore Types Added

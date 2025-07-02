@@ -33,7 +33,7 @@ class ReleaseNotesDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Release Notes - Version 1.0.21',
+                      'Release Notes - Version 1.0.22',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
