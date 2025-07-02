@@ -88,6 +88,7 @@ class SearchTab extends StatelessWidget {
                 yController: yController,
                 zController: zController,
                 radiusController: radiusController,
+                isDarkMode: isDarkMode,
               ),
               const SizedBox(height: 16),
               OreSelectionCard(
@@ -114,6 +115,7 @@ class SearchTab extends StatelessWidget {
                 isLoading: isLoading,
                 findAllNetherite: findAllNetherite,
                 onFindOres: onFindOres,
+                isDarkMode: isDarkMode,
               ),
             ],
           ),

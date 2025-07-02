@@ -4,12 +4,14 @@ class SearchButtons extends StatelessWidget {
   final bool isLoading;
   final bool findAllNetherite;
   final Function(bool) onFindOres;
+  final bool isDarkMode;
 
   const SearchButtons({
     super.key,
     required this.isLoading,
     required this.findAllNetherite,
     required this.onFindOres,
+    this.isDarkMode = false,
   });
 
   @override

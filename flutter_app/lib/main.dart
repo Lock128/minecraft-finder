@@ -335,7 +335,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             findAllNetherite: _findAllNetherite,
             selectedOreTypes: _selectedOreTypes,
           ),
-          const GuideTab(),
+          GuideTab(isDarkMode: widget.isDarkMode),
         ],
       ),
     );
@@ -376,7 +376,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         Container(
           margin: const EdgeInsets.only(right: 2),
           child: IconButton(
-            onPressed: () => ReleaseNotesDialog.show(context),
+            onPressed: () =>
+                ReleaseNotesDialog.show(context, isDarkMode: widget.isDarkMode),
             icon: const Icon(Icons.info_outline, color: Colors.white, size: 20),
             tooltip: 'Release Notes',
             padding: const EdgeInsets.all(8),

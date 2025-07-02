@@ -6,6 +6,7 @@ class SearchCenterCard extends StatelessWidget {
   final TextEditingController yController;
   final TextEditingController zController;
   final TextEditingController radiusController;
+  final bool isDarkMode;
 
   const SearchCenterCard({
     super.key,
@@ -13,6 +14,7 @@ class SearchCenterCard extends StatelessWidget {
     required this.yController,
     required this.zController,
     required this.radiusController,
+    this.isDarkMode = false,
   });
 
   @override
@@ -27,10 +29,15 @@ class SearchCenterCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              const Color(0xFFF1F8E9),
-            ],
+            colors: isDarkMode
+                ? [
+                    const Color(0xFF2E2E2E),
+                    const Color(0xFF1E1E1E),
+                  ]
+                : [
+                    Colors.white,
+                    const Color(0xFFF1F8E9),
+                  ],
           ),
         ),
         padding: const EdgeInsets.all(16.0),
@@ -74,7 +81,8 @@ class SearchCenterCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor:
+                          isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.swap_horiz, size: 16),
                         onPressed: () {
@@ -117,7 +125,8 @@ class SearchCenterCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor:
+                          isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.swap_horiz, size: 16),
                         onPressed: () {
@@ -163,7 +172,8 @@ class SearchCenterCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor:
+                          isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.swap_horiz, size: 16),
                         onPressed: () {
@@ -218,7 +228,7 @@ class SearchCenterCard extends StatelessWidget {
                   ),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [

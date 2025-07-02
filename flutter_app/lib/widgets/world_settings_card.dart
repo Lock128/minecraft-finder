@@ -90,7 +90,7 @@ class WorldSettingsCard extends StatelessWidget {
                   ),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {

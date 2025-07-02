@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 
 class GuideTab extends StatelessWidget {
-  const GuideTab({super.key});
+  final bool isDarkMode;
+
+  const GuideTab({super.key, this.isDarkMode = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF87CEEB), // Sky blue
-            Color(0xFF98FB98), // Pale green
-          ],
+          colors: isDarkMode
+              ? [
+                  const Color(0xFF1A237E), // Dark blue
+                  const Color(0xFF2E7D32), // Dark green
+                ]
+              : [
+                  const Color(0xFF87CEEB), // Sky blue
+                  const Color(0xFF98FB98), // Pale green
+                ],
         ),
       ),
       child: SingleChildScrollView(
@@ -198,8 +205,10 @@ class GuideTab extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            colors: [Colors.white, Color(0xFFF8F9FA)],
+          gradient: LinearGradient(
+            colors: isDarkMode
+                ? [const Color(0xFF2E2E2E), const Color(0xFF1E1E1E)]
+                : [Colors.white, const Color(0xFFF8F9FA)],
           ),
         ),
         padding: const EdgeInsets.all(20.0),
