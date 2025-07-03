@@ -226,7 +226,7 @@ class OreFinder {
     // Lower minimum probability for netherite since it's much rarer
     if (oreType == OreType.netherite) {
       minProbability = 0.15; // Even lower threshold
-      print('Searching for netherite with minProbability: $minProbability');
+      // Searching for netherite with lower probability threshold
     }
     int worldSeed = int.tryParse(seed) ?? _stringToSeed(seed);
     List<OreLocation> locations = [];
@@ -290,11 +290,7 @@ class OreFinder {
               x, y, z, oreType, worldSeed,
               includeNether: includeNether);
 
-          // Debug logging for netherite
-          if (oreType == OreType.netherite && probability > 0) {
-            print(
-                'Netherite found at ($x, $y, $z) with probability: $probability');
-          }
+          // Debug logging for netherite (removed print for production)
 
           if (probability >= minProbability) {
             locations.add(OreLocation(
@@ -320,14 +316,7 @@ class OreFinder {
     // Sort by probability (highest first)
     locations.sort((a, b) => b.probability.compareTo(a.probability));
 
-    // Debug logging
-    if (oreType == OreType.netherite) {
-      print('Netherite search complete. Found ${locations.length} locations');
-      if (locations.isNotEmpty) {
-        print(
-            'Top netherite location: (${locations.first.x}, ${locations.first.y}, ${locations.first.z}) - ${locations.first.probability}');
-      }
-    }
+    // Debug logging removed for production
 
     return locations;
   }
@@ -344,12 +333,10 @@ class OreFinder {
 
     // Use smaller step size for comprehensive search
     int step = 16; // Search every chunk (16 blocks)
-    int totalChunks = ((searchRadius * 2) / step).ceil();
+    // int totalChunks = ((searchRadius * 2) / step).ceil(); // Used for progress tracking
     int processedChunks = 0;
 
-    print('Starting comprehensive netherite search...');
-    print(
-        'Searching ${totalChunks * totalChunks} chunks in a ${searchRadius * 2}x${searchRadius * 2} area');
+    // Starting comprehensive netherite search
 
     for (int x = centerX - searchRadius;
         x <= centerX + searchRadius;
@@ -381,10 +368,8 @@ class OreFinder {
 
         // Add progress updates and prevent UI blocking
         if (processedChunks % 50 == 0) {
-          double progress =
-              (processedChunks / (totalChunks * totalChunks)) * 100;
-          print(
-              'Progress: ${progress.toStringAsFixed(1)}% - Found ${locations.length} netherite locations');
+          // Progress tracking (removed for production)
+          // double progress = (processedChunks / (totalChunks * totalChunks)) * 100;
           await Future.delayed(const Duration(milliseconds: 5));
         }
       }
@@ -393,8 +378,7 @@ class OreFinder {
     // Sort by probability (highest first)
     locations.sort((a, b) => b.probability.compareTo(a.probability));
 
-    print(
-        'Comprehensive search complete! Found ${locations.length} netherite locations');
+    // Comprehensive search complete
 
     // Return more results for comprehensive search
     return locations.take(300).toList();

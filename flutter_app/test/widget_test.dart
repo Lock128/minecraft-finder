@@ -7,15 +7,15 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:minecraft_ore_finder/main.dart';
+import 'package:gem_ore_struct_finder_mc/main.dart';
 
 void main() {
   testWidgets('App loads correctly', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MinecraftOreFinderApp());
+    await tester.pumpWidget(const GemOreStructFinderApp());
 
     // Verify that the app title is displayed.
-    expect(find.text('Minecraft Ore Finder'), findsOneWidget);
+    expect(find.text('Gem, Ore & Struct Finder'), findsOneWidget);
 
     // Verify that the search tab is displayed by default.
     expect(find.text('Search'), findsOneWidget);
