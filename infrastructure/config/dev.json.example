@@ -27,12 +27,14 @@
     "rumAppName": "minecraft-finder-dev",
     "samplingRate": 0.1,
     "enabledMetrics": [
-      "errors",
-      "performance",
-      "http",
-      "navigation"
+      "PerformanceNavigationTiming",
+      "PerformanceResourceTiming",
+      "LargestContentfulPaint",
+      "FirstInputDelay",
+      "CumulativeLayoutShift",
+      "JsError"
     ],
-    "enableExtendedMetrics": true
+    "enableExtendedMetrics": false
   },
   "cachingConfig": {
     "defaultTtl": 3600,
@@ -75,8 +77,7 @@
     "customCostTags": {
       "BillingGroup": "Development",
       "Owner": "DevTeam",
-      "Purpose": "Development",
-      "AlertEmail": "dev-alerts@example.com"
+      "Purpose": "Development"
     }
   },
   "tags": {

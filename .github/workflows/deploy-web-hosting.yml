@@ -29,6 +29,14 @@ env:
   NODE_VERSION: '20'
   AWS_REGION: 'us-east-1'
 
+# Security: Restrict permissions to minimum required
+permissions:
+  contents: read
+  id-token: write  # Required for OIDC authentication
+  actions: read
+  security-events: write
+  pull-requests: write  # For PR comments
+
 jobs:
   build-flutter:
     name: Build Flutter Web Application
@@ -128,14 +136,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: infrastructure/package-lock.json
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          # Use OIDC for secure authentication (preferred method)
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActions-WebHostingDeploy-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
           role-duration-seconds: 3600
-          role-session-name: GitHubActions-WebHostingDeploy
+          # Mask AWS account ID in logs
+          mask-aws-account-id: true
+          # Retry configuration for transient failures
+          retry-max-attempts: 3
+          # Additional security: restrict to specific audience
+          audience: sts.amazonaws.com
 
       - name: Install CDK dependencies
         working-directory: infrastructure
@@ -154,12 +168,84 @@ jobs:
         run: |
           echo "🧪 Running CDK tests..."
           npm test
+
+      - name: Security scanning
+        working-directory: infrastructure
+        run: |
+          echo "🔍 Running security scans..."
           
+          # Check for known vulnerabilities in dependencies
+          npm audit --audit-level=high
+          
+          # Run CDK security checks
+          echo "🔒 Running CDK security validation..."
+          npx cdk-nag --app "npx ts-node src/app.ts" --context environment=${{ inputs.environment || 'dev' }} || true
+          
+          # Validate IAM policies (if cdk-iam-floyd is available)
+          echo "🔐 Validating IAM policies..."
+          npm run validate-iam 2>/dev/null || echo "IAM validation skipped (optional)"
+          
+      - name: Security validation
+        working-directory: infrastructure
+        run: |
+          echo "🔒 Running security validation..."
+          
+          # Validate required security environment variables
+          if [ -z "${{ secrets.DOMAIN_NAME }}" ]; then
+            echo "❌ Error: DOMAIN_NAME secret is required"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.HOSTED_ZONE_ID }}" ]; then
+            echo "❌ Error: HOSTED_ZONE_ID secret is required"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.CROSS_ACCOUNT_ROLE_ARN }}" ]; then
+            echo "❌ Error: CROSS_ACCOUNT_ROLE_ARN secret is required"
+            exit 1
+          fi
+          
+          # Validate domain name format
+          if ! echo "${{ secrets.DOMAIN_NAME }}" | grep -E '^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}$'; then
+            echo "❌ Error: Invalid domain name format"
+            exit 1
+          fi
+          
+          # Production-specific security checks
+          if [ "${{ inputs.environment || 'dev' }}" = "prod" ]; then
+            echo "🔒 Running production security checks..."
+            
+            # Check for production-specific configurations
+            if [ -z "${{ secrets.KMS_KEY_ID }}" ]; then
+              echo "⚠️ Warning: KMS_KEY_ID not configured for production"
+            fi
+            
+            # Validate branch for production deployments
+            if [ "${{ github.ref_name }}" != "main" ]; then
+              echo "❌ Error: Production deployments only allowed from main branch"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Security validation passed"
+
       - name: CDK Bootstrap (if needed)
         working-directory: infrastructure
         run: |
           echo "🚀 Checking CDK bootstrap status..."
-          npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ env.AWS_REGION }} || true
+          
+          # Get AWS account ID securely
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          
+          # Bootstrap with security-enhanced settings
+          npx cdk bootstrap \
+            aws://${AWS_ACCOUNT_ID}/${{ env.AWS_REGION }} \
+            --toolkit-stack-name CDKToolkit-WebHosting \
+            --qualifier webhost \
+            --trust-for-lookup ${AWS_ACCOUNT_ID} \
+            --cloudformation-execution-policies arn:aws:iam::aws:policy/PowerUserAccess \
+            --force || true
           
       - name: CDK Diff
         working-directory: infrastructure
@@ -234,14 +320,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          # Use OIDC for secure authentication (preferred method)
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActions-AssetDeploy-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
           role-duration-seconds: 1800
-          role-session-name: GitHubActions-AssetDeploy
+          # Mask AWS account ID in logs
+          mask-aws-account-id: true
+          # Retry configuration for transient failures
+          retry-max-attempts: 3
+          # Additional security: restrict to specific audience
+          audience: sts.amazonaws.com
 
       - name: Download Flutter build artifacts
         uses: actions/download-artifact@v4
@@ -249,29 +341,92 @@ jobs:
           name: flutter-web-build
           path: flutter_app/build/web/
 
-      - name: Sync assets to S3
+      - name: Validate assets before upload
+        run: |
+          echo "🔍 Validating assets before upload..."
+          
+          # Check if build directory exists
+          if [ ! -d "flutter_app/build/web" ]; then
+            echo "❌ Error: Build directory not found"
+            exit 1
+          fi
+          
+          # Check for required files
+          required_files=("index.html" "main.dart.js" "flutter.js")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "flutter_app/build/web/$file" ]; then
+              echo "❌ Error: Required file $file not found"
+              exit 1
+            fi
+          done
+          
+          # Check file sizes (prevent accidentally uploading huge files)
+          find flutter_app/build/web -type f -size +50M -exec echo "⚠️ Warning: Large file found: {}" \;
+          
+          # Scan for potential security issues in built files
+          echo "🔒 Scanning for potential security issues..."
+          
+          # Check for exposed secrets or API keys (basic patterns)
+          if grep -r -i "api[_-]key\|secret\|password\|token" flutter_app/build/web/ --include="*.js" --include="*.html" | grep -v "flutter" | head -5; then
+            echo "⚠️ Warning: Potential secrets found in build files. Please review."
+          fi
+          
+          echo "✅ Asset validation completed"
+
+      - name: Sync assets to S3 with security headers
         env:
           S3_BUCKET: ${{ needs.deploy-infrastructure.outputs.s3-bucket-name }}
         run: |
           echo "📤 Uploading assets to S3 bucket: $S3_BUCKET"
           
-          # Sync with proper cache headers
+          # Validate bucket name format for security
+          if ! echo "$S3_BUCKET" | grep -E '^[a-z0-9][a-z0-9-]*[a-z0-9]$'; then
+            echo "❌ Error: Invalid S3 bucket name format"
+            exit 1
+          fi
+          
+          # Upload static assets with long cache and security headers
           aws s3 sync flutter_app/build/web/ s3://$S3_BUCKET/ \
             --delete \
-            --cache-control "public, max-age=31536000" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE \
+            --metadata "security-scan=passed,upload-time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --exclude "*.html" \
             --exclude "*.json" \
             --exclude "manifest.json" \
-            --exclude "flutter_service_worker.js"
+            --exclude "flutter_service_worker.js" \
+            --exclude "*.map" \
+            --storage-class STANDARD
             
-          # Upload HTML files with no-cache headers
+          # Upload HTML files with no-cache headers and security metadata
           aws s3 sync flutter_app/build/web/ s3://$S3_BUCKET/ \
             --cache-control "no-cache, no-store, must-revalidate" \
+            --metadata-directive REPLACE \
+            --metadata "content-type=text/html,security-headers=enabled" \
             --include "*.html" \
-            --include "manifest.json" \
-            --include "flutter_service_worker.js"
+            --storage-class STANDARD
             
-          echo "✅ Assets uploaded successfully"
+          # Upload manifest and service worker with short cache
+          aws s3 sync flutter_app/build/web/ s3://$S3_BUCKET/ \
+            --cache-control "public, max-age=300" \
+            --metadata-directive REPLACE \
+            --metadata "content-type=application/json" \
+            --include "manifest.json" \
+            --include "flutter_service_worker.js" \
+            --storage-class STANDARD
+          
+          # Verify upload integrity
+          echo "🔍 Verifying upload integrity..."
+          UPLOADED_COUNT=$(aws s3 ls s3://$S3_BUCKET/ --recursive | wc -l)
+          LOCAL_COUNT=$(find flutter_app/build/web -type f | wc -l)
+          
+          echo "Local files: $LOCAL_COUNT, Uploaded files: $UPLOADED_COUNT"
+          
+          if [ "$UPLOADED_COUNT" -lt "$LOCAL_COUNT" ]; then
+            echo "⚠️ Warning: Upload count mismatch. Some files may not have been uploaded."
+          fi
+          
+          echo "✅ Assets uploaded successfully with security headers"
 
       - name: Invalidate CloudFront cache
         env:

@@ -13,7 +13,7 @@
     },
     "limits": {
       "maxCacheTtl": 31536000,
-      "maxRumSamplingRate": 0.2,
+      "maxRumSamplingRate": 1.0,
       "maxS3LifecycleDays": 365
     }
   },
@@ -25,7 +25,7 @@
   },
   "monitoringConfig": {
     "rumAppName": "minecraft-finder-prod",
-    "samplingRate": 0.1,
+    "samplingRate": 1.0,
     "enabledMetrics": [
       "PerformanceNavigationTiming",
       "PerformanceResourceTiming",
@@ -33,7 +33,9 @@
       "FirstInputDelay",
       "CumulativeLayoutShift",
       "JsError",
-      "HttpError"
+      "HttpError",
+      "CustomEvent",
+      "UserInteraction"
     ],
     "enableExtendedMetrics": true
   },
@@ -49,11 +51,13 @@
     "publicReadAccess": false,
     "lifecycleRules": [
       {
-        "id": "DeleteOldVersions",
+        "id": "OptimizeStorageProduction",
         "enabled": true,
         "transitionToIADays": 30,
+        "transitionToGlacierDays": 90,
+        "transitionToDeepArchiveDays": 180,
         "expirationDays": 365,
-        "abortIncompleteMultipartUploadDays": 7
+        "abortIncompleteMultipartUploadDays": 1
       }
     ]
   },
@@ -77,7 +81,7 @@
     "enableDetailedBilling": true,
     "customCostTags": {
       "BillingGroup": "Production",
-      "Owner": "ProductTeam",
+      "Owner": "ProductionTeam",
       "Purpose": "Production"
     }
   },
@@ -89,13 +93,15 @@
     "ProjectCode": "MINECRAFT-FINDER-PROD",
     "Department": "Engineering",
     "BillingGroup": "Production",
-    "Owner": "ProductTeam",
+    "Owner": "ProductionTeam",
     "Purpose": "Production",
     "Tier": "Production",
     "DataClassification": "Public",
     "BackupRequired": "true",
-    "MonitoringLevel": "Full",
+    "MonitoringLevel": "Comprehensive",
     "ComplianceRequired": "true",
-    "HighAvailability": "true"
+    "SecurityLevel": "Maximum",
+    "DisasterRecovery": "Required",
+    "SLA": "99.9%"
   }
 }

@@ -7,6 +7,9 @@ import { CloudFrontDistributionConstruct } from '../constructs/cloudfront-distri
 import { AcmCertificateConstruct } from '../constructs/acm-certificate';
 import { CloudWatchRumConstruct } from '../constructs/cloudwatch-rum';
 import { DnsManagementConstruct } from '../constructs/dns-management';
+import { MonitoringDashboardConstruct } from '../constructs/monitoring-dashboard';
+import { ErrorHandler, ErrorSeverity, ErrorCategory } from '../utils/error-handler';
+import { DeploymentValidator } from '../utils/deployment-validator';
 
 /**
  * Properties for the WebHostingStack
@@ -46,52 +49,192 @@ export class WebHostingStack extends Stack {
   /** DNS management construct */
   public readonly dnsManagement: DnsManagementConstruct;
   
+  /** Monitoring and alerting construct */
+  public readonly monitoring: MonitoringDashboardConstruct;
+  
   /** Deployment configuration */
   private readonly config: DeploymentConfig;
+
+  /** Error handler for stack operations */
+  private readonly errorHandler: ErrorHandler;
+
+  /** Deployment validator */
+  private readonly validator: DeploymentValidator;
 
   constructor(scope: Construct, id: string, props: WebHostingStackProps) {
     super(scope, id, props);
 
-    this.config = props.config;
+    try {
+      this.config = props.config;
 
-    // Validate stack configuration
-    this.validateStackConfiguration();
+      // Initialize error handler and validator
+      this.errorHandler = new ErrorHandler(this, 'WebHostingStack', {
+        environment: this.config.environment,
+        stackName: id
+      });
 
-    // Apply stack-level tags
-    this.applyStackTags();
+      this.validator = new DeploymentValidator(this, this.config);
 
-    // Create resources in proper dependency order
-    this.createResources();
+      // Validate stack configuration with comprehensive error handling
+      this.validateStackConfiguration();
 
-    // Create stack outputs
-    this.createStackOutputs();
+      // Apply stack-level tags
+      this.applyStackTags();
+
+      // Create resources in proper dependency order with error handling
+      this.createResources();
+
+      // Create stack outputs
+      this.createStackOutputs();
+
+      console.log(`✅ Web hosting stack created successfully: ${this.stackName}`);
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ Failed to create web hosting stack: ${errorMessage}`);
+      
+      if (error instanceof Error && error.stack) {
+        console.error('Stack trace:', error.stack);
+      }
+      
+      throw error; // Re-throw to fail the deployment
+    }
   }
 
   /**
-   * Validates the stack configuration before creating resources
+   * Validates the stack configuration before creating resources with comprehensive error handling
    */
   private validateStackConfiguration(): void {
-    const { config } = this;
-    
-    // Validate environment-specific requirements
-    if (config.environment === 'prod') {
-      if (config.monitoringConfig.samplingRate > 0.5) {
-        console.warn('High RUM sampling rate in production may increase costs');
-      }
-    }
+    try {
+      const { config } = this;
+      
+      // Validate required configuration
+      this.errorHandler.validateRequired(config, 'config');
+      this.errorHandler.validateRequired(config.environment, 'environment');
+      this.errorHandler.validateRequired(config.domainConfig, 'domainConfig');
+      this.errorHandler.validateRequired(config.monitoringConfig, 'monitoringConfig');
+      this.errorHandler.validateRequired(config.cachingConfig, 'cachingConfig');
+      this.errorHandler.validateRequired(config.s3Config, 's3Config');
 
-    // Validate region for certificate creation
-    if (this.region && this.region !== config.domainConfig.certificateRegion) {
-      throw new Error(
-        `Stack must be deployed to ${config.domainConfig.certificateRegion} region for CloudFront certificate. ` +
-        `Current region: ${this.region}`
+      // Validate environment-specific requirements
+      if (config.environment === 'prod') {
+        if (config.monitoringConfig.samplingRate > 0.5) {
+          console.warn('⚠️  High RUM sampling rate in production may increase costs');
+        }
+
+        // Production-specific validations
+        this.errorHandler.validate(
+          config.s3Config.versioning,
+          'PROD_S3_VERSIONING_REQUIRED',
+          'S3 versioning must be enabled in production',
+          ErrorCategory.CONFIGURATION,
+          { environment: config.environment },
+          'Enable S3 versioning for production deployments'
+        );
+
+        // Check for required production tags
+        const requiredProdTags = ['CostCenter', 'ProjectCode', 'Department', 'Owner'];
+        requiredProdTags.forEach(tag => {
+          this.errorHandler.validate(
+            !!(config.tags[tag] && typeof config.tags[tag] === 'string' && (config.tags[tag] as string).trim() !== ''),
+            'MISSING_PROD_TAG',
+            `Missing required production tag: ${tag}`,
+            ErrorCategory.VALIDATION,
+            { tag, environment: config.environment },
+            `Add the required tag '${tag}' to the configuration`
+          );
+        });
+      }
+
+      // Validate region for certificate creation
+      const currentRegion = this.region;
+      const requiredRegion = config.domainConfig.certificateRegion;
+      
+      this.errorHandler.validate(
+        currentRegion === requiredRegion,
+        'INVALID_CERTIFICATE_REGION',
+        `Stack must be deployed to ${requiredRegion} region for CloudFront certificate. Current region: ${currentRegion}`,
+        ErrorCategory.CONFIGURATION,
+        { currentRegion, requiredRegion },
+        `Deploy the stack to ${requiredRegion} region or update the certificate region configuration`
+      );
+
+      // Validate domain configuration
+      this.errorHandler.validateDomainName(config.domainConfig.domainName, {
+        configSection: 'domainConfig'
+      });
+
+      // Validate ARN format
+      this.errorHandler.validateArn(
+        config.domainConfig.crossAccountRoleArn,
+        'Cross-account role',
+        { configSection: 'domainConfig' }
+      );
+
+      // Validate region format and allowed regions
+      this.errorHandler.validateRegion(
+        currentRegion,
+        config.environmentConfig.allowedRegions,
+        { currentRegion, environment: config.environment }
+      );
+
+      // Validate environment limits
+      this.validateEnvironmentLimits();
+
+      console.log('✅ Stack configuration validation passed');
+
+    } catch (error) {
+      this.errorHandler.handleError(
+        'STACK_CONFIGURATION_VALIDATION_FAILED',
+        `Stack configuration validation failed: ${(error as Error).message}`,
+        ErrorSeverity.CRITICAL,
+        ErrorCategory.VALIDATION,
+        { stackName: this.stackName, config: this.config },
+        'Fix the configuration errors and redeploy'
       );
     }
+  }
 
-    // Validate domain configuration
-    if (!config.domainConfig.domainName.includes('.')) {
-      throw new Error('Invalid domain name format');
-    }
+  /**
+   * Validates environment-specific limits
+   */
+  private validateEnvironmentLimits(): void {
+    const { config } = this;
+    const limits = config.environmentConfig.limits;
+
+    // Validate cache TTL limits
+    this.errorHandler.validate(
+      config.cachingConfig.maxTtl <= limits.maxCacheTtl,
+      'CACHE_TTL_LIMIT_EXCEEDED',
+      `Max TTL ${config.cachingConfig.maxTtl} exceeds environment limit ${limits.maxCacheTtl}`,
+      ErrorCategory.VALIDATION,
+      { maxTtl: config.cachingConfig.maxTtl, limit: limits.maxCacheTtl },
+      `Reduce max TTL to ${limits.maxCacheTtl} or below`
+    );
+
+    // Validate RUM sampling rate limits
+    this.errorHandler.validate(
+      config.monitoringConfig.samplingRate <= limits.maxRumSamplingRate,
+      'RUM_SAMPLING_RATE_LIMIT_EXCEEDED',
+      `RUM sampling rate ${config.monitoringConfig.samplingRate} exceeds environment limit ${limits.maxRumSamplingRate}`,
+      ErrorCategory.VALIDATION,
+      { samplingRate: config.monitoringConfig.samplingRate, limit: limits.maxRumSamplingRate },
+      `Reduce RUM sampling rate to ${limits.maxRumSamplingRate} or below`
+    );
+
+    // Validate S3 lifecycle limits
+    config.s3Config.lifecycleRules.forEach((rule, index) => {
+      if (rule.expirationDays && rule.expirationDays > limits.maxS3LifecycleDays) {
+        this.errorHandler.validate(
+          false,
+          'S3_LIFECYCLE_LIMIT_EXCEEDED',
+          `S3 lifecycle rule ${index + 1} expiration ${rule.expirationDays} exceeds environment limit ${limits.maxS3LifecycleDays}`,
+          ErrorCategory.VALIDATION,
+          { ruleIndex: index + 1, expirationDays: rule.expirationDays, limit: limits.maxS3LifecycleDays },
+          `Reduce S3 lifecycle expiration to ${limits.maxS3LifecycleDays} days or below`
+        );
+      }
+    });
   }
 
   /**
@@ -133,54 +276,81 @@ export class WebHostingStack extends Stack {
   }
 
   /**
-   * Creates all stack resources in proper dependency order
+   * Creates all stack resources in proper dependency order with comprehensive error handling
    */
   private createResources(): void {
-    // 1. Create S3 bucket first (no dependencies)
-    Object.defineProperty(this, 's3Bucket', {
-      value: this.createS3Bucket(),
-      writable: false,
-      enumerable: true,
-      configurable: false
-    });
+    try {
+      console.log('🏗️  Creating stack resources...');
 
-    // 2. Create ACM certificate (independent of other resources)
-    Object.defineProperty(this, 'certificate', {
-      value: this.createAcmCertificate(),
-      writable: false,
-      enumerable: true,
-      configurable: false
-    });
+      // 1. Create S3 bucket first (no dependencies)
+      console.log('📦 Creating S3 bucket...');
+      Object.defineProperty(this, 's3Bucket', {
+        value: this.createS3Bucket(),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
 
-    // 3. Create CloudFront distribution (depends on S3 bucket and certificate)
-    Object.defineProperty(this, 'cloudFrontDistribution', {
-      value: this.createCloudFrontDistribution(),
-      writable: false,
-      enumerable: true,
-      configurable: false
-    });
+      // 2. Create ACM certificate (independent of other resources)
+      console.log('🔒 Creating ACM certificate...');
+      Object.defineProperty(this, 'certificate', {
+        value: this.createAcmCertificate(),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
 
-    // 4. Create CloudWatch RUM (depends on domain configuration)
-    Object.defineProperty(this, 'rumMonitoring', {
-      value: this.createCloudWatchRum(),
-      writable: false,
-      enumerable: true,
-      configurable: false
-    });
+      // 3. Create CloudFront distribution (depends on S3 bucket and certificate)
+      console.log('🌐 Creating CloudFront distribution...');
+      Object.defineProperty(this, 'cloudFrontDistribution', {
+        value: this.createCloudFrontDistribution(),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
 
-    // 5. Create DNS management (depends on CloudFront distribution)
-    Object.defineProperty(this, 'dnsManagement', {
-      value: this.createDnsManagement(),
-      writable: false,
-      enumerable: true,
-      configurable: false
-    });
+      // 4. Create CloudWatch RUM (depends on domain configuration)
+      console.log('📊 Creating CloudWatch RUM monitoring...');
+      Object.defineProperty(this, 'rumMonitoring', {
+        value: this.createCloudWatchRum(),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
 
-    // Set up resource dependencies explicitly
-    this.setupResourceDependencies();
+      // 5. Create DNS management (depends on CloudFront distribution)
+      console.log('🌍 Creating DNS management...');
+      Object.defineProperty(this, 'dnsManagement', {
+        value: this.createDnsManagement(),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
 
-    // Note: S3 CloudFront access is handled via Origin Access Control (OAC)
-    // The bucket policy would be set up separately to avoid circular dependencies
+      // 6. Create monitoring and alerting (depends on all other resources)
+      console.log('📊 Creating monitoring and alerting...');
+      Object.defineProperty(this, 'monitoring', {
+        value: this.createMonitoring(),
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
+
+      // Set up resource dependencies explicitly
+      this.setupResourceDependencies();
+
+      console.log('✅ All stack resources created successfully');
+
+    } catch (error) {
+      this.errorHandler.handleError(
+        'STACK_RESOURCE_CREATION_FAILED',
+        `Failed to create stack resources: ${(error as Error).message}`,
+        ErrorSeverity.CRITICAL,
+        ErrorCategory.RESOURCE_CREATION,
+        { stackName: this.stackName },
+        'Check AWS permissions and service limits'
+      );
+    }
   }
 
   /**
@@ -244,6 +414,22 @@ export class WebHostingStack extends Stack {
   }
 
   /**
+   * Creates the monitoring and alerting construct
+   */
+  private createMonitoring(): MonitoringDashboardConstruct {
+    return new MonitoringDashboardConstruct(this, 'Monitoring', {
+      config: this.config,
+      s3Bucket: this.s3Bucket.bucket,
+      distributionId: this.cloudFrontDistribution.distributionId,
+      distributionDomainName: this.cloudFrontDistribution.distributionDomainName,
+      rumApplicationName: this.rumMonitoring.rumAppName,
+      customDomainName: this.config.domainConfig.domainName,
+      environment: this.config.environment,
+      tags: this.config.tags,
+    });
+  }
+
+  /**
    * Sets up explicit resource dependencies
    */
   private setupResourceDependencies(): void {
@@ -256,6 +442,12 @@ export class WebHostingStack extends Stack {
 
     // RUM monitoring can be created independently but should be after domain setup
     this.rumMonitoring.node.addDependency(this.certificate);
+
+    // Monitoring depends on all other resources
+    this.monitoring.node.addDependency(this.s3Bucket);
+    this.monitoring.node.addDependency(this.cloudFrontDistribution);
+    this.monitoring.node.addDependency(this.rumMonitoring);
+    this.monitoring.node.addDependency(this.dnsManagement);
   }
 
 
@@ -342,6 +534,37 @@ export class WebHostingStack extends Stack {
       exportName: `${this.stackName}-Region`,
     });
 
+    // Monitoring outputs
+    new CfnOutput(this, 'ApplicationDashboardUrl', {
+      value: this.monitoring.getDashboardUrls().application,
+      description: 'URL to the application monitoring dashboard',
+      exportName: `${this.stackName}-ApplicationDashboard`,
+    });
+
+    new CfnOutput(this, 'PerformanceDashboardUrl', {
+      value: this.monitoring.getDashboardUrls().performance,
+      description: 'URL to the performance monitoring dashboard',
+      exportName: `${this.stackName}-PerformanceDashboard`,
+    });
+
+    new CfnOutput(this, 'CostDashboardUrl', {
+      value: this.monitoring.getDashboardUrls().cost,
+      description: 'URL to the cost monitoring dashboard',
+      exportName: `${this.stackName}-CostDashboard`,
+    });
+
+    new CfnOutput(this, 'CriticalAlertsTopicArn', {
+      value: this.monitoring.getNotificationTopics().criticalAlerts,
+      description: 'SNS topic ARN for critical alerts',
+      exportName: `${this.stackName}-CriticalAlertsTopic`,
+    });
+
+    new CfnOutput(this, 'UptimeCanaryName', {
+      value: this.monitoring.getMonitoringConfig().canary.name,
+      description: 'Name of the uptime monitoring canary',
+      exportName: `${this.stackName}-UptimeCanary`,
+    });
+
     // Deployment information outputs
     new CfnOutput(this, 'DeploymentTimestamp', {
       value: new Date().toISOString(),
@@ -397,6 +620,27 @@ export class WebHostingStack extends Stack {
   }
 
   /**
+   * Gets monitoring configuration
+   */
+  public getMonitoringConfig() {
+    return this.monitoring.getMonitoringConfig();
+  }
+
+  /**
+   * Gets dashboard URLs
+   */
+  public getDashboardUrls() {
+    return this.monitoring.getDashboardUrls();
+  }
+
+  /**
+   * Gets notification topic ARNs
+   */
+  public getNotificationTopics() {
+    return this.monitoring.getNotificationTopics();
+  }
+
+  /**
    * Gets deployment information for CI/CD integration
    */
   public getDeploymentInfo() {
@@ -409,6 +653,9 @@ export class WebHostingStack extends Stack {
       customDomainUrl: this.getCustomDomainUrl(),
       distributionUrl: this.getDistributionUrl(),
       rumConfig: this.getRumClientConfig(),
+      monitoring: this.getMonitoringConfig(),
+      dashboards: this.getDashboardUrls(),
+      notifications: this.getNotificationTopics(),
     };
   }
 }

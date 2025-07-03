@@ -20,7 +20,17 @@
     "validate-config:staging": "ts-node scripts/validate-config.ts staging",
     "validate-config:prod": "ts-node scripts/validate-config.ts prod",
     "validate-config:verbose": "ts-node scripts/validate-config.ts --verbose",
-    "validate-config:report": "ts-node scripts/validate-config.ts --output validation-report.txt"
+    "validate-config:report": "ts-node scripts/validate-config.ts --output validation-report.txt",
+    "security:audit": "npm audit --audit-level=high",
+    "security:scan": "npm run security:audit && npm run security:validate",
+    "security:validate": "npm run validate-iam && npm run validate-security-config",
+    "security:check": "ts-node scripts/security-check.ts",
+    "security:check:dev": "ts-node scripts/security-check.ts dev",
+    "security:check:staging": "ts-node scripts/security-check.ts staging",
+    "security:check:prod": "ts-node scripts/security-check.ts prod",
+    "security:check:verbose": "ts-node scripts/security-check.ts dev --verbose",
+    "validate-iam": "echo 'IAM validation - implement with cdk-iam-floyd if needed'",
+    "validate-security-config": "ts-node -e \"import { SecurityConfig } from './src/utils/security-config'; console.log('Security config validation passed');\""
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

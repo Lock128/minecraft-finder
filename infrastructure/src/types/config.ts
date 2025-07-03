@@ -112,6 +112,8 @@ export interface CostAllocationConfig {
   enableDetailedBilling: boolean;
   /** Custom cost allocation tags */
   customCostTags?: Record<string, string>;
+  /** Email address for alerts and notifications */
+  alertEmail?: string;
 }
 
 /**

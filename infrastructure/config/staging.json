@@ -2,7 +2,7 @@
   "environment": "staging",
   "environmentConfig": {
     "name": "staging",
-    "description": "Staging environment for pre-production testing",
+    "description": "Staging environment for production-like testing",
     "isProduction": false,
     "allowedRegions": ["us-east-1"],
     "featureFlags": {
@@ -12,7 +12,7 @@
       "enablePerformanceOptimization": true
     },
     "limits": {
-      "maxCacheTtl": 604800,
+      "maxCacheTtl": 2592000,
       "maxRumSamplingRate": 1.0,
       "maxS3LifecycleDays": 180
     }
@@ -33,15 +33,16 @@
       "FirstInputDelay",
       "CumulativeLayoutShift",
       "JsError",
-      "HttpError"
+      "HttpError",
+      "CustomEvent"
     ],
     "enableExtendedMetrics": true
   },
   "cachingConfig": {
     "defaultTtl": 86400,
-    "maxTtl": 604800,
-    "staticAssetsTtl": 604800,
-    "htmlTtl": 1800
+    "maxTtl": 2592000,
+    "staticAssetsTtl": 2592000,
+    "htmlTtl": 3600
   },
   "s3Config": {
     "bucketNamePrefix": "minecraft-finder-web-staging",
@@ -49,9 +50,10 @@
     "publicReadAccess": false,
     "lifecycleRules": [
       {
-        "id": "DeleteOldVersions",
+        "id": "OptimizeStorage",
         "enabled": true,
         "transitionToIADays": 30,
+        "transitionToGlacierDays": 90,
         "expirationDays": 180,
         "abortIncompleteMultipartUploadDays": 7
       }
@@ -61,9 +63,9 @@
     "resourcePrefix": "minecraft-finder",
     "resourceSuffix": "staging",
     "includeEnvironment": true,
-    "includeRandomSuffix": true,
+    "includeRandomSuffix": false,
     "customPatterns": {
-      "s3Bucket": "minecraft-finder-web-staging-{random}",
+      "s3Bucket": "minecraft-finder-web-staging",
       "cloudFrontDistribution": "minecraft-finder-cf-staging",
       "certificate": "minecraft-finder-cert-staging",
       "rumApplication": "minecraft-finder-rum-staging"
@@ -76,9 +78,9 @@
     "budgetThreshold": 100,
     "enableDetailedBilling": true,
     "customCostTags": {
-      "BillingGroup": "PreProduction",
-      "Owner": "QATeam",
-      "Purpose": "Testing"
+      "BillingGroup": "Staging",
+      "Owner": "DevOpsTeam",
+      "Purpose": "Staging"
     }
   },
   "tags": {
@@ -88,12 +90,14 @@
     "CostCenter": "Engineering-Staging",
     "ProjectCode": "MINECRAFT-FINDER-STAGING",
     "Department": "Engineering",
-    "BillingGroup": "PreProduction",
-    "Owner": "QATeam",
-    "Purpose": "Testing",
+    "BillingGroup": "Staging",
+    "Owner": "DevOpsTeam",
+    "Purpose": "Staging",
     "Tier": "Staging",
     "DataClassification": "Internal",
     "BackupRequired": "true",
-    "MonitoringLevel": "Enhanced"
+    "MonitoringLevel": "Enhanced",
+    "ComplianceRequired": "false",
+    "SecurityLevel": "High"
   }
 }

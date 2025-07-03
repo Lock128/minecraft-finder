@@ -191,56 +191,201 @@ export class CloudFrontDistributionConstruct extends Construct {
   }
 
   /**
-   * Creates response headers policy for security
+   * Creates comprehensive response headers policy for security hardening
    */
   private createResponseHeadersPolicy(): cloudfront.ResponseHeadersPolicy {
     return new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
-      comment: 'Security headers for Flutter web app',
+      comment: 'Comprehensive security headers for Flutter web app',
       
-      // Security headers
+      // Security headers following OWASP best practices
       securityHeadersBehavior: {
-        // Content Type Options
+        // Content Type Options - Prevent MIME type sniffing
         contentTypeOptions: {
           override: true,
         },
         
-        // Frame Options
+        // Frame Options - Prevent clickjacking attacks
         frameOptions: {
           frameOption: cloudfront.HeadersFrameOption.DENY,
           override: true,
         },
         
-        // Referrer Policy
+        // Referrer Policy - Control referrer information
         referrerPolicy: {
           referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
           override: true,
         },
         
-        // Strict Transport Security (HSTS)
+        // Strict Transport Security (HSTS) - Force HTTPS
         strictTransportSecurity: {
-          accessControlMaxAge: Duration.seconds(31536000), // 1 year
+          accessControlMaxAge: Duration.seconds(63072000), // 2 years (recommended)
           includeSubdomains: true,
           preload: true,
           override: true,
         },
       },
       
-      // Custom headers for Flutter web optimization
+      // Enhanced custom headers for comprehensive security
       customHeadersBehavior: {
         customHeaders: [
+          // Content Security Policy - Prevent XSS and injection attacks
           {
-            header: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
-            override: false,
+            header: 'Content-Security-Policy',
+            value: this.createContentSecurityPolicy(),
+            override: true,
           },
+          
+          // Permissions Policy - Control browser features
+          {
+            header: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), ambient-light-sensor=()',
+            override: true,
+          },
+          
+          // X-Content-Type-Options - Additional MIME type protection
           {
             header: 'X-Content-Type-Options',
             value: 'nosniff',
             override: true,
           },
+          
+          // X-XSS-Protection - Legacy XSS protection (for older browsers)
+          {
+            header: 'X-XSS-Protection',
+            value: '1; mode=block',
+            override: true,
+          },
+          
+          // Cross-Origin Embedder Policy - Isolate the origin
+          {
+            header: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+            override: true,
+          },
+          
+          // Cross-Origin Opener Policy - Prevent cross-origin attacks
+          {
+            header: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+            override: true,
+          },
+          
+          // Cross-Origin Resource Policy - Control cross-origin requests
+          {
+            header: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin',
+            override: true,
+          },
+          
+          // Server identification removal
+          {
+            header: 'Server',
+            value: '',
+            override: true,
+          },
+          
+          // Cache control for HTML files
+          {
+            header: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+            override: false,
+          },
         ],
       },
+      
+      // CORS configuration for secure cross-origin requests
+      corsConfig: {
+        accessControlAllowCredentials: false,
+        accessControlAllowHeaders: {
+          items: ['Content-Type', 'Authorization', 'X-Requested-With'],
+        },
+        accessControlAllowMethods: {
+          items: ['GET', 'HEAD', 'OPTIONS'],
+        },
+        accessControlAllowOrigins: {
+          items: this.getAllowedOrigins(),
+        },
+        accessControlExposeHeaders: {
+          items: ['Content-Length', 'ETag'],
+        },
+        accessControlMaxAge: Duration.seconds(86400), // 24 hours
+        originOverride: true,
+      },
     });
+  }
+
+  /**
+   * Creates a comprehensive Content Security Policy for Flutter web apps
+   */
+  private createContentSecurityPolicy(): string {
+    const cspDirectives = [
+      // Default source - restrict to self
+      "default-src 'self'",
+      
+      // Script sources - allow self and inline scripts (required for Flutter)
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
+      
+      // Style sources - allow self and inline styles (required for Flutter)
+      "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+      
+      // Font sources - allow self and Google Fonts
+      "font-src 'self' fonts.gstatic.com data:",
+      
+      // Image sources - allow self, data URLs, and blob URLs
+      "img-src 'self' data: blob:",
+      
+      // Connect sources - allow self for API calls
+      "connect-src 'self' https:",
+      
+      // Media sources - restrict to self
+      "media-src 'self'",
+      
+      // Object sources - block all plugins
+      "object-src 'none'",
+      
+      // Base URI - restrict to self
+      "base-uri 'self'",
+      
+      // Form action - restrict to self
+      "form-action 'self'",
+      
+      // Frame ancestors - prevent embedding (clickjacking protection)
+      "frame-ancestors 'none'",
+      
+      // Frame sources - block all frames
+      "frame-src 'none'",
+      
+      // Worker sources - allow self and blob URLs (for service workers)
+      "worker-src 'self' blob:",
+      
+      // Manifest source - allow self
+      "manifest-src 'self'",
+      
+      // Upgrade insecure requests
+      "upgrade-insecure-requests",
+      
+      // Block mixed content
+      "block-all-mixed-content",
+    ];
+
+    return cspDirectives.join('; ');
+  }
+
+  /**
+   * Gets allowed origins based on environment and configuration
+   */
+  private getAllowedOrigins(): string[] {
+    const origins = ['https://localhost:*']; // For local development
+    
+    // Add custom domain if configured
+    if (this.node.tryGetContext('domainName')) {
+      origins.push(`https://${this.node.tryGetContext('domainName')}`);
+    }
+    
+    // Add CloudFront domain
+    origins.push(`https://${this.distributionDomainName}`);
+    
+    return origins;
   }
 
   /**
