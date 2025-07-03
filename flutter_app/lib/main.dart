@@ -8,6 +8,7 @@ import 'widgets/search_tab.dart';
 import 'widgets/results_tab.dart';
 import 'widgets/guide_tab.dart';
 import 'widgets/release_notes_dialog.dart';
+import 'utils/preferences_service.dart';
 
 void main() {
   runApp(const MinecraftOreFinderApp());
@@ -111,7 +112,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     with TickerProviderStateMixin {
   // Form controllers
   final _formKey = GlobalKey<FormState>();
-  final _seedController = TextEditingController(text: '8674308105921866736');
+  final _seedController = TextEditingController();
   final _xController = TextEditingController(text: '0');
   final _yController = TextEditingController(text: '-59');
   final _zController = TextEditingController(text: '0');
@@ -137,10 +138,46 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadLastSearchParams();
+    _setupListeners();
+  }
+
+  Future<void> _loadLastSearchParams() async {
+    final params = await PreferencesService.getAllSearchParams();
+    _seedController.text = params['seed']!;
+    _xController.text = params['x']!;
+    _yController.text = params['y']!;
+    _zController.text = params['z']!;
+    _radiusController.text = params['radius']!;
+  }
+
+  void _setupListeners() {
+    _seedController.addListener(
+        () => PreferencesService.saveLastSeed(_seedController.text));
+    _xController
+        .addListener(() => PreferencesService.saveLastX(_xController.text));
+    _yController
+        .addListener(() => PreferencesService.saveLastY(_yController.text));
+    _zController
+        .addListener(() => PreferencesService.saveLastZ(_zController.text));
+    _radiusController.addListener(
+        () => PreferencesService.saveLastRadius(_radiusController.text));
   }
 
   @override
   void dispose() {
+    // Remove all listeners before disposing
+    _seedController.removeListener(
+        () => PreferencesService.saveLastSeed(_seedController.text));
+    _xController
+        .removeListener(() => PreferencesService.saveLastX(_xController.text));
+    _yController
+        .removeListener(() => PreferencesService.saveLastY(_yController.text));
+    _zController
+        .removeListener(() => PreferencesService.saveLastZ(_zController.text));
+    _radiusController.removeListener(
+        () => PreferencesService.saveLastRadius(_radiusController.text));
+
     _seedController.dispose();
     _xController.dispose();
     _yController.dispose();

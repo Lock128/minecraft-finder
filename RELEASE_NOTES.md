@@ -1,3 +1,30 @@
+# Release Notes - Version 1.0.36
+## Quality of Life Update: Complete Search Persistence
+
+### 💾 **Complete Search Memory Feature**
+- **Automatic Parameter Saving**: The app now remembers ALL your search parameters
+- **World Seed Persistence**: Your world seed is automatically saved and restored
+- **Coordinate Memory**: X, Y, Z coordinates are remembered between sessions
+- **Search Radius Persistence**: Your preferred search radius is saved
+- **Instant Restoration**: When you restart the app, all your last search settings are loaded
+- **No More Re-typing**: Never lose your search configuration again
+
+### 🎯 **Enhanced User Experience**
+- **Seamless Workflow**: Continue your ore hunting sessions exactly where you left off
+- **Time Saving**: Eliminates the need to remember and re-enter all search parameters
+- **Better Productivity**: Focus on finding ores instead of configuring search settings
+- **Perfect for Regular Users**: Ideal for players who frequently search the same world areas
+
+### 🔧 **Technical Improvements**
+- **Comprehensive Persistence**: All text input fields are automatically saved
+- **Smart Defaults**: Falls back to sensible defaults for new users
+- **Efficient Storage**: Uses platform-native storage for optimal performance
+- **Cross-Platform**: Works consistently across all supported platforms
+
+This update addresses the most requested feature from our German-speaking community and significantly improves the workflow for all players.
+
+---
+
 # Release Notes - Version 1.0.27
 ## Minor Update
 Updated splash screen and icons

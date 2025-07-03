@@ -33,7 +33,7 @@ class ReleaseNotesDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Release Notes - Version 1.0.27',
+                      'Release Notes - Version 1.0.36',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -59,71 +59,69 @@ class ReleaseNotesDialog extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionHeader('🆕 Minor update'),
+                      _buildSectionHeader('💾 Complete Search Memory Feature'),
                       const SizedBox(height: 12),
                       _buildFeatureItem(
-                        'Updated App icon',
-                        'The app icon and splash images have been updated',
-                      ),
-                      const SizedBox(height: 12),
-                      _buildSectionHeader(
-                          '🆕 Major Update: Extended Ore Discovery'),
-                      const SizedBox(height: 12),
-                      _buildFeatureItem(
-                        '⚪ Iron Ore Discovery',
-                        'Y-Level Range: Y -64 to 256 (entire world height)\n'
-                            'Peak Zones: Y 15 (underground) & Y 232 (mountains)\n'
-                            'Essential for tools, armor, and redstone contraptions',
+                        'Automatic Parameter Saving',
+                        'The app now remembers ALL your search parameters including world seed, '
+                            'X/Y/Z coordinates, and search radius. Everything is automatically '
+                            'saved when you type and restored when you restart the app.',
                       ),
                       const SizedBox(height: 12),
                       _buildFeatureItem(
-                        '🔴 Redstone Ore Discovery',
-                        'Y-Level Range: Y -64 to 15 (deep underground)\n'
-                            'Peak Zone: Y -64 to -59 (90% probability)\n'
-                            'Perfect for automation systems and contraptions',
+                        'Seamless Workflow',
+                        'Continue your ore hunting sessions exactly where you left off. '
+                            'No more re-entering coordinates or adjusting search settings. '
+                            'Focus on finding ores instead of configuring search settings!',
                       ),
                       const SizedBox(height: 12),
                       _buildFeatureItem(
-                        '⚫ Coal Ore Discovery',
-                        'Y-Level Range: Y 0 to 256 (surface to sky)\n'
-                            'Peak Zone: Y 80-136 (peaks at Y 96)\n'
-                            'Primary fuel source and torch crafting',
+                        'Perfect for Regular Users',
+                        'Ideal for players who frequently search the same world areas. '
+                            'Never lose your search configuration again with instant restoration '
+                            'of all your last search settings.',
                       ),
                       const SizedBox(height: 20),
-                      _buildSectionHeader('🎨 Enhanced User Interface'),
+                      _buildSectionHeader('🎯 Enhanced User Experience'),
                       const SizedBox(height: 12),
                       _buildFeatureList([
-                        'Compact ore selection with space-efficient layout',
-                        'Visual legend showing what each emoji represents',
-                        'Enhanced results filtering for all 6 ore types',
-                        'Improved color coding in results display',
+                        'Time Saving: Eliminates the need to remember and re-enter search parameters',
+                        'Better Productivity: Focus purely on ore discovery',
+                        'Cross-Platform: Works consistently across all supported platforms',
+                        'Smart Defaults: Falls back to sensible defaults for new users',
                       ]),
                       const SizedBox(height: 20),
-                      _buildSectionHeader('📚 Comprehensive Guide Updates'),
+                      _buildSectionHeader('🔧 Technical Improvements'),
                       const SizedBox(height: 12),
                       _buildFeatureList([
-                        'Detailed mining guides for Iron, Redstone, and Coal',
-                        'Optimal Y-level data for efficient mining',
-                        'Practical usage information for each ore type',
-                        'Enhanced formatting with emojis and color coding',
+                        'Comprehensive Persistence: All text input fields are automatically saved',
+                        'Efficient Storage: Uses platform-native storage for optimal performance',
+                        'Enhanced Stability: Better error handling and user experience',
+                        'Addresses most requested feature from the community',
                       ]),
                       const SizedBox(height: 20),
-                      _buildSectionHeader('🛠 Technical Improvements'),
+                      _buildSectionHeader('📋 Previous Updates'),
                       const SizedBox(height: 12),
-                      _buildFeatureList([
-                        'Realistic ore generation patterns matching Minecraft',
-                        'Optimized search performance for multiple ore types',
-                        'Better error handling and stability improvements',
-                        'Enhanced probability calculations for accuracy',
-                      ]),
+                      _buildFeatureItem(
+                        'Version 1.0.27 - Minor Update',
+                        'Updated splash screen and icons for better visual consistency.',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFeatureItem(
+                        'Version 1.0.22 - Extended Ore Discovery',
+                        '⚪ Iron Ore (Y -64 to 256, peaks at Y 15 & Y 232)\n'
+                            '🔴 Redstone Ore (Y -64 to 15, 90% at Y -64 to -59)\n'
+                            '⚫ Coal Ore (Y 0 to 256, peaks at Y 96)\n'
+                            'Enhanced UI with compact ore selection and visual legend',
+                      ),
                       const SizedBox(height: 20),
                       _buildSectionHeader('🎯 Perfect for All Players'),
                       const SizedBox(height: 12),
                       _buildFeatureList([
-                        'Speedrunners: Quick access to essential ores',
+                        'Speedrunners: Quick access to essential ores with saved parameters',
                         'Builders: Iron for tools, redstone for mechanisms',
-                        'Automation enthusiasts: Redstone for contraptions',
-                        'New players: Learn optimal mining levels',
+                        'Regular Players: Seamless continuation of mining sessions',
+                        'New Players: Learn optimal mining levels with persistent settings',
                       ]),
                     ],
                   ),
@@ -146,7 +144,7 @@ class ReleaseNotesDialog extends StatelessWidget {
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
-                      'Now supporting all 6 major Minecraft ore types!',
+                      'All your search parameters are now automatically saved!',
                       style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.w500,
