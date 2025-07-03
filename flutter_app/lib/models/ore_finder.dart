@@ -311,9 +311,9 @@ class OreFinder {
         }
       }
 
-      // Add small delay to prevent UI blocking
-      if (x % 64 == 0) {
-        await Future.delayed(const Duration(microseconds: 1));
+      // Yield control back to the UI thread periodically
+      if (x % 32 == 0) {
+        await Future.delayed(const Duration(milliseconds: 1));
       }
     }
 
@@ -380,12 +380,12 @@ class OreFinder {
         processedChunks++;
 
         // Add progress updates and prevent UI blocking
-        if (processedChunks % 100 == 0) {
+        if (processedChunks % 50 == 0) {
           double progress =
               (processedChunks / (totalChunks * totalChunks)) * 100;
           print(
               'Progress: ${progress.toStringAsFixed(1)}% - Found ${locations.length} netherite locations');
-          await Future.delayed(const Duration(milliseconds: 1));
+          await Future.delayed(const Duration(milliseconds: 5));
         }
       }
     }

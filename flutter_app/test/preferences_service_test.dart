@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../lib/utils/preferences_service.dart';
+import 'package:gem_ore_struct_finder_mc/utils/preferences_service.dart';
 
 void main() {
   group('PreferencesService', () {

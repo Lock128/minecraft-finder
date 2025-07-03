@@ -19,15 +19,21 @@ class StructureFinder {
   }
 
   /// Generate structure-specific random number
-  int _getStructureRandom(int chunkX, int chunkZ, StructureType structureType, int worldSeed) {
-    int structureSeed = worldSeed ^ (chunkX * 341873128712 + chunkZ * 132897987541 + structureType.index * 1000000);
+  int _getStructureRandom(
+      int chunkX, int chunkZ, StructureType structureType, int worldSeed) {
+    int structureSeed = worldSeed ^
+        (chunkX * 341873128712 +
+            chunkZ * 132897987541 +
+            structureType.index * 1000000);
     return _lcg(structureSeed.abs());
   }
 
   /// Determine biome type based on coordinates (simplified)
   String _getBiomeType(int x, int z, int worldSeed) {
-    double biomeRandom = _getStructureRandom((x / 64).floor(), (z / 64).floor(), StructureType.village, worldSeed) / 0xFFFFFFFF;
-    
+    double biomeRandom = _getStructureRandom((x / 64).floor(), (z / 64).floor(),
+            StructureType.village, worldSeed) /
+        0xFFFFFFFF;
+
     if (biomeRandom < 0.15) return 'desert';
     if (biomeRandom < 0.25) return 'jungle';
     if (biomeRandom < 0.35) return 'ocean';
@@ -107,23 +113,25 @@ class StructureFinder {
   }
 
   /// Calculate structure probability for a specific location
-  double _calculateStructureProbability(int x, int z, StructureType structureType, int worldSeed) {
+  double _calculateStructureProbability(
+      int x, int z, StructureType structureType, int worldSeed) {
     String biome = _getBiomeType(x, z, worldSeed);
-    
+
     // Handle special dimensions
     if (structureType == StructureType.endCity) {
       biome = 'end';
-    } else if (structureType == StructureType.netherFortress || structureType == StructureType.bastionRemnant) {
+    } else if (structureType == StructureType.netherFortress ||
+        structureType == StructureType.bastionRemnant) {
       biome = 'nether';
     }
-    
+
     if (!_canStructureSpawnInBiome(structureType, biome)) return 0.0;
 
     int chunkX = (x / 16).floor();
     int chunkZ = (z / 16).floor();
-    
+
     double probability = 0.0;
-    
+
     // Structure-specific base probabilities
     switch (structureType) {
       case StructureType.village:
@@ -174,12 +182,17 @@ class StructureFinder {
     }
 
     // Add randomness based on chunk and structure type
-    double random1 = _getStructureRandom(chunkX, chunkZ, structureType, worldSeed) / 0xFFFFFFFF;
-    double random2 = _getStructureRandom(chunkX + 1, chunkZ + 1, structureType, worldSeed) / 0xFFFFFFFF;
-    
+    double random1 =
+        _getStructureRandom(chunkX, chunkZ, structureType, worldSeed) /
+            0xFFFFFFFF;
+    double random2 =
+        _getStructureRandom(chunkX + 1, chunkZ + 1, structureType, worldSeed) /
+            0xFFFFFFFF;
+
     // Simulate structure generation patterns
     double structureFactor = sin(chunkX * 0.1) * cos(chunkZ * 0.1);
-    probability *= (0.3 + random1 * 0.4 + random2 * 0.3 + structureFactor.abs() * 0.2);
+    probability *=
+        (0.3 + random1 * 0.4 + random2 * 0.3 + structureFactor.abs() * 0.2);
 
     return min(probability, 1.0);
   }
@@ -200,19 +213,21 @@ class StructureFinder {
     for (int x = centerX - radius; x <= centerX + radius; x += step) {
       for (int z = centerZ - radius; z <= centerZ + radius; z += step) {
         for (StructureType structureType in structureTypes) {
-          double probability = _calculateStructureProbability(x, z, structureType, worldSeed);
-          
+          double probability =
+              _calculateStructureProbability(x, z, structureType, worldSeed);
+
           if (probability >= minProbability) {
             int y = _getStructureY(structureType, x, z, worldSeed);
             String biome = _getBiomeType(x, z, worldSeed);
-            
+
             // Handle special dimensions
             if (structureType == StructureType.endCity) {
               biome = 'end';
-            } else if (structureType == StructureType.netherFortress || structureType == StructureType.bastionRemnant) {
+            } else if (structureType == StructureType.netherFortress ||
+                structureType == StructureType.bastionRemnant) {
               biome = 'nether';
             }
-            
+
             locations.add(StructureLocation(
               x: x,
               y: y,
@@ -226,16 +241,16 @@ class StructureFinder {
           }
         }
       }
-      
-      // Add small delay to prevent UI blocking
-      if (x % 256 == 0) {
-        await Future.delayed(const Duration(microseconds: 1));
+
+      // Yield control back to the UI thread periodically
+      if (x % 128 == 0) {
+        await Future.delayed(const Duration(milliseconds: 2));
       }
     }
 
     // Sort by probability (highest first)
     locations.sort((a, b) => b.probability.compareTo(a.probability));
-    
+
     return locations;
   }
 }
