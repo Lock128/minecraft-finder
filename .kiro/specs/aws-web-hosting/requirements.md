@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This feature will create AWS infrastructure using CDK in TypeScript to host the Flutter web application on S3 behind CloudFront, with automated deployment via GitHub Actions and monitoring through CloudWatch RUM. The solution will provide a scalable, secure, and monitored web hosting environment for the Minecraft Ore Finder application.
+This feature will create AWS infrastructure using CDK in TypeScript to host the Flutter web application on S3 behind CloudFront, with automated deployment via GitHub Actions and monitoring through CloudWatch RUM. The solution will provide a scalable, secure, and monitored web hosting environment for the Ore & Structure Finder application.
 
 ## Requirements
 
@@ -81,7 +81,7 @@ This feature will create AWS infrastructure using CDK in TypeScript to host the 
 
 ### Requirement 7
 
-**User Story:** As a developer, I want to serve the application through a custom domain (subdomain of minecraft.lockhead.cloud), so that users can access it through a branded URL with proper SSL certificate.
+**User Story:** As a developer, I want to serve the application through a custom domain (subdomain of orefinder.lockhead.cloud), so that users can access it through a branded URL with proper SSL certificate.
 
 #### Acceptance Criteria
 
@@ -90,4 +90,4 @@ This feature will create AWS infrastructure using CDK in TypeScript to host the 
 3. WHEN the certificate is validated THEN the system SHALL configure the CloudFront distribution to use the custom domain and certificate
 4. WHEN the infrastructure is deployed THEN the system SHALL create a Route53 DNS record pointing the subdomain to the CloudFront distribution in the external AWS account
 5. WHEN cross-account operations are performed THEN the system SHALL assume the appropriate IAM role in the DNS management account
-6. WHEN the custom domain is configured THEN the system SHALL ensure the subdomain is properly configured under the existing lockhead.cloud hosted zone with the URL minecraft.lockhead.cloud
+6. WHEN the custom domain is configured THEN the system SHALL ensure the subdomain is properly configured under the existing lockhead.cloud hosted zone with the URL orefinder.lockhead.cloud

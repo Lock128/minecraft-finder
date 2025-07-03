@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cloud.lockhead.minecraft_finder">
     <application
-        android:label="Minecraft Ore and Structure Finder"
+        android:label="Gem, Ore & Struct Finder for MC"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -25,7 +25,7 @@ graph TB
     end
     
     subgraph "AWS Account 2 (DNS)"
-        H[Route53 Hosted Zone<br/>minecraft.lockhead.cloud]
+        H[Route53 Hosted Zone<br/>mcfinder.lockhead.cloud]
         I[DNS Validation Records]
         J[CNAME Record]
     end
@@ -35,7 +35,7 @@ graph TB
     F -.->|Validation| I
     
     subgraph "Users"
-        K[Web Browser] --> L[subdomain.minecraft.lockhead.cloud]
+        K[Web Browser] --> L[subdomain.mcfinder.lockhead.cloud]
     end
     
     L --> E

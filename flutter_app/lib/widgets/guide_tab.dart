@@ -84,7 +84,7 @@ class GuideTab extends StatelessWidget {
               icon: '⚪',
               iconColor: Colors.grey,
               content: [
-                'Iron is one of the most versatile and common ores in Minecraft.',
+                'Iron is one of the most versatile and common ores in block-based games.',
                 '',
                 '🎯 Optimal Y Levels:',
                 '• Y 128 to 256: Mountain iron generation (peaks at Y 232)',
@@ -176,7 +176,7 @@ class GuideTab extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'This tool provides statistical predictions based on Minecraft\'s generation algorithms. '
+                    'This tool provides statistical predictions based on block game generation algorithms. '
                     'Use the coordinates as starting points for your mining expeditions, and always explore '
                     'the surrounding areas once you find ore veins!',
                     textAlign: TextAlign.center,

@@ -1,18 +1,17 @@
-name: minecraft_finder
-description: Advanced Minecraft Ore & Structure Finder - Discover diamonds, gold, netherite, villages, strongholds and more using world seed analysis. Features biome filtering, coordinate search, and probability-based results for optimal mining efficiency.
+name: gem_ore_struct_finder_mc
+description: Gem, Ore & Struct Finder for MC - Discover diamonds, gold, netherite, villages, strongholds and more using world seed analysis. Features biome filtering, coordinate search, and probability-based results for optimal mining efficiency.
 publish_to: 'none'
 version: 1.0.0+1
 
 # SEO and App Store metadata
-homepage: https://github.com/Lock128/minecraft-finder
-repository: https://github.com/Lock128/minecraft-finder
-issue_tracker: https://github.com/Lock128/minecraft-finder/issues
-documentation: https://github.com/Lock128/minecraft-finder/wiki
+homepage: https://github.com/Lock128/gem-ore-struct-finder-mc
+repository: https://github.com/Lock128/gem-ore-struct-finder-mc
+issue_tracker: https://github.com/Lock128/gem-ore-struct-finder-mc/issues
+documentation: https://github.com/Lock128/gem-ore-struct-finder-mc/wiki
 
 # App metadata for stores
 metadata:
   keywords: 
-    - minecraft
     - ore finder
     - diamond finder
     - seed analysis
@@ -22,6 +21,7 @@ metadata:
     - biome filter
     - world generation
     - gaming utility
+    - block game
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

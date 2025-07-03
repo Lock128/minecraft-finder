@@ -1,16 +1,16 @@
-# Minecraft Chercheur de Minerais & Structures - Description Store Française
+# Chercheur Gemmes, Minerais & Structures MC - Description Store Française
 
 ## Titre de l'App
-**Minecraft Chercheur de Minerais & Structures - Trouvez Tous les Minerais & Villages**
+**Chercheur Gemmes, Minerais & Structures MC - Trouvez Tous les Minerais & Villages**
 
 ## Description Courte (80 caractères)
 Trouvez les 6 types de minerais, villages & structures avec analyse avancée
 
 ## Description Longue
 
-🎮 **L'Outil de Découverte Minecraft Ultime**
+🎮 **L'Outil de Découverte de Jeux de Blocs Ultime**
 
-Transformez votre expérience Minecraft avec le chercheur de minerais et structures le plus avancé disponible ! Que vous soyez un speedrunner chassant les diamants, un constructeur cherchant le village parfait, ou un explorateur à la recherche de structures rares, cette app est votre compagnon essentiel.
+Transformez votre expérience de jeu avec le chercheur de minerais et structures le plus avancé disponible ! Que vous soyez un speedrunner chassant les diamants, un constructeur cherchant le village parfait, ou un explorateur à la recherche de structures rares, cette app est votre compagnon essentiel.
 
 ✨ **Fonctionnalités Principales :**
 
@@ -46,7 +46,7 @@ Transformez votre expérience Minecraft avec le chercheur de minerais et structu
 • **Admins de Serveur** - Planifier les layouts de monde et distribution complète des ressources
 
 🔧 **Comment Ça Marche :**
-1. Entrez votre seed de monde Minecraft
+1. Entrez votre seed de monde
 2. Définissez les coordonnées de recherche et le rayon
 3. Choisissez les types de minerais et/ou structures à trouver
 4. Obtenez des résultats instantanés triés par probabilité
@@ -55,13 +55,13 @@ Transformez votre expérience Minecraft avec le chercheur de minerais et structu
 📱 **Support Multi-Plateforme**
 Fonctionne parfaitement sur téléphones, tablettes et navigateurs web avec un design responsive optimisé pour toutes les tailles d'écran.
 
-🎮 **Versions Minecraft Supportées**
-Compatible avec les algorithmes actuels de génération de monde Minecraft pour des résultats précis.
+🎮 **Versions de Jeu Supportées**
+Compatible avec les algorithmes actuels de génération de monde pour des résultats précis.
 
-Téléchargez maintenant et révolutionnez votre gameplay Minecraft ! Ne perdez plus jamais de temps à miner aux mauvais endroits.
+Téléchargez maintenant et révolutionnez votre gameplay ! Ne perdez plus jamais de temps à miner aux mauvais endroits.
 
 ## Mots-Clés
-minecraft, chercheur minerai, chercheur diamant, chercheur or, chercheur fer, chercheur redstone, chercheur charbon, chercheur netherite, chercheur structure, chercheur village, chercheur forteresse, analyse seed, génération monde, outil minage, speedrun, filtre biome, utilitaire minecraft, outil gaming, automatisation, guide niveau y
+chercheur minerai, chercheur diamant, chercheur or, chercheur fer, chercheur redstone, chercheur charbon, chercheur netherite, chercheur structure, chercheur village, chercheur forteresse, analyse seed, génération monde, outil minage, speedrun, filtre biome, utilitaire jeu blocs, outil gaming, automatisation, guide niveau y
 
 ## Catégories App Store
 - Primaire : Jeux > Utilitaires
@@ -77,7 +77,7 @@ minecraft, chercheur minerai, chercheur diamant, chercheur or, chercheur fer, ch
 ## Quoi de Neuf (Notes de Mise à Jour)
 🆕 **Mise à Jour Majeure : Découverte de Minerais Étendue**
 - Ajout de 3 nouveaux types de minerais essentiels : Fer ⚪, Redstone 🔴 et Charbon ⚫
-- Supporte maintenant tous les 6 types de minerais Minecraft majeurs avec données optimales de niveau Y
+- Supporte maintenant tous les 6 types de minerais majeurs avec données optimales de niveau Y
 - Interface de sélection de minerais compacte redessinée avec légende visuelle
 - Filtrage des résultats amélioré avec couverture complète des types de minerais
 - Guide de minage complet mis à jour avec informations détaillées pour tous les minerais
@@ -85,7 +85,7 @@ minecraft, chercheur minerai, chercheur diamant, chercheur or, chercheur fer, ch
 - Optimisations de performance pour des résultats de recherche multi-minerais plus rapides
 
 ## Modèle de Réponse Développeur aux Avis
-Merci pour votre retour ! Nous travaillons constamment à améliorer l'app. Si vous rencontrez des problèmes ou avez des suggestions, contactez-nous à [email support]. Nous apprécions votre soutien à la communauté Minecraft !
+Merci pour votre retour ! Nous travaillons constamment à améliorer l'app. Si vous rencontrez des problèmes ou avez des suggestions, contactez-nous à [email support]. Nous apprécions votre soutien à la communauté gaming !
 
 ## Résumé de la Politique de Confidentialité
 Cette app ne collecte, ne stocke, ni ne transmet aucune donnée personnelle. Tous les calculs sont effectués localement sur votre appareil. Aucune inscription de compte requise.

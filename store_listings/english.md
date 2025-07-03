@@ -1,16 +1,16 @@
-# Minecraft Ore & Structure Finder - English Store Listing
+# Gem, Ore & Struct Finder for MC - English Store Listing
 
 ## App Title
-**Minecraft Ore & Structure Finder - Find All Ores, Villages & Strongholds**
+**Gem, Ore & Struct Finder for MC - Find All Ores, Villages & Strongholds**
 
 ## Short Description (80 characters)
 Find all 6 ore types, villages & structures using advanced world seed analysis
 
 ## Long Description
 
-Advanced Minecraft Discovery Tool
+Advanced Block Game Discovery Tool
 
-Transform your Minecraft experience with this comprehensive ore and structure finder! Whether you're a speedrunner hunting for diamonds, a builder seeking the perfect village, or an explorer looking for rare structures, this app is your essential companion.
+Transform your gaming experience with this comprehensive ore and structure finder! Whether you're a speedrunner hunting for diamonds, a builder seeking the perfect village, or an explorer looking for rare structures, this app is your essential companion.
 
 Key Features:
 
@@ -46,7 +46,7 @@ Perfect For:
 - Server Admins: Plan world layouts and comprehensive resource distribution
 
 How It Works:
-1. Enter your Minecraft world seed
+1. Enter your world seed
 2. Set search coordinates and radius
 3. Choose ore types and/or structures to find
 4. Get instant results sorted by probability
@@ -55,13 +55,13 @@ How It Works:
 Cross-Platform Support
 Works perfectly on phones, tablets, and web browsers with responsive design optimized for all screen sizes.
 
-Supported Minecraft Versions
-Compatible with current Minecraft world generation algorithms for accurate results.
+Supported Game Versions
+Compatible with current block game world generation algorithms for accurate results.
 
-Enhance your Minecraft gameplay with precise location data and never waste time mining in the wrong places again.
+Enhance your gameplay with precise location data and never waste time mining in the wrong places again.
 
 ## Keywords
-minecraft, ore finder, diamond finder, gold finder, iron finder, redstone finder, coal finder, netherite finder, structure finder, village finder, stronghold finder, seed analysis, world generation, mining tool, speedrun, biome filter, minecraft utility, gaming tool, automation, y level guide
+ore finder, diamond finder, gold finder, iron finder, redstone finder, coal finder, netherite finder, structure finder, village finder, stronghold finder, seed analysis, world generation, mining tool, speedrun, biome filter, block game utility, gaming tool, automation, y level guide
 
 ## App Store Categories
 - Primary: Games > Utilities
@@ -77,7 +77,7 @@ minecraft, ore finder, diamond finder, gold finder, iron finder, redstone finder
 ## What's New (Update Notes)
 🆕 **Major Update: Extended Ore Discovery**
 - Added 3 new essential ore types: Iron ⚪, Redstone 🔴, and Coal ⚫
-- Now supports all 6 major Minecraft ore types with optimal Y-level data
+- Now supports all 6 major ore types with optimal Y-level data
 - Redesigned compact ore selection interface with visual legend
 - Enhanced results filtering with complete ore type coverage
 - Updated comprehensive mining guide with detailed information for all ores
@@ -85,7 +85,7 @@ minecraft, ore finder, diamond finder, gold finder, iron finder, redstone finder
 - Performance optimizations for faster multi-ore search results
 
 ## Developer Response to Reviews Template
-Thank you for your feedback! We're constantly working to improve the app. If you encounter any issues or have suggestions, please contact us at [support email]. We appreciate your support of the Minecraft community!
+Thank you for your feedback! We're constantly working to improve the app. If you encounter any issues or have suggestions, please contact us at [support email]. We appreciate your support of the gaming community!
 
 ## Privacy Policy Summary
 This app does not collect, store, or transmit any personal data. All calculations are performed locally on your device. No account registration required.

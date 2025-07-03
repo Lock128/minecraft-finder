@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains GitHub Actions workflows for the Minecraft Ore Finder project.
+This directory contains GitHub Actions workflows for the Gem,Ore & Struct Finder for MC project.
 
 ## Web Hosting Deployment Workflow
 
@@ -33,7 +33,7 @@ Configure the following secrets in your GitHub repository settings:
 - `AWS_ACCOUNT_ID`: AWS account ID where resources will be deployed
 
 #### Domain Configuration
-- `DOMAIN_NAME`: Custom domain name (e.g., `app.minecraft.lockhead.cloud`)
+- `DOMAIN_NAME`: Custom domain name (e.g., `orefinder.lockhead.cloud`)
 - `HOSTED_ZONE_ID`: Route53 hosted zone ID in the DNS management account
 - `CROSS_ACCOUNT_ROLE_ARN`: IAM role ARN for cross-account DNS operations
 

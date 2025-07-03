@@ -1,6 +1,6 @@
-# 🎮 Minecraft Ore & Structure Finder
+# 🎮 Gem, Ore & Struct Finder for MC
 
-**Advanced Minecraft tool to find diamonds, gold, netherite, villages, strongholds and more using world seed analysis.**
+**Advanced tool to find diamonds, gold, netherite, villages, strongholds and more using world seed analysis for block-based sandbox games.**
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
@@ -35,7 +35,7 @@
 
 ## 🎯 How It Works
 
-1. **Enter Your World Seed** - Input your Minecraft world seed
+1. **Enter Your World Seed** - Input your world seed
 2. **Set Search Center** - Define X, Y, Z coordinates and search radius
 3. **Choose What to Find** - Select ore types and/or structure types
 4. **Get Results** - View top 250 locations sorted by probability
@@ -43,7 +43,7 @@
 
 ## 🔧 Technical Features
 
-- **Advanced Algorithm** - Simulates Minecraft's world generation
+- **Advanced Algorithm** - Simulates block game world generation
 - **Chunk-Based Analysis** - Efficient coordinate sampling
 - **Biome Simulation** - Accurate biome detection for bonus rates
 - **Cross-Platform** - Works on web, mobile, and desktop
@@ -75,10 +75,10 @@
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/minecraft-ore-finder.git
+git clone https://github.com/your-username/gem-ore-struct-finder-mc.git
 
 # Navigate to project directory
-cd minecraft-ore-finder/flutter_app
+cd gem-ore-struct-finder-mc/flutter_app
 
 # Install dependencies
 flutter pub get
@@ -120,7 +120,7 @@ flutter run -d chrome
 
 ## 🔍 SEO Keywords
 
-`minecraft ore finder`, `diamond finder`, `gold finder`, `netherite finder`, `minecraft seed analysis`, `structure finder`, `village finder`, `stronghold finder`, `minecraft tools`, `world generation`, `biome filter`, `mining efficiency`, `speedrun tools`, `minecraft utility`
+`ore finder`, `diamond finder`, `gold finder`, `netherite finder`, `seed analysis`, `structure finder`, `village finder`, `stronghold finder`, `block game tools`, `world generation`, `biome filter`, `mining efficiency`, `speedrun tools`, `gaming utility`
 
 ## 🤝 Contributing
 
@@ -132,10 +132,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Minecraft world generation algorithms
+- Block game world generation algorithms
 - Flutter and Dart communities
 - Open source contributors
 
 ---
 
-**Made with ❤️ for the Minecraft community**
+**Made with ❤️ for the gaming community**

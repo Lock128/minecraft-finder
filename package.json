@@ -1,11 +1,11 @@
 {
-  "name": "minecraft-diamond-finder",
+  "name": "gem-finder",
   "version": "1.0.0",
-  "description": "Find diamonds in Minecraft using seed analysis",
-  "main": "minecraft-diamond-finder.js",
+  "description": "Find diamonds in Block Games using seed analysis",
+  "main": "gem-finder.js",
   "type": "commonjs",
   "scripts": {
-    "start": "ts-node --esm minecraft-diamond-finder.ts",
+    "start": "ts-node --esm ore-finder.ts",
     "build": "tsc",
     "find-diamonds": "ts-node --esm minecraft-diamond-finder.ts",
     "find-gold": "ts-node --esm minecraft-gold-finder.ts",
@@ -20,12 +20,12 @@
     "experimentalSpecifierResolution": "node"
   },
   "keywords": [
-    "minecraft",
+    "block-game",
     "diamonds",
     "seed",
     "world-generation"
   ],
-  "author": "Kiro AI",
+  "author": "Johannes Lockhead Koch",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.0.7"

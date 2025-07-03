@@ -1,16 +1,16 @@
-# Minecraft Erz & Struktur Finder - Deutsche Store-Beschreibung
+# Edelstein, Erz & Struktur Finder für MC - Deutsche Store-Beschreibung
 
 ## App-Titel
-**Minecraft Erz & Struktur Finder - Finde Alle Erze, Dörfer & Festungen**
+**Edelstein, Erz & Struktur Finder für MC - Finde Alle Erze, Dörfer & Festungen**
 
 ## Kurzbeschreibung (80 Zeichen)
 Finde alle 6 Erztypen, Dörfer & Strukturen mit fortschrittlicher Seed-Analyse
 
 ## Lange Beschreibung
 
-🎮 **Das ultimative Minecraft-Entdeckungstool**
+🎮 **Das ultimative Block-Spiel-Entdeckungstool**
 
-Verwandle dein Minecraft-Erlebnis mit dem fortschrittlichsten Erz- und Strukturfinder, der verfügbar ist! Egal, ob du ein Speedrunner bist, der nach Diamanten jagt, ein Baumeister, der das perfekte Dorf sucht, oder ein Entdecker, der seltene Strukturen finden möchte - diese App ist dein unverzichtbarer Begleiter.
+Verwandle dein Gaming-Erlebnis mit dem fortschrittlichsten Erz- und Strukturfinder, der verfügbar ist! Egal, ob du ein Speedrunner bist, der nach Diamanten jagt, ein Baumeister, der das perfekte Dorf sucht, oder ein Entdecker, der seltene Strukturen finden möchte - diese App ist dein unverzichtbarer Begleiter.
 
 ✨ **Hauptfunktionen:**
 
@@ -46,7 +46,7 @@ Verwandle dein Minecraft-Erlebnis mit dem fortschrittlichsten Erz- und Strukturf
 • **Server-Admins** - Weltlayouts und umfassende Ressourcenverteilung planen
 
 🔧 **So funktioniert's:**
-1. Gib deinen Minecraft-Welt-Seed ein
+1. Gib deinen Welt-Seed ein
 2. Setze Suchkoordinaten und Radius
 3. Wähle Erztypen und/oder Strukturen zum Finden
 4. Erhalte sofortige Ergebnisse sortiert nach Wahrscheinlichkeit
@@ -55,13 +55,13 @@ Verwandle dein Minecraft-Erlebnis mit dem fortschrittlichsten Erz- und Strukturf
 📱 **Plattformübergreifende Unterstützung**
 Funktioniert perfekt auf Handys, Tablets und Webbrowsern mit responsivem Design, optimiert für alle Bildschirmgrößen.
 
-🎮 **Unterstützte Minecraft-Versionen**
-Kompatibel mit aktuellen Minecraft-Weltgenerierungsalgorithmen für genaue Ergebnisse.
+🎮 **Unterstützte Spiel-Versionen**
+Kompatibel mit aktuellen Block-Spiel-Weltgenerierungsalgorithmen für genaue Ergebnisse.
 
-Lade jetzt herunter und revolutioniere dein Minecraft-Gameplay! Verschwende nie wieder Zeit mit dem Graben an den falschen Stellen.
+Lade jetzt herunter und revolutioniere dein Gameplay! Verschwende nie wieder Zeit mit dem Graben an den falschen Stellen.
 
 ## Schlüsselwörter
-minecraft, erz finder, diamanten finder, gold finder, eisen finder, redstone finder, kohle finder, netherit finder, struktur finder, dorf finder, festung finder, seed analyse, weltgenerierung, bergbau tool, speedrun, biom filter, minecraft utility, gaming tool, automatisierung, y level guide
+erz finder, diamanten finder, gold finder, eisen finder, redstone finder, kohle finder, netherit finder, struktur finder, dorf finder, festung finder, seed analyse, weltgenerierung, bergbau tool, speedrun, biom filter, block spiel utility, gaming tool, automatisierung, y level guide
 
 ## App Store Kategorien
 - Primär: Spiele > Dienstprogramme
@@ -77,7 +77,7 @@ minecraft, erz finder, diamanten finder, gold finder, eisen finder, redstone fin
 ## Was ist neu (Update-Notizen)
 🆕 **Großes Update: Erweiterte Erz-Entdeckung**
 - 3 neue essentielle Erztypen hinzugefügt: Eisen ⚪, Redstone 🔴 und Kohle ⚫
-- Unterstützt jetzt alle 6 wichtigen Minecraft-Erztypen mit optimalen Y-Level-Daten
+- Unterstützt jetzt alle 6 wichtigen Erztypen mit optimalen Y-Level-Daten
 - Neu gestaltete kompakte Erz-Auswahlschnittstelle mit visueller Legende
 - Erweiterte Ergebnisfilterung mit vollständiger Erztyp-Abdeckung
 - Aktualisierter umfassender Bergbau-Leitfaden mit detaillierten Informationen für alle Erze
@@ -85,7 +85,7 @@ minecraft, erz finder, diamanten finder, gold finder, eisen finder, redstone fin
 - Leistungsoptimierungen für schnellere Multi-Erz-Suchergebnisse
 
 ## Entwickler-Antwort auf Bewertungen Vorlage
-Vielen Dank für dein Feedback! Wir arbeiten kontinuierlich daran, die App zu verbessern. Falls du Probleme hast oder Vorschläge machst, kontaktiere uns bitte unter [Support-E-Mail]. Wir schätzen deine Unterstützung der Minecraft-Community!
+Vielen Dank für dein Feedback! Wir arbeiten kontinuierlich daran, die App zu verbessern. Falls du Probleme hast oder Vorschläge machst, kontaktiere uns bitte unter [Support-E-Mail]. Wir schätzen deine Unterstützung der Gaming-Community!
 
 ## Datenschutzrichtlinien-Zusammenfassung
 Diese App sammelt, speichert oder überträgt keine persönlichen Daten. Alle Berechnungen werden lokal auf deinem Gerät durchgeführt. Keine Kontoregistrierung erforderlich.

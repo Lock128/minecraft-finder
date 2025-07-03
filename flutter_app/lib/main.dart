@@ -11,17 +11,17 @@ import 'widgets/release_notes_dialog.dart';
 import 'utils/preferences_service.dart';
 
 void main() {
-  runApp(const MinecraftOreFinderApp());
+  runApp(const GemOreStructFinderApp());
 }
 
-class MinecraftOreFinderApp extends StatefulWidget {
-  const MinecraftOreFinderApp({super.key});
+class GemOreStructFinderApp extends StatefulWidget {
+  const GemOreStructFinderApp({super.key});
 
   @override
-  State<MinecraftOreFinderApp> createState() => _MinecraftOreFinderAppState();
+  State<GemOreStructFinderApp> createState() => _GemOreStructFinderAppState();
 }
 
-class _MinecraftOreFinderAppState extends State<MinecraftOreFinderApp> {
+class _GemOreStructFinderAppState extends State<GemOreStructFinderApp> {
   bool _isDarkMode = false;
 
   void _toggleTheme() {
@@ -34,7 +34,7 @@ class _MinecraftOreFinderAppState extends State<MinecraftOreFinderApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title:
-          'Minecraft Ore & Structure Finder - Find Diamonds, Gold, Netherite & More',
+          'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
       debugShowCheckedModeBanner: false,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: _buildLightTheme(),
@@ -398,7 +398,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           const SizedBox(width: 8),
           const Expanded(
             child: Text(
-              'Minecraft Ore Finder',
+              'Gem, Ore & Struct Finder',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               overflow: TextOverflow.ellipsis,
             ),
