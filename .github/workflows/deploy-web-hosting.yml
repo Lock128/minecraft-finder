@@ -82,7 +82,7 @@ jobs:
         working-directory: flutter_app
         run: |
           echo "🏗️ Building Flutter web application..."
-          flutter build web --release --web-renderer html --base-href /
+          flutter build web --release
           
       - name: Generate build info
         id: build-info
