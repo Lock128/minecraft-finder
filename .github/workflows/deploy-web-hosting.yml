@@ -1,0 +1,394 @@
+name: Deploy Web Hosting Infrastructure
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'flutter_app/**'
+      - 'infrastructure/**'
+      - '.github/workflows/deploy-web-hosting.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      skip_build:
+        description: 'Skip Flutter build (deploy infrastructure only)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  FLUTTER_VERSION: '3.32.3'
+  NODE_VERSION: '20'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  build-flutter:
+    name: Build Flutter Web Application
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_build }}
+    timeout-minutes: 15
+    
+    outputs:
+      build-hash: ${{ steps.build-info.outputs.build-hash }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        working-directory: flutter_app
+        run: |
+          echo "📦 Installing Flutter dependencies..."
+          flutter pub get
+          
+      - name: Analyze Flutter code
+        working-directory: flutter_app
+        run: |
+          echo "🔍 Analyzing Flutter code..."
+          flutter analyze --fatal-infos
+          
+      - name: Run Flutter tests
+        working-directory: flutter_app
+        run: |
+          echo "🧪 Running Flutter tests..."
+          flutter test --coverage --reporter=github
+          
+      - name: Build Flutter web
+        working-directory: flutter_app
+        run: |
+          echo "🏗️ Building Flutter web application..."
+          flutter build web --release --web-renderer html --base-href /
+          
+      - name: Generate build info
+        id: build-info
+        run: |
+          BUILD_HASH=$(echo "${{ github.sha }}" | cut -c1-8)
+          echo "build-hash=$BUILD_HASH" >> $GITHUB_OUTPUT
+          echo "Build hash: $BUILD_HASH"
+          
+          # Create build info file
+          cat > flutter_app/build/web/build-info.json << EOF
+          {
+            "buildHash": "$BUILD_HASH",
+            "buildTime": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "gitCommit": "${{ github.sha }}",
+            "gitBranch": "${{ github.ref_name }}",
+            "buildNumber": "${{ github.run_number }}",
+            "environment": "${{ inputs.environment || 'dev' }}"
+          }
+          EOF
+          
+      - name: Upload Flutter build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-web-build
+          path: flutter_app/build/web/
+          retention-days: 7
+          compression-level: 6
+
+  deploy-infrastructure:
+    name: Deploy CDK Infrastructure
+    runs-on: ubuntu-latest
+    needs: [build-flutter]
+    if: always() && (needs.build-flutter.result == 'success' || inputs.skip_build)
+    timeout-minutes: 30
+    
+    environment: ${{ inputs.environment || 'dev' }}
+    
+    outputs:
+      cloudfront-distribution-id: ${{ steps.deploy-output.outputs.cloudfront-distribution-id }}
+      s3-bucket-name: ${{ steps.deploy-output.outputs.s3-bucket-name }}
+      cloudfront-domain: ${{ steps.deploy-output.outputs.cloudfront-domain }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: infrastructure/package-lock.json
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 3600
+          role-session-name: GitHubActions-WebHostingDeploy
+
+      - name: Install CDK dependencies
+        working-directory: infrastructure
+        run: |
+          echo "📦 Installing CDK dependencies..."
+          npm ci
+          
+      - name: Build CDK application
+        working-directory: infrastructure
+        run: |
+          echo "🏗️ Building CDK application..."
+          npm run build
+          
+      - name: Run CDK tests
+        working-directory: infrastructure
+        run: |
+          echo "🧪 Running CDK tests..."
+          npm test
+          
+      - name: CDK Bootstrap (if needed)
+        working-directory: infrastructure
+        run: |
+          echo "🚀 Checking CDK bootstrap status..."
+          npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ env.AWS_REGION }} || true
+          
+      - name: CDK Diff
+        working-directory: infrastructure
+        run: |
+          echo "📋 Generating CDK diff..."
+          npx cdk diff --context environment=${{ inputs.environment || 'dev' }} || true
+          
+      - name: Deploy CDK Stack
+        id: deploy-cdk
+        working-directory: infrastructure
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+          HOSTED_ZONE_ID: ${{ secrets.HOSTED_ZONE_ID }}
+          CROSS_ACCOUNT_ROLE_ARN: ${{ secrets.CROSS_ACCOUNT_ROLE_ARN }}
+        run: |
+          echo "🚀 Deploying CDK stack..."
+          
+          STACK_NAME="WebHostingStack-${{ inputs.environment || 'dev' }}"
+          
+          npx cdk deploy $STACK_NAME \
+            --context environment=${{ inputs.environment || 'dev' }} \
+            --context domainName="${DOMAIN_NAME}" \
+            --context hostedZoneId="${HOSTED_ZONE_ID}" \
+            --context crossAccountRoleArn="${CROSS_ACCOUNT_ROLE_ARN}" \
+            --require-approval never \
+            --outputs-file cdk-outputs.json \
+            --progress events
+            
+      - name: Extract deployment outputs
+        id: deploy-output
+        working-directory: infrastructure
+        run: |
+          echo "📤 Extracting deployment outputs..."
+          
+          if [ -f cdk-outputs.json ]; then
+            STACK_NAME="WebHostingStack-${{ inputs.environment || 'dev' }}"
+            
+            CLOUDFRONT_ID=$(jq -r ".[\"$STACK_NAME\"].CloudFrontDistributionId // empty" cdk-outputs.json)
+            S3_BUCKET=$(jq -r ".[\"$STACK_NAME\"].S3BucketName // empty" cdk-outputs.json)
+            CLOUDFRONT_DOMAIN=$(jq -r ".[\"$STACK_NAME\"].CloudFrontDomainName // empty" cdk-outputs.json)
+            
+            echo "cloudfront-distribution-id=$CLOUDFRONT_ID" >> $GITHUB_OUTPUT
+            echo "s3-bucket-name=$S3_BUCKET" >> $GITHUB_OUTPUT
+            echo "cloudfront-domain=$CLOUDFRONT_DOMAIN" >> $GITHUB_OUTPUT
+            
+            echo "✅ Deployment outputs:"
+            echo "  CloudFront Distribution ID: $CLOUDFRONT_ID"
+            echo "  S3 Bucket Name: $S3_BUCKET"
+            echo "  CloudFront Domain: $CLOUDFRONT_DOMAIN"
+          else
+            echo "❌ CDK outputs file not found"
+            exit 1
+          fi
+          
+      - name: Upload CDK outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk-outputs
+          path: infrastructure/cdk-outputs.json
+          retention-days: 7
+
+  deploy-assets:
+    name: Deploy Assets to S3
+    runs-on: ubuntu-latest
+    needs: [build-flutter, deploy-infrastructure]
+    if: always() && needs.build-flutter.result == 'success' && needs.deploy-infrastructure.result == 'success'
+    timeout-minutes: 15
+    
+    environment: ${{ inputs.environment || 'dev' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1800
+          role-session-name: GitHubActions-AssetDeploy
+
+      - name: Download Flutter build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: flutter-web-build
+          path: flutter_app/build/web/
+
+      - name: Sync assets to S3
+        env:
+          S3_BUCKET: ${{ needs.deploy-infrastructure.outputs.s3-bucket-name }}
+        run: |
+          echo "📤 Uploading assets to S3 bucket: $S3_BUCKET"
+          
+          # Sync with proper cache headers
+          aws s3 sync flutter_app/build/web/ s3://$S3_BUCKET/ \
+            --delete \
+            --cache-control "public, max-age=31536000" \
+            --exclude "*.html" \
+            --exclude "*.json" \
+            --exclude "manifest.json" \
+            --exclude "flutter_service_worker.js"
+            
+          # Upload HTML files with no-cache headers
+          aws s3 sync flutter_app/build/web/ s3://$S3_BUCKET/ \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --include "*.html" \
+            --include "manifest.json" \
+            --include "flutter_service_worker.js"
+            
+          echo "✅ Assets uploaded successfully"
+
+      - name: Invalidate CloudFront cache
+        env:
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ needs.deploy-infrastructure.outputs.cloudfront-distribution-id }}
+        run: |
+          echo "🔄 Invalidating CloudFront cache..."
+          
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+            
+          echo "Invalidation ID: $INVALIDATION_ID"
+          
+          echo "⏳ Waiting for invalidation to complete..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+            --id $INVALIDATION_ID
+            
+          echo "✅ CloudFront cache invalidated successfully"
+
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [build-flutter, deploy-infrastructure, deploy-assets]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          if [[ "${{ needs.build-flutter.result }}" == "success" && "${{ needs.deploy-infrastructure.result }}" == "success" && "${{ needs.deploy-assets.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=🎉 Deployment completed successfully!" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.build-flutter.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Flutter build failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy-infrastructure.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Infrastructure deployment failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy-assets.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Asset deployment failed" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Deployment failed with unknown error" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create deployment summary
+        run: |
+          echo "# 🚀 Web Hosting Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment || 'dev' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Build | ${{ needs.build-flutter.result == 'success' && '✅ Success' || needs.build-flutter.result == 'failure' && '❌ Failed' || needs.build-flutter.result == 'skipped' && '⏭️ Skipped' || '⏸️ Cancelled' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure Deploy | ${{ needs.deploy-infrastructure.result == 'success' && '✅ Success' || needs.deploy-infrastructure.result == 'failure' && '❌ Failed' || '⏸️ Cancelled' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Asset Deploy | ${{ needs.deploy-assets.result == 'success' && '✅ Success' || needs.deploy-assets.result == 'failure' && '❌ Failed' || needs.deploy-assets.result == 'skipped' && '⏭️ Skipped' || '⏸️ Cancelled' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ steps.status.outputs.status }}" == "success" ]]; then
+            echo "## ✅ Deployment Successful" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Your Flutter web application has been successfully deployed!" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ "${{ needs.deploy-infrastructure.outputs.cloudfront-domain }}" != "" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**🌐 Application URL:** https://${{ needs.deploy-infrastructure.outputs.cloudfront-domain }}" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            if [[ "${{ secrets.DOMAIN_NAME }}" != "" ]]; then
+              echo "**🔗 Custom Domain:** https://${{ secrets.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "## ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please check the job logs for detailed error information." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.status.outputs.status }}';
+            const message = '${{ steps.status.outputs.message }}';
+            const environment = '${{ inputs.environment || 'dev' }}';
+            const cloudfrontDomain = '${{ needs.deploy-infrastructure.outputs.cloudfront-domain }}';
+            const customDomain = '${{ secrets.DOMAIN_NAME }}';
+            
+            let comment = `## 🚀 Web Hosting Deployment ${status === 'success' ? 'Successful' : 'Failed'}\n\n`;
+            comment += `**Environment:** ${environment}\n`;
+            comment += `**Status:** ${message}\n\n`;
+            
+            if (status === 'success') {
+              if (cloudfrontDomain) {
+                comment += `**🌐 Preview URL:** https://${cloudfrontDomain}\n`;
+              }
+              if (customDomain) {
+                comment += `**🔗 Custom Domain:** https://${customDomain}\n`;
+              }
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

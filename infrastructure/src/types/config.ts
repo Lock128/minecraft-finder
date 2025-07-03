@@ -76,11 +76,79 @@ export interface S3LifecycleRule {
 }
 
 /**
+ * Resource naming configuration for environment-specific naming
+ */
+export interface ResourceNamingConfig {
+  /** Prefix for all resource names */
+  resourcePrefix: string;
+  /** Suffix for all resource names */
+  resourceSuffix: string;
+  /** Whether to include environment in resource names */
+  includeEnvironment: boolean;
+  /** Whether to include random suffix for uniqueness */
+  includeRandomSuffix: boolean;
+  /** Custom naming patterns for specific resources */
+  customPatterns?: {
+    s3Bucket?: string;
+    cloudFrontDistribution?: string;
+    certificate?: string;
+    rumApplication?: string;
+  };
+}
+
+/**
+ * Cost allocation and billing configuration
+ */
+export interface CostAllocationConfig {
+  /** Cost center for billing */
+  costCenter: string;
+  /** Project code for cost tracking */
+  projectCode: string;
+  /** Department responsible for costs */
+  department: string;
+  /** Budget alert threshold in USD */
+  budgetThreshold?: number;
+  /** Whether to enable detailed billing */
+  enableDetailedBilling: boolean;
+  /** Custom cost allocation tags */
+  customCostTags?: Record<string, string>;
+}
+
+/**
+ * Environment-specific configuration settings
+ */
+export interface EnvironmentConfig {
+  /** Environment name */
+  name: Environment;
+  /** Environment description */
+  description: string;
+  /** Whether this is a production environment */
+  isProduction: boolean;
+  /** Allowed deployment regions */
+  allowedRegions: string[];
+  /** Environment-specific feature flags */
+  featureFlags: {
+    enableAdvancedMonitoring: boolean;
+    enableCostOptimization: boolean;
+    enableSecurityHardening: boolean;
+    enablePerformanceOptimization: boolean;
+  };
+  /** Environment-specific limits */
+  limits: {
+    maxCacheTtl: number;
+    maxRumSamplingRate: number;
+    maxS3LifecycleDays: number;
+  };
+}
+
+/**
  * Complete deployment configuration
  */
 export interface DeploymentConfig {
   /** Deployment environment */
   environment: Environment;
+  /** Environment-specific configuration */
+  environmentConfig: EnvironmentConfig;
   /** Domain configuration */
   domainConfig: DomainConfig;
   /** Monitoring configuration */
@@ -89,6 +157,10 @@ export interface DeploymentConfig {
   cachingConfig: CachingConfig;
   /** S3 bucket configuration */
   s3Config: S3BucketConfig;
+  /** Resource naming configuration */
+  resourceNaming: ResourceNamingConfig;
+  /** Cost allocation configuration */
+  costAllocation: CostAllocationConfig;
   /** Resource tags */
   tags: Record<string, string>;
 }

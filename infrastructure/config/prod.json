@@ -1,5 +1,22 @@
 {
   "environment": "prod",
+  "environmentConfig": {
+    "name": "prod",
+    "description": "Production environment for live application",
+    "isProduction": true,
+    "allowedRegions": ["us-east-1"],
+    "featureFlags": {
+      "enableAdvancedMonitoring": true,
+      "enableCostOptimization": true,
+      "enableSecurityHardening": true,
+      "enablePerformanceOptimization": true
+    },
+    "limits": {
+      "maxCacheTtl": 31536000,
+      "maxRumSamplingRate": 0.2,
+      "maxS3LifecycleDays": 365
+    }
+  },
   "domainConfig": {
     "domainName": "minecraft.lockhead.cloud",
     "hostedZoneId": "REPLACE_WITH_HOSTED_ZONE_ID",
@@ -40,10 +57,45 @@
       }
     ]
   },
+  "resourceNaming": {
+    "resourcePrefix": "minecraft-finder",
+    "resourceSuffix": "prod",
+    "includeEnvironment": true,
+    "includeRandomSuffix": false,
+    "customPatterns": {
+      "s3Bucket": "minecraft-finder-web-prod",
+      "cloudFrontDistribution": "minecraft-finder-cf-prod",
+      "certificate": "minecraft-finder-cert-prod",
+      "rumApplication": "minecraft-finder-rum-prod"
+    }
+  },
+  "costAllocation": {
+    "costCenter": "Engineering-Production",
+    "projectCode": "MINECRAFT-FINDER-PROD",
+    "department": "Engineering",
+    "budgetThreshold": 500,
+    "enableDetailedBilling": true,
+    "customCostTags": {
+      "BillingGroup": "Production",
+      "Owner": "ProductTeam",
+      "Purpose": "Production"
+    }
+  },
   "tags": {
     "Project": "MinecraftOreFinder",
     "Environment": "prod",
     "ManagedBy": "CDK",
-    "CostCenter": "Production"
+    "CostCenter": "Engineering-Production",
+    "ProjectCode": "MINECRAFT-FINDER-PROD",
+    "Department": "Engineering",
+    "BillingGroup": "Production",
+    "Owner": "ProductTeam",
+    "Purpose": "Production",
+    "Tier": "Production",
+    "DataClassification": "Public",
+    "BackupRequired": "true",
+    "MonitoringLevel": "Full",
+    "ComplianceRequired": "true",
+    "HighAvailability": "true"
   }
 }

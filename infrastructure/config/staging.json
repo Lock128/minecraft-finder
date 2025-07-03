@@ -1,5 +1,22 @@
 {
   "environment": "staging",
+  "environmentConfig": {
+    "name": "staging",
+    "description": "Staging environment for pre-production testing",
+    "isProduction": false,
+    "allowedRegions": ["us-east-1"],
+    "featureFlags": {
+      "enableAdvancedMonitoring": true,
+      "enableCostOptimization": true,
+      "enableSecurityHardening": true,
+      "enablePerformanceOptimization": true
+    },
+    "limits": {
+      "maxCacheTtl": 604800,
+      "maxRumSamplingRate": 1.0,
+      "maxS3LifecycleDays": 180
+    }
+  },
   "domainConfig": {
     "domainName": "staging-minecraft.lockhead.cloud",
     "hostedZoneId": "REPLACE_WITH_HOSTED_ZONE_ID",
@@ -22,8 +39,8 @@
   },
   "cachingConfig": {
     "defaultTtl": 86400,
-    "maxTtl": 31536000,
-    "staticAssetsTtl": 31536000,
+    "maxTtl": 604800,
+    "staticAssetsTtl": 604800,
     "htmlTtl": 1800
   },
   "s3Config": {
@@ -40,10 +57,43 @@
       }
     ]
   },
+  "resourceNaming": {
+    "resourcePrefix": "minecraft-finder",
+    "resourceSuffix": "staging",
+    "includeEnvironment": true,
+    "includeRandomSuffix": true,
+    "customPatterns": {
+      "s3Bucket": "minecraft-finder-web-staging-{random}",
+      "cloudFrontDistribution": "minecraft-finder-cf-staging",
+      "certificate": "minecraft-finder-cert-staging",
+      "rumApplication": "minecraft-finder-rum-staging"
+    }
+  },
+  "costAllocation": {
+    "costCenter": "Engineering-Staging",
+    "projectCode": "MINECRAFT-FINDER-STAGING",
+    "department": "Engineering",
+    "budgetThreshold": 100,
+    "enableDetailedBilling": true,
+    "customCostTags": {
+      "BillingGroup": "PreProduction",
+      "Owner": "QATeam",
+      "Purpose": "Testing"
+    }
+  },
   "tags": {
     "Project": "MinecraftOreFinder",
     "Environment": "staging",
     "ManagedBy": "CDK",
-    "CostCenter": "Staging"
+    "CostCenter": "Engineering-Staging",
+    "ProjectCode": "MINECRAFT-FINDER-STAGING",
+    "Department": "Engineering",
+    "BillingGroup": "PreProduction",
+    "Owner": "QATeam",
+    "Purpose": "Testing",
+    "Tier": "Staging",
+    "DataClassification": "Internal",
+    "BackupRequired": "true",
+    "MonitoringLevel": "Enhanced"
   }
 }

@@ -1,5 +1,22 @@
 {
   "environment": "dev",
+  "environmentConfig": {
+    "name": "dev",
+    "description": "Development environment for testing and development",
+    "isProduction": false,
+    "allowedRegions": ["us-east-1", "us-west-2"],
+    "featureFlags": {
+      "enableAdvancedMonitoring": false,
+      "enableCostOptimization": true,
+      "enableSecurityHardening": false,
+      "enablePerformanceOptimization": false
+    },
+    "limits": {
+      "maxCacheTtl": 86400,
+      "maxRumSamplingRate": 0.5,
+      "maxS3LifecycleDays": 90
+    }
+  },
   "domainConfig": {
     "domainName": "dev-minecraft.lockhead.cloud",
     "hostedZoneId": "REPLACE_WITH_HOSTED_ZONE_ID",
@@ -20,10 +37,10 @@
     "enableExtendedMetrics": false
   },
   "cachingConfig": {
-    "defaultTtl": 86400,
-    "maxTtl": 31536000,
-    "staticAssetsTtl": 31536000,
-    "htmlTtl": 3600
+    "defaultTtl": 3600,
+    "maxTtl": 86400,
+    "staticAssetsTtl": 86400,
+    "htmlTtl": 300
   },
   "s3Config": {
     "bucketNamePrefix": "minecraft-finder-web-dev",
@@ -39,10 +56,43 @@
       }
     ]
   },
+  "resourceNaming": {
+    "resourcePrefix": "minecraft-finder",
+    "resourceSuffix": "dev",
+    "includeEnvironment": true,
+    "includeRandomSuffix": true,
+    "customPatterns": {
+      "s3Bucket": "minecraft-finder-web-dev-{random}",
+      "cloudFrontDistribution": "minecraft-finder-cf-dev",
+      "certificate": "minecraft-finder-cert-dev",
+      "rumApplication": "minecraft-finder-rum-dev"
+    }
+  },
+  "costAllocation": {
+    "costCenter": "Engineering-Development",
+    "projectCode": "MINECRAFT-FINDER-DEV",
+    "department": "Engineering",
+    "budgetThreshold": 50,
+    "enableDetailedBilling": true,
+    "customCostTags": {
+      "BillingGroup": "Development",
+      "Owner": "DevTeam",
+      "Purpose": "Development"
+    }
+  },
   "tags": {
     "Project": "MinecraftOreFinder",
     "Environment": "dev",
     "ManagedBy": "CDK",
-    "CostCenter": "Development"
+    "CostCenter": "Engineering-Development",
+    "ProjectCode": "MINECRAFT-FINDER-DEV",
+    "Department": "Engineering",
+    "BillingGroup": "Development",
+    "Owner": "DevTeam",
+    "Purpose": "Development",
+    "Tier": "Development",
+    "DataClassification": "Internal",
+    "BackupRequired": "false",
+    "MonitoringLevel": "Basic"
   }
 }
