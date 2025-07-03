@@ -1,0 +1,49 @@
+{
+  "environment": "prod",
+  "domainConfig": {
+    "domainName": "minecraft.lockhead.cloud",
+    "hostedZoneId": "REPLACE_WITH_HOSTED_ZONE_ID",
+    "crossAccountRoleArn": "REPLACE_WITH_CROSS_ACCOUNT_ROLE_ARN",
+    "certificateRegion": "us-east-1"
+  },
+  "monitoringConfig": {
+    "rumAppName": "minecraft-finder-prod",
+    "samplingRate": 0.1,
+    "enabledMetrics": [
+      "PerformanceNavigationTiming",
+      "PerformanceResourceTiming",
+      "LargestContentfulPaint",
+      "FirstInputDelay",
+      "CumulativeLayoutShift",
+      "JsError",
+      "HttpError"
+    ],
+    "enableExtendedMetrics": true
+  },
+  "cachingConfig": {
+    "defaultTtl": 86400,
+    "maxTtl": 31536000,
+    "staticAssetsTtl": 31536000,
+    "htmlTtl": 3600
+  },
+  "s3Config": {
+    "bucketNamePrefix": "minecraft-finder-web-prod",
+    "versioning": true,
+    "publicReadAccess": false,
+    "lifecycleRules": [
+      {
+        "id": "DeleteOldVersions",
+        "enabled": true,
+        "transitionToIADays": 30,
+        "expirationDays": 365,
+        "abortIncompleteMultipartUploadDays": 7
+      }
+    ]
+  },
+  "tags": {
+    "Project": "MinecraftOreFinder",
+    "Environment": "prod",
+    "ManagedBy": "CDK",
+    "CostCenter": "Production"
+  }
+}

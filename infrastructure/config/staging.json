@@ -1,0 +1,49 @@
+{
+  "environment": "staging",
+  "domainConfig": {
+    "domainName": "staging-minecraft.lockhead.cloud",
+    "hostedZoneId": "REPLACE_WITH_HOSTED_ZONE_ID",
+    "crossAccountRoleArn": "REPLACE_WITH_CROSS_ACCOUNT_ROLE_ARN",
+    "certificateRegion": "us-east-1"
+  },
+  "monitoringConfig": {
+    "rumAppName": "minecraft-finder-staging",
+    "samplingRate": 0.5,
+    "enabledMetrics": [
+      "PerformanceNavigationTiming",
+      "PerformanceResourceTiming",
+      "LargestContentfulPaint",
+      "FirstInputDelay",
+      "CumulativeLayoutShift",
+      "JsError",
+      "HttpError"
+    ],
+    "enableExtendedMetrics": true
+  },
+  "cachingConfig": {
+    "defaultTtl": 86400,
+    "maxTtl": 31536000,
+    "staticAssetsTtl": 31536000,
+    "htmlTtl": 1800
+  },
+  "s3Config": {
+    "bucketNamePrefix": "minecraft-finder-web-staging",
+    "versioning": true,
+    "publicReadAccess": false,
+    "lifecycleRules": [
+      {
+        "id": "DeleteOldVersions",
+        "enabled": true,
+        "transitionToIADays": 30,
+        "expirationDays": 180,
+        "abortIncompleteMultipartUploadDays": 7
+      }
+    ]
+  },
+  "tags": {
+    "Project": "MinecraftOreFinder",
+    "Environment": "staging",
+    "ManagedBy": "CDK",
+    "CostCenter": "Staging"
+  }
+}
