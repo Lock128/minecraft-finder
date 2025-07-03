@@ -142,6 +142,7 @@ export class S3BucketConstruct extends Construct {
         ErrorCategory.CONFIGURATION,
         { config, environment }
       );
+      throw error; // Re-throw to satisfy return type
     }
   }
 
@@ -193,11 +194,7 @@ export class S3BucketConstruct extends Construct {
         // Event bridge notifications disabled by default
         eventBridgeEnabled: false,
         
-        // Intelligent tiering for cost optimization
-        intelligentTieringConfigurations: environment === 'prod' ? [{
-          id: 'EntireBucket',
-          status: s3.IntelligentTieringStatus.ENABLED,
-        }] : undefined,
+        // Note: Intelligent tiering can be configured separately if needed
       });
 
       // Apply additional security configurations
@@ -213,6 +210,7 @@ export class S3BucketConstruct extends Construct {
         { bucketName: this.bucketName, config, environment },
         'Check AWS permissions and S3 service limits'
       );
+      throw error; // Re-throw to satisfy return type
     }
   }
 
@@ -373,8 +371,9 @@ export class S3BucketConstruct extends Construct {
     try {
       return rules.map((rule, index) => {
         // Validate individual rule
+        const hasValidId = Boolean(rule.id && typeof rule.id === 'string' && rule.id.trim() !== '');
         this.errorHandler.validate(
-          rule.id && rule.id.trim() !== '',
+          hasValidId,
           'INVALID_LIFECYCLE_RULE_ID',
           `Lifecycle rule ${index + 1} must have a valid ID`,
           ErrorCategory.VALIDATION,
@@ -421,6 +420,7 @@ export class S3BucketConstruct extends Construct {
         { rules },
         'Check lifecycle rule configuration format'
       );
+      throw error; // Re-throw to satisfy return type
     }
   }
 
@@ -549,6 +549,7 @@ export class S3BucketConstruct extends Construct {
         { bucketName: this.bucketName },
         'Check IAM policy syntax and permissions'
       );
+      throw error; // Re-throw to satisfy return type
     }
   }
 

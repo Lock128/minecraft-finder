@@ -336,7 +336,7 @@ exports.handler = async () => {
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
-    highLatency.addAlarmAction(new cloudwatch.SnsAction(this.warningAlertsTopic));
+    highLatency.addAlarmAction(new cloudwatchActions.SnsAction(this.warningAlertsTopic));
 
     // Low cache hit ratio alarm
     const lowCacheHitRatio = new cloudwatch.Alarm(this, 'LowCacheHitRatioAlarm', {
@@ -356,7 +356,7 @@ exports.handler = async () => {
       comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
-    lowCacheHitRatio.addAlarmAction(new cloudwatch.SnsAction(this.warningAlertsTopic));
+    lowCacheHitRatio.addAlarmAction(new cloudwatchActions.SnsAction(this.warningAlertsTopic));
 
     // Budget exceeded alarm
     const budgetExceeded = new cloudwatch.Alarm(this, 'BudgetExceededAlarm', {
@@ -376,7 +376,7 @@ exports.handler = async () => {
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
-    budgetExceeded.addAlarmAction(new cloudwatch.SnsAction(this.costAlertsTopic));
+    budgetExceeded.addAlarmAction(new cloudwatchActions.SnsAction(this.costAlertsTopic));
 
     // Uptime failure alarm
     const uptimeFailure = new cloudwatch.Alarm(this, 'UptimeFailureAlarm', {
@@ -390,7 +390,7 @@ exports.handler = async () => {
       comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.BREACHING,
     });
-    uptimeFailure.addAlarmAction(new cloudwatch.SnsAction(this.criticalAlertsTopic));
+    uptimeFailure.addAlarmAction(new cloudwatchActions.SnsAction(this.criticalAlertsTopic));
 
     // RUM error rate alarm
     const rumErrorRate = new cloudwatch.Alarm(this, 'RumErrorRateAlarm', {
@@ -410,7 +410,7 @@ exports.handler = async () => {
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
-    rumErrorRate.addAlarmAction(new cloudwatch.SnsAction(this.warningAlertsTopic));
+    rumErrorRate.addAlarmAction(new cloudwatchActions.SnsAction(this.warningAlertsTopic));
 
     return {
       highErrorRate,
@@ -937,7 +937,7 @@ exports.handler = async () => {
 
     // Apply tags to all constructs
     Object.entries(allTags).forEach(([key, value]) => {
-      cdk.Tags.of(this).add(key, value);
+      cdk.of(this).add(key, value);
     });
   }
 
@@ -972,7 +972,7 @@ exports.handler = async () => {
       },
       canary: {
         name: this.uptimeCanary.canaryName,
-        arn: this.uptimeCanary.canaryArn,
+        arn: this.uptimeCanary.canaryId,
       },
       budget: {
         name: this.budget.ref,

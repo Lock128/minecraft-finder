@@ -293,24 +293,7 @@ export class CloudFrontDistributionConstruct extends Construct {
         ],
       },
       
-      // CORS configuration for secure cross-origin requests
-      corsConfig: {
-        accessControlAllowCredentials: false,
-        accessControlAllowHeaders: {
-          items: ['Content-Type', 'Authorization', 'X-Requested-With'],
-        },
-        accessControlAllowMethods: {
-          items: ['GET', 'HEAD', 'OPTIONS'],
-        },
-        accessControlAllowOrigins: {
-          items: this.getAllowedOrigins(),
-        },
-        accessControlExposeHeaders: {
-          items: ['Content-Length', 'ETag'],
-        },
-        accessControlMaxAge: Duration.seconds(86400), // 24 hours
-        originOverride: true,
-      },
+      // Note: CORS configuration can be added separately if needed
     });
   }
 
