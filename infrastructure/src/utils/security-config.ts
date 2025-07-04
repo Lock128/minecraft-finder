@@ -22,19 +22,23 @@ export class SecurityConfig {
         }
       }),
       inlinePolicies: {
-        DNSManagementPolicy: new iam.PolicyDocument({
+        Route53Access: new iam.PolicyDocument({
           statements: [
             new iam.PolicyStatement({
               sid: 'Route53RecordManagement',
               effect: iam.Effect.ALLOW,
               actions: [
                 'route53:GetHostedZone',
-                'route53:ListHostedZones',
-                'route53:ChangeResourceRecordSets',
-                'route53:GetChange',
                 'route53:ListResourceRecordSets',
+                'route53:ChangeResourceRecordSets',
               ],
-              resources: ['*'], // Route53 doesn't support resource-level permissions for most actions
+              resources: ['arn:aws:route53:::hostedzone/*'],
+            }),
+            new iam.PolicyStatement({
+              sid: 'Route53ChangeInfo',
+              effect: iam.Effect.ALLOW,
+              actions: ['route53:GetChange'],
+              resources: ['arn:aws:route53:::change/*'],
             }),
           ],
         }),
@@ -371,11 +375,16 @@ export class SecurityConfig {
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
     };
 
     if (contentType === 'text/html') {
       headers['Content-Security-Policy'] = this.getContentSecurityPolicy();
-      headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload';
+    }
+
+    // Add cache headers for static assets
+    if (contentType === 'application/javascript' || contentType === 'text/css') {
+      headers['Cache-Control'] = 'public, max-age=31536000, immutable';
     }
 
     return headers;

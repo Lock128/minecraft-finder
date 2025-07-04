@@ -359,11 +359,14 @@ describe('CloudFrontDistributionConstruct', () => {
   describe('S3 Bucket Policy Integration', () => {
     test('should add bucket policy for CloudFront OAC access', () => {
       // Act
-      new CloudFrontDistributionConstruct(stack, 'TestCloudFront', {
+      const construct = new CloudFrontDistributionConstruct(stack, 'TestCloudFront', {
         s3Bucket,
         cachingConfig,
         environment: 'dev',
       });
+
+      // Manually add bucket policy to avoid circular dependency
+      construct.addBucketPolicy(s3Bucket);
 
       // Assert
       const template = Template.fromStack(stack);

@@ -191,11 +191,13 @@ describe('WebHostingStack', () => {
               ErrorCode: 404,
               ResponseCode: 200,
               ResponsePagePath: '/index.html',
+              ErrorCachingMinTTL: 300,
             },
             {
               ErrorCode: 403,
               ResponseCode: 200,
               ResponsePagePath: '/index.html',
+              ErrorCachingMinTTL: 300,
             },
           ]),
         },

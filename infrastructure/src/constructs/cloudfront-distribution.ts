@@ -181,12 +181,14 @@ export class CloudFrontDistributionConstruct extends Construct {
         httpStatus: 404,
         responseHttpStatus: 200,
         responsePagePath: '/index.html',
+        ttl: Duration.seconds(300),
       },
       {
         // Handle 403 errors (S3 returns 403 for non-existent files)
         httpStatus: 403,
         responseHttpStatus: 200,
         responsePagePath: '/index.html',
+        ttl: Duration.seconds(300),
       },
     ];
   }
@@ -196,7 +198,7 @@ export class CloudFrontDistributionConstruct extends Construct {
    */
   private createResponseHeadersPolicy(): cloudfront.ResponseHeadersPolicy {
     return new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
-      comment: 'Comprehensive security headers for Flutter web app',
+      comment: 'Security headers for Flutter web app',
       
       // Security headers following OWASP best practices
       securityHeadersBehavior: {
@@ -219,7 +221,7 @@ export class CloudFrontDistributionConstruct extends Construct {
         
         // Strict Transport Security (HSTS) - Force HTTPS
         strictTransportSecurity: {
-          accessControlMaxAge: Duration.seconds(63072000), // 2 years (recommended)
+          accessControlMaxAge: Duration.seconds(31536000), // 1 year
           includeSubdomains: true,
           preload: true,
           override: true,
@@ -490,6 +492,27 @@ export class CloudFrontDistributionConstruct extends Construct {
         },
       ],
     });
+  }
+
+  /**
+   * Adds bucket policy for CloudFront Origin Access Control
+   * This method should be called after the distribution is created to avoid circular dependencies
+   */
+  public addBucketPolicy(s3Bucket: s3.Bucket): void {
+    const bucketPolicyStatement = new iam.PolicyStatement({
+      sid: 'AllowCloudFrontServicePrincipal',
+      effect: iam.Effect.ALLOW,
+      principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+      actions: ['s3:GetObject'],
+      resources: [`${s3Bucket.bucketArn}/*`],
+      conditions: {
+        StringEquals: {
+          'AWS:SourceArn': `arn:aws:cloudfront::${this.node.tryGetContext('account') || process.env.CDK_DEFAULT_ACCOUNT}:distribution/${this.distribution.distributionId}`,
+        },
+      },
+    });
+
+    s3Bucket.addToResourcePolicy(bucketPolicyStatement);
   }
 
   /**

@@ -23,7 +23,7 @@ const createMockConfig = (overrides: Partial<DeploymentConfig> = {}): Deployment
     },
   },
   domainConfig: {
-    domainName: 'test.example.com',
+    domainName: 'test.mycompany.com',
     hostedZoneId: 'Z1234567890ABC',
     crossAccountRoleArn: 'arn:aws:iam::123456789012:role/test-role',
     certificateRegion: 'us-east-1',
@@ -345,7 +345,8 @@ describe('DeploymentValidator', () => {
 
   describe('Error Scenarios', () => {
     it('should handle validation errors gracefully', async () => {
-      const errorStack = new Stack(app, 'ErrorStack', {
+      const errorApp = new App();
+      const errorStack = new Stack(errorApp, 'ErrorValidationStack', {
         env: { region: 'us-east-1' }
       });
       const invalidConfig = {} as DeploymentConfig;
@@ -354,8 +355,9 @@ describe('DeploymentValidator', () => {
         new DeploymentValidator(errorStack, invalidConfig);
       }).not.toThrow(); // Constructor should not throw
       
-      const invalidValidator = new DeploymentValidator(errorStack, invalidConfig);
-      const result = await invalidValidator.validatePreDeployment();
+      // Create a unique validator instance to avoid construct naming conflicts
+      const errorValidator = new DeploymentValidator(errorStack, invalidConfig);
+      const result = await errorValidator.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -381,13 +383,16 @@ describe('DeploymentValidator', () => {
 
     it('should handle cross-account validation errors', async () => {
       const crossAccountStack = new Stack(app, 'CrossAccountStack', {
-        env: { region: 'us-east-1' }
+        env: { 
+          region: 'us-east-1',
+          account: '123456789012' // Set explicit account ID
+        }
       });
       
       const configWithSameAccount = createMockConfig({
         domainConfig: {
           ...mockConfig.domainConfig,
-          crossAccountRoleArn: `arn:aws:iam::${process.env.CDK_DEFAULT_ACCOUNT || '123456789012'}:role/test-role`,
+          crossAccountRoleArn: 'arn:aws:iam::123456789012:role/test-role', // Same account
         },
       });
       

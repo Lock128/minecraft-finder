@@ -38,7 +38,7 @@ export class DeploymentValidator {
   constructor(scope: Construct, config: DeploymentConfig) {
     this.config = config;
     this.stack = Stack.of(scope);
-    this.errorHandler = new ErrorHandler(scope, 'DeploymentValidator', {
+    this.errorHandler = new ErrorHandler(scope, `DeploymentValidator-${Math.random().toString(36).substr(2, 9)}`, {
       environment: config.environment,
       stackName: this.stack.stackName
     });
@@ -420,6 +420,11 @@ export class DeploymentValidator {
       // Development-specific recommendations
       if (this.config.cachingConfig.maxTtl > 86400) {
         result.warnings.push('High cache TTL in development may make testing difficult');
+      }
+      
+      // Add warning for extended metrics in development
+      if (this.config.monitoringConfig.enableExtendedMetrics) {
+        result.warnings.push('Extended metrics in development may increase costs');
       }
     }
 

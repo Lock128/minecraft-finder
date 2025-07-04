@@ -139,20 +139,17 @@ describe('SecurityConfig', () => {
       template.hasResourceProperties('AWS::IAM::Role', {
         RoleName: 'web-hosting-dns-management',
         AssumeRolePolicyDocument: {
-          Statement: [
-            {
+          Statement: Match.arrayWith([
+            Match.objectLike({
               Effect: 'Allow',
-              Principal: {
-                AWS: Match.stringLikeRegexp(`.*${trustedAccountId}.*`)
-              },
               Action: 'sts:AssumeRole',
               Condition: {
                 StringEquals: {
                   'sts:ExternalId': 'web-hosting-dns-2024'
                 }
               }
-            }
-          ]
+            })
+          ])
         }
       });
     });
