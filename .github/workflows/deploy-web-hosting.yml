@@ -26,7 +26,7 @@ on:
 
 env:
   FLUTTER_VERSION: '3.32.3'
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   AWS_REGION: 'eu-central-1'
 
 # Security: Restrict permissions to minimum required
@@ -161,12 +161,14 @@ jobs:
         working-directory: infrastructure
         run: |
           echo "🏗️ Building CDK application..."
+          pwd
           npm run build
           
       - name: Run CDK tests
         working-directory: infrastructure
         run: |
           echo "🧪 Running CDK tests..."
+          pwd
           npm test
 
       - name: Security scanning
