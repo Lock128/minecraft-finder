@@ -2,6 +2,7 @@ import { Template, Match } from 'aws-cdk-lib/assertions';
 import { Stack, App } from 'aws-cdk-lib';
 import { AcmCertificateConstruct } from '../acm-certificate';
 import { DomainConfig } from '../../types/config';
+import { describe, it, beforeEach } from '@jest/globals';
 
 // Jest provides describe, it, beforeEach globally
 
@@ -37,7 +38,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       template.hasResourceProperties('AWS::CertificateManager::Certificate', {
         DomainName: 'test.minecraft.lockhead.cloud',
         ValidationMethod: 'DNS',
@@ -54,7 +55,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       template.hasResourceProperties('AWS::CertificateManager::Certificate', {
         CertificateTransparencyLoggingPreference: 'ENABLED',
       });
@@ -69,7 +70,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       template.hasResourceProperties('AWS::CertificateManager::Certificate', {
         KeyAlgorithm: 'RSA_2048',
       });
@@ -86,7 +87,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       // Check Lambda execution role exists
       template.hasResourceProperties('AWS::IAM::Role', {
         AssumeRolePolicyDocument: {
@@ -150,7 +151,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       template.hasResourceProperties('AWS::Lambda::Function', {
         Runtime: 'python3.11',
         Handler: 'index.lambda_handler',
@@ -173,10 +174,10 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       // Should have multiple Lambda functions (validation, status check, and provider framework functions)
       template.resourceCountIs('AWS::Lambda::Function', 5);
-      
+
       template.hasResourceProperties('AWS::Lambda::Function', {
         Runtime: 'python3.11',
         Handler: 'index.lambda_handler',
@@ -194,7 +195,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       template.hasResourceProperties('AWS::CloudFormation::CustomResource', {
         DomainName: 'test.minecraft.lockhead.cloud',
         HostedZoneId: 'Z1234567890ABC',
@@ -211,7 +212,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       // Check that the provider has appropriate timeout settings
       // This is implicit in the Provider construct configuration
       template.hasResourceProperties('AWS::Lambda::Function', {
@@ -413,7 +414,7 @@ describe('AcmCertificateConstruct', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       // DNS validation function should have 5 minute timeout
       template.hasResourceProperties('AWS::Lambda::Function', {
         Timeout: 300,

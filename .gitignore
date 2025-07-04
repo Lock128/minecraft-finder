@@ -1,0 +1,98 @@
+# Project-specific temporary files
+temp/
+temp_*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Build outputs
+build/
+dist/
+lib/
+*.js.map
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# CDK specific
+cdk.out/
+cdk.context.json
+
+# Flutter/Dart specific (additional to flutter_app/.gitignore)
+.dart_tool/
+.pub-cache/
+.pub/
+
+# Compiled files
+*.class
+*.pyc
+*.pyo
+*.o
+*.so
+*.dll
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Optional directories that might be created
+screenshots_backup/
+docs_backup/

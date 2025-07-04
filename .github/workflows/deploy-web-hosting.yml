@@ -134,7 +134,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: infrastructure/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -151,28 +151,24 @@ jobs:
           # Additional security: restrict to specific audience
           audience: sts.amazonaws.com
 
-      - name: Install CDK dependencies
-        working-directory: infrastructure
+      - name: Install dependencies
         run: |
-          echo "📦 Installing CDK dependencies..."
+          echo "📦 Installing dependencies..."
           npm ci
           
       - name: Build CDK application
-        working-directory: infrastructure
         run: |
           echo "🏗️ Building CDK application..."
           pwd
-          npm run build
+          npm run build:infrastructure
           
       - name: Run CDK tests
-        working-directory: infrastructure
         run: |
           echo "🧪 Running CDK tests..."
           pwd
           npm test
 
       - name: Security scanning
-        working-directory: infrastructure
         run: |
           echo "🔍 Running security scans..."
           
@@ -181,14 +177,13 @@ jobs:
           
           # Run CDK security checks
           echo "🔒 Running CDK security validation..."
-          npx cdk-nag --app "npx ts-node src/app.ts" --context environment=${{ inputs.environment || 'dev' }} || true
+          cd infrastructure && npx cdk-nag --app "npx ts-node src/app.ts" --context environment=${{ inputs.environment || 'dev' }} || true
           
           # Validate IAM policies (if cdk-iam-floyd is available)
           echo "🔐 Validating IAM policies..."
           npm run validate-iam 2>/dev/null || echo "IAM validation skipped (optional)"
           
       - name: Security validation
-        working-directory: infrastructure
         run: |
           echo "🔒 Running security validation..."
           
@@ -233,7 +228,6 @@ jobs:
           echo "✅ Security validation passed"
 
       - name: CDK Bootstrap (if needed)
-        working-directory: infrastructure
         run: |
           echo "🚀 Checking CDK bootstrap status..."
           
@@ -250,14 +244,12 @@ jobs:
             --force || true
           
       - name: CDK Diff
-        working-directory: infrastructure
         run: |
           echo "📋 Generating CDK diff..."
-          npx cdk diff --context environment=${{ inputs.environment || 'dev' }} || true
+          cd infrastructure && npx cdk diff --context environment=${{ inputs.environment || 'dev' }} || true
           
       - name: Deploy CDK Stack
         id: deploy-cdk
-        working-directory: infrastructure
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
           HOSTED_ZONE_ID: ${{ secrets.HOSTED_ZONE_ID }}
@@ -267,7 +259,7 @@ jobs:
           
           STACK_NAME="WebHostingStack-${{ inputs.environment || 'dev' }}"
           
-          npx cdk deploy $STACK_NAME \
+          cd infrastructure && npx cdk deploy $STACK_NAME \
             --context environment=${{ inputs.environment || 'dev' }} \
             --context domainName="${DOMAIN_NAME}" \
             --context hostedZoneId="${HOSTED_ZONE_ID}" \
@@ -278,16 +270,15 @@ jobs:
             
       - name: Extract deployment outputs
         id: deploy-output
-        working-directory: infrastructure
         run: |
           echo "📤 Extracting deployment outputs..."
           
-          if [ -f cdk-outputs.json ]; then
+          if [ -f infrastructure/cdk-outputs.json ]; then
             STACK_NAME="WebHostingStack-${{ inputs.environment || 'dev' }}"
             
-            CLOUDFRONT_ID=$(jq -r ".[\"$STACK_NAME\"].CloudFrontDistributionId // empty" cdk-outputs.json)
-            S3_BUCKET=$(jq -r ".[\"$STACK_NAME\"].S3BucketName // empty" cdk-outputs.json)
-            CLOUDFRONT_DOMAIN=$(jq -r ".[\"$STACK_NAME\"].CloudFrontDomainName // empty" cdk-outputs.json)
+            CLOUDFRONT_ID=$(jq -r ".[\"$STACK_NAME\"].CloudFrontDistributionId // empty" infrastructure/cdk-outputs.json)
+            S3_BUCKET=$(jq -r ".[\"$STACK_NAME\"].S3BucketName // empty" infrastructure/cdk-outputs.json)
+            CLOUDFRONT_DOMAIN=$(jq -r ".[\"$STACK_NAME\"].CloudFrontDomainName // empty" infrastructure/cdk-outputs.json)
             
             echo "cloudfront-distribution-id=$CLOUDFRONT_ID" >> $GITHUB_OUTPUT
             echo "s3-bucket-name=$S3_BUCKET" >> $GITHUB_OUTPUT

@@ -1,12 +1,14 @@
-import { App, Stack } from 'aws-cdk-lib';
-import { WebHostingStack, WebHostingStackProps } from '../web-hosting-stack';
+import { App } from 'aws-cdk-lib';
+import { WebHostingStack } from '../web-hosting-stack';
 import { DeploymentConfig } from '../../types/config';
+import { describe, it, beforeEach } from '@jest/globals';
 
 // Mock configuration for testing
-const createMockConfig = (overrides: Partial<DeploymentConfig> = {}): DeploymentConfig => ({
-  environment: 'dev',
-  environmentConfig: {
-    name: 'dev',
+const createMockConfig = (overrides: Partial<DeploymentConfig> = {}): DeploymentConfig => {
+  return {
+    environment: 'dev',
+    environmentConfig: {
+      name: 'dev',
     description: 'Test environment',
     isProduction: false,
     allowedRegions: ['us-east-1', 'us-west-2'],
@@ -80,7 +82,8 @@ const createMockConfig = (overrides: Partial<DeploymentConfig> = {}): Deployment
     Owner: 'TestOwner',
   },
   ...overrides,
-});
+  };
+};
 
 describe('WebHostingStack Error Scenarios', () => {
   let app: App;

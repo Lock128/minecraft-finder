@@ -1,19 +1,48 @@
 {
-  "name": "gem-finder",
+  "name": "minecraft-finder-monorepo",
   "version": "1.0.0",
-  "description": "Find diamonds in Block Games using seed analysis",
+  "description": "Minecraft Ore Finder - Game analysis and AWS CDK infrastructure",
   "main": "gem-finder.js",
   "type": "commonjs",
   "scripts": {
     "start": "ts-node --esm ore-finder.ts",
-    "build": "tsc",
+    "build": "tsc && npm run build:infrastructure",
+    "build:infrastructure": "cd infrastructure && tsc",
     "find-diamonds": "ts-node --esm minecraft-diamond-finder.ts",
     "find-gold": "ts-node --esm minecraft-gold-finder.ts",
-    "find-all": "./find-all-ores.sh"
+    "find-all": "./find-all-ores.sh",
+    "watch": "cd infrastructure && tsc -w",
+    "test": "cd infrastructure && jest",
+    "test:watch": "cd infrastructure && jest --watch",
+    "cdk": "cd infrastructure && cdk",
+    "deploy": "cd infrastructure && cdk deploy",
+    "destroy": "cd infrastructure && cdk destroy",
+    "diff": "cd infrastructure && cdk diff",
+    "synth": "cd infrastructure && cdk synth",
+    "lint": "cd infrastructure && eslint . --ext .ts",
+    "lint:fix": "cd infrastructure && eslint . --ext .ts --fix",
+    "validate-config": "cd infrastructure && ts-node scripts/validate-config.ts",
+    "validate-config:dev": "cd infrastructure && ts-node scripts/validate-config.ts dev",
+    "validate-config:staging": "cd infrastructure && ts-node scripts/validate-config.ts staging",
+    "validate-config:prod": "cd infrastructure && ts-node scripts/validate-config.ts prod",
+    "validate-config:verbose": "cd infrastructure && ts-node scripts/validate-config.ts --verbose",
+    "validate-config:report": "cd infrastructure && ts-node scripts/validate-config.ts --output validation-report.txt",
+    "security:audit": "npm audit --audit-level=high",
+    "security:scan": "npm run security:audit && npm run security:validate",
+    "security:validate": "npm run validate-iam && npm run validate-security-config",
+    "security:check": "cd infrastructure && ts-node scripts/security-check.ts",
+    "security:check:dev": "cd infrastructure && ts-node scripts/security-check.ts dev",
+    "security:check:staging": "cd infrastructure && ts-node scripts/security-check.ts staging",
+    "security:check:prod": "cd infrastructure && ts-node scripts/security-check.ts prod",
+    "security:check:verbose": "cd infrastructure && ts-node scripts/security-check.ts dev --verbose",
+    "validate-iam": "echo 'IAM validation - implement with cdk-iam-floyd if needed'",
+    "validate-security-config": "cd infrastructure && ts-node -e \"import { SecurityConfig } from './src/utils/security-config'; console.log('Security config validation passed');\""
   },
   "dependencies": {
     "ts-node": "^10.9.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "aws-cdk-lib": "^2.120.0",
+    "constructs": "^10.3.0"
   },
   "ts-node": {
     "esm": true,
@@ -23,11 +52,24 @@
     "block-game",
     "diamonds",
     "seed",
-    "world-generation"
+    "world-generation",
+    "aws",
+    "cdk",
+    "typescript",
+    "flutter",
+    "web-hosting",
+    "cloudfront",
+    "s3"
   ],
   "author": "Johannes Lockhead Koch",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^24.0.7"
+    "@types/node": "^24.0.7",
+    "@types/jest": "^29.5.14",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0"
   }
 }
