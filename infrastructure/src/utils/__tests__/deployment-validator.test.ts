@@ -94,11 +94,12 @@ describe('DeploymentValidator', () => {
       env: { region: 'us-east-1' }
     });
     mockConfig = createMockConfig();
-    validator = new DeploymentValidator(stack, mockConfig);
+    // Don't create validator in beforeEach to avoid conflicts
   });
 
   describe('validatePreDeployment', () => {
     it('should pass validation with valid configuration', async () => {
+      const validator = new DeploymentValidator(stack, mockConfig);
       const result = await validator.validatePreDeployment();
       
       expect(result.isValid).toBe(true);
@@ -107,6 +108,10 @@ describe('DeploymentValidator', () => {
     });
 
     it('should fail validation with placeholder values', async () => {
+      const placeholderStack = new Stack(app, 'PlaceholderStack', {
+        env: { region: 'us-east-1' }
+      });
+      
       const configWithPlaceholders = createMockConfig({
         domainConfig: {
           ...mockConfig.domainConfig,
@@ -115,7 +120,7 @@ describe('DeploymentValidator', () => {
         },
       });
       
-      const validatorWithPlaceholders = new DeploymentValidator(stack, configWithPlaceholders);
+      const validatorWithPlaceholders = new DeploymentValidator(placeholderStack, configWithPlaceholders);
       const result = await validatorWithPlaceholders.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -138,6 +143,10 @@ describe('DeploymentValidator', () => {
     });
 
     it('should fail validation with invalid ARN format', async () => {
+      const invalidArnStack = new Stack(app, 'InvalidArnStack', {
+        env: { region: 'us-east-1' }
+      });
+      
       const configWithInvalidArn = createMockConfig({
         domainConfig: {
           ...mockConfig.domainConfig,
@@ -145,7 +154,7 @@ describe('DeploymentValidator', () => {
         },
       });
       
-      const validatorWithInvalidArn = new DeploymentValidator(stack, configWithInvalidArn);
+      const validatorWithInvalidArn = new DeploymentValidator(invalidArnStack, configWithInvalidArn);
       const result = await validatorWithInvalidArn.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -264,7 +273,8 @@ describe('DeploymentValidator', () => {
       delete process.env.AWS_ACCESS_KEY_ID;
       delete process.env.AWS_PROFILE;
       
-      const result = await validator.checkDeploymentReadiness();
+      const credentialsValidator = new DeploymentValidator(stack, mockConfig);
+      const result = await credentialsValidator.checkDeploymentReadiness();
       
       const credentialsCheck = result.checks.find(check => check.name === 'AWS Credentials');
       expect(credentialsCheck).toBeDefined();
@@ -323,7 +333,8 @@ describe('DeploymentValidator', () => {
       // Mock successful environment
       process.env.AWS_ACCESS_KEY_ID = 'test-key';
       
-      const result = await validator.checkDeploymentReadiness();
+      const readinessValidator = new DeploymentValidator(stack, mockConfig);
+      const result = await readinessValidator.checkDeploymentReadiness();
       
       // Some checks might fail in test environment, but we can verify structure
       expect(result.checks).toBeDefined();
@@ -334,13 +345,16 @@ describe('DeploymentValidator', () => {
 
   describe('Error Scenarios', () => {
     it('should handle validation errors gracefully', async () => {
+      const errorStack = new Stack(app, 'ErrorStack', {
+        env: { region: 'us-east-1' }
+      });
       const invalidConfig = {} as DeploymentConfig;
       
       expect(() => {
-        new DeploymentValidator(stack, invalidConfig);
+        new DeploymentValidator(errorStack, invalidConfig);
       }).not.toThrow(); // Constructor should not throw
       
-      const invalidValidator = new DeploymentValidator(stack, invalidConfig);
+      const invalidValidator = new DeploymentValidator(errorStack, invalidConfig);
       const result = await invalidValidator.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -348,11 +362,15 @@ describe('DeploymentValidator', () => {
     });
 
     it('should handle missing environment configuration', async () => {
+      const missingEnvStack = new Stack(app, 'MissingEnvStack', {
+        env: { region: 'us-east-1' }
+      });
+      
       const configWithoutEnvConfig = createMockConfig({
         environmentConfig: undefined as any,
       });
       
-      const validatorWithoutEnvConfig = new DeploymentValidator(stack, configWithoutEnvConfig);
+      const validatorWithoutEnvConfig = new DeploymentValidator(missingEnvStack, configWithoutEnvConfig);
       const result = await validatorWithoutEnvConfig.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -362,6 +380,10 @@ describe('DeploymentValidator', () => {
     });
 
     it('should handle cross-account validation errors', async () => {
+      const crossAccountStack = new Stack(app, 'CrossAccountStack', {
+        env: { region: 'us-east-1' }
+      });
+      
       const configWithSameAccount = createMockConfig({
         domainConfig: {
           ...mockConfig.domainConfig,
@@ -369,7 +391,7 @@ describe('DeploymentValidator', () => {
         },
       });
       
-      const validatorWithSameAccount = new DeploymentValidator(stack, configWithSameAccount);
+      const validatorWithSameAccount = new DeploymentValidator(crossAccountStack, configWithSameAccount);
       const result = await validatorWithSameAccount.validatePreDeployment();
       
       expect(result.warnings.some(warning => 
@@ -378,7 +400,8 @@ describe('DeploymentValidator', () => {
     });
 
     it('should handle network connectivity validation', async () => {
-      const result = await validator.validatePreDeployment();
+      const networkValidator = new DeploymentValidator(stack, mockConfig);
+      const result = await networkValidator.validatePreDeployment();
       
       expect(result.recommendations.some(recommendation => 
         recommendation.includes('network connectivity')
@@ -386,7 +409,8 @@ describe('DeploymentValidator', () => {
     });
 
     it('should handle permission validation', async () => {
-      const result = await validator.validatePreDeployment();
+      const permissionValidator = new DeploymentValidator(stack, mockConfig);
+      const result = await permissionValidator.validatePreDeployment();
       
       expect(result.recommendations.some(recommendation => 
         recommendation.includes('permissions')
@@ -396,7 +420,8 @@ describe('DeploymentValidator', () => {
 
   describe('Integration Tests', () => {
     it('should perform complete validation workflow', async () => {
-      const result = await validator.validatePreDeployment();
+      const integrationValidator = new DeploymentValidator(stack, mockConfig);
+      const result = await integrationValidator.validatePreDeployment();
       
       expect(result).toHaveProperty('isValid');
       expect(result).toHaveProperty('errors');
@@ -411,7 +436,8 @@ describe('DeploymentValidator', () => {
     });
 
     it('should perform complete readiness check workflow', async () => {
-      const result = await validator.checkDeploymentReadiness();
+      const readinessValidator = new DeploymentValidator(stack, mockConfig);
+      const result = await readinessValidator.checkDeploymentReadiness();
       
       expect(result).toHaveProperty('ready');
       expect(result).toHaveProperty('checks');

@@ -56,7 +56,10 @@ export class S3BucketConstruct extends Construct {
       // Apply tags with error handling
       this.applyTags(tags);
 
-      console.log(`✅ S3 bucket created successfully: ${this.bucketName}`);
+      // Only log if not in test environment
+      if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
+        console.log(`✅ S3 bucket created successfully: ${this.bucketName}`);
+      }
 
     } catch (error) {
       this.errorHandler.handleError(
@@ -344,6 +347,8 @@ export class S3BucketConstruct extends Construct {
       console.warn(`Warning: Failed to apply some security policies: ${(error as Error).message}`);
     }
   }
+
+
 
   /**
    * Applies tags with error handling

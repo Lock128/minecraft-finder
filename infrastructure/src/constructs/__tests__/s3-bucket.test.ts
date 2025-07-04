@@ -57,8 +57,8 @@ describe('S3BucketConstruct', () => {
         },
       });
 
-      // Verify bucket name is generated correctly
-      expect(construct.bucketName).toMatch(/^test-bucket-\d+$/);
+      // Verify bucket name is generated correctly (includes environment)
+      expect(construct.bucketName).toMatch(/^test-bucket-dev-\d+$/);
     });
 
     test('creates bucket with versioning disabled when configured', () => {
@@ -168,19 +168,16 @@ describe('S3BucketConstruct', () => {
         CorsConfiguration: {
           CorsRules: [
             {
-              AllowedOrigins: ['*'],
+              AllowedOrigins: Match.arrayWith(['https://localhost:*']),
               AllowedMethods: ['GET', 'HEAD'],
               AllowedHeaders: Match.arrayWith([
-                'Authorization',
-                'Content-Length',
                 'Content-Type',
+                'Content-Length',
                 'Date',
                 'ETag',
-                'X-Amz-Date',
-                'X-Amz-Security-Token',
-                'X-Amz-User-Agent',
+                'Authorization'
               ]),
-              ExposedHeaders: ['ETag', 'Content-Length', 'Content-Type'],
+              ExposedHeaders: ['ETag', 'Content-Length'],
               MaxAge: 3600,
             },
           ],

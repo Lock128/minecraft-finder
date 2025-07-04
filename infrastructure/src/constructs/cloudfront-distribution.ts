@@ -59,8 +59,9 @@ export class CloudFrontDistributionConstruct extends Construct {
     });
 
     // Create S3 origin with OAC (manual configuration to avoid automatic bucket policy)
-    const s3Origin = new origins.S3Origin(s3Bucket, {
-      originAccessControlId: this.originAccessControl.originAccessControlId,
+    // Use the bucket's regional domain name directly to avoid website endpoint
+    const s3Origin = new origins.HttpOrigin(s3Bucket.bucketRegionalDomainName, {
+      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
     });
 
     // Create cache behaviors optimized for Flutter web assets
@@ -492,25 +493,23 @@ export class CloudFrontDistributionConstruct extends Construct {
   }
 
   /**
-   * Grants S3 bucket access to CloudFront via Origin Access Control
+   * Gets the bucket policy statement for CloudFront Origin Access Control
+   * This method returns the policy statement that should be added to the S3 bucket
+   * after the CloudFront distribution is created to avoid circular dependencies
    */
-  private grantS3Access(s3Bucket: s3.Bucket): void {
-    // Create bucket policy statement for OAC access
-    const bucketPolicyStatement = new iam.PolicyStatement({
+  public getBucketPolicyStatement(s3BucketArn: string): iam.PolicyStatement {
+    return new iam.PolicyStatement({
       sid: 'AllowCloudFrontServicePrincipal',
       effect: iam.Effect.ALLOW,
       principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
       actions: ['s3:GetObject'],
-      resources: [`${s3Bucket.bucketArn}/*`],
+      resources: [`${s3BucketArn}/*`],
       conditions: {
         StringEquals: {
           'AWS:SourceArn': `arn:aws:cloudfront::${this.node.tryGetContext('account') || process.env.CDK_DEFAULT_ACCOUNT}:distribution/${this.distribution.distributionId}`,
         },
       },
     });
-
-    // Add the policy statement to the bucket
-    s3Bucket.addToResourcePolicy(bucketPolicyStatement);
   }
 
   /**

@@ -237,6 +237,53 @@ describe('ConfigLoader', () => {
   describe('getCostAllocationTags', () => {
     const mockConfig: DeploymentConfig = {
       environment: 'dev',
+      environmentConfig: {
+        name: 'dev',
+        description: 'Development environment',
+        isProduction: false,
+        allowedRegions: ['us-east-1'],
+        featureFlags: {
+          enableAdvancedMonitoring: false,
+          enableCostOptimization: true,
+          enableSecurityHardening: false,
+          enablePerformanceOptimization: false
+        },
+        limits: {
+          maxCacheTtl: 86400,
+          maxRumSamplingRate: 1,
+          maxS3LifecycleDays: 90
+        }
+      },
+      domainConfig: {
+        domainName: 'test.example.com',
+        hostedZoneId: 'Z123456789',
+        crossAccountRoleArn: 'arn:aws:iam::123456789012:role/test',
+        certificateRegion: 'us-east-1'
+      },
+      monitoringConfig: {
+        rumAppName: 'test-app',
+        samplingRate: 0.1,
+        enabledMetrics: ['errors'],
+        enableExtendedMetrics: false
+      },
+      cachingConfig: {
+        defaultTtl: 3600,
+        maxTtl: 86400,
+        staticAssetsTtl: 31536000,
+        htmlTtl: 0
+      },
+      s3Config: {
+        bucketNamePrefix: 'test-bucket',
+        versioning: true,
+        publicReadAccess: false,
+        lifecycleRules: []
+      },
+      resourceNaming: {
+        resourcePrefix: 'test',
+        resourceSuffix: 'dev',
+        includeEnvironment: true,
+        includeRandomSuffix: false
+      },
       costAllocation: {
         costCenter: 'Engineering-Dev',
         projectCode: 'MINECRAFT-DEV',
@@ -251,7 +298,7 @@ describe('ConfigLoader', () => {
         Project: 'MinecraftOreFinder',
         Environment: 'dev'
       }
-    } as DeploymentConfig;
+    };
 
     it('should return combined cost allocation tags', () => {
       const result = getCostAllocationTags(mockConfig);

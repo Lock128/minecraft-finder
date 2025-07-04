@@ -139,16 +139,19 @@ export class ErrorHandler {
       stackTrace: error.stackTrace
     };
 
-    console.error(`[${error.severity}] ${error.category}: ${error.code} - ${error.message}`);
-    console.error('Context:', JSON.stringify(error.context, null, 2));
-    
-    if (error.suggestedAction) {
-      console.error('Suggested Action:', error.suggestedAction);
-    }
+    // Only log errors if not in test environment
+    if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
+      console.error(`[${error.severity}] ${error.category}: ${error.code} - ${error.message}`);
+      console.error('Context:', JSON.stringify(error.context, null, 2));
+      
+      if (error.suggestedAction) {
+        console.error('Suggested Action:', error.suggestedAction);
+      }
 
-    // In a real implementation, this would send to CloudWatch Logs
-    // For now, we'll log to console with structured format
-    console.error('Structured Error Log:', JSON.stringify(logMessage, null, 2));
+      // In a real implementation, this would send to CloudWatch Logs
+      // For now, we'll log to console with structured format
+      console.error('Structured Error Log:', JSON.stringify(logMessage, null, 2));
+    }
   }
 
   /**
@@ -180,7 +183,10 @@ export class ErrorHandler {
 
     for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
       try {
-        console.log(`Attempting ${operationName} (attempt ${attempt}/${config.maxAttempts})`);
+        // Only log if not in test environment
+        if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
+          console.log(`Attempting ${operationName} (attempt ${attempt}/${config.maxAttempts})`);
+        }
         return await operation();
       } catch (error) {
         lastError = error as Error;
@@ -188,7 +194,12 @@ export class ErrorHandler {
         const isRetryable = this.isRetryableError(error as Error, config.retryableErrors);
         const isLastAttempt = attempt === config.maxAttempts;
 
-        if (!isRetryable || isLastAttempt) {
+        if (!isRetryable) {
+          // Don't retry non-retryable errors
+          throw error;
+        }
+
+        if (isLastAttempt) {
           const structuredError = this.createError(
             'OPERATION_FAILED',
             `${operationName} failed after ${attempt} attempt(s): ${lastError.message}`,
@@ -218,7 +229,10 @@ export class ErrorHandler {
             config.maxDelay
           );
           
+          // Only log if not in test environment
+        if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
           console.log(`Retrying ${operationName} in ${delay}ms...`);
+        }
           await this.sleep(delay);
         }
       }

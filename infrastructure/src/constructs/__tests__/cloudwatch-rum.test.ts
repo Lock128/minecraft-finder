@@ -2,28 +2,8 @@ import { App, Stack } from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { CloudWatchRumConstruct } from '../cloudwatch-rum';
 import { MonitoringConfig } from '../../types/config';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
+
+// Jest provides describe, it, beforeEach globally
 
 describe('CloudWatchRumConstruct', () => {
   let app: App;

@@ -2,37 +2,8 @@ import { Template, Match } from 'aws-cdk-lib/assertions';
 import { Stack, App } from 'aws-cdk-lib';
 import { AcmCertificateConstruct } from '../acm-certificate';
 import { DomainConfig } from '../../types/config';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
+
+// Jest provides describe, it, beforeEach globally
 
 describe('AcmCertificateConstruct', () => {
   let app: App;

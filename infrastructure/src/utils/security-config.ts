@@ -1,4 +1,5 @@
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 /**
@@ -7,6 +8,40 @@ import { Construct } from 'constructs';
  */
 export class SecurityConfig {
   
+  /**
+   * Creates a secure cross-account role for DNS management
+   */
+  static createCrossAccountDNSRole(scope: Construct, trustedAccountId: string): iam.Role {
+    return new iam.Role(scope, 'CrossAccountDNSRole', {
+      roleName: 'web-hosting-dns-management',
+      description: 'Cross-account role for DNS management with minimal permissions',
+      maxSessionDuration: Duration.hours(1),
+      assumedBy: new iam.AccountPrincipal(trustedAccountId).withConditions({
+        StringEquals: {
+          'sts:ExternalId': 'web-hosting-dns-2024'
+        }
+      }),
+      inlinePolicies: {
+        DNSManagementPolicy: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              sid: 'Route53RecordManagement',
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'route53:GetHostedZone',
+                'route53:ListHostedZones',
+                'route53:ChangeResourceRecordSets',
+                'route53:GetChange',
+                'route53:ListResourceRecordSets',
+              ],
+              resources: ['*'], // Route53 doesn't support resource-level permissions for most actions
+            }),
+          ],
+        }),
+      },
+    });
+  }
+
   /**
    * Creates a least-privilege IAM role for GitHub Actions deployment
    */
@@ -279,57 +314,7 @@ export class SecurityConfig {
     });
   }
 
-  /**
-   * Creates a secure cross-account role for DNS management
-   */
-  static createCrossAccountDNSRole(scope: Construct, trustedAccountId: string): iam.Role {
-    return new iam.Role(scope, 'CrossAccountDNSRole', {
-      roleName: 'web-hosting-dns-management',
-      description: 'Cross-account role for DNS management with minimal permissions',
-      
-      // Trust policy - only allow specific account
-      assumedBy: new iam.AccountPrincipal(trustedAccountId),
-      
-      // External ID for additional security
-      externalIds: [scope.node.tryGetContext('dnsRoleExternalId') || 'web-hosting-dns-2024'],
-      
-      // Maximum session duration
-      maxSessionDuration: Duration.hours(1),
-      
-      // Minimal Route53 permissions
-      inlinePolicies: {
-        Route53Access: new iam.PolicyDocument({
-          statements: [
-            new iam.PolicyStatement({
-              sid: 'Route53RecordManagement',
-              effect: iam.Effect.ALLOW,
-              actions: [
-                'route53:GetHostedZone',
-                'route53:ListResourceRecordSets',
-                'route53:ChangeResourceRecordSets',
-              ],
-              resources: [
-                'arn:aws:route53:::hostedzone/*', // Will be restricted by condition
-              ],
-              conditions: {
-                StringEquals: {
-                  'route53:HostedZoneId': scope.node.tryGetContext('hostedZoneId'),
-                },
-              },
-            }),
-            new iam.PolicyStatement({
-              sid: 'Route53ChangeInfo',
-              effect: iam.Effect.ALLOW,
-              actions: [
-                'route53:GetChange',
-              ],
-              resources: ['arn:aws:route53:::change/*'],
-            }),
-          ],
-        }),
-      },
-    });
-  }
+
 
   /**
    * Creates security monitoring and alerting policies
@@ -374,6 +359,30 @@ export class SecurityConfig {
     });
   }
 
+
+
+  /**
+   * Gets security headers for different content types
+   */
+  static getSecurityHeaders(contentType: string): Record<string, string> {
+    const headers: Record<string, string> = {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    };
+
+    if (contentType === 'text/html') {
+      headers['Content-Security-Policy'] = this.getContentSecurityPolicy();
+      headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload';
+    }
+
+    return headers;
+  }
+
+
+
   /**
    * Validates security configuration
    */
@@ -384,14 +393,19 @@ export class SecurityConfig {
       'hostedZoneId',
     ];
 
+    // Check if config is null or undefined first
+    if (!config) {
+      throw new Error('Security validation failed: Configuration is null or undefined');
+    }
+
     for (const field of requiredFields) {
       if (!config[field]) {
         throw new Error(`Security validation failed: Missing required field '${field}'`);
       }
     }
 
-    // Validate domain name format
-    if (!/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}$/.test(config.domainName)) {
+    // Validate domain name format (supports subdomains)
+    if (!/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/.test(config.domainName)) {
       throw new Error('Security validation failed: Invalid domain name format');
     }
 
@@ -412,43 +426,7 @@ export class SecurityConfig {
     }
   }
 
-  /**
-   * Gets security headers for different content types
-   */
-  static getSecurityHeaders(contentType: string): Record<string, string> {
-    const baseHeaders = {
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block',
-      'Referrer-Policy': 'strict-origin-when-cross-origin',
-      'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-    };
 
-    // Content-type specific headers
-    if (contentType.includes('text/html')) {
-      return {
-        ...baseHeaders,
-        'Content-Security-Policy': SecurityConfig.getContentSecurityPolicy(),
-        'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
-      };
-    }
-
-    if (contentType.includes('application/javascript')) {
-      return {
-        ...baseHeaders,
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      };
-    }
-
-    if (contentType.includes('text/css')) {
-      return {
-        ...baseHeaders,
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      };
-    }
-
-    return baseHeaders;
-  }
 
   /**
    * Gets Content Security Policy for Flutter web apps
@@ -474,6 +452,3 @@ export class SecurityConfig {
     ].join('; ');
   }
 }
-
-// Import Duration for use in the class
-import { Duration } from 'aws-cdk-lib';

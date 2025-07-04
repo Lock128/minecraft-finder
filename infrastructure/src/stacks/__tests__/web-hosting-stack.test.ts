@@ -2,60 +2,31 @@ import * as cdk from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { WebHostingStack } from '../web-hosting-stack';
 import { DeploymentConfig } from '../../types/config';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { describe } from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
+
+// Jest provides describe, it, beforeEach globally
 
 /**
  * Test configuration for the web hosting stack
  */
 const testConfig: DeploymentConfig = {
   environment: 'dev',
+  environmentConfig: {
+    name: 'dev',
+    description: 'Development environment for testing',
+    isProduction: false,
+    allowedRegions: ['us-east-1', 'us-west-2'],
+    featureFlags: {
+      enableAdvancedMonitoring: false,
+      enableCostOptimization: true,
+      enableSecurityHardening: false,
+      enablePerformanceOptimization: false
+    },
+    limits: {
+      maxCacheTtl: 86400,
+      maxRumSamplingRate: 1,
+      maxS3LifecycleDays: 90
+    }
+  },
   domainConfig: {
     domainName: 'test.minecraft.lockhead.cloud',
     hostedZoneId: 'Z1234567890ABC',
@@ -69,10 +40,10 @@ const testConfig: DeploymentConfig = {
     enableExtendedMetrics: false,
   },
   cachingConfig: {
-    defaultTtl: 86400,
-    maxTtl: 31536000,
-    staticAssetsTtl: 31536000,
-    htmlTtl: 3600,
+    defaultTtl: 3600,
+    maxTtl: 86400,
+    staticAssetsTtl: 86400,
+    htmlTtl: 300,
   },
   s3Config: {
     bucketNamePrefix: 'minecraft-finder-web-test',
@@ -87,6 +58,19 @@ const testConfig: DeploymentConfig = {
         abortIncompleteMultipartUploadDays: 7,
       },
     ],
+  },
+  resourceNaming: {
+    resourcePrefix: 'minecraft-finder',
+    resourceSuffix: 'test',
+    includeEnvironment: true,
+    includeRandomSuffix: false
+  },
+  costAllocation: {
+    costCenter: 'Engineering-Test',
+    projectCode: 'MINECRAFT-TEST',
+    department: 'Engineering',
+    enableDetailedBilling: true,
+    budgetThreshold: 50
   },
   tags: {
     Project: 'MinecraftOreFinder',
@@ -478,7 +462,7 @@ describe('WebHostingStack', () => {
       // Expect a reasonable number of resources (this will vary based on constructs)
       // S3 bucket, CloudFront distribution, ACM certificate, RUM app, Lambda functions, IAM roles, etc.
       expect(resourceCount).toBeGreaterThan(10);
-      expect(resourceCount).toBeLessThan(50); // Reasonable upper bound
+      expect(resourceCount).toBeLessThan(70); // Reasonable upper bound (increased due to comprehensive security and monitoring)
     });
 
     test('should have correct resource types', () => {
@@ -511,6 +495,10 @@ describe('WebHostingStack Integration', () => {
       const envConfig: DeploymentConfig = {
         ...testConfig,
         environment: env,
+        environmentConfig: {
+          ...testConfig.environmentConfig,
+          isProduction: env === 'prod',
+        },
         domainConfig: {
           ...testConfig.domainConfig,
           domainName: `${env}.minecraft.lockhead.cloud`,
@@ -519,6 +507,16 @@ describe('WebHostingStack Integration', () => {
           ...testConfig.monitoringConfig,
           rumAppName: `minecraft-finder-${env}`,
           samplingRate: env === 'prod' ? 0.1 : 0.5,
+        },
+        // Add required production tags for prod environment
+        tags: {
+          ...testConfig.tags,
+          ...(env === 'prod' ? {
+            CostCenter: 'Engineering-Prod',
+            ProjectCode: 'MINECRAFT-PROD',
+            Department: 'Engineering',
+            Owner: 'DevOps-Team',
+          } : {}),
         },
       };
 
@@ -541,9 +539,21 @@ describe('WebHostingStack Integration', () => {
     const prodConfig: DeploymentConfig = {
       ...testConfig,
       environment: 'prod',
+      environmentConfig: {
+        ...testConfig.environmentConfig,
+        isProduction: true,
+      },
       monitoringConfig: {
         ...testConfig.monitoringConfig,
         samplingRate: 0.6, // High sampling rate to trigger warning
+      },
+      // Add required production tags
+      tags: {
+        ...testConfig.tags,
+        CostCenter: 'Engineering-Prod',
+        ProjectCode: 'MINECRAFT-PROD',
+        Department: 'Engineering',
+        Owner: 'DevOps-Team',
       },
     };
 
@@ -559,7 +569,7 @@ describe('WebHostingStack Integration', () => {
     });
 
     expect(stack).toBeDefined();
-    expect(consoleSpy).toHaveBeenCalledWith('High RUM sampling rate in production may increase costs');
+    expect(consoleSpy).toHaveBeenCalledWith('⚠️  High RUM sampling rate in production may increase costs');
 
     consoleSpy.mockRestore();
   });

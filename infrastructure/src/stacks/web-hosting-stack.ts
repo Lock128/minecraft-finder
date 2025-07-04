@@ -1,6 +1,8 @@
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { DeploymentConfig } from '../types/config';
 import { S3BucketConstruct } from '../constructs/s3-bucket';
 import { CloudFrontDistributionConstruct } from '../constructs/cloudfront-distribution';
@@ -87,14 +89,20 @@ export class WebHostingStack extends Stack {
       // Create stack outputs
       this.createStackOutputs();
 
+      if (process.env.NODE_ENV !== 'test') {
       console.log(`✅ Web hosting stack created successfully: ${this.stackName}`);
+    }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to create web hosting stack: ${errorMessage}`);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(`❌ Failed to create web hosting stack: ${errorMessage}`);
+      }
       
       if (error instanceof Error && error.stack) {
-        console.error('Stack trace:', error.stack);
+        if (process.env.NODE_ENV !== 'test') {
+          console.error('Stack trace:', error.stack);
+        }
       }
       
       throw error; // Re-throw to fail the deployment
@@ -181,7 +189,9 @@ export class WebHostingStack extends Stack {
       // Validate environment limits
       this.validateEnvironmentLimits();
 
-      console.log('✅ Stack configuration validation passed');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('✅ Stack configuration validation passed');
+      }
 
     } catch (error) {
       this.errorHandler.handleError(
@@ -280,10 +290,14 @@ export class WebHostingStack extends Stack {
    */
   private createResources(): void {
     try {
-      console.log('🏗️  Creating stack resources...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('🏗️  Creating stack resources...');
+      }
 
       // 1. Create S3 bucket first (no dependencies)
-      console.log('📦 Creating S3 bucket...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('📦 Creating S3 bucket...');
+      }
       Object.defineProperty(this, 's3Bucket', {
         value: this.createS3Bucket(),
         writable: false,
@@ -292,7 +306,9 @@ export class WebHostingStack extends Stack {
       });
 
       // 2. Create ACM certificate (independent of other resources)
-      console.log('🔒 Creating ACM certificate...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('🔒 Creating ACM certificate...');
+      }
       Object.defineProperty(this, 'certificate', {
         value: this.createAcmCertificate(),
         writable: false,
@@ -301,7 +317,9 @@ export class WebHostingStack extends Stack {
       });
 
       // 3. Create CloudFront distribution (depends on S3 bucket and certificate)
-      console.log('🌐 Creating CloudFront distribution...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('🌐 Creating CloudFront distribution...');
+      }
       Object.defineProperty(this, 'cloudFrontDistribution', {
         value: this.createCloudFrontDistribution(),
         writable: false,
@@ -310,7 +328,9 @@ export class WebHostingStack extends Stack {
       });
 
       // 4. Create CloudWatch RUM (depends on domain configuration)
-      console.log('📊 Creating CloudWatch RUM monitoring...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('📊 Creating CloudWatch RUM monitoring...');
+      }
       Object.defineProperty(this, 'rumMonitoring', {
         value: this.createCloudWatchRum(),
         writable: false,
@@ -319,7 +339,9 @@ export class WebHostingStack extends Stack {
       });
 
       // 5. Create DNS management (depends on CloudFront distribution)
-      console.log('🌍 Creating DNS management...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('🌍 Creating DNS management...');
+      }
       Object.defineProperty(this, 'dnsManagement', {
         value: this.createDnsManagement(),
         writable: false,
@@ -328,7 +350,9 @@ export class WebHostingStack extends Stack {
       });
 
       // 6. Create monitoring and alerting (depends on all other resources)
-      console.log('📊 Creating monitoring and alerting...');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('📊 Creating monitoring and alerting...');
+      }
       Object.defineProperty(this, 'monitoring', {
         value: this.createMonitoring(),
         writable: false,
@@ -339,7 +363,9 @@ export class WebHostingStack extends Stack {
       // Set up resource dependencies explicitly
       this.setupResourceDependencies();
 
-      console.log('✅ All stack resources created successfully');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('✅ All stack resources created successfully');
+      }
 
     } catch (error) {
       this.errorHandler.handleError(
@@ -448,6 +474,9 @@ export class WebHostingStack extends Stack {
     this.monitoring.node.addDependency(this.cloudFrontDistribution);
     this.monitoring.node.addDependency(this.rumMonitoring);
     this.monitoring.node.addDependency(this.dnsManagement);
+
+    // Note: CloudFront access policy is handled by Origin Access Control (OAC)
+    // Additional bucket policies can be added post-deployment if needed
   }
 
 
