@@ -203,8 +203,8 @@ jobs:
             exit 1
           fi
           
-          # Validate domain name format
-          if ! echo "${{ secrets.DOMAIN_NAME }}" | grep -E '^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}$'; then
+          # Validate domain name format (supports subdomains)
+          if ! echo "${{ secrets.DOMAIN_NAME }}" | grep -E '^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$'; then
             echo "❌ Error: Invalid domain name format"
             exit 1
           fi
