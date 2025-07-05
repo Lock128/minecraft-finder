@@ -1,8 +1,14 @@
 # Compiled output
-*.js
-*.d.ts
-lib/
+lib/**/*.js
+lib/**/*.d.ts
 dist/
+src/**/*.js
+src/**/*.d.ts
+
+# Keep config files
+!*.config.js
+!jest.config.js
+!.eslintrc.js
 
 # Node modules
 node_modules/
