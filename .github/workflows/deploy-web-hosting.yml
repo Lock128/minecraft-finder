@@ -166,7 +166,7 @@ jobs:
         run: |
           echo "🧪 Running CDK tests..."
           pwd
-          npm test
+          npm run test:ci
 
       - name: Security scanning
         run: |

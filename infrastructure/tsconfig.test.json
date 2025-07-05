@@ -3,14 +3,17 @@
   "compilerOptions": {
     "types": ["jest", "node"],
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
   "include": [
-    "src/**/*",
-    "src/**/__tests__/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "lib"
+    "lib",
+    "**/*.d.ts"
   ]
 }

@@ -13,6 +13,7 @@
     "find-all": "./find-all-ores.sh",
     "watch": "cd infrastructure && tsc -w",
     "test": "cd infrastructure && jest",
+    "test:ci": "cd infrastructure && jest --config=jest.config.ci.js --ci --coverage --watchAll=false",
     "test:watch": "cd infrastructure && jest --watch",
     "cdk": "cd infrastructure && cdk",
     "deploy": "cd infrastructure && cdk deploy",
