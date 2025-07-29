@@ -1,4 +1,4 @@
-# App Store Release Notes - Version 1.0.40
+# App Store Release Notes - Version 1.0.41
 
 ## 🔄 NEW: Recent Seeds History Feature
 
@@ -38,7 +38,7 @@
 
 Discover diamonds, gold, netherite, villages, strongholds and more using advanced world seed analysis. Now with convenient recent seeds history for quick access to your favorite worlds!
 
-**NEW in v1.0.40:**
+**NEW in v1.0.41:**
 ✅ Recent Seeds History - Quick access to your last 5 searched seeds
 ✅ One-tap seed selection for instant reuse
 ✅ Smart seed management with automatic organization
