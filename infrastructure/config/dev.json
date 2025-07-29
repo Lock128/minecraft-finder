@@ -18,7 +18,7 @@
     }
   },
   "domainConfig": {
-    "domainName": "dev-minecraft.lockhead.cloud",
+    "domainName": "gems.lockhead.cloud",
     "hostedZoneId": "REPLACE_WITH_HOSTED_ZONE_ID",
     "crossAccountRoleArn": "REPLACE_WITH_CROSS_ACCOUNT_ROLE_ARN",
     "certificateRegion": "us-east-1"

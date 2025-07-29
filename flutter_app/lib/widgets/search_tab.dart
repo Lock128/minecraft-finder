@@ -7,7 +7,7 @@ import 'ore_selection_card.dart';
 import 'structure_selection_card.dart';
 import 'search_buttons.dart';
 
-class SearchTab extends StatelessWidget {
+class SearchTab extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController seedController;
   final TextEditingController xController;
@@ -54,13 +54,24 @@ class SearchTab extends StatelessWidget {
   });
 
   @override
+  State<SearchTab> createState() => _SearchTabState();
+}
+
+class _SearchTabState extends State<SearchTab> {
+  final GlobalKey<State<WorldSettingsCard>> _worldSettingsKey = GlobalKey();
+
+  void refreshRecentSeeds() {
+    (_worldSettingsKey.currentState as dynamic)?.refreshRecentSeeds();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isDarkMode
+          colors: widget.isDarkMode
               ? [
                   const Color(0xFF1A237E), // Dark blue
                   const Color(0xFF2E7D32), // Dark green
@@ -74,48 +85,49 @@ class SearchTab extends StatelessWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: formKey,
+          key: widget.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               WorldSettingsCard(
-                seedController: seedController,
-                isDarkMode: isDarkMode,
+                key: _worldSettingsKey,
+                seedController: widget.seedController,
+                isDarkMode: widget.isDarkMode,
               ),
               const SizedBox(height: 16),
               SearchCenterCard(
-                xController: xController,
-                yController: yController,
-                zController: zController,
-                radiusController: radiusController,
-                isDarkMode: isDarkMode,
+                xController: widget.xController,
+                yController: widget.yController,
+                zController: widget.zController,
+                radiusController: widget.radiusController,
+                isDarkMode: widget.isDarkMode,
               ),
               const SizedBox(height: 16),
               OreSelectionCard(
-                selectedOreTypes: selectedOreTypes,
-                includeNether: includeNether,
-                includeOres: includeOres,
-                isDarkMode: isDarkMode,
-                includeStructures: includeStructures,
-                selectedStructures: selectedStructures,
-                onOreTypesChanged: onOreTypesChanged,
-                onIncludeNetherChanged: onIncludeNetherChanged,
-                onIncludeOresChanged: onIncludeOresChanged,
+                selectedOreTypes: widget.selectedOreTypes,
+                includeNether: widget.includeNether,
+                includeOres: widget.includeOres,
+                isDarkMode: widget.isDarkMode,
+                includeStructures: widget.includeStructures,
+                selectedStructures: widget.selectedStructures,
+                onOreTypesChanged: widget.onOreTypesChanged,
+                onIncludeNetherChanged: widget.onIncludeNetherChanged,
+                onIncludeOresChanged: widget.onIncludeOresChanged,
               ),
               const SizedBox(height: 16),
               StructureSelectionCard(
-                includeStructures: includeStructures,
-                selectedStructures: selectedStructures,
-                isDarkMode: isDarkMode,
-                onIncludeStructuresChanged: onIncludeStructuresChanged,
-                onStructuresChanged: onStructuresChanged,
+                includeStructures: widget.includeStructures,
+                selectedStructures: widget.selectedStructures,
+                isDarkMode: widget.isDarkMode,
+                onIncludeStructuresChanged: widget.onIncludeStructuresChanged,
+                onStructuresChanged: widget.onStructuresChanged,
               ),
               const SizedBox(height: 24),
               SearchButtons(
-                isLoading: isLoading,
-                findAllNetherite: findAllNetherite,
-                onFindOres: onFindOres,
-                isDarkMode: isDarkMode,
+                isLoading: widget.isLoading,
+                findAllNetherite: widget.findAllNetherite,
+                onFindOres: widget.onFindOres,
+                isDarkMode: widget.isDarkMode,
               ),
             ],
           ),

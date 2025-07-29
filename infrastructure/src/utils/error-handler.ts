@@ -74,20 +74,27 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
  * Enhanced error handler for CDK constructs
  */
 export class ErrorHandler {
-  private readonly logGroup: logs.LogGroup;
+  private readonly logGroup: logs.LogGroup | null;
   private readonly context: Record<string, any>;
 
   constructor(scope: Construct, id: string, context: Record<string, any> = {}) {
     this.context = context;
     
-    // Create CloudWatch log group for error logging
-    this.logGroup = new logs.LogGroup(scope, `${id}ErrorLogs`, {
-      logGroupName: `/aws/cdk/${Stack.of(scope).stackName}/${id}/errors`,
-      retention: logs.RetentionDays.ONE_MONTH,
-      removalPolicy: context.environment === 'prod' ? 
-        RemovalPolicy.RETAIN : 
-        RemovalPolicy.DESTROY,
-    });
+    // Only create CloudWatch log group if we're within a Stack context
+    try {
+      const stack = Stack.of(scope);
+      this.logGroup = new logs.LogGroup(scope, `${id}ErrorLogs`, {
+        logGroupName: `/aws/cdk/${stack.stackName}/${id}/errors`,
+        retention: logs.RetentionDays.ONE_MONTH,
+        removalPolicy: context.environment === 'prod' ? 
+          RemovalPolicy.RETAIN : 
+          RemovalPolicy.DESTROY,
+      });
+    } catch (error) {
+      // If we're not in a Stack context (e.g., at App level), skip log group creation
+      console.log(`⚠️ ErrorHandler created outside Stack context, skipping CloudWatch log group creation`);
+      this.logGroup = null as any; // We'll handle null checks in methods that use it
+    }
   }
 
   /**
@@ -387,7 +394,7 @@ export class ErrorHandler {
   /**
    * Gets the CloudWatch log group for external access
    */
-  public getLogGroup(): logs.LogGroup {
+  public getLogGroup(): logs.LogGroup | null {
     return this.logGroup;
   }
 

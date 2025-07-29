@@ -12,25 +12,34 @@ import { DeploymentValidator } from './utils/deployment-validator';
  * This file initializes the CDK app and creates the web hosting stack
  */
 async function main() {
+  console.log('🔧 Creating CDK App...');
   const app = new cdk.App();
+  console.log('✅ CDK App created successfully');
   let errorHandler: ErrorHandler | undefined;
   
   try {
     // Get environment from context or environment variables
+    console.log('🔧 Getting environment...');
     const environment = getEnvironment();
     console.log(`🚀 Starting CDK deployment for environment: ${environment}`);
     
     // Create error handler for the main app
+    console.log('🔧 Creating error handler...');
     errorHandler = new ErrorHandler(app, 'CDKApp', { environment });
+    console.log('✅ Error handler created successfully');
     
     // Load configuration with error handling
+    console.log('📋 Loading configuration...');
     const config = await errorHandler.withRetry(
-      () => Promise.resolve(loadConfig(environment)),
+      () => Promise.resolve(loadConfig(environment, app)),
       'Configuration Loading',
       { maxAttempts: 2, retryableErrors: ['ENOENT', 'EACCES'] }
     );
     
     console.log(`✅ Configuration loaded for ${config.environment} environment`);
+    console.log(`📋 Domain: ${config.domainConfig.domainName}`);
+    console.log(`📋 Hosted Zone: ${config.domainConfig.hostedZoneId}`);
+    console.log(`📋 Cross Account Role: ${config.domainConfig.crossAccountRoleArn}`);
     
     // Perform pre-deployment validation
     console.log('🔍 Performing pre-deployment validation...');
@@ -87,6 +96,7 @@ async function main() {
     const stackName = `${config.resourceNaming.resourcePrefix}-web-hosting-${config.environment}`;
     
     // Create the main web hosting stack
+    console.log(`🏗️  Creating stack with name: ${stackName}`);
     const webHostingStack = new WebHostingStack(app, stackName, {
       config,
       env: {

@@ -121,7 +121,8 @@ export class DnsManagementConstruct extends Construct {
    * Checks if a value is a CDK token (used during synthesis)
    */
   private isToken(value: string): boolean {
-    return value.includes('${Token[') || value.includes('#{') || value.startsWith('${');
+    return value.includes('${Token[') || value.includes('#{') || value.startsWith('${') ||
+           value.startsWith('REPLACE_WITH_');
   }
 
   /**

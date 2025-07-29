@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class PreferencesService {
   // Keys for different preferences
@@ -7,6 +8,7 @@ class PreferencesService {
   static const String _yKey = 'last_y_coordinate';
   static const String _zKey = 'last_z_coordinate';
   static const String _radiusKey = 'last_search_radius';
+  static const String _recentSeedsKey = 'recent_world_seeds';
 
   // Default values
   static const String _defaultSeed = '8674308105921866736';
@@ -78,6 +80,46 @@ class PreferencesService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_radiusKey, radius);
     }
+  }
+
+  // Recent seeds management
+  static Future<List<String>> getRecentSeeds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seedsJson = prefs.getString(_recentSeedsKey);
+    if (seedsJson == null) return [];
+
+    try {
+      final List<dynamic> seedsList = json.decode(seedsJson);
+      return seedsList.cast<String>();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static Future<void> addRecentSeed(String seed) async {
+    if (seed.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    List<String> recentSeeds = await getRecentSeeds();
+
+    // Remove the seed if it already exists
+    recentSeeds.remove(seed);
+
+    // Add the seed to the beginning of the list
+    recentSeeds.insert(0, seed);
+
+    // Keep only the last 5 seeds
+    if (recentSeeds.length > 5) {
+      recentSeeds = recentSeeds.take(5).toList();
+    }
+
+    // Save the updated list
+    await prefs.setString(_recentSeedsKey, json.encode(recentSeeds));
+  }
+
+  static Future<void> clearRecentSeeds() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_recentSeedsKey);
   }
 
   // Convenience method to load all search parameters at once

@@ -48,6 +48,7 @@ class _GemOreStructFinderAppState extends State<GemOreStructFinderApp> {
     return ThemeData(
       primarySwatch: Colors.green,
       useMaterial3: true,
+      fontFamily: null, // Use system default fonts
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF4CAF50),
         brightness: Brightness.light,
@@ -72,6 +73,7 @@ class _GemOreStructFinderAppState extends State<GemOreStructFinderApp> {
   ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: null, // Use system default fonts
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF4CAF50),
         brightness: Brightness.dark,
@@ -117,6 +119,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   final _yController = TextEditingController(text: '-59');
   final _zController = TextEditingController(text: '0');
   final _radiusController = TextEditingController(text: '50');
+
+  // Key for refreshing recent seeds
+  final GlobalKey<State> _searchTabKey = GlobalKey();
 
   // Search state
   Set<OreType> _selectedOreTypes = {OreType.diamond};
@@ -232,6 +237,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       _findAllNetherite = comprehensiveNetherite;
     });
 
+    // Add the current seed to recent seeds when starting a search
+    await PreferencesService.addRecentSeed(_seedController.text);
+
     try {
       final finder = OreFinder();
       final structureFinder = StructureFinder();
@@ -315,6 +323,11 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
       // Auto-switch to results tab
       _tabController.animateTo(1);
+
+      // Refresh the search tab to update recent seeds
+      if (_searchTabKey.currentState != null) {
+        (_searchTabKey.currentState as dynamic).refreshRecentSeeds();
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -339,6 +352,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         controller: _tabController,
         children: [
           SearchTab(
+            key: _searchTabKey,
             formKey: _formKey,
             seedController: _seedController,
             xController: _xController,

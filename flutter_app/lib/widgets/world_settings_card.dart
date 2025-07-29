@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'recent_seeds_widget.dart';
 
-class WorldSettingsCard extends StatelessWidget {
+class WorldSettingsCard extends StatefulWidget {
   final TextEditingController seedController;
   final bool isDarkMode;
+  final VoidCallback? onSeedSearched;
 
   const WorldSettingsCard({
     super.key,
     required this.seedController,
     required this.isDarkMode,
+    this.onSeedSearched,
   });
+
+  @override
+  State<WorldSettingsCard> createState() => _WorldSettingsCardState();
+}
+
+class _WorldSettingsCardState extends State<WorldSettingsCard> {
+  final GlobalKey<State<RecentSeedsWidget>> _recentSeedsKey = GlobalKey();
+
+  void refreshRecentSeeds() {
+    (_recentSeedsKey.currentState as dynamic)?.refreshSeeds();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +36,7 @@ class WorldSettingsCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
-            colors: isDarkMode
+            colors: widget.isDarkMode
                 ? [
                     const Color(0xFF2E2E2E),
                     const Color(0xFF1E1E1E),
@@ -64,7 +78,7 @@ class WorldSettingsCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: seedController,
+              controller: widget.seedController,
               decoration: InputDecoration(
                 labelText: 'World Seed',
                 hintText: 'Enter your world seed',
@@ -90,7 +104,8 @@ class WorldSettingsCard extends StatelessWidget {
                   ),
                 ),
                 filled: true,
-                fillColor: isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
+                fillColor:
+                    widget.isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -98,6 +113,11 @@ class WorldSettingsCard extends StatelessWidget {
                 }
                 return null;
               },
+            ),
+            RecentSeedsWidget(
+              key: _recentSeedsKey,
+              seedController: widget.seedController,
+              isDarkMode: widget.isDarkMode,
             ),
           ],
         ),

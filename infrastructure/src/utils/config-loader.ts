@@ -1,14 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import * as cdk from 'aws-cdk-lib';
 import { DeploymentConfig, Environment } from '../types/config';
 
 /**
  * Loads deployment configuration for the specified environment
  * @param environment The target environment
+ * @param app Optional CDK app for context overrides
  * @returns The deployment configuration
  */
-export function loadConfig(environment: Environment): DeploymentConfig {
+export function loadConfig(environment: Environment, app?: cdk.App): DeploymentConfig {
   const configPath = path.join(__dirname, '../../config', `${environment}.json`);
   
   if (!fs.existsSync(configPath)) {
@@ -18,6 +20,11 @@ export function loadConfig(environment: Environment): DeploymentConfig {
   try {
     const configData = fs.readFileSync(configPath, 'utf8');
     const config = JSON.parse(configData) as DeploymentConfig;
+    
+    // Apply context overrides if CDK app is provided
+    if (app) {
+      applyContextOverrides(config, app);
+    }
     
     // Validate required configuration
     validateConfig(config);
@@ -66,6 +73,50 @@ function processEnvironmentConfig(config: DeploymentConfig): void {
 }
 
 /**
+ * Applies CDK context overrides to the configuration
+ * @param config The configuration to override
+ * @param app The CDK app containing context
+ */
+function applyContextOverrides(config: DeploymentConfig, app: cdk.App): void {
+  console.log('🔧 Checking for context overrides...');
+  
+  // Override domain configuration from context
+  const domainName = app.node.tryGetContext('domainName');
+  if (domainName) {
+    console.log(`🔧 Overriding domain name from context: ${domainName}`);
+    config.domainConfig.domainName = domainName;
+  } else {
+    console.log('🔧 No domainName context found');
+  }
+  
+  const hostedZoneId = app.node.tryGetContext('hostedZoneId');
+  if (hostedZoneId) {
+    console.log(`🔧 Overriding hosted zone ID from context: ${hostedZoneId}`);
+    config.domainConfig.hostedZoneId = hostedZoneId;
+  } else {
+    console.log('🔧 No hostedZoneId context found');
+  }
+  
+  const crossAccountRoleArn = app.node.tryGetContext('crossAccountRoleArn');
+  if (crossAccountRoleArn) {
+    console.log(`🔧 Overriding cross-account role ARN from context: ${crossAccountRoleArn}`);
+    config.domainConfig.crossAccountRoleArn = crossAccountRoleArn;
+  } else {
+    console.log('🔧 No crossAccountRoleArn context found');
+  }
+  
+  // Override other context values as needed
+  const certificateRegion = app.node.tryGetContext('certificateRegion');
+  if (certificateRegion) {
+    console.log(`🔧 Overriding certificate region from context: ${certificateRegion}`);
+    config.domainConfig.certificateRegion = certificateRegion;
+  }
+  
+  // Debug: show all available context
+  console.log('🔧 Available context keys:', Object.keys(app.node.tryGetContext('') || {}));
+}
+
+/**
  * Validates the deployment configuration
  * @param config The configuration to validate
  */
@@ -88,7 +139,7 @@ function validateConfig(config: DeploymentConfig): void {
   if (!config.domainConfig) {
     errors.push('Missing domain configuration');
   } else {
-    validateDomainConfig(config.domainConfig, errors);
+    validateDomainConfig(config.domainConfig, errors, config.environment);
   }
 
   // Validate monitoring configuration
@@ -163,16 +214,30 @@ function validateEnvironmentConfig(envConfig: any, errors: string[]): void {
 /**
  * Validates domain configuration
  */
-function validateDomainConfig(domainConfig: any, errors: string[]): void {
+function validateDomainConfig(domainConfig: any, errors: string[], environment?: string): void {
   if (!domainConfig.domainName) {
     errors.push('Missing domain name');
   }
+  
+  // For dev environment, allow placeholder values but warn about them
+  const isDev = environment === 'dev';
+  
   if (!domainConfig.hostedZoneId || domainConfig.hostedZoneId === 'REPLACE_WITH_HOSTED_ZONE_ID') {
-    errors.push('Missing or placeholder hosted zone ID');
+    if (isDev) {
+      console.warn('⚠️  Using placeholder hosted zone ID in dev environment');
+    } else {
+      errors.push('Missing or placeholder hosted zone ID');
+    }
   }
+  
   if (!domainConfig.crossAccountRoleArn || domainConfig.crossAccountRoleArn === 'REPLACE_WITH_CROSS_ACCOUNT_ROLE_ARN') {
-    errors.push('Missing or placeholder cross-account role ARN');
+    if (isDev) {
+      console.warn('⚠️  Using placeholder cross-account role ARN in dev environment');
+    } else {
+      errors.push('Missing or placeholder cross-account role ARN');
+    }
   }
+  
   if (domainConfig.certificateRegion !== 'us-east-1') {
     errors.push('Certificate region must be us-east-1 for CloudFront');
   }
