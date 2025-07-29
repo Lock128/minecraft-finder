@@ -7,7 +7,8 @@ import 'models/search_result.dart';
 import 'widgets/search_tab.dart';
 import 'widgets/results_tab.dart';
 import 'widgets/guide_tab.dart';
-import 'widgets/release_notes_dialog.dart';
+import 'widgets/release_notes_tab.dart';
+import 'widgets/app_info_dialog.dart';
 import 'utils/preferences_service.dart';
 
 void main() {
@@ -142,7 +143,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadLastSearchParams();
     _setupListeners();
   }
@@ -387,6 +388,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             selectedOreTypes: _selectedOreTypes,
           ),
           GuideTab(isDarkMode: widget.isDarkMode),
+          ReleaseNotesTab(isDarkMode: widget.isDarkMode),
         ],
       ),
     );
@@ -428,9 +430,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           margin: const EdgeInsets.only(right: 2),
           child: IconButton(
             onPressed: () =>
-                ReleaseNotesDialog.show(context, isDarkMode: widget.isDarkMode),
+                AppInfoDialog.show(context, isDarkMode: widget.isDarkMode),
             icon: const Icon(Icons.info_outline, color: Colors.white, size: 20),
-            tooltip: 'Release Notes',
+            tooltip: 'App Info',
             padding: const EdgeInsets.all(8),
             constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
           ),
@@ -468,6 +470,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                 text: 'Results',
                 height: 40),
             Tab(icon: Icon(Icons.info, size: 16), text: 'Guide', height: 40),
+            Tab(
+                icon: Icon(Icons.new_releases, size: 16),
+                text: 'Updates',
+                height: 40),
           ],
         ),
       ),
