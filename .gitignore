@@ -48,8 +48,12 @@ pids
 # Build outputs
 build/
 dist/
-lib/
+# lib/ - commented out to allow Flutter lib directories
 *.js.map
+
+# JavaScript/Node.js lib directories (but not Flutter)
+infrastructure/lib/
+*/node_modules/lib/
 
 # Coverage directory used by tools like istanbul
 coverage/
