@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 
 class AppInfoDialog extends StatelessWidget {
   final bool isDarkMode;
@@ -98,6 +100,12 @@ class AppInfoDialog extends StatelessWidget {
                       _buildSectionHeader('🎮 Perfect For'),
                       const SizedBox(height: 12),
                       _buildPlayerTypesList(),
+                      if (kIsWeb) ...[
+                        const SizedBox(height: 20),
+                        _buildSectionHeader('☕ Support Development'),
+                        const SizedBox(height: 12),
+                        _buildSupportSection(),
+                      ],
                     ],
                   ),
                 ),
@@ -407,6 +415,88 @@ class AppInfoDialog extends StatelessWidget {
               ))
           .toList(),
     );
+  }
+
+  Widget _buildSupportSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1E3A1E) : Colors.green[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF4CAF50) : Colors.green[200]!,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.local_cafe, color: Color(0xFFFF6F00), size: 24),
+              const SizedBox(width: 8),
+              Text(
+                'Buy Me a Coffee',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Help keep this app free and continuously improving! Your support enables new features, bug fixes, and ongoing development.',
+            style: TextStyle(
+              fontSize: 13,
+              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _openBuyMeCoffee(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFDD44),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.local_cafe, size: 18),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Support Development',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openBuyMeCoffee() async {
+    if (kIsWeb) {
+      try {
+        final Uri uri = Uri.parse('https://buymeacoffee.com/lockhead');
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } catch (e) {
+        // Fallback - could show a dialog with the link
+      }
+    }
   }
 
   static void show(BuildContext context, {bool isDarkMode = false}) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'models/ore_finder.dart';
 import 'models/ore_location.dart';
 import 'models/structure_finder.dart';
@@ -8,6 +9,7 @@ import 'widgets/search_tab.dart';
 import 'widgets/results_tab.dart';
 import 'widgets/guide_tab.dart';
 import 'widgets/release_notes_tab.dart';
+
 import 'widgets/app_info_dialog.dart';
 import 'utils/preferences_service.dart';
 
@@ -463,14 +465,16 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           indicatorWeight: 2,
-          tabs: const [
-            Tab(icon: Icon(Icons.search, size: 16), text: 'Search', height: 40),
-            Tab(
+          tabs: [
+            const Tab(
+                icon: Icon(Icons.search, size: 16), text: 'Search', height: 40),
+            const Tab(
                 icon: Icon(Icons.inventory, size: 16),
                 text: 'Results',
                 height: 40),
-            Tab(icon: Icon(Icons.info, size: 16), text: 'Guide', height: 40),
-            Tab(
+            const Tab(
+                icon: Icon(Icons.info, size: 16), text: 'Guide', height: 40),
+            const Tab(
                 icon: Icon(Icons.new_releases, size: 16),
                 text: 'Updates',
                 height: 40),
