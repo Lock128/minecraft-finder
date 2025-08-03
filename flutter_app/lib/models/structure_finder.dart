@@ -1,47 +1,34 @@
 import 'dart:math';
 import 'structure_location.dart';
+import 'java_random.dart';
 
 class StructureFinder {
-  /// Convert string seed to numeric seed
-  int _stringToSeed(String seedStr) {
-    int hash = 0;
-    for (int i = 0; i < seedStr.length; i++) {
-      int char = seedStr.codeUnitAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & 0xFFFFFFFF; // Convert to 32-bit integer
-    }
-    return hash;
-  }
-
-  /// Simple LCG (Linear Congruential Generator) for predictable randomness
-  int _lcg(int seed) {
-    return (seed * 1664525 + 1013904223) & 0xFFFFFFFF;
-  }
-
-  /// Generate structure-specific random number
-  int _getStructureRandom(
+  /// Generate structure-specific random using Java-compatible RNG
+  JavaRandom _getStructureRandom(
       int chunkX, int chunkZ, StructureType structureType, int worldSeed) {
     int structureSeed = worldSeed ^
-        (chunkX * 341873128712 +
-            chunkZ * 132897987541 +
+        (chunkX * 341873128 +
+            chunkZ * 132897987 +
             structureType.index * 1000000);
-    return _lcg(structureSeed.abs());
+    return JavaRandom(structureSeed);
   }
 
-  /// Determine biome type based on coordinates (simplified)
+  /// Determine biome type based on coordinates using Java-compatible RNG
   String _getBiomeType(int x, int z, int worldSeed) {
-    double biomeRandom = _getStructureRandom((x / 64).floor(), (z / 64).floor(),
-            StructureType.village, worldSeed) /
-        0xFFFFFFFF;
+    JavaRandom biomeRandom = _getStructureRandom(
+        (x / 64).floor(), (z / 64).floor(), StructureType.village, worldSeed);
 
-    if (biomeRandom < 0.15) return 'desert';
-    if (biomeRandom < 0.25) return 'jungle';
-    if (biomeRandom < 0.35) return 'ocean';
-    if (biomeRandom < 0.45) return 'swamp';
-    if (biomeRandom < 0.55) return 'taiga';
-    if (biomeRandom < 0.65) return 'savanna';
-    if (biomeRandom < 0.75) return 'badlands';
-    if (biomeRandom < 0.85) return 'forest';
+    double biomeValue = biomeRandom.nextDouble();
+
+    if (biomeValue < 0.12) return 'desert';
+    if (biomeValue < 0.22) return 'jungle';
+    if (biomeValue < 0.32) return 'ocean';
+    if (biomeValue < 0.40) return 'swamp';
+    if (biomeValue < 0.50) return 'taiga';
+    if (biomeValue < 0.60) return 'savanna';
+    if (biomeValue < 0.68) return 'badlands';
+    if (biomeValue < 0.78) return 'forest';
+    if (biomeValue < 0.88) return 'mountains';
     return 'plains';
   }
 
@@ -112,7 +99,7 @@ class StructureFinder {
     }
   }
 
-  /// Calculate structure probability for a specific location
+  /// Calculate structure probability using improved spacing rules and Java-compatible RNG
   double _calculateStructureProbability(
       int x, int z, StructureType structureType, int worldSeed) {
     String biome = _getBiomeType(x, z, worldSeed);
@@ -130,74 +117,122 @@ class StructureFinder {
     int chunkX = (x / 16).floor();
     int chunkZ = (z / 16).floor();
 
-    double probability = 0.0;
-
-    // Structure-specific base probabilities
-    switch (structureType) {
-      case StructureType.village:
-        probability = 0.8; // Common
-        break;
-      case StructureType.stronghold:
-        probability = 0.3; // Rare, only 128 per world
-        break;
-      case StructureType.endCity:
-        probability = 0.4; // Rare
-        break;
-      case StructureType.netherFortress:
-        probability = 0.6; // Uncommon
-        break;
-      case StructureType.bastionRemnant:
-        probability = 0.5; // Uncommon
-        break;
-      case StructureType.ancientCity:
-        probability = 0.2; // Very rare
-        break;
-      case StructureType.oceanMonument:
-        probability = 0.4; // Rare
-        break;
-      case StructureType.woodlandMansion:
-        probability = 0.1; // Very rare
-        break;
-      case StructureType.pillagerOutpost:
-        probability = 0.7; // Common
-        break;
-      case StructureType.ruinedPortal:
-        probability = 0.9; // Very common
-        break;
-      case StructureType.shipwreck:
-        probability = 0.8; // Common in ocean
-        break;
-      case StructureType.buriedTreasure:
-        probability = 0.6; // Uncommon
-        break;
-      case StructureType.desertTemple:
-        probability = 0.5; // Uncommon
-        break;
-      case StructureType.jungleTemple:
-        probability = 0.4; // Rare
-        break;
-      case StructureType.witchHut:
-        probability = 0.3; // Rare
-        break;
+    // Check structure spacing rules (simplified)
+    if (!_checkStructureSpacing(chunkX, chunkZ, structureType, worldSeed)) {
+      return 0.0;
     }
 
-    // Add randomness based on chunk and structure type
-    double random1 =
-        _getStructureRandom(chunkX, chunkZ, structureType, worldSeed) /
-            0xFFFFFFFF;
-    double random2 =
-        _getStructureRandom(chunkX + 1, chunkZ + 1, structureType, worldSeed) /
-            0xFFFFFFFF;
+    // Get base probability with more realistic values
+    double baseProbability = _getStructureBaseProbability(structureType);
 
-    // Simulate structure generation patterns
-    double structureFactor = sin(chunkX * 0.1) * cos(chunkZ * 0.1);
-    probability *=
-        (0.3 + random1 * 0.4 + random2 * 0.3 + structureFactor.abs() * 0.2);
+    // Use Java-compatible randomness
+    JavaRandom structureRandom =
+        _getStructureRandom(chunkX, chunkZ, structureType, worldSeed);
+    double randomFactor =
+        0.6 + (structureRandom.nextDouble() * 0.8); // 0.6 to 1.4 multiplier
+
+    double probability = baseProbability * randomFactor;
+
+    // Apply biome-specific modifiers
+    probability *= _getBiomeModifier(structureType, biome);
 
     return min(probability, 1.0);
   }
 
-  /// Find structure locations in a given area
+  /// Get more realistic base probabilities for structures
+  double _getStructureBaseProbability(StructureType structureType) {
+    switch (structureType) {
+      case StructureType.village:
+        return 0.6; // Common but not everywhere
+      case StructureType.stronghold:
+        return 0.15; // Very rare, only 128 per world
+      case StructureType.endCity:
+        return 0.25; // Rare in End
+      case StructureType.netherFortress:
+        return 0.4; // Uncommon in Nether
+      case StructureType.bastionRemnant:
+        return 0.35; // Uncommon in Nether
+      case StructureType.ancientCity:
+        return 0.08; // Extremely rare
+      case StructureType.oceanMonument:
+        return 0.2; // Rare in deep ocean
+      case StructureType.woodlandMansion:
+        return 0.05; // Extremely rare
+      case StructureType.pillagerOutpost:
+        return 0.5; // Fairly common
+      case StructureType.ruinedPortal:
+        return 0.8; // Very common
+      case StructureType.shipwreck:
+        return 0.7; // Common in ocean
+      case StructureType.buriedTreasure:
+        return 0.4; // Uncommon
+      case StructureType.desertTemple:
+        return 0.3; // Uncommon in desert
+      case StructureType.jungleTemple:
+        return 0.25; // Rare in jungle
+      case StructureType.witchHut:
+        return 0.2; // Rare in swamp
+    }
+  }
+
+  /// Check simplified structure spacing rules
+  bool _checkStructureSpacing(
+      int chunkX, int chunkZ, StructureType structureType, int worldSeed) {
+    // Simplified spacing check - in real Minecraft this is much more complex
+    int spacing = _getStructureSpacing(structureType);
+
+    // Check if this chunk could contain a structure based on spacing
+    JavaRandom spacingRandom =
+        JavaRandom(worldSeed + chunkX * 341873128 + chunkZ * 132897987);
+    int spacingCheck = spacingRandom.nextInt(spacing);
+
+    return spacingCheck ==
+        0; // Only allow structures at specific spacing intervals
+  }
+
+  /// Get structure spacing in chunks (simplified)
+  int _getStructureSpacing(StructureType structureType) {
+    switch (structureType) {
+      case StructureType.village:
+        return 32; // Villages have 32-chunk spacing
+      case StructureType.stronghold:
+        return 128; // Strongholds are very far apart
+      case StructureType.oceanMonument:
+        return 64; // Ocean monuments have large spacing
+      case StructureType.woodlandMansion:
+        return 256; // Mansions are extremely far apart
+      case StructureType.pillagerOutpost:
+        return 48; // Outposts have medium spacing
+      case StructureType.ancientCity:
+        return 96; // Ancient cities are very rare
+      default:
+        return 24; // Default spacing for other structures
+    }
+  }
+
+  /// Get biome-specific modifier for structure generation
+  double _getBiomeModifier(StructureType structureType, String biome) {
+    // Some structures are more common in certain biomes
+    switch (structureType) {
+      case StructureType.village:
+        if (['plains', 'desert', 'savanna'].contains(biome)) {
+          return 1.2; // More common in these biomes
+        }
+        return 1.0;
+      case StructureType.desertTemple:
+        return biome == 'desert' ? 1.5 : 0.0;
+      case StructureType.jungleTemple:
+        return biome == 'jungle' ? 1.5 : 0.0;
+      case StructureType.witchHut:
+        return biome == 'swamp' ? 1.5 : 0.0;
+      case StructureType.oceanMonument:
+        return biome == 'ocean' ? 1.3 : 0.0;
+      default:
+        return 1.0;
+    }
+  }
+
+  /// Find structure locations using improved algorithms and Java-compatible RNG
   Future<List<StructureLocation>> findStructures({
     required String seed,
     required int centerX,
@@ -206,9 +241,12 @@ class StructureFinder {
     required Set<StructureType> structureTypes,
     double minProbability = 0.3,
   }) async {
-    int worldSeed = int.tryParse(seed) ?? _stringToSeed(seed);
+    // Use Java-compatible seed conversion
+    int worldSeed = MinecraftRandom.stringToSeed(seed);
     List<StructureLocation> locations = [];
-    int step = 64; // Check every 4 chunks for structures
+
+    // Use chunk-aligned search for better accuracy
+    int step = 32; // Check every 2 chunks for better coverage
 
     for (int x = centerX - radius; x <= centerX + radius; x += step) {
       for (int z = centerZ - radius; z <= centerZ + radius; z += step) {
