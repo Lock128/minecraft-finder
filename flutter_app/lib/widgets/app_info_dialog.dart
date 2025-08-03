@@ -201,6 +201,7 @@ class AppInfoDialog extends StatelessWidget {
       {'name': 'Iron', 'emoji': '⚪', 'levels': 'Y -64 to 256'},
       {'name': 'Redstone', 'emoji': '🔴', 'levels': 'Y -64 to 15'},
       {'name': 'Coal', 'emoji': '⚫', 'levels': 'Y 0 to 256'},
+      {'name': 'Lapis', 'emoji': '🔵', 'levels': 'Y -64 to 64'},
     ];
 
     return Wrap(

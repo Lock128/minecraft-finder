@@ -211,7 +211,7 @@ class OreSelectionCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        // Second row: Redstone, Coal
+        // Second row: Redstone, Coal, Lapis
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<OreType>(
@@ -232,18 +232,29 @@ class OreSelectionCard extends StatelessWidget {
                   child: const Text('⚫', style: TextStyle(fontSize: 16)),
                 ),
               ),
+              ButtonSegment<OreType>(
+                value: OreType.lapis,
+                label: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: const Text('🔵', style: TextStyle(fontSize: 16)),
+                ),
+              ),
             ],
             selected: selectedOreTypes
-                .where(
-                    (type) => [OreType.redstone, OreType.coal].contains(type))
+                .where((type) => [OreType.redstone, OreType.coal, OreType.lapis]
+                    .contains(type))
                 .toSet(),
             multiSelectionEnabled: true,
             emptySelectionAllowed: true,
             onSelectionChanged: (Set<OreType> newSelection) {
               Set<OreType> updatedSelection = Set.from(selectedOreTypes);
-              // Remove the two types from this row
-              updatedSelection.removeWhere(
-                  (type) => [OreType.redstone, OreType.coal].contains(type));
+              // Remove the three types from this row
+              updatedSelection.removeWhere((type) => [
+                    OreType.redstone,
+                    OreType.coal,
+                    OreType.lapis
+                  ].contains(type));
               // Add the new selections
               updatedSelection.addAll(newSelection);
               // Ensure at least one ore type is selected, default to diamond if empty
@@ -277,6 +288,8 @@ class OreSelectionCard extends StatelessWidget {
             Text('🔴 Redstone',
                 style: TextStyle(fontSize: 11, color: Colors.grey[600])),
             Text('⚫ Coal',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            Text('🔵 Lapis',
                 style: TextStyle(fontSize: 11, color: Colors.grey[600])),
           ],
         ),

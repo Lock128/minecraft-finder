@@ -52,6 +52,8 @@ class OreFinder {
         return y >= -64 && y <= 256;
       case OreType.coal:
         return y >= 0 && y <= 256;
+      case OreType.lapis:
+        return y >= -64 && y <= 64; // Lapis spawns from bedrock to Y=64
     }
   }
 
@@ -124,6 +126,11 @@ class OreFinder {
           return 1.2; // Slightly more coal in mountains
         }
         return 1.0;
+      case OreType.lapis:
+        if (y >= 0 && y <= 32) {
+          return 1.3; // Lapis is more common at higher levels
+        }
+        return 1.0;
       default:
         return 1.0;
     }
@@ -146,6 +153,9 @@ class OreFinder {
         break;
       case OreType.iron:
         scale = 0.06; // Medium-sized veins
+        break;
+      case OreType.lapis:
+        scale = 0.04; // Small, clustered veins like diamonds
         break;
       default:
         scale = 0.05;
@@ -175,6 +185,8 @@ class OreFinder {
         return 'iron';
       case OreType.coal:
         return 'coal';
+      case OreType.lapis:
+        return 'lapis';
     }
   }
 
@@ -202,6 +214,9 @@ class OreFinder {
         break;
       case OreType.diamond:
         minProbability = 0.25; // Rare
+        break;
+      case OreType.lapis:
+        minProbability = 0.28; // Rare, similar to diamonds
         break;
       case OreType.gold:
         minProbability = 0.3; // Uncommon
@@ -271,6 +286,8 @@ class OreFinder {
         return radius < 100 ? 4 : 8; // Very fine search for netherite
       case OreType.diamond:
         return radius < 200 ? 6 : 10;
+      case OreType.lapis:
+        return radius < 200 ? 6 : 10; // Similar to diamonds
       case OreType.gold:
       case OreType.redstone:
         return radius < 300 ? 8 : 12;
@@ -306,6 +323,12 @@ class OreFinder {
         return {'min': -64, 'max': 256, 'step': 4};
       case OreType.coal:
         return {'min': 0, 'max': 256, 'step': 6};
+      case OreType.lapis:
+        return {
+          'min': -64,
+          'max': 64,
+          'step': 2
+        }; // Lapis spawns from bedrock to Y=64
     }
   }
 

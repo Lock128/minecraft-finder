@@ -16,6 +16,8 @@ class OreUtils {
         return '⚪';
       case OreType.coal:
         return '⚫';
+      case OreType.lapis:
+        return '🔵';
     }
   }
 
@@ -46,6 +48,9 @@ class OreUtils {
       }
       if (selectedOreTypes.contains(OreType.coal)) {
         searchItems.add('coal');
+      }
+      if (selectedOreTypes.contains(OreType.lapis)) {
+        searchItems.add('lapis lazuli');
       }
     }
 

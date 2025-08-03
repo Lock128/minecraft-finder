@@ -114,6 +114,8 @@ class DensityFunction {
         return _getRedstoneDensity(x, y, z);
       case 'netherite':
         return _getNetheriteDensity(x, y, z);
+      case 'lapis':
+        return _getLapisDensity(x, y, z);
       default:
         return 0.0;
     }
@@ -226,5 +228,26 @@ class DensityFunction {
         _noise.octaveNoise3D(x * 0.005, y * 0.03, z * 0.005, 2, 0.7, 1.0);
     return max(
         0.0, (noise + 0.8) * yFactor * 0.3); // Much rarer than other ores
+  }
+
+  double _getLapisDensity(double x, double y, double z) {
+    if (y > 64 || y < -64) return 0.0;
+
+    // Lapis is more common at higher levels (Y 0 to 32)
+    double yFactor = 1.0;
+    if (y >= 0 && y <= 32) {
+      yFactor = 1.3; // Enhanced generation at higher levels
+    } else if (y >= -32 && y <= -1) {
+      yFactor = 1.0; // Standard generation
+    } else if (y >= -64 && y <= -33) {
+      yFactor = 0.7; // Reduced at deeper levels
+    } else if (y >= 33 && y <= 64) {
+      yFactor = 0.6; // Reduced at surface levels
+    }
+
+    // Small, clustered veins similar to diamonds
+    double noise =
+        _noise.octaveNoise3D(x * 0.008, y * 0.018, z * 0.008, 3, 0.5, 1.0);
+    return (noise + 0.4) * yFactor;
   }
 }

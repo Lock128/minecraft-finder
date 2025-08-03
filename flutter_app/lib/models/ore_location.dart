@@ -1,4 +1,4 @@
-enum OreType { diamond, gold, netherite, redstone, iron, coal }
+enum OreType { diamond, gold, netherite, redstone, iron, coal, lapis }
 
 class OreLocation {
   final int x;
@@ -48,6 +48,8 @@ class OreLocation {
         return OreType.iron;
       case 'coal':
         return OreType.coal;
+      case 'lapis':
+        return OreType.lapis;
       default:
         return OreType.diamond;
     }
@@ -80,6 +82,8 @@ class OreLocation {
         return 'iron';
       case OreType.coal:
         return 'coal';
+      case OreType.lapis:
+        return 'lapis';
     }
   }
 

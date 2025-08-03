@@ -32,7 +32,8 @@ class _ResultsTabState extends State<ResultsTab> {
     OreType.netherite,
     OreType.redstone,
     OreType.iron,
-    OreType.coal
+    OreType.coal,
+    OreType.lapis
   };
   Set<StructureType> _visibleStructures = {};
   Set<String> _visibleBiomes = {};
@@ -281,6 +282,7 @@ class _ResultsTabState extends State<ResultsTab> {
             _buildOreFilterChip(OreType.iron, '⚪ Iron'),
             _buildOreFilterChip(OreType.redstone, '🔴 Redstone'),
             _buildOreFilterChip(OreType.coal, '⚫ Coal'),
+            _buildOreFilterChip(OreType.lapis, '🔵 Lapis'),
             _buildOreFilterChip(OreType.netherite, '🔥 Netherite'),
           ],
         ),
@@ -599,6 +601,8 @@ class _ResultsTabState extends State<ResultsTab> {
         return Colors.grey;
       case OreType.coal:
         return Colors.black87;
+      case OreType.lapis:
+        return Colors.blue;
     }
   }
 
