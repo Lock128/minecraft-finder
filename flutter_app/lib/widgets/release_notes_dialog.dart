@@ -138,6 +138,7 @@ class ReleaseNotesDialog extends StatelessWidget {
                         '⚪ Iron Ore (Y -64 to 256, peaks at Y 15 & Y 232)\n'
                             '🔴 Redstone Ore (Y -64 to 15, 90% at Y -64 to -59)\n'
                             '⚫ Coal Ore (Y 0 to 256, peaks at Y 96)\n'
+                            '🔵 Lapis Lazuli (Y -64 to 64, enhanced at Y 0-32)\n'
                             'Enhanced UI with compact ore selection and visual legend',
                       ),
                       const SizedBox(height: 20),

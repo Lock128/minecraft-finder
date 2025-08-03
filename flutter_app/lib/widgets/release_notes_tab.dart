@@ -43,7 +43,7 @@ class ReleaseNotesTab extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Release Notes - Version 1.0.41',
+                      'Release Notes - Version 1.0.42',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -57,7 +57,38 @@ class ReleaseNotesTab extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Content
-            _buildSectionHeader('🔄 Recent Seeds History - NEW!'),
+            _buildSectionHeader('🔵 Lapis Lazuli Ore Discovery - NEW!'),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              'Complete Ore Coverage',
+              'Added full Lapis Lazuli ore finding capabilities! Now supports all 7 major '
+                  'Minecraft ores including the essential enchanting resource. Lapis generates '
+                  'optimally at Y 0-32 with enhanced probability calculations for accurate results.',
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              'Enhanced Mining Guide',
+              'Comprehensive lapis mining information added to the guide tab. Learn optimal '
+                  'Y-levels, generation patterns, and uses including enchanting tables, blue dye, '
+                  'and villager trading. Perfect for setting up your enchanting room!',
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              'Complete UI Integration',
+              'Lapis seamlessly integrated into ore selection, filtering, and results display. '
+                  'Blue-themed visual elements (🔵) maintain consistency throughout the app. '
+                  'All search and filter functionality works perfectly with the new ore type.',
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              'Enhanced Navigation Structure',
+              'Improved app organization with new 4-tab layout: Search, Results, Guide, and '
+                  'Updates. Release notes now have their own dedicated tab for better accessibility. '
+                  'Enhanced App Info dialog provides quick access to ore information and app details.',
+            ),
+            const SizedBox(height: 20),
+
+            _buildSectionHeader('🔄 Recent Seeds History'),
             const SizedBox(height: 12),
             _buildFeatureItem(
               'Quick Seed Access',
@@ -138,6 +169,14 @@ class ReleaseNotesTab extends StatelessWidget {
             _buildSectionHeader('📋 Previous Updates'),
             const SizedBox(height: 12),
             _buildFeatureItem(
+              'Version 1.0.41 - Recent Seeds History',
+              'Introduced automatic seed history management with quick access to your last 5 '
+                  'searched seeds. Enhanced user experience with one-tap seed selection, '
+                  'persistent storage across sessions, and improved seed number readability '
+                  'with monospace formatting.',
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
               'Version 1.0.36 - Complete Search Memory',
               'Introduced comprehensive search parameter persistence including world seed, '
                   'X/Y/Z coordinates, and search radius. All search settings are now automatically '
@@ -157,7 +196,8 @@ class ReleaseNotesTab extends StatelessWidget {
               'Major expansion of ore finding capabilities:\n\n'
                   '⚪ Iron Ore: Y -64 to 256 (peaks at Y 15 & Y 232)\n'
                   '🔴 Redstone Ore: Y -64 to 15 (90% concentration at Y -64 to -59)\n'
-                  '⚫ Coal Ore: Y 0 to 256 (peaks at Y 96)\n\n'
+                  '⚫ Coal Ore: Y 0 to 256 (peaks at Y 96)\n'
+                  '🔵 Lapis Lazuli: Y -64 to 64 (enhanced at Y 0-32)\n\n'
                   'Enhanced UI with compact ore selection interface and comprehensive visual legend. '
                   'Improved mining efficiency with detailed Y-level optimization data.',
             ),
