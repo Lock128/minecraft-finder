@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/structure_location.dart';
+import '../theme/gamer_theme.dart';
 import '../utils/structure_utils.dart';
 
 class StructureSelectionCard extends StatelessWidget {
@@ -20,123 +22,83 @@ class StructureSelectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
+    final l10n = AppLocalizations.of(context);
+    return GamerCard(
+      isDarkMode: isDarkMode,
+      accentColor: GamerColors.neonOrange,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GamerSectionHeader(
+            emoji: '🏰',
+            title: l10n.structureSearchTitle,
+            isDarkMode: isDarkMode,
+            accentColor: GamerColors.neonOrange,
+          ),
+          const SizedBox(height: 16),
+          _buildToggleButton(context),
+          if (includeStructures) ...[
+            const SizedBox(height: 16),
+            Text(
+              l10n.selectStructuresToFind,
+              style: TextStyle(
+                color: isDarkMode ? Colors.white70 : Colors.grey[700],
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildStructureSelection(context),
+          ],
+        ],
       ),
+    );
+  }
+
+  Widget _buildToggleButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return GestureDetector(
+      onTap: () => onIncludeStructuresChanged(!includeStructures),
       child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: isDarkMode
-                ? [
-                    const Color(0xFF2E2E2E),
-                    const Color(0xFF1E1E1E),
-                  ]
-                : [
-                    Colors.white,
-                    const Color(0xFFF1F8E9),
-                  ],
+          gradient: includeStructures
+              ? const LinearGradient(colors: [GamerColors.neonOrange, Color(0xFFFF8F00)])
+              : null,
+          color: includeStructures ? null : (isDarkMode ? GamerColors.darkSurface : Colors.grey.shade100),
+          border: Border.all(
+            color: includeStructures
+                ? GamerColors.neonOrange.withValues(alpha: 0.6)
+                : (isDarkMode ? Colors.white24 : Colors.grey.shade300),
+            width: 1.5,
           ),
+          boxShadow: includeStructures && isDarkMode
+              ? GamerColors.subtleGlow(GamerColors.neonOrange)
+              : null,
         ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8B4513),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: const Center(
-                    child: Text('🏰', style: TextStyle(fontSize: 12)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Structure Search',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: const Color(0xFF2E7D32),
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: includeStructures
-                    ? LinearGradient(
-                        colors: [
-                          const Color(0xFF4CAF50),
-                          const Color(0xFF2E7D32)
-                        ],
-                      )
-                    : null,
-                border: Border.all(
-                  color:
-                      includeStructures ? const Color(0xFF4CAF50) : Colors.grey,
-                  width: 2,
-                ),
-              ),
-              child: OutlinedButton.icon(
-                onPressed: () => onIncludeStructuresChanged(!includeStructures),
-                icon: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8B4513),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: const Center(
-                    child: Text('🏰', style: TextStyle(fontSize: 10)),
-                  ),
-                ),
-                label: Text(
-                  'Include Structures in Search',
-                  style: TextStyle(
-                    color: includeStructures
-                        ? Colors.white
-                        : const Color(0xFF2E7D32),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: Colors.transparent,
-                  side: BorderSide.none,
-                ),
+            const Text('🏰', style: TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(
+              l10n.includeStructuresInSearch,
+              style: TextStyle(
+                color: includeStructures ? Colors.white : (isDarkMode ? Colors.white70 : Colors.grey[700]),
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
               ),
             ),
-            if (includeStructures) ...[
-              const SizedBox(height: 16),
-              Text(
-                'Select Structures to Find:',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: const Color(0xFF2E7D32),
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 12),
-              _buildStructureSelection(),
-            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStructureSelection() {
+  Widget _buildStructureSelection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final structures = StructureUtils.getAllStructures();
 
     return Column(
@@ -144,29 +106,16 @@ class StructureSelectionCard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  onStructuresChanged(structures
-                      .map((s) => s['type'] as StructureType)
-                      .toSet());
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Select All'),
-              ),
+              child: _actionButton(l10n.selectAll, GamerColors.neonGreen, () {
+                onStructuresChanged(
+                    structures.map((s) => s['type'] as StructureType).toSet());
+              }),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: ElevatedButton(
-                onPressed: () => onStructuresChanged({}),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Clear All'),
-              ),
+              child: _actionButton(l10n.clearAll, Colors.grey, () {
+                onStructuresChanged({});
+              }),
             ),
           ],
         ),
@@ -187,17 +136,13 @@ class StructureSelectionCard extends StatelessWidget {
                     children: [
                       Text(
                         structure['name'] as String,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                       ),
                       Text(
                         structure['rarity'] as String,
                         style: TextStyle(
                           fontSize: 10,
-                          color: StructureUtils.getRarityColor(
-                              structure['rarity'] as String),
+                          color: StructureUtils.getRarityColor(structure['rarity'] as String),
                         ),
                       ),
                     ],
@@ -212,8 +157,15 @@ class StructureSelectionCard extends StatelessWidget {
                     }
                     onStructuresChanged(updated);
                   },
-                  selectedColor: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-                  checkmarkColor: const Color(0xFF2E7D32),
+                  selectedColor: GamerColors.neonOrange.withValues(alpha: isDarkMode ? 0.25 : 0.12),
+                  checkmarkColor: GamerColors.neonOrange,
+                  backgroundColor: isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+                  side: BorderSide(
+                    color: isSelected
+                        ? GamerColors.neonOrange.withValues(alpha: 0.5)
+                        : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 );
               }).toList(),
             ),
@@ -222,15 +174,33 @@ class StructureSelectionCard extends StatelessWidget {
         if (selectedStructures.isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
-            '${selectedStructures.length} structures selected',
-            style: const TextStyle(
-              color: Color(0xFF2E7D32),
-              fontWeight: FontWeight.bold,
+            l10n.structuresSelected(selectedStructures.length),
+            style: TextStyle(
+              color: GamerColors.orangeText(isDarkMode),
+              fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
           ),
         ],
       ],
+    );
+  }
+
+  Widget _actionButton(String label, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: color.withValues(alpha: isDarkMode ? 0.2 : 0.1),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Center(
+          child: Text(label,
+            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13)),
+        ),
+      ),
     );
   }
 }

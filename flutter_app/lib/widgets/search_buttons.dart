@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/gamer_theme.dart';
 
 class SearchButtons extends StatelessWidget {
   final bool isLoading;
@@ -16,185 +18,182 @@ class SearchButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               flex: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 4),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: isLoading ? null : () => onFindOres(false),
-                  icon: isLoading && !findAllNetherite
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF8B4513),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: const Center(
-                            child: Text('⛏️', style: TextStyle(fontSize: 10)),
-                          ),
-                        ),
-                  label: Text(
-                    isLoading && !findAllNetherite ? 'Searching...' : 'Find',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(12),
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    elevation: 0,
-                  ),
-                ),
+              child: _GamerButton(
+                onPressed: isLoading ? null : () => onFindOres(false),
+                isLoading: isLoading && !findAllNetherite,
+                label: isLoading && !findAllNetherite ? l10n.searchingButton : l10n.findButton,
+                emoji: '⛏️',
+                gradient: const [GamerColors.neonGreen, Color(0xFF00C853)],
+                isDarkMode: isDarkMode,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               flex: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: LinearGradient(
-                    colors: [Colors.deepPurple, Colors.purple[800]!],
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 4),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: isLoading ? null : () => onFindOres(true),
-                  icon: isLoading && findAllNetherite
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2C1810),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: const Center(
-                            child: Text('🔥', style: TextStyle(fontSize: 10)),
-                          ),
-                        ),
-                  label: Text(
-                    isLoading && findAllNetherite
-                        ? 'Searching...'
-                        : 'Find All Netherite',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    elevation: 0,
-                    padding: const EdgeInsets.all(12),
-                  ),
-                ),
+              child: _GamerButton(
+                onPressed: isLoading ? null : () => onFindOres(true),
+                isLoading: isLoading && findAllNetherite,
+                label: isLoading && findAllNetherite ? l10n.searchingButton : l10n.findAllNetheriteButton,
+                emoji: '🔥',
+                gradient: const [GamerColors.neonPurple, GamerColors.neonPink],
+                isDarkMode: isDarkMode,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _buildInfoContainer(),
+        _buildInfoBox(
+          icon: Icons.info_outline,
+          color: GamerColors.neonPurple,
+          title: l10n.comprehensiveNetheriteSearch,
+          body: l10n.comprehensiveNetheriteBody,
+        ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.info_outline, color: Colors.green, size: 14),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Regular search shows top 250 results (all types combined)',
-                  style: TextStyle(
-                    color: Colors.green.withValues(alpha: 0.8),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        _buildInfoBox(
+          icon: Icons.info_outline,
+          color: GamerColors.neonGreen,
+          title: null,
+          body: l10n.regularSearchInfo,
         ),
       ],
     );
   }
 
-  Widget _buildInfoContainer() {
+  Widget _buildInfoBox({
+    required IconData icon,
+    required Color color,
+    String? title,
+    required String body,
+  }) {
+    final textColor = isDarkMode ? color : _lightVariant(color);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.deepPurple.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.2)),
+        color: color.withValues(alpha: isDarkMode ? 0.1 : 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.info_outline, color: Colors.deepPurple, size: 16),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Comprehensive Netherite Search',
-                  style: TextStyle(
-                    color: Colors.deepPurple,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+          if (title != null) ...[
+            Row(
+              children: [
+                Icon(icon, color: textColor, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(title,
+                    style: TextStyle(color: textColor, fontWeight: FontWeight.w700, fontSize: 12)),
                 ),
+              ],
+            ),
+            const SizedBox(height: 4),
+          ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title == null) ...[
+                Icon(icon, color: textColor, size: 14),
+                const SizedBox(width: 6),
+              ],
+              Expanded(
+                child: Text(body,
+                  style: TextStyle(
+                    color: isDarkMode ? color.withValues(alpha: 0.8) : textColor.withValues(alpha: 0.8),
+                    height: 1.4,
+                    fontSize: 11,
+                  )),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            '• Searches entire world (4000x4000 blocks)\n• May take 30-60 seconds\n• Shows up to 300 best locations (all types combined)\n• Ignores other ore selections',
-            style: TextStyle(
-              color: Colors.deepPurple.withValues(alpha: 0.8),
-              height: 1.3,
-              fontSize: 11,
+        ],
+      ),
+    );
+  }
+
+  Color _lightVariant(Color c) {
+    if (c == GamerColors.neonPurple) return GamerColors.lightPurple;
+    if (c == GamerColors.neonGreen) return GamerColors.lightGreen;
+    if (c == GamerColors.neonCyan) return GamerColors.lightCyan;
+    if (c == GamerColors.neonOrange) return GamerColors.lightOrange;
+    return c;
+  }
+}
+
+class _GamerButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final String label;
+  final String emoji;
+  final List<Color> gradient;
+  final bool isDarkMode;
+
+  const _GamerButton({
+    required this.onPressed,
+    required this.isLoading,
+    required this.label,
+    required this.emoji,
+    required this.gradient,
+    required this.isDarkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(colors: gradient),
+        boxShadow: isDarkMode
+            ? GamerColors.subtleGlow(gradient.first)
+            : [
+                BoxShadow(
+                  color: gradient.first.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (isLoading)
+                  const SizedBox(
+                    width: 18, height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                else
+                  Text(emoji, style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      fontSize: 14,
+                      letterSpacing: 0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

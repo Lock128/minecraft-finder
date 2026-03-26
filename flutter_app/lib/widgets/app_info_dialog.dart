@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/gamer_theme.dart';
 
 class AppInfoDialog extends StatelessWidget {
   final bool isDarkMode;
@@ -9,9 +11,10 @@ class AppInfoDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: isDarkMode ? GamerColors.darkCard : Colors.white,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         child: Column(
@@ -21,41 +24,50 @@ class AppInfoDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDarkMode
-                    ? const Color(0xFF2E7D32)
-                    : const Color(0xFF4CAF50),
+                gradient: LinearGradient(
+                  colors: isDarkMode
+                      ? [GamerColors.neonGreen.withValues(alpha: 0.2), GamerColors.neonCyan.withValues(alpha: 0.1)]
+                      : [GamerColors.lightGreen.withValues(alpha: 0.1), GamerColors.neonCyan.withValues(alpha: 0.05)],
+                ),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: GamerColors.neonGreen.withValues(alpha: 0.2),
+                  ),
                 ),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 24,
-                    height: 24,
+                    width: 28, height: 28,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF8B4513),
-                      borderRadius: BorderRadius.circular(3),
+                      gradient: const LinearGradient(
+                        colors: [GamerColors.neonGreen, GamerColors.neonCyan],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Center(
-                      child: Text('⛏️', style: TextStyle(fontSize: 12)),
+                      child: Text('⛏️', style: TextStyle(fontSize: 14)),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'About Gem, Ore & Struct Finder',
+                      l10n.aboutTitle,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: Icon(Icons.close,
+                      color: isDarkMode ? Colors.white54 : Colors.grey[500]),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -64,80 +76,74 @@ class AppInfoDialog extends StatelessWidget {
             ),
             // Content
             Flexible(
-              child: Container(
-                color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSectionHeader('🎯 What This App Does'),
-                      const SizedBox(height: 12),
-                      _buildDescriptionCard(
-                        'Advanced Minecraft Ore & Structure Discovery',
-                        'This app uses sophisticated world seed analysis to help you find valuable '
-                            'resources and structures in your Minecraft worlds. Simply enter your world seed '
-                            'and search coordinates to discover the exact locations of diamonds, gold, '
-                            'netherite, villages, strongholds, and much more.',
-                      ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionTitle(l10n.aboutWhatTitle),
+                    const SizedBox(height: 12),
+                    _descCard(
+                      l10n.aboutDescTitle,
+                      l10n.aboutDescBody,
+                    ),
+                    const SizedBox(height: 20),
+                    _sectionTitle(l10n.aboutResourcesTitle),
+                    const SizedBox(height: 12),
+                    _buildResourceGrid(l10n),
+                    const SizedBox(height: 20),
+                    _sectionTitle(l10n.aboutStructuresTitle),
+                    const SizedBox(height: 12),
+                    _buildStructureChips(l10n),
+                    const SizedBox(height: 20),
+                    _sectionTitle(l10n.aboutHowItWorksTitle),
+                    const SizedBox(height: 12),
+                    _buildSteps(l10n),
+                    const SizedBox(height: 20),
+                    _sectionTitle(l10n.aboutFeaturesTitle),
+                    const SizedBox(height: 12),
+                    _buildFeatures(l10n),
+                    if (kIsWeb) ...[
                       const SizedBox(height: 20),
-                      _buildSectionHeader('⛏️ Supported Resources'),
+                      _sectionTitle(l10n.aboutSupportTitle),
                       const SizedBox(height: 12),
-                      _buildResourceGrid(),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader('🏘️ Supported Structures'),
-                      const SizedBox(height: 12),
-                      _buildStructureList(),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader('🔍 How It Works'),
-                      const SizedBox(height: 12),
-                      _buildStepsList(),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader('✨ Key Features'),
-                      const SizedBox(height: 12),
-                      _buildFeaturesList(),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader('🎮 Perfect For'),
-                      const SizedBox(height: 12),
-                      _buildPlayerTypesList(),
-                      if (kIsWeb) ...[
-                        const SizedBox(height: 20),
-                        _buildSectionHeader('☕ Support Development'),
-                        const SizedBox(height: 12),
-                        _buildSupportSection(),
-                      ],
+                      _buildSupportSection(l10n),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
             // Footer
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF2E2E2E) : Colors.grey[100],
+                color: isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
                 ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lightbulb_outline,
-                      color: Colors.orange, size: 20),
+                  Icon(Icons.lightbulb_outline, color: isDarkMode ? GamerColors.neonYellow : GamerColors.lightYellow, size: 18),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Tip: Use the Recent Seeds feature to quickly switch between your favorite worlds!',
+                      l10n.aboutFooterTip,
                       style: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.w500,
+                        color: isDarkMode ? GamerColors.neonYellow : GamerColors.lightYellow,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Got it!'),
+                    child: Text(l10n.aboutGotIt,
+                      style: TextStyle(
+                        color: GamerColors.greenText(isDarkMode),
+                        fontWeight: FontWeight.w700,
+                      )),
                   ),
                 ],
               ),
@@ -148,337 +154,220 @@ class AppInfoDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
+  Widget _sectionTitle(String title) {
+    return Text(title,
       style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: isDarkMode ? const Color(0xFF66BB6A) : const Color(0xFF2E7D32),
-      ),
-    );
+        fontSize: 16, fontWeight: FontWeight.w800,
+        color: GamerColors.greenText(isDarkMode),
+      ));
   }
 
-  Widget _buildDescriptionCard(String title, String description) {
+  Widget _descCard(String title, String desc) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E3A1E) : Colors.green[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: isDarkMode ? const Color(0xFF4CAF50) : Colors.green[200]!),
+        color: isDarkMode ? GamerColors.darkSurface : GamerColors.neonGreen.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: GamerColors.neonGreen.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: isDarkMode ? Colors.white : Colors.black,
-            ),
-          ),
+          Text(title, style: TextStyle(
+            fontWeight: FontWeight.w700, fontSize: 15,
+            color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+          )),
           const SizedBox(height: 8),
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: 14,
-              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-              height: 1.4,
-            ),
-          ),
+          Text(desc, style: TextStyle(
+            fontSize: 13, height: 1.5,
+            color: isDarkMode ? Colors.white60 : Colors.grey[600],
+          )),
         ],
       ),
     );
   }
 
-  Widget _buildResourceGrid() {
+  Widget _buildResourceGrid(AppLocalizations l10n) {
     final resources = [
-      {'name': 'Diamond', 'emoji': '💎', 'levels': 'Y -64 to 16'},
-      {'name': 'Gold', 'emoji': '🟡', 'levels': 'Y -64 to 32'},
-      {'name': 'Netherite', 'emoji': '🔴', 'levels': 'Y 8 to 22'},
-      {'name': 'Iron', 'emoji': '⚪', 'levels': 'Y -64 to 256'},
-      {'name': 'Redstone', 'emoji': '🔴', 'levels': 'Y -64 to 15'},
-      {'name': 'Coal', 'emoji': '⚫', 'levels': 'Y 0 to 256'},
-      {'name': 'Lapis', 'emoji': '🔵', 'levels': 'Y -64 to 64'},
+      (l10n.aboutResourceDiamond, '💎', 'Y -64 to 16', GamerColors.diamondNeon),
+      (l10n.aboutResourceGold, '🏅', 'Y -64 to 32', GamerColors.goldNeon),
+      (l10n.aboutResourceNetherite, '🔥', 'Y 8 to 22', GamerColors.netheriteNeon),
+      (l10n.aboutResourceIron, '⚪', 'Y -64 to 256', GamerColors.ironNeon),
+      (l10n.aboutResourceRedstone, '🔴', 'Y -64 to 15', GamerColors.redstoneNeon),
+      (l10n.aboutResourceCoal, '⚫', 'Y 0 to 256', GamerColors.coalNeon),
+      (l10n.aboutResourceLapis, '🔵', 'Y -64 to 64', GamerColors.lapisNeon),
     ];
 
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: resources
-          .map((resource) => Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color:
-                      isDarkMode ? const Color(0xFF2E2E2E) : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(resource['emoji']!,
-                        style: const TextStyle(fontSize: 20)),
-                    const SizedBox(height: 4),
-                    Text(
-                      resource['name']!,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: isDarkMode ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    Text(
-                      resource['levels']!,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
+      spacing: 8, runSpacing: 8,
+      children: resources.map((r) {
+        final (name, emoji, levels, color) = r;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 4),
+              Text(name, style: TextStyle(
+                fontWeight: FontWeight.w700, fontSize: 12,
+                color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+              )),
+              Text(levels, style: TextStyle(
+                fontSize: 10, color: isDarkMode ? Colors.white38 : Colors.grey[500],
+              )),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildStructureList() {
+  Widget _buildStructureChips(AppLocalizations l10n) {
     final structures = [
-      'Villages 🏘️',
-      'Strongholds 🏰',
-      'Dungeons 🕳️',
-      'Mineshafts ⛏️',
-      'Desert Temples 🏜️',
-      'Jungle Temples 🌿',
-      'Ocean Monuments 🌊',
-      'Woodland Mansions 🏚️',
-      'Pillager Outposts ⚔️',
-      'Ruined Portals 🌀'
+      l10n.aboutStructureVillages,
+      l10n.aboutStructureStrongholds,
+      l10n.aboutStructureDungeons,
+      l10n.aboutStructureMineshafts,
+      l10n.aboutStructureDesertTemples,
+      l10n.aboutStructureJungleTemples,
+      l10n.aboutStructureOceanMonuments,
+      l10n.aboutStructureWoodlandMansions,
+      l10n.aboutStructurePillagerOutposts,
+      l10n.aboutStructureRuinedPortals,
     ];
 
     return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: structures
-          .map((structure) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isDarkMode ? const Color(0xFF2E2E2E) : Colors.blue[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDarkMode ? Colors.blue[400]! : Colors.blue[200]!,
-                  ),
-                ),
-                child: Text(
-                  structure,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDarkMode ? Colors.blue[300] : Colors.blue[700],
-                  ),
-                ),
-              ))
-          .toList(),
+      spacing: 6, runSpacing: 4,
+      children: structures.map((s) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isDarkMode ? GamerColors.darkSurface : GamerColors.neonCyan.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: GamerColors.neonCyan.withValues(alpha: 0.2)),
+        ),
+        child: Text(s, style: TextStyle(
+          fontSize: 11,
+          color: isDarkMode ? GamerColors.neonCyan : Colors.blueGrey[700],
+        )),
+      )).toList(),
     );
   }
 
-  Widget _buildStepsList() {
+  Widget _buildSteps(AppLocalizations l10n) {
     final steps = [
-      '1. Enter your world seed in the Search tab',
-      '2. Set your search center coordinates (X, Y, Z)',
-      '3. Choose your search radius',
-      '4. Select which ores and structures to find',
-      '5. Tap "Find Ores" to discover nearby resources',
-      '6. View results with exact coordinates and probabilities'
+      l10n.aboutStep1,
+      l10n.aboutStep2,
+      l10n.aboutStep3,
+      l10n.aboutStep4,
+      l10n.aboutStep5,
+      l10n.aboutStep6,
     ];
 
     return Column(
-      children: steps
-          .map((step) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color:
-                            isDarkMode ? const Color(0xFF4CAF50) : Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          step.substring(0, 1),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        step.substring(3),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDarkMode ? Colors.white : Colors.black,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
+      children: steps.asMap().entries.map((e) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 22, height: 22,
+              decoration: BoxDecoration(
+                color: isDarkMode ? GamerColors.neonGreen.withValues(alpha: 0.2) : GamerColors.lightGreen.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: (isDarkMode ? GamerColors.neonGreen : GamerColors.lightGreen).withValues(alpha: 0.3)),
+              ),
+              child: Center(
+                child: Text('${e.key + 1}', style: TextStyle(
+                  color: GamerColors.greenText(isDarkMode),
+                  fontWeight: FontWeight.w800, fontSize: 11,
+                )),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(e.value, style: TextStyle(
+              fontSize: 13, height: 1.4,
+              color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+            ))),
+          ],
+        ),
+      )).toList(),
     );
   }
 
-  Widget _buildFeaturesList() {
+  Widget _buildFeatures(AppLocalizations l10n) {
     final features = [
-      'Recent Seeds History - Quick access to your last 5 seeds',
-      'Automatic Parameter Saving - Never lose your search settings',
-      'Probability-Based Results - Find the most likely ore locations',
-      'Cross-Platform Support - Works on web, mobile, and desktop',
-      'Offline Functionality - Works without internet after initial load',
-      'Dark/Light Theme - Choose your preferred appearance'
+      l10n.aboutFeature1,
+      l10n.aboutFeature2,
+      l10n.aboutFeature3,
+      l10n.aboutFeature4,
+      l10n.aboutFeature5,
     ];
 
     return Column(
-      children: features
-          .map((feature) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('✅ ',
-                        style: TextStyle(
-                            color: isDarkMode
-                                ? const Color(0xFF66BB6A)
-                                : const Color(0xFF4CAF50),
-                            fontWeight: FontWeight.bold)),
-                    Expanded(
-                      child: Text(
-                        feature,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.3,
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
+      children: features.map((f) => Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('✅ ', style: TextStyle(
+              color: GamerColors.greenText(isDarkMode),
+            )),
+            Expanded(child: Text(f, style: TextStyle(
+              fontSize: 13, height: 1.4,
+              color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+            ))),
+          ],
+        ),
+      )).toList(),
     );
   }
 
-  Widget _buildPlayerTypesList() {
-    final playerTypes = [
-      'Speedrunners - Find essential resources quickly',
-      'Builders - Locate materials for large projects',
-      'Content Creators - Showcase interesting world seeds',
-      'Casual Players - Discover hidden treasures in your world',
-      'New Players - Learn optimal mining strategies'
-    ];
-
-    return Column(
-      children: playerTypes
-          .map((type) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('🎮 ',
-                        style: TextStyle(
-                            color: isDarkMode
-                                ? const Color(0xFF66BB6A)
-                                : const Color(0xFF4CAF50),
-                            fontWeight: FontWeight.bold)),
-                    Expanded(
-                      child: Text(
-                        type,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.3,
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
-    );
-  }
-
-  Widget _buildSupportSection() {
+  Widget _buildSupportSection(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E3A1E) : Colors.green[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDarkMode ? const Color(0xFF4CAF50) : Colors.green[200]!,
-        ),
+        color: isDarkMode ? GamerColors.darkSurface : GamerColors.neonYellow.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: GamerColors.neonYellow.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(Icons.local_cafe, color: Color(0xFFFF6F00), size: 24),
+              const Icon(Icons.local_cafe, color: Color(0xFFFF6F00), size: 22),
               const SizedBox(width: 8),
-              Text(
-                'Buy Me a Coffee',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                ),
-              ),
+              Text(l10n.aboutBuyMeCoffee, style: TextStyle(
+                fontSize: 15, fontWeight: FontWeight.w800,
+                color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+              )),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Help keep this app free and continuously improving! Your support enables new features, bug fixes, and ongoing development.',
+            l10n.aboutSupportBody,
             style: TextStyle(
-              fontSize: 13,
-              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-              height: 1.3,
+              fontSize: 13, height: 1.4,
+              color: isDarkMode ? Colors.white60 : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _openBuyMeCoffee(),
+            child: ElevatedButton.icon(
+              onPressed: _openBuyMeCoffee,
+              icon: const Icon(Icons.local_cafe, size: 16),
+              label: Text(l10n.aboutSupportButton,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFFDD44),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.local_cafe, size: 18),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Support Development',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -494,9 +383,7 @@ class AppInfoDialog extends StatelessWidget {
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
-      } catch (e) {
-        // Fallback - could show a dialog with the link
-      }
+      } catch (_) {}
     }
   }
 

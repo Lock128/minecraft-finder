@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
+import '../theme/gamer_theme.dart';
 import '../utils/ore_utils.dart';
 
 class OreSelectionCard extends StatelessWidget {
@@ -29,184 +31,154 @@ class OreSelectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
+    final l10n = AppLocalizations.of(context);
+    return GamerCard(
+      isDarkMode: isDarkMode,
+      accentColor: GamerColors.neonPurple,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GamerSectionHeader(
+            emoji: '💎',
+            title: l10n.oreTypeTitle,
+            isDarkMode: isDarkMode,
+            accentColor: GamerColors.neonPurple,
+          ),
+          const SizedBox(height: 16),
+          _buildToggleButton(
+            active: includeOres,
+            label: l10n.includeOresInSearch,
+            emoji: '💎',
+            activeGradient: [GamerColors.neonGreen, const Color(0xFF00C853)],
+            onTap: () => onIncludeOresChanged(!includeOres),
+          ),
+          if (includeOres) ...[
+            const SizedBox(height: 16),
+            _buildOreSelection(context),
+            const SizedBox(height: 8),
+            Text(
+              OreUtils.getSearchDescription(selectedOreTypes, includeOres,
+                  includeStructures, selectedStructures),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (selectedOreTypes.contains(OreType.gold)) ...[
+              const SizedBox(height: 12),
+              _buildCheckbox(context),
+            ],
+          ],
+        ],
       ),
+    );
+  }
+
+  Widget _buildToggleButton({
+    required bool active,
+    required String label,
+    required String emoji,
+    required List<Color> activeGradient,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: isDarkMode
-                ? [
-                    const Color(0xFF2E2E2E),
-                    const Color(0xFF1E1E1E),
-                  ]
-                : [
-                    Colors.white,
-                    const Color(0xFFF1F8E9),
-                  ],
+          gradient: active ? LinearGradient(colors: activeGradient) : null,
+          color: active ? null : (isDarkMode ? GamerColors.darkSurface : Colors.grey.shade100),
+          border: Border.all(
+            color: active
+                ? activeGradient.first.withValues(alpha: 0.6)
+                : (isDarkMode ? Colors.white24 : Colors.grey.shade300),
+            width: 1.5,
           ),
+          boxShadow: active && isDarkMode
+              ? GamerColors.subtleGlow(activeGradient.first)
+              : null,
         ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF9C27B0),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: const Center(
-                    child: Text('💎', style: TextStyle(fontSize: 12)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Ore Type',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: const Color(0xFF2E7D32),
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: includeOres
-                    ? LinearGradient(
-                        colors: [
-                          const Color(0xFF4CAF50),
-                          const Color(0xFF2E7D32)
-                        ],
-                      )
-                    : null,
-                border: Border.all(
-                  color: includeOres ? const Color(0xFF4CAF50) : Colors.grey,
-                  width: 2,
-                ),
-              ),
-              child: OutlinedButton.icon(
-                onPressed: () => onIncludeOresChanged(!includeOres),
-                icon: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF9C27B0),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: const Center(
-                    child: Text('💎', style: TextStyle(fontSize: 10)),
-                  ),
-                ),
-                label: Text(
-                  'Include Ores in Search',
-                  style: TextStyle(
-                    color: includeOres ? Colors.white : const Color(0xFF2E7D32),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: Colors.transparent,
-                  side: BorderSide.none,
-                ),
+            Text(emoji, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: active ? Colors.white : (isDarkMode ? Colors.white70 : Colors.grey[700]),
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
               ),
             ),
-            if (includeOres) ...[
-              const SizedBox(height: 16),
-              _buildOreSelection(context),
-              const SizedBox(height: 8),
-              Text(
-                OreUtils.getSearchDescription(selectedOreTypes, includeOres,
-                    includeStructures, selectedStructures),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (selectedOreTypes.contains(OreType.gold)) ...[
-                const SizedBox(height: 16),
-                CheckboxListTile(
-                  title: const Text('Include Nether Gold'),
-                  subtitle: const Text('Search for Nether Gold Ore'),
-                  value: includeNether,
-                  onChanged: (bool? value) =>
-                      onIncludeNetherChanged(value ?? false),
-                ),
-              ],
-            ],
           ],
         ),
       ),
     );
   }
 
+  Widget _buildCheckbox(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: GamerColors.goldNeon.withValues(alpha: 0.3),
+        ),
+      ),
+      child: CheckboxListTile(
+        title: Text(l10n.includeNetherGold, style: const TextStyle(fontSize: 14)),
+        subtitle: Text(l10n.searchForNetherGold, style: const TextStyle(fontSize: 12)),
+        value: includeNether,
+        activeColor: GamerColors.goldNeon,
+        onChanged: (bool? value) => onIncludeNetherChanged(value ?? false),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   Widget _buildOreSelection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         // First row: Diamond, Gold, Iron
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<OreType>(
-            segments: [
+            segments: const [
               ButtonSegment<OreType>(
                 value: OreType.diamond,
-                label: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: const Text('💎', style: TextStyle(fontSize: 16)),
-                ),
+                label: Text('💎', style: TextStyle(fontSize: 16)),
               ),
               ButtonSegment<OreType>(
                 value: OreType.gold,
-                label: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: const Text('🏅', style: TextStyle(fontSize: 16)),
-                ),
+                label: Text('🏅', style: TextStyle(fontSize: 16)),
               ),
               ButtonSegment<OreType>(
                 value: OreType.iron,
-                label: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: const Text('⚪', style: TextStyle(fontSize: 16)),
-                ),
+                label: Text('⚪', style: TextStyle(fontSize: 16)),
               ),
             ],
             selected: selectedOreTypes
-                .where((type) => [OreType.diamond, OreType.gold, OreType.iron]
-                    .contains(type))
+                .where((type) => [OreType.diamond, OreType.gold, OreType.iron].contains(type))
                 .toSet(),
             multiSelectionEnabled: true,
             emptySelectionAllowed: true,
             onSelectionChanged: (Set<OreType> newSelection) {
-              Set<OreType> updatedSelection = Set.from(selectedOreTypes);
-              // Remove the three types from this row
-              updatedSelection.removeWhere((type) =>
-                  [OreType.diamond, OreType.gold, OreType.iron].contains(type));
-              // Add the new selections
-              updatedSelection.addAll(newSelection);
-              // Ensure at least one ore type is selected, default to diamond if empty
-              if (updatedSelection.isEmpty) {
-                updatedSelection.add(OreType.diamond);
-              }
-              onOreTypesChanged(updatedSelection);
+              Set<OreType> updated = Set.from(selectedOreTypes);
+              updated.removeWhere((t) => [OreType.diamond, OreType.gold, OreType.iron].contains(t));
+              updated.addAll(newSelection);
+              if (updated.isEmpty) updated.add(OreType.diamond);
+              onOreTypesChanged(updated);
             },
             style: SegmentedButton.styleFrom(
-              minimumSize: const Size(60, 40),
-              backgroundColor:
-                  isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
-              selectedBackgroundColor: const Color(0xFF4CAF50),
-              selectedForegroundColor: Colors.white,
-              side: BorderSide(color: const Color(0xFF4CAF50)),
+              minimumSize: const Size(60, 44),
+              backgroundColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
+              selectedBackgroundColor: GamerColors.neonGreen.withValues(alpha: isDarkMode ? 0.3 : 0.15),
+              selectedForegroundColor: GamerColors.greenText(isDarkMode),
+              side: BorderSide(
+                color: isDarkMode ? GamerColors.neonGreen.withValues(alpha: 0.3) : GamerColors.lightGreen.withValues(alpha: 0.3),
+              ),
             ),
           ),
         ),
@@ -215,61 +187,40 @@ class OreSelectionCard extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<OreType>(
-            segments: [
+            segments: const [
               ButtonSegment<OreType>(
                 value: OreType.redstone,
-                label: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: const Text('🔴', style: TextStyle(fontSize: 16)),
-                ),
+                label: Text('🔴', style: TextStyle(fontSize: 16)),
               ),
               ButtonSegment<OreType>(
                 value: OreType.coal,
-                label: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: const Text('⚫', style: TextStyle(fontSize: 16)),
-                ),
+                label: Text('⚫', style: TextStyle(fontSize: 16)),
               ),
               ButtonSegment<OreType>(
                 value: OreType.lapis,
-                label: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: const Text('🔵', style: TextStyle(fontSize: 16)),
-                ),
+                label: Text('🔵', style: TextStyle(fontSize: 16)),
               ),
             ],
             selected: selectedOreTypes
-                .where((type) => [OreType.redstone, OreType.coal, OreType.lapis]
-                    .contains(type))
+                .where((type) => [OreType.redstone, OreType.coal, OreType.lapis].contains(type))
                 .toSet(),
             multiSelectionEnabled: true,
             emptySelectionAllowed: true,
             onSelectionChanged: (Set<OreType> newSelection) {
-              Set<OreType> updatedSelection = Set.from(selectedOreTypes);
-              // Remove the three types from this row
-              updatedSelection.removeWhere((type) => [
-                    OreType.redstone,
-                    OreType.coal,
-                    OreType.lapis
-                  ].contains(type));
-              // Add the new selections
-              updatedSelection.addAll(newSelection);
-              // Ensure at least one ore type is selected, default to diamond if empty
-              if (updatedSelection.isEmpty) {
-                updatedSelection.add(OreType.diamond);
-              }
-              onOreTypesChanged(updatedSelection);
+              Set<OreType> updated = Set.from(selectedOreTypes);
+              updated.removeWhere((t) => [OreType.redstone, OreType.coal, OreType.lapis].contains(t));
+              updated.addAll(newSelection);
+              if (updated.isEmpty) updated.add(OreType.diamond);
+              onOreTypesChanged(updated);
             },
             style: SegmentedButton.styleFrom(
-              minimumSize: const Size(60, 40),
-              backgroundColor:
-                  isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
-              selectedBackgroundColor: const Color(0xFF4CAF50),
-              selectedForegroundColor: Colors.white,
-              side: BorderSide(color: const Color(0xFF4CAF50)),
+              minimumSize: const Size(60, 44),
+              backgroundColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
+              selectedBackgroundColor: GamerColors.neonGreen.withValues(alpha: isDarkMode ? 0.3 : 0.15),
+              selectedForegroundColor: GamerColors.greenText(isDarkMode),
+              side: BorderSide(
+                color: isDarkMode ? GamerColors.neonGreen.withValues(alpha: 0.3) : GamerColors.lightGreen.withValues(alpha: 0.3),
+              ),
             ),
           ),
         ),
@@ -279,77 +230,42 @@ class OreSelectionCard extends StatelessWidget {
           alignment: WrapAlignment.center,
           spacing: 12,
           children: [
-            Text('💎 Diamond',
-                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            Text('🏅 Gold',
-                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            Text('⚪ Iron',
-                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            Text('🔴 Redstone',
-                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            Text('⚫ Coal',
-                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            Text('🔵 Lapis',
-                style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            _legendItem(l10n.legendDiamond),
+            _legendItem(l10n.legendGold),
+            _legendItem(l10n.legendIron),
+            _legendItem(l10n.legendRedstone),
+            _legendItem(l10n.legendCoal),
+            _legendItem(l10n.legendLapis),
           ],
         ),
         const SizedBox(height: 12),
-        _buildNetheriteButton(),
+        _buildNetheriteButton(context),
       ],
     );
   }
 
-  Widget _buildNetheriteButton() {
-    final isSelected = selectedOreTypes.contains(OreType.netherite);
+  Widget _legendItem(String text) {
+    return Text(text,
+      style: TextStyle(fontSize: 11, color: isDarkMode ? Colors.white54 : Colors.grey[500]));
+  }
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        gradient: isSelected
-            ? LinearGradient(
-                colors: [Colors.deepPurple, Colors.purple[700]!],
-              )
-            : null,
-        border: Border.all(
-          color: isSelected ? Colors.deepPurple : Colors.grey,
-          width: 2,
-        ),
-      ),
-      child: OutlinedButton.icon(
-        onPressed: () {
-          Set<OreType> updated = Set.from(selectedOreTypes);
-          if (isSelected) {
-            updated.remove(OreType.netherite);
-          } else {
-            updated.add(OreType.netherite);
-          }
-          onOreTypesChanged(updated);
-        },
-        icon: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2C1810),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: const Center(
-            child: Text('🔥', style: TextStyle(fontSize: 12)),
-          ),
-        ),
-        label: Text(
-          'Netherite (Ancient Debris)',
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.deepPurple,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.all(16),
-          backgroundColor: Colors.transparent,
-          side: BorderSide.none,
-        ),
-      ),
+  Widget _buildNetheriteButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isSelected = selectedOreTypes.contains(OreType.netherite);
+    return _buildToggleButton(
+      active: isSelected,
+      label: l10n.netheriteAncientDebris,
+      emoji: '🔥',
+      activeGradient: [GamerColors.neonPurple, GamerColors.neonPink],
+      onTap: () {
+        Set<OreType> updated = Set.from(selectedOreTypes);
+        if (isSelected) {
+          updated.remove(OreType.netherite);
+        } else {
+          updated.add(OreType.netherite);
+        }
+        onOreTypesChanged(updated);
+      },
     );
   }
 }

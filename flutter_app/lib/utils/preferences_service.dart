@@ -9,6 +9,7 @@ class PreferencesService {
   static const String _zKey = 'last_z_coordinate';
   static const String _radiusKey = 'last_search_radius';
   static const String _recentSeedsKey = 'recent_world_seeds';
+  static const String _localeKey = 'app_locale';
 
   // Default values
   static const String _defaultSeed = '8674308105921866736';
@@ -120,6 +121,17 @@ class PreferencesService {
   static Future<void> clearRecentSeeds() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_recentSeedsKey);
+  }
+
+  // Locale preferences
+  static Future<String?> getLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_localeKey);
+  }
+
+  static Future<void> saveLocale(String localeCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_localeKey, localeCode);
   }
 
   // Convenience method to load all search parameters at once

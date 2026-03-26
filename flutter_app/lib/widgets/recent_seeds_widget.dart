@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/gamer_theme.dart';
 import '../utils/preferences_service.dart';
 
 class RecentSeedsWidget extends StatefulWidget {
@@ -27,27 +29,22 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
   Future<void> _loadRecentSeeds() async {
     final seeds = await PreferencesService.getRecentSeeds();
     if (mounted) {
-      setState(() {
-        _recentSeeds = seeds;
-      });
+      setState(() => _recentSeeds = seeds);
     }
   }
 
-  void refreshSeeds() {
-    _loadRecentSeeds();
-  }
+  void refreshSeeds() => _loadRecentSeeds();
 
   void _selectSeed(String seed) {
     widget.seedController.text = seed;
-    // Trigger the listener to save the seed
     PreferencesService.saveLastSeed(seed);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_recentSeeds.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (_recentSeeds.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    final isDark = widget.isDarkMode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,60 +52,41 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Icon(
-              Icons.history,
-              size: 16,
-              color: widget.isDarkMode ? Colors.white70 : Colors.grey[600],
-            ),
+            Icon(Icons.history, size: 14,
+              color: isDark ? Colors.white54 : Colors.grey[500]),
             const SizedBox(width: 4),
-            Text(
-              'Recent Seeds',
+            Text(l10n.recentSeeds,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: widget.isDarkMode ? Colors.white70 : Colors.grey[600],
-              ),
-            ),
+                fontSize: 12, fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white54 : Colors.grey[500],
+              )),
           ],
         ),
         const SizedBox(height: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
           children: _recentSeeds.map((seed) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Tooltip(
-                message: 'Click to use seed: $seed',
-                child: GestureDetector(
-                  onTap: () => _selectSeed(seed),
-                  child: Container(
-                    width: double.infinity,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: widget.isDarkMode
-                          ? const Color(0xFF4CAF50).withValues(alpha: 0.2)
-                          : const Color(0xFF4CAF50).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      seed,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: widget.isDarkMode
-                            ? const Color(0xFF81C784)
-                            : const Color(0xFF2E7D32),
-                        fontWeight: FontWeight.w500,
-                        fontFamily:
-                            'monospace', // Use monospace for better number readability
-                      ),
-                      overflow: TextOverflow.visible,
-                      softWrap: true,
-                    ),
+            return GestureDetector(
+              onTap: () => _selectSeed(seed),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? GamerColors.neonGreen.withValues(alpha: 0.1)
+                      : GamerColors.neonGreen.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: GamerColors.neonGreen.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Text(
+                  seed,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'monospace',
                   ),
                 ),
               ),

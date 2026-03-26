@@ -1,0 +1,1170 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Gem, Ore & Struct Finder",
+  "@appTitle": { "description": "Main app title displayed in the AppBar" },
+
+  "appTitleFull": "Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More",
+  "@appTitleFull": { "description": "Full app title used in MaterialApp title property" },
+
+  "searchTab": "Search",
+  "@searchTab": { "description": "Label for the Search tab" },
+
+  "resultsTab": "Results",
+  "@resultsTab": { "description": "Label for the Results tab" },
+
+  "guideTab": "User Guide",
+  "@guideTab": { "description": "Label for the User Guide tab" },
+
+  "bedwarsTab": "Bedwars",
+  "@bedwarsTab": { "description": "Label for the Bedwars tab" },
+
+  "updatesTab": "Updates",
+  "@updatesTab": { "description": "Label for the Updates tab" },
+
+  "appInfoTooltip": "App Info",
+  "@appInfoTooltip": { "description": "Tooltip for the app info button in AppBar" },
+
+  "lightThemeTooltip": "Light",
+  "@lightThemeTooltip": { "description": "Tooltip for switching to light theme" },
+
+  "darkThemeTooltip": "Dark",
+  "@darkThemeTooltip": { "description": "Tooltip for switching to dark theme" },
+
+  "languageTooltip": "Language",
+  "@languageTooltip": { "description": "Tooltip for the language switcher button" },
+
+  "errorEnableSearchType": "Please enable at least one search type (Ores or Structures)",
+  "@errorEnableSearchType": { "description": "Snackbar error when no search type is enabled" },
+
+  "errorSelectStructure": "Please select at least one structure type to search for",
+  "@errorSelectStructure": { "description": "Snackbar error when structures enabled but none selected" },
+
+  "errorSelectOre": "Please select at least one ore type to search for",
+  "@errorSelectOre": { "description": "Snackbar error when ores enabled but none selected" },
+
+  "errorGeneric": "Error: {message}",
+  "@errorGeneric": {
+    "description": "Generic error message shown in snackbar",
+    "placeholders": {
+      "message": { "type": "String", "example": "Something went wrong" }
+    }
+  },
+
+  "worldSettingsTitle": "World Settings",
+  "@worldSettingsTitle": { "description": "Section header for world settings card" },
+
+  "worldSeedLabel": "World Seed",
+  "@worldSeedLabel": { "description": "Label for the world seed text field" },
+
+  "worldSeedHint": "Enter your world seed",
+  "@worldSeedHint": { "description": "Hint text for the world seed text field" },
+
+  "errorEmptySeed": "Please enter a world seed",
+  "@errorEmptySeed": { "description": "Validation error when seed field is empty" },
+
+  "recentSeeds": "Recent Seeds",
+  "@recentSeeds": { "description": "Label for the recent seeds section" },
+
+  "searchCenterTitle": "Search Center",
+  "@searchCenterTitle": { "description": "Section header for search center card" },
+
+  "coordinateX": "X",
+  "@coordinateX": { "description": "Label for X coordinate field" },
+
+  "coordinateY": "Y",
+  "@coordinateY": { "description": "Label for Y coordinate field" },
+
+  "coordinateZ": "Z",
+  "@coordinateZ": { "description": "Label for Z coordinate field" },
+
+  "searchRadiusLabel": "Search Radius (blocks)",
+  "@searchRadiusLabel": { "description": "Label for the search radius field" },
+
+  "errorEmptyRadius": "Please enter search radius",
+  "@errorEmptyRadius": { "description": "Validation error when radius field is empty" },
+
+  "errorRadiusPositive": "Radius must be positive",
+  "@errorRadiusPositive": { "description": "Validation error when radius is not positive" },
+
+  "errorRadiusMax": "Max 2000",
+  "@errorRadiusMax": { "description": "Validation error when radius exceeds 2000" },
+
+  "errorFieldRequired": "Required",
+  "@errorFieldRequired": { "description": "Validation error for required coordinate fields" },
+
+  "errorFieldInvalid": "Invalid",
+  "@errorFieldInvalid": { "description": "Validation error for invalid coordinate values" },
+
+  "errorYRange": "-64 to 320",
+  "@errorYRange": { "description": "Validation error for Y coordinate out of range" },
+
+  "togglePlusMinus": "Toggle +/-",
+  "@togglePlusMinus": { "description": "Tooltip for the coordinate sign toggle button" },
+
+  "oreTypeTitle": "Ore Type",
+  "@oreTypeTitle": { "description": "Section header for ore selection card" },
+
+  "includeOresInSearch": "Include Ores in Search",
+  "@includeOresInSearch": { "description": "Toggle button label for including ores" },
+
+  "includeNetherGold": "Include Nether Gold",
+  "@includeNetherGold": { "description": "Checkbox label for including nether gold" },
+
+  "searchForNetherGold": "Search for Nether Gold Ore",
+  "@searchForNetherGold": { "description": "Subtitle for the nether gold checkbox" },
+
+  "netheriteAncientDebris": "Netherite (Ancient Debris)",
+  "@netheriteAncientDebris": { "description": "Label for the netherite toggle button" },
+
+  "legendDiamond": "💎 Diamond",
+  "@legendDiamond": { "description": "Legend label for diamond ore" },
+
+  "legendGold": "🏅 Gold",
+  "@legendGold": { "description": "Legend label for gold ore" },
+
+  "legendIron": "⚪ Iron",
+  "@legendIron": { "description": "Legend label for iron ore" },
+
+  "legendRedstone": "🔴 Redstone",
+  "@legendRedstone": { "description": "Legend label for redstone ore" },
+
+  "legendCoal": "⚫ Coal",
+  "@legendCoal": { "description": "Legend label for coal ore" },
+
+  "legendLapis": "🔵 Lapis",
+  "@legendLapis": { "description": "Legend label for lapis ore" },
+
+  "structureSearchTitle": "Structure Search",
+  "@structureSearchTitle": { "description": "Section header for structure selection card" },
+
+  "includeStructuresInSearch": "Include Structures in Search",
+  "@includeStructuresInSearch": { "description": "Toggle button label for including structures" },
+
+  "selectStructuresToFind": "Select Structures to Find:",
+  "@selectStructuresToFind": { "description": "Instruction text above structure selection chips" },
+
+  "selectAll": "Select All",
+  "@selectAll": { "description": "Button label to select all structures" },
+
+  "clearAll": "Clear All",
+  "@clearAll": { "description": "Button label to clear all structure selections" },
+
+  "structuresSelected": "{count} structures selected",
+  "@structuresSelected": {
+    "description": "Count of selected structures",
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+
+  "findButton": "Find",
+  "@findButton": { "description": "Label for the regular find button" },
+
+  "findAllNetheriteButton": "Find All Netherite",
+  "@findAllNetheriteButton": { "description": "Label for the comprehensive netherite search button" },
+
+  "searchingButton": "Searching...",
+  "@searchingButton": { "description": "Label shown on search button while loading" },
+
+  "comprehensiveNetheriteSearch": "Comprehensive Netherite Search",
+  "@comprehensiveNetheriteSearch": { "description": "Title for the netherite search info box" },
+
+  "comprehensiveNetheriteBody": "• Searches entire world (4000×4000 blocks)\n• May take 30-60 seconds\n• Shows up to 300 best locations\n• Ignores other ore selections",
+  "@comprehensiveNetheriteBody": { "description": "Body text for the netherite search info box" },
+
+  "regularSearchInfo": "Regular search shows top 250 results (all types combined)",
+  "@regularSearchInfo": { "description": "Info text for regular search" },
+
+  "loadingNetherite": "Comprehensive netherite search in progress...",
+  "@loadingNetherite": { "description": "Loading message during comprehensive netherite search" },
+
+  "loadingAnalyzing": "Analyzing world generation...",
+  "@loadingAnalyzing": { "description": "Loading message during regular search" },
+
+  "loadingTimeMay": "This may take 30-60 seconds",
+  "@loadingTimeMay": { "description": "Subtitle shown during comprehensive netherite search" },
+
+  "noResultsYet": "No results yet",
+  "@noResultsYet": { "description": "Empty state title when no search has been performed" },
+
+  "useSearchTabToFind": "Use the search tab to find ores",
+  "@useSearchTabToFind": { "description": "Empty state subtitle prompting user to search" },
+
+  "noResultsMatchFilters": "No results match filters",
+  "@noResultsMatchFilters": { "description": "Title when filters exclude all results" },
+
+  "tryAdjustingFilters": "Try adjusting your filter settings",
+  "@tryAdjustingFilters": { "description": "Subtitle when filters exclude all results" },
+
+  "resultsCount": "{total} results  ·  {oreCount} ores  ·  {structureCount} structures",
+  "@resultsCount": {
+    "description": "Results summary showing total, ore, and structure counts",
+    "placeholders": {
+      "total": { "type": "int", "example": "10" },
+      "oreCount": { "type": "int", "example": "7" },
+      "structureCount": { "type": "int", "example": "3" }
+    }
+  },
+
+  "hideFilters": "Hide filters",
+  "@hideFilters": { "description": "Tooltip to hide the filter panel" },
+
+  "showFilters": "Show filters",
+  "@showFilters": { "description": "Tooltip to show the filter panel" },
+
+  "oreFiltersLabel": "Ore Filters:",
+  "@oreFiltersLabel": { "description": "Label for the ore filter section" },
+
+  "filterDiamonds": "💎 Diamonds",
+  "@filterDiamonds": { "description": "Filter chip label for diamonds" },
+
+  "filterGold": "🏅 Gold",
+  "@filterGold": { "description": "Filter chip label for gold" },
+
+  "filterIron": "⚪ Iron",
+  "@filterIron": { "description": "Filter chip label for iron" },
+
+  "filterRedstone": "🔴 Redstone",
+  "@filterRedstone": { "description": "Filter chip label for redstone" },
+
+  "filterCoal": "⚫ Coal",
+  "@filterCoal": { "description": "Filter chip label for coal" },
+
+  "filterLapis": "🔵 Lapis",
+  "@filterLapis": { "description": "Filter chip label for lapis" },
+
+  "filterNetherite": "🔥 Netherite",
+  "@filterNetherite": { "description": "Filter chip label for netherite" },
+
+  "structureFiltersLabel": "Structure Filters:",
+  "@structureFiltersLabel": { "description": "Label for the structure filter section" },
+
+  "biomeFiltersLabel": "Biome Filters:",
+  "@biomeFiltersLabel": { "description": "Label for the biome filter section" },
+
+  "coordinateFiltersTitle": "Coordinate Filters",
+  "@coordinateFiltersTitle": { "description": "Title for the coordinate filter section" },
+
+  "minX": "Min X",
+  "@minX": { "description": "Label for minimum X coordinate filter" },
+
+  "maxX": "Max X",
+  "@maxX": { "description": "Label for maximum X coordinate filter" },
+
+  "minY": "Min Y",
+  "@minY": { "description": "Label for minimum Y coordinate filter" },
+
+  "maxY": "Max Y",
+  "@maxY": { "description": "Label for maximum Y coordinate filter" },
+
+  "minZ": "Min Z",
+  "@minZ": { "description": "Label for minimum Z coordinate filter" },
+
+  "maxZ": "Max Z",
+  "@maxZ": { "description": "Label for maximum Z coordinate filter" },
+
+  "clearAllFilters": "Clear All Filters",
+  "@clearAllFilters": { "description": "Button label to clear all coordinate filters" },
+
+  "copyCoordinates": "Copy coordinates",
+  "@copyCoordinates": { "description": "Tooltip for the copy coordinates button" },
+
+  "copiedCoordinates": "Copied coordinates: {coords}",
+  "@copiedCoordinates": {
+    "description": "Snackbar message after copying coordinates",
+    "placeholders": {
+      "coords": { "type": "String", "example": "10 -59 20" }
+    }
+  },
+
+  "chunkLabel": "Chunk: ({chunkX}, {chunkZ})",
+  "@chunkLabel": {
+    "description": "Chunk coordinates label in result cards",
+    "placeholders": {
+      "chunkX": { "type": "int", "example": "1" },
+      "chunkZ": { "type": "int", "example": "2" }
+    }
+  },
+
+  "probabilityLabel": "Probability: {percent}%",
+  "@probabilityLabel": {
+    "description": "Probability percentage label in result cards",
+    "placeholders": {
+      "percent": { "type": "String", "example": "85.0" }
+    }
+  },
+
+  "biomeLabel": "Biome: {biome}",
+  "@biomeLabel": {
+    "description": "Biome name label in result cards",
+    "placeholders": {
+      "biome": { "type": "String", "example": "Plains" }
+    }
+  },
+
+  "guideDiamondTitle": "Diamond Generation",
+  "@guideDiamondTitle": { "description": "Guide card title for diamond generation" },
+
+  "guideDiamondIntro": "Diamonds spawn in the Overworld between Y -64 and Y 16.",
+  "@guideDiamondIntro": { "description": "Diamond generation intro text" },
+
+  "guideDiamondOptimal": "🎯 Optimal Y Levels:",
+  "@guideDiamondOptimal": { "description": "Diamond optimal Y levels subheading" },
+
+  "guideDiamondLevel1": "• Y -64 to -54: Peak diamond layer (80% base probability)",
+  "@guideDiamondLevel1": { "description": "Diamond peak layer description" },
+
+  "guideDiamondLevel2": "• Y -53 to -48: Good diamond layer (60% base probability)",
+  "@guideDiamondLevel2": { "description": "Diamond good layer description" },
+
+  "guideDiamondLevel3": "• Y -47 to -32: Decent diamond layer (40% base probability)",
+  "@guideDiamondLevel3": { "description": "Diamond decent layer description" },
+
+  "guideDiamondLevel4": "• Y -31 to 16: Lower diamond layer (20% base probability)",
+  "@guideDiamondLevel4": { "description": "Diamond lower layer description" },
+
+  "guideGoldTitle": "Gold Generation",
+  "@guideGoldTitle": { "description": "Guide card title for gold generation" },
+
+  "guideGoldIntro": "Gold has different generation patterns based on biome and dimension.",
+  "@guideGoldIntro": { "description": "Gold generation intro text" },
+
+  "guideGoldOverworld": "🌍 Overworld Gold (Y -64 to 32):",
+  "@guideGoldOverworld": { "description": "Gold overworld subheading" },
+
+  "guideGoldLevel1": "• Y -47 to -16: Peak gold layer (60% base probability)",
+  "@guideGoldLevel1": { "description": "Gold peak layer description" },
+
+  "guideGoldLevel2": "• Y -64 to -48: Lower levels (40% base probability)",
+  "@guideGoldLevel2": { "description": "Gold lower levels description" },
+
+  "guideGoldLevel3": "• Y -15 to 32: Higher levels (30% base probability)",
+  "@guideGoldLevel3": { "description": "Gold higher levels description" },
+
+  "guideGoldBadlands": "🏜️ Badlands/Mesa Biome (BONUS!):",
+  "@guideGoldBadlands": { "description": "Gold badlands subheading" },
+
+  "guideGoldBadlandsLevel": "• Y 32 to 80: Excellent surface gold (90% base probability)",
+  "@guideGoldBadlandsLevel": { "description": "Gold badlands level description" },
+
+  "guideGoldBadlandsBonus": "• 6x more gold than regular biomes!",
+  "@guideGoldBadlandsBonus": { "description": "Gold badlands bonus description" },
+
+  "guideNetheriteTitle": "Netherite (Ancient Debris)",
+  "@guideNetheriteTitle": { "description": "Guide card title for netherite generation" },
+
+  "guideNetheriteIntro": "Ancient Debris is the rarest ore, found only in the Nether.",
+  "@guideNetheriteIntro": { "description": "Netherite generation intro text" },
+
+  "guideNetheriteOptimal": "🎯 Nether Y Levels (Y 8 to 22):",
+  "@guideNetheriteOptimal": { "description": "Netherite optimal Y levels subheading" },
+
+  "guideNetheriteLevel1": "• Y 13 to 17: Peak ancient debris layer (90% base probability)",
+  "@guideNetheriteLevel1": { "description": "Netherite peak layer description" },
+
+  "guideNetheriteLevel2": "• Y 10 to 19: Good ancient debris layer (70% base probability)",
+  "@guideNetheriteLevel2": { "description": "Netherite good layer description" },
+
+  "guideNetheriteLevel3": "• Y 8 to 22: Decent ancient debris layer (50% base probability)",
+  "@guideNetheriteLevel3": { "description": "Netherite decent layer description" },
+
+  "guideNetheriteSearch": "🔍 Search Modes:",
+  "@guideNetheriteSearch": { "description": "Netherite search modes subheading" },
+
+  "guideNetheriteRegular": "• Regular Search: Uses minimum 15% probability threshold",
+  "@guideNetheriteRegular": { "description": "Netherite regular search description" },
+
+  "guideNetheriteComprehensive": "• Comprehensive Search: Uses 5% threshold, covers 4000x4000 blocks",
+  "@guideNetheriteComprehensive": { "description": "Netherite comprehensive search description" },
+
+  "guideIronTitle": "Iron Generation",
+  "@guideIronTitle": { "description": "Guide card title for iron generation" },
+
+  "guideIronIntro": "Iron is one of the most versatile and common ores.",
+  "@guideIronIntro": { "description": "Iron generation intro text" },
+
+  "guideIronOptimal": "🎯 Optimal Y Levels:",
+  "@guideIronOptimal": { "description": "Iron optimal Y levels subheading" },
+
+  "guideIronLevel1": "• Y 128 to 256: Mountain iron generation (peaks at Y 232)",
+  "@guideIronLevel1": { "description": "Iron mountain level description" },
+
+  "guideIronLevel2": "• Y -24 to 56: Underground iron generation (peaks at Y 15)",
+  "@guideIronLevel2": { "description": "Iron underground level description" },
+
+  "guideIronLevel3": "• Y -64 to 72: General iron availability (40% base probability)",
+  "@guideIronLevel3": { "description": "Iron general availability description" },
+
+  "guideRedstoneTitle": "Redstone Generation",
+  "@guideRedstoneTitle": { "description": "Guide card title for redstone generation" },
+
+  "guideRedstoneIntro": "Redstone is the key to automation and complex contraptions.",
+  "@guideRedstoneIntro": { "description": "Redstone generation intro text" },
+
+  "guideRedstoneOptimal": "🎯 Optimal Y Levels (Y -64 to 15):",
+  "@guideRedstoneOptimal": { "description": "Redstone optimal Y levels subheading" },
+
+  "guideRedstoneLevel1": "• Y -64 to -59: Peak redstone layer (90% base probability)",
+  "@guideRedstoneLevel1": { "description": "Redstone peak layer description" },
+
+  "guideRedstoneLevel2": "• Y -58 to -48: Good redstone layer (70% base probability)",
+  "@guideRedstoneLevel2": { "description": "Redstone good layer description" },
+
+  "guideRedstoneLevel3": "• Y -47 to -32: Decent redstone layer (50% base probability)",
+  "@guideRedstoneLevel3": { "description": "Redstone decent layer description" },
+
+  "guideRedstoneLevel4": "• Y -31 to 15: Lower redstone layer (30% base probability)",
+  "@guideRedstoneLevel4": { "description": "Redstone lower layer description" },
+
+  "guideCoalTitle": "Coal Generation",
+  "@guideCoalTitle": { "description": "Guide card title for coal generation" },
+
+  "guideCoalIntro": "Coal is the most common ore and primary fuel source.",
+  "@guideCoalIntro": { "description": "Coal generation intro text" },
+
+  "guideCoalOptimal": "🎯 Optimal Y Levels (Y 0 to 256):",
+  "@guideCoalOptimal": { "description": "Coal optimal Y levels subheading" },
+
+  "guideCoalLevel1": "• Y 80 to 136: Peak coal generation (peaks at Y 96)",
+  "@guideCoalLevel1": { "description": "Coal peak layer description" },
+
+  "guideCoalLevel2": "• Y 0 to 256: General coal availability (60% base probability)",
+  "@guideCoalLevel2": { "description": "Coal general availability description" },
+
+  "guideLapisTitle": "Lapis Lazuli Generation",
+  "@guideLapisTitle": { "description": "Guide card title for lapis generation" },
+
+  "guideLapisIntro": "Lapis Lazuli spawns in the Overworld between Y -64 and Y 64.",
+  "@guideLapisIntro": { "description": "Lapis generation intro text" },
+
+  "guideLapisOptimal": "🎯 Optimal Y Levels:",
+  "@guideLapisOptimal": { "description": "Lapis optimal Y levels subheading" },
+
+  "guideLapisLevel1": "• Y 0 to 32: Peak lapis layer (enhanced generation)",
+  "@guideLapisLevel1": { "description": "Lapis peak layer description" },
+
+  "guideLapisLevel2": "• Y -64 to -1: Lower levels (standard generation)",
+  "@guideLapisLevel2": { "description": "Lapis lower levels description" },
+
+  "guideLapisLevel3": "• Y 33 to 64: Higher levels (reduced generation)",
+  "@guideLapisLevel3": { "description": "Lapis higher levels description" },
+
+  "guideStructureTitle": "Structure Generation",
+  "@guideStructureTitle": { "description": "Guide card title for structure generation" },
+
+  "guideStructureIntro": "Structures are generated based on biome compatibility and rarity.",
+  "@guideStructureIntro": { "description": "Structure generation intro text" },
+
+  "guideStructureCommon": "🏘️ Common Structures (High Spawn Rate):",
+  "@guideStructureCommon": { "description": "Common structures subheading" },
+
+  "guideStructureVillages": "• Villages: Plains, desert, savanna, taiga biomes",
+  "@guideStructureVillages": { "description": "Village spawn info" },
+
+  "guideStructureOutposts": "• Pillager Outposts: Same biomes as villages",
+  "@guideStructureOutposts": { "description": "Pillager outpost spawn info" },
+
+  "guideStructurePortals": "• Ruined Portals: Can spawn in any dimension",
+  "@guideStructurePortals": { "description": "Ruined portal spawn info" },
+
+  "guideStructureRare": "🏛️ Rare Structures (Low Spawn Rate):",
+  "@guideStructureRare": { "description": "Rare structures subheading" },
+
+  "guideStructureStrongholds": "• Strongholds: Underground, only 128 per world",
+  "@guideStructureStrongholds": { "description": "Stronghold spawn info" },
+
+  "guideStructureEndCities": "• End Cities: End dimension outer islands",
+  "@guideStructureEndCities": { "description": "End city spawn info" },
+
+  "guideStructureMonuments": "• Ocean Monuments: Deep ocean biomes",
+  "@guideStructureMonuments": { "description": "Ocean monument spawn info" },
+
+  "guideStructureAncientCities": "• Ancient Cities: Deep dark biome (Y -52)",
+  "@guideStructureAncientCities": { "description": "Ancient city spawn info" },
+
+  "proTipTitle": "Pro Tip",
+  "@proTipTitle": { "description": "Title for the pro tip section in the guide" },
+
+  "proTipBody": "This tool provides statistical predictions based on block game generation algorithms. Use the coordinates as starting points for your mining expeditions, and always explore the surrounding areas once you find ore veins!",
+  "@proTipBody": { "description": "Body text for the pro tip section" },
+
+  "bedwarsTierStarters": "Starters",
+  "@bedwarsTierStarters": { "description": "Bedwars skill tier label for beginners" },
+
+  "bedwarsTierPractitioners": "Practitioners",
+  "@bedwarsTierPractitioners": { "description": "Bedwars skill tier label for intermediate players" },
+
+  "bedwarsTierExperts": "Experts",
+  "@bedwarsTierExperts": { "description": "Bedwars skill tier label for advanced players" },
+
+  "bedwarsGameObjectiveTitle": "Game Objective & Rules",
+  "@bedwarsGameObjectiveTitle": { "description": "Bedwars starters section title" },
+
+  "bedwarsGameObjective1": "Protect your bed while trying to destroy enemy beds.",
+  "@bedwarsGameObjective1": { "description": "Bedwars game objective line 1" },
+
+  "bedwarsGameObjective2": "Once your bed is destroyed, you can no longer respawn.",
+  "@bedwarsGameObjective2": { "description": "Bedwars game objective line 2" },
+
+  "bedwarsGameObjective3": "The last team with a surviving player wins the game.",
+  "@bedwarsGameObjective3": { "description": "Bedwars game objective line 3" },
+
+  "bedwarsGameObjective4": "Collect resources from generators to buy gear and blocks.",
+  "@bedwarsGameObjective4": { "description": "Bedwars game objective line 4" },
+
+  "bedwarsResourceGatheringTitle": "Basic Resource Gathering",
+  "@bedwarsResourceGatheringTitle": { "description": "Bedwars starters section title" },
+
+  "bedwarsResourceGathering1": "Iron and gold spawn automatically at your island generator.",
+  "@bedwarsResourceGathering1": { "description": "Resource gathering line 1" },
+
+  "bedwarsResourceGathering2": "Stay near your generator between fights to collect resources.",
+  "@bedwarsResourceGathering2": { "description": "Resource gathering line 2" },
+
+  "bedwarsResourceGathering3": "Iron is used for basic blocks and tools from the shop.",
+  "@bedwarsResourceGathering3": { "description": "Resource gathering line 3" },
+
+  "bedwarsResourceGathering4": "Gold buys stronger armor, weapons, and utility items.",
+  "@bedwarsResourceGathering4": { "description": "Resource gathering line 4" },
+
+  "bedwarsPurchasingTitle": "Purchasing Essential Items",
+  "@bedwarsPurchasingTitle": { "description": "Bedwars starters section title" },
+
+  "bedwarsPurchasing1": "Buy wool or endstone early for bridging and bed defense.",
+  "@bedwarsPurchasing1": { "description": "Purchasing line 1" },
+
+  "bedwarsPurchasing2": "A stone sword is a cheap early upgrade over the wooden one.",
+  "@bedwarsPurchasing2": { "description": "Purchasing line 2" },
+
+  "bedwarsPurchasing3": "Iron armor gives a solid defense boost for the first fights.",
+  "@bedwarsPurchasing3": { "description": "Purchasing line 3" },
+
+  "bedwarsPurchasing4": "Pick up shears to cut through wool defenses quickly.",
+  "@bedwarsPurchasing4": { "description": "Purchasing line 4" },
+
+  "bedwarsBedDefenseTitle": "Basic Bed Defense",
+  "@bedwarsBedDefenseTitle": { "description": "Bedwars starters section title" },
+
+  "bedwarsBedDefense1": "Cover your bed with wool as soon as the game starts.",
+  "@bedwarsBedDefense1": { "description": "Bed defense line 1" },
+
+  "bedwarsBedDefense2": "Add a second layer of endstone around the wool for extra protection.",
+  "@bedwarsBedDefense2": { "description": "Bed defense line 2" },
+
+  "bedwarsBedDefense3": "Never leave your bed completely unguarded in the early game.",
+  "@bedwarsBedDefense3": { "description": "Bed defense line 3" },
+
+  "bedwarsBedDefense4": "Place blocks on all sides including the top of the bed.",
+  "@bedwarsBedDefense4": { "description": "Bed defense line 4" },
+
+  "bedwarsCombatTipsTitle": "Basic Combat Tips",
+  "@bedwarsCombatTipsTitle": { "description": "Bedwars starters section title" },
+
+  "bedwarsCombatTips1": "Always sprint before hitting an opponent for extra knockback.",
+  "@bedwarsCombatTips1": { "description": "Combat tips line 1" },
+
+  "bedwarsCombatTips2": "Block-hit by alternating attack and block to reduce damage taken.",
+  "@bedwarsCombatTips2": { "description": "Combat tips line 2" },
+
+  "bedwarsCombatTips3": "Aim for critical hits by attacking while falling from a jump.",
+  "@bedwarsCombatTips3": { "description": "Combat tips line 3" },
+
+  "bedwarsCombatTips4": "Avoid fighting on narrow bridges where knockback is deadly.",
+  "@bedwarsCombatTips4": { "description": "Combat tips line 4" },
+
+  "bedwarsResourceManagementTitle": "Efficient Resource Management & Upgrades",
+  "@bedwarsResourceManagementTitle": { "description": "Bedwars practitioners section title" },
+
+  "bedwarsResourceManagement1": "Visit diamond and emerald generators on the center islands regularly.",
+  "@bedwarsResourceManagement1": { "description": "Resource management line 1" },
+
+  "bedwarsResourceManagement2": "Prioritize team upgrades like sharpness, protection, and forge upgrades.",
+  "@bedwarsResourceManagement2": { "description": "Resource management line 2" },
+
+  "bedwarsResourceManagement3": "Split resource collection duties with teammates for faster progression.",
+  "@bedwarsResourceManagement3": { "description": "Resource management line 3" },
+
+  "bedwarsResourceManagement4": "Save emeralds for powerful items like diamond armor or ender pearls.",
+  "@bedwarsResourceManagement4": { "description": "Resource management line 4" },
+
+  "bedwarsIntermediateDefenseTitle": "Intermediate Bed Defense",
+  "@bedwarsIntermediateDefenseTitle": { "description": "Bedwars practitioners section title" },
+
+  "bedwarsIntermediateDefense1": "Layer your bed defense: wool inside, endstone middle, wood or glass outside.",
+  "@bedwarsIntermediateDefense1": { "description": "Intermediate defense line 1" },
+
+  "bedwarsIntermediateDefense2": "Use blast-proof glass to counter TNT attacks on your bed.",
+  "@bedwarsIntermediateDefense2": { "description": "Intermediate defense line 2" },
+
+  "bedwarsIntermediateDefense3": "Add water buckets near your bed to slow down attackers.",
+  "@bedwarsIntermediateDefense3": { "description": "Intermediate defense line 3" },
+
+  "bedwarsIntermediateDefense4": "Consider placing obsidian as the innermost layer for maximum durability.",
+  "@bedwarsIntermediateDefense4": { "description": "Intermediate defense line 4" },
+
+  "bedwarsTeamCoordinationTitle": "Team Coordination Strategies",
+  "@bedwarsTeamCoordinationTitle": { "description": "Bedwars practitioners section title" },
+
+  "bedwarsTeamCoordination1": "Assign roles: one player defends while others rush or gather resources.",
+  "@bedwarsTeamCoordination1": { "description": "Team coordination line 1" },
+
+  "bedwarsTeamCoordination2": "Communicate enemy positions and incoming attacks to your team.",
+  "@bedwarsTeamCoordination2": { "description": "Team coordination line 2" },
+
+  "bedwarsTeamCoordination3": "Coordinate simultaneous attacks on enemy bases for maximum pressure.",
+  "@bedwarsTeamCoordination3": { "description": "Team coordination line 3" },
+
+  "bedwarsTeamCoordination4": "Share resources with teammates who need specific upgrades.",
+  "@bedwarsTeamCoordination4": { "description": "Team coordination line 4" },
+
+  "bedwarsBridgeBuildingTitle": "Bridge-Building Techniques",
+  "@bedwarsBridgeBuildingTitle": { "description": "Bedwars practitioners section title" },
+
+  "bedwarsBridgeBuilding1": "Practice speed-bridging by shifting at the edge and placing blocks quickly.",
+  "@bedwarsBridgeBuilding1": { "description": "Bridge building line 1" },
+
+  "bedwarsBridgeBuilding2": "Build bridges with slight zigzag patterns to avoid easy bow shots.",
+  "@bedwarsBridgeBuilding2": { "description": "Bridge building line 2" },
+
+  "bedwarsBridgeBuilding3": "Use blocks that are hard to break like endstone for permanent bridges.",
+  "@bedwarsBridgeBuilding3": { "description": "Bridge building line 3" },
+
+  "bedwarsBridgeBuilding4": "Always carry enough blocks before starting a bridge to an enemy island.",
+  "@bedwarsBridgeBuilding4": { "description": "Bridge building line 4" },
+
+  "bedwarsMidGameCombatTitle": "Mid-Game Combat Tactics",
+  "@bedwarsMidGameCombatTitle": { "description": "Bedwars practitioners section title" },
+
+  "bedwarsMidGameCombat1": "Use knockback sticks to push enemies off bridges and islands.",
+  "@bedwarsMidGameCombat1": { "description": "Mid-game combat line 1" },
+
+  "bedwarsMidGameCombat2": "Carry a bow for ranged pressure while approaching enemy bases.",
+  "@bedwarsMidGameCombat2": { "description": "Mid-game combat line 2" },
+
+  "bedwarsMidGameCombat3": "Use fireballs to blast through defenses and knock players into the void.",
+  "@bedwarsMidGameCombat3": { "description": "Mid-game combat line 3" },
+
+  "bedwarsMidGameCombat4": "Always eat a golden apple before engaging in a tough fight.",
+  "@bedwarsMidGameCombat4": { "description": "Mid-game combat line 4" },
+
+  "bedwarsAdvancedPvpTitle": "Advanced PvP Combat",
+  "@bedwarsAdvancedPvpTitle": { "description": "Bedwars experts section title" },
+
+  "bedwarsAdvancedPvp1": "Master W-tap combos by releasing and re-pressing forward between hits.",
+  "@bedwarsAdvancedPvp1": { "description": "Advanced PvP line 1" },
+
+  "bedwarsAdvancedPvp2": "Use fishing rods to pull enemies closer and reset their sprint.",
+  "@bedwarsAdvancedPvp2": { "description": "Advanced PvP line 2" },
+
+  "bedwarsAdvancedPvp3": "Strafe in unpredictable patterns to make yourself harder to hit.",
+  "@bedwarsAdvancedPvp3": { "description": "Advanced PvP line 3" },
+
+  "bedwarsAdvancedPvp4": "Combine rod pulls with immediate sword swings for devastating combos.",
+  "@bedwarsAdvancedPvp4": { "description": "Advanced PvP line 4" },
+
+  "bedwarsSpeedBridgingTitle": "Speed-Bridging & Advanced Movement",
+  "@bedwarsSpeedBridgingTitle": { "description": "Bedwars experts section title" },
+
+  "bedwarsSpeedBridging1": "Learn ninja-bridging to place blocks while moving forward without shifting.",
+  "@bedwarsSpeedBridging1": { "description": "Speed bridging line 1" },
+
+  "bedwarsSpeedBridging2": "Practice breezily bridging for the fastest straight-line bridge speed.",
+  "@bedwarsSpeedBridging2": { "description": "Speed bridging line 2" },
+
+  "bedwarsSpeedBridging3": "Use block clutches to save yourself from falling into the void.",
+  "@bedwarsSpeedBridging3": { "description": "Speed bridging line 3" },
+
+  "bedwarsSpeedBridging4": "Master jump-bridging to cover gaps quickly during rushes.",
+  "@bedwarsSpeedBridging4": { "description": "Speed bridging line 4" },
+
+  "bedwarsRushStrategiesTitle": "Rush Strategies & Timing",
+  "@bedwarsRushStrategiesTitle": { "description": "Bedwars experts section title" },
+
+  "bedwarsRushStrategies1": "Rush the nearest enemy base within the first 30 seconds for an early advantage.",
+  "@bedwarsRushStrategies1": { "description": "Rush strategies line 1" },
+
+  "bedwarsRushStrategies2": "Buy TNT and a pickaxe for a fast bed break on defended bases.",
+  "@bedwarsRushStrategies2": { "description": "Rush strategies line 2" },
+
+  "bedwarsRushStrategies3": "Time your rushes when enemies leave their base to gather resources.",
+  "@bedwarsRushStrategies3": { "description": "Rush strategies line 3" },
+
+  "bedwarsRushStrategies4": "Use invisibility potions for surprise attacks on well-defended beds.",
+  "@bedwarsRushStrategies4": { "description": "Rush strategies line 4" },
+
+  "bedwarsEndgameTitle": "Endgame Tactics & Resource Prioritization",
+  "@bedwarsEndgameTitle": { "description": "Bedwars experts section title" },
+
+  "bedwarsEndgame1": "Stockpile ender pearls for quick escapes and surprise engagements.",
+  "@bedwarsEndgame1": { "description": "Endgame line 1" },
+
+  "bedwarsEndgame2": "Prioritize diamond armor and sharpness upgrades for final fights.",
+  "@bedwarsEndgame2": { "description": "Endgame line 2" },
+
+  "bedwarsEndgame3": "Control the center map generators to deny resources to remaining teams.",
+  "@bedwarsEndgame3": { "description": "Endgame line 3" },
+
+  "bedwarsEndgame4": "Keep emergency blocks and golden apples ready for clutch moments.",
+  "@bedwarsEndgame4": { "description": "Endgame line 4" },
+
+  "bedwarsCounterStrategiesTitle": "Counter-Strategies Against Common Plays",
+  "@bedwarsCounterStrategiesTitle": { "description": "Bedwars experts section title" },
+
+  "bedwarsCounterStrategies1": "Counter bridge rushers by placing void traps or using bows at range.",
+  "@bedwarsCounterStrategies1": { "description": "Counter strategies line 1" },
+
+  "bedwarsCounterStrategies2": "Against TNT attacks, use blast-proof glass and obsidian layers.",
+  "@bedwarsCounterStrategies2": { "description": "Counter strategies line 2" },
+
+  "bedwarsCounterStrategies3": "Counter invisible players by watching for armor particles and footstep sounds.",
+  "@bedwarsCounterStrategies3": { "description": "Counter strategies line 3" },
+
+  "bedwarsCounterStrategies4": "Against fireball spam, carry a water bucket to extinguish fires and block knockback.",
+  "@bedwarsCounterStrategies4": { "description": "Counter strategies line 4" },
+
+  "aboutTitle": "About Gem, Ore & Struct Finder",
+  "@aboutTitle": { "description": "Title of the about dialog" },
+
+  "aboutWhatTitle": "🎯 What This App Does",
+  "@aboutWhatTitle": { "description": "Section title in about dialog" },
+
+  "aboutDescTitle": "Advanced Minecraft Ore & Structure Discovery",
+  "@aboutDescTitle": { "description": "Description card title in about dialog" },
+
+  "aboutDescBody": "Enter your world seed and search coordinates to discover exact locations of diamonds, gold, netherite, villages, strongholds, and more.",
+  "@aboutDescBody": { "description": "Description card body in about dialog" },
+
+  "aboutResourcesTitle": "⛏️ Supported Resources",
+  "@aboutResourcesTitle": { "description": "Section title for supported resources" },
+
+  "aboutStructuresTitle": "🏘️ Supported Structures",
+  "@aboutStructuresTitle": { "description": "Section title for supported structures" },
+
+  "aboutHowItWorksTitle": "🔍 How It Works",
+  "@aboutHowItWorksTitle": { "description": "Section title for how it works" },
+
+  "aboutFeaturesTitle": "✨ Key Features",
+  "@aboutFeaturesTitle": { "description": "Section title for key features" },
+
+  "aboutSupportTitle": "☕ Support Development",
+  "@aboutSupportTitle": { "description": "Section title for support section" },
+
+  "aboutResourceDiamond": "Diamond",
+  "@aboutResourceDiamond": { "description": "Diamond resource name in about dialog" },
+
+  "aboutResourceGold": "Gold",
+  "@aboutResourceGold": { "description": "Gold resource name in about dialog" },
+
+  "aboutResourceNetherite": "Netherite",
+  "@aboutResourceNetherite": { "description": "Netherite resource name in about dialog" },
+
+  "aboutResourceIron": "Iron",
+  "@aboutResourceIron": { "description": "Iron resource name in about dialog" },
+
+  "aboutResourceRedstone": "Redstone",
+  "@aboutResourceRedstone": { "description": "Redstone resource name in about dialog" },
+
+  "aboutResourceCoal": "Coal",
+  "@aboutResourceCoal": { "description": "Coal resource name in about dialog" },
+
+  "aboutResourceLapis": "Lapis",
+  "@aboutResourceLapis": { "description": "Lapis resource name in about dialog" },
+
+  "aboutStructureVillages": "Villages 🏘️",
+  "@aboutStructureVillages": { "description": "Village structure chip in about dialog" },
+
+  "aboutStructureStrongholds": "Strongholds 🏰",
+  "@aboutStructureStrongholds": { "description": "Stronghold structure chip in about dialog" },
+
+  "aboutStructureDungeons": "Dungeons 🕳️",
+  "@aboutStructureDungeons": { "description": "Dungeon structure chip in about dialog" },
+
+  "aboutStructureMineshafts": "Mineshafts ⛏️",
+  "@aboutStructureMineshafts": { "description": "Mineshaft structure chip in about dialog" },
+
+  "aboutStructureDesertTemples": "Desert Temples 🏜️",
+  "@aboutStructureDesertTemples": { "description": "Desert temple structure chip in about dialog" },
+
+  "aboutStructureJungleTemples": "Jungle Temples 🌿",
+  "@aboutStructureJungleTemples": { "description": "Jungle temple structure chip in about dialog" },
+
+  "aboutStructureOceanMonuments": "Ocean Monuments 🌊",
+  "@aboutStructureOceanMonuments": { "description": "Ocean monument structure chip in about dialog" },
+
+  "aboutStructureWoodlandMansions": "Woodland Mansions 🏚️",
+  "@aboutStructureWoodlandMansions": { "description": "Woodland mansion structure chip in about dialog" },
+
+  "aboutStructurePillagerOutposts": "Pillager Outposts ⚔️",
+  "@aboutStructurePillagerOutposts": { "description": "Pillager outpost structure chip in about dialog" },
+
+  "aboutStructureRuinedPortals": "Ruined Portals 🌀",
+  "@aboutStructureRuinedPortals": { "description": "Ruined portal structure chip in about dialog" },
+
+  "aboutStep1": "Enter your world seed in the Search tab",
+  "@aboutStep1": { "description": "How it works step 1" },
+
+  "aboutStep2": "Set your search center coordinates (X, Y, Z)",
+  "@aboutStep2": { "description": "How it works step 2" },
+
+  "aboutStep3": "Choose your search radius",
+  "@aboutStep3": { "description": "How it works step 3" },
+
+  "aboutStep4": "Select which ores and structures to find",
+  "@aboutStep4": { "description": "How it works step 4" },
+
+  "aboutStep5": "Tap \"Find\" to discover nearby resources",
+  "@aboutStep5": { "description": "How it works step 5" },
+
+  "aboutStep6": "View results with exact coordinates",
+  "@aboutStep6": { "description": "How it works step 6" },
+
+  "aboutFeature1": "Recent Seeds History — Quick access to last 5 seeds",
+  "@aboutFeature1": { "description": "Key feature 1" },
+
+  "aboutFeature2": "Auto Parameter Saving — Never lose search settings",
+  "@aboutFeature2": { "description": "Key feature 2" },
+
+  "aboutFeature3": "Probability Results — Find the most likely locations",
+  "@aboutFeature3": { "description": "Key feature 3" },
+
+  "aboutFeature4": "Cross-Platform — Web, mobile, and desktop",
+  "@aboutFeature4": { "description": "Key feature 4" },
+
+  "aboutFeature5": "Dark/Light Theme — Choose your vibe",
+  "@aboutFeature5": { "description": "Key feature 5" },
+
+  "aboutBuyMeCoffee": "Buy Me a Coffee",
+  "@aboutBuyMeCoffee": { "description": "Buy me a coffee title in support section" },
+
+  "aboutSupportBody": "Help keep this app free and improving! Your support enables new features and ongoing development.",
+  "@aboutSupportBody": { "description": "Support section body text" },
+
+  "aboutSupportButton": "Support Development",
+  "@aboutSupportButton": { "description": "Support development button label" },
+
+  "aboutFooterTip": "Use Recent Seeds to quickly switch between worlds!",
+  "@aboutFooterTip": { "description": "Footer tip text in about dialog" },
+
+  "aboutGotIt": "Got it!",
+  "@aboutGotIt": { "description": "Got it button label in about dialog footer" },
+
+  "releaseNotesHeader": "Release Notes — v1.0.50",
+  "@releaseNotesHeader": { "description": "Release notes page header" },
+
+  "releaseNotesBedwarsSection": "🎮 Bedwars Strategy Guide — NEW!",
+  "@releaseNotesBedwarsSection": { "description": "Release notes bedwars section header" },
+
+  "releaseNotesBedwarsGuideTitle": "Complete Bedwars Guide",
+  "@releaseNotesBedwarsGuideTitle": { "description": "Bedwars guide feature title" },
+
+  "releaseNotesBedwarsGuideBody": "A dedicated tab with in-depth strategies for Bedwars. Covers early game rushing, mid game defense, and late game tactics to help you dominate every match.",
+  "@releaseNotesBedwarsGuideBody": { "description": "Bedwars guide feature body" },
+
+  "releaseNotesResourceStrategiesTitle": "Resource & Shop Strategies",
+  "@releaseNotesResourceStrategiesTitle": { "description": "Resource strategies feature title" },
+
+  "releaseNotesResourceStrategiesBody": "Detailed breakdowns of resource priorities, optimal shop purchases at every stage, and team coordination tips for 2s, 3s, and 4s modes.",
+  "@releaseNotesResourceStrategiesBody": { "description": "Resource strategies feature body" },
+
+  "releaseNotesDefenseAttackTitle": "Defense & Attack Patterns",
+  "@releaseNotesDefenseAttackTitle": { "description": "Defense attack feature title" },
+
+  "releaseNotesDefenseAttackBody": "Learn bed defense layouts, bridge rushing techniques, fireball strategies, and how to counter common enemy tactics.",
+  "@releaseNotesDefenseAttackBody": { "description": "Defense attack feature body" },
+
+  "releaseNotesUiSection": "🎨 Modern Gamer UI Overhaul",
+  "@releaseNotesUiSection": { "description": "Release notes UI section header" },
+
+  "releaseNotesNeonTitle": "Neon Gamer Aesthetic",
+  "@releaseNotesNeonTitle": { "description": "Neon aesthetic feature title" },
+
+  "releaseNotesNeonBody": "Complete visual redesign with a neon-on-dark color palette. Vibrant green, cyan, and purple accents with subtle glow effects for a modern gaming feel.",
+  "@releaseNotesNeonBody": { "description": "Neon aesthetic feature body" },
+
+  "releaseNotesLightModeTitle": "Improved Light Mode",
+  "@releaseNotesLightModeTitle": { "description": "Light mode feature title" },
+
+  "releaseNotesLightModeBody": "Fully readable light theme with darker accent variants. Every text element now meets contrast requirements on both light and dark backgrounds.",
+  "@releaseNotesLightModeBody": { "description": "Light mode feature body" },
+
+  "releaseNotesCardsTitle": "Redesigned Cards & Buttons",
+  "@releaseNotesCardsTitle": { "description": "Cards redesign feature title" },
+
+  "releaseNotesCardsBody": "Flat cards with neon border accents, gradient action buttons with glow shadows, and a cleaner tab bar with neon indicators replace the old Material green theme.",
+  "@releaseNotesCardsBody": { "description": "Cards redesign feature body" },
+
+  "releaseNotesAlgorithmSection": "⛏️ Ore Finding Algorithm Improvements",
+  "@releaseNotesAlgorithmSection": { "description": "Release notes algorithm section header" },
+
+  "releaseNotesNoiseTitle": "Enhanced Noise Generation",
+  "@releaseNotesNoiseTitle": { "description": "Noise generation feature title" },
+
+  "releaseNotesNoiseBody": "Improved Perlin noise implementation for more accurate ore probability calculations that better match actual in-game world generation patterns.",
+  "@releaseNotesNoiseBody": { "description": "Noise generation feature body" },
+
+  "releaseNotesBiomeTitle": "Better Biome Awareness",
+  "@releaseNotesBiomeTitle": { "description": "Biome awareness feature title" },
+
+  "releaseNotesBiomeBody": "Refined biome detection and ore distribution modeling. Gold in badlands, diamonds at deep levels, and netherite in the nether are all more precisely predicted.",
+  "@releaseNotesBiomeBody": { "description": "Biome awareness feature body" },
+
+  "releaseNotesPerformanceTitle": "Optimized Search Performance",
+  "@releaseNotesPerformanceTitle": { "description": "Search performance feature title" },
+
+  "releaseNotesPerformanceBody": "Faster search execution with improved chunk scanning. Comprehensive netherite search and large-radius queries complete more efficiently.",
+  "@releaseNotesPerformanceBody": { "description": "Search performance feature body" },
+
+  "releaseNotesHighlightsSection": "🎯 Highlights",
+  "@releaseNotesHighlightsSection": { "description": "Release notes highlights section header" },
+
+  "releaseNotesHighlight1": "Bedwars Guide: Full strategy guide with early/mid/late game tactics",
+  "@releaseNotesHighlight1": { "description": "Highlight bullet 1" },
+
+  "releaseNotesHighlight2": "Gamer UI: Neon accents, glow effects, and modern dark theme",
+  "@releaseNotesHighlight2": { "description": "Highlight bullet 2" },
+
+  "releaseNotesHighlight3": "Light Mode Fix: All text now readable on light backgrounds",
+  "@releaseNotesHighlight3": { "description": "Highlight bullet 3" },
+
+  "releaseNotesHighlight4": "Better Ore Finding: More accurate predictions across all ore types",
+  "@releaseNotesHighlight4": { "description": "Highlight bullet 4" },
+
+  "releaseNotesHighlight5": "Faster Searches: Optimized algorithms for quicker results",
+  "@releaseNotesHighlight5": { "description": "Highlight bullet 5" },
+
+  "releaseNotesHighlight6": "5-Tab Layout: Search, Results, Guide, Bedwars, and Updates",
+  "@releaseNotesHighlight6": { "description": "Highlight bullet 6" },
+
+  "releaseNotesTechnicalSection": "🔧 Technical Improvements",
+  "@releaseNotesTechnicalSection": { "description": "Release notes technical section header" },
+
+  "releaseNotesTechnical1": "Centralized theme system with adaptive light/dark color helpers",
+  "@releaseNotesTechnical1": { "description": "Technical improvement 1" },
+
+  "releaseNotesTechnical2": "Reusable GamerCard and GamerSectionHeader components",
+  "@releaseNotesTechnical2": { "description": "Technical improvement 2" },
+
+  "releaseNotesTechnical3": "Improved Perlin noise for ore generation modeling",
+  "@releaseNotesTechnical3": { "description": "Technical improvement 3" },
+
+  "releaseNotesTechnical4": "Better chunk-level probability calculations",
+  "@releaseNotesTechnical4": { "description": "Technical improvement 4" },
+
+  "releaseNotesTechnical5": "Reduced widget rebuilds for smoother scrolling",
+  "@releaseNotesTechnical5": { "description": "Technical improvement 5" },
+
+  "releaseNotesPreviousSection": "📋 Previous Updates",
+  "@releaseNotesPreviousSection": { "description": "Release notes previous updates section header" },
+
+  "releaseNotesV1042Title": "v1.0.42 — Lapis Lazuli + UI",
+  "@releaseNotesV1042Title": { "description": "Version 1.0.42 title" },
+
+  "releaseNotesV1042Body": "Added Lapis Lazuli ore finding. All 7 major ores supported. Enhanced 4-tab navigation layout.",
+  "@releaseNotesV1042Body": { "description": "Version 1.0.42 body" },
+
+  "releaseNotesV1041Title": "v1.0.41 — Recent Seeds History",
+  "@releaseNotesV1041Title": { "description": "Version 1.0.41 title" },
+
+  "releaseNotesV1041Body": "Automatic seed history with quick access to last 5 seeds.",
+  "@releaseNotesV1041Body": { "description": "Version 1.0.41 body" },
+
+  "releaseNotesV1036Title": "v1.0.36 — Complete Search Memory",
+  "@releaseNotesV1036Title": { "description": "Version 1.0.36 title" },
+
+  "releaseNotesV1036Body": "Comprehensive search parameter persistence.",
+  "@releaseNotesV1036Body": { "description": "Version 1.0.36 body" },
+
+  "releaseNotesV1027Title": "v1.0.27 — Visual Improvements",
+  "@releaseNotesV1027Title": { "description": "Version 1.0.27 title" },
+
+  "releaseNotesV1027Body": "Updated splash screen and icons.",
+  "@releaseNotesV1027Body": { "description": "Version 1.0.27 body" },
+
+  "releaseNotesV1022Title": "v1.0.22 — Extended Ore Discovery",
+  "@releaseNotesV1022Title": { "description": "Version 1.0.22 title" },
+
+  "releaseNotesV1022Body": "Added Iron, Redstone, Coal, and Lapis Lazuli.",
+  "@releaseNotesV1022Body": { "description": "Version 1.0.22 body" },
+
+  "releaseNotesV1015Title": "v1.0.15 — Structure Discovery",
+  "@releaseNotesV1015Title": { "description": "Version 1.0.15 title" },
+
+  "releaseNotesV1015Body": "Villages, strongholds, dungeons, temples, and more.",
+  "@releaseNotesV1015Body": { "description": "Version 1.0.15 body" },
+
+  "releaseNotesV1010Title": "v1.0.10 — Foundation Release",
+  "@releaseNotesV1010Title": { "description": "Version 1.0.10 title" },
+
+  "releaseNotesV1010Body": "Core diamond, gold, and netherite finding.",
+  "@releaseNotesV1010Body": { "description": "Version 1.0.10 body" },
+
+  "releaseNotesTimelineSection": "🏆 Version Timeline",
+  "@releaseNotesTimelineSection": { "description": "Release notes timeline section header" },
+
+  "releaseNotesTimelineCurrent": "Current",
+  "@releaseNotesTimelineCurrent": { "description": "Timeline badge for current version" },
+
+  "releaseNotesTimelinePrevious": "Previous",
+  "@releaseNotesTimelinePrevious": { "description": "Timeline badge for previous version" },
+
+  "releaseNotesTimelineEarlier": "Earlier",
+  "@releaseNotesTimelineEarlier": { "description": "Timeline badge for earlier versions" },
+
+  "releaseNotesTimelineBedwarsUi": "Bedwars + UI",
+  "@releaseNotesTimelineBedwarsUi": { "description": "Timeline highlight for v1.0.50" },
+
+  "releaseNotesTimelineLapisUi": "Lapis + UI",
+  "@releaseNotesTimelineLapisUi": { "description": "Timeline highlight for v1.0.42" },
+
+  "releaseNotesTimelineRecentSeeds": "Recent Seeds",
+  "@releaseNotesTimelineRecentSeeds": { "description": "Timeline highlight for v1.0.41" },
+
+  "releaseNotesTimelineSearchMemory": "Search Memory",
+  "@releaseNotesTimelineSearchMemory": { "description": "Timeline highlight for v1.0.36" },
+
+  "releaseNotesTimelineVisualUpdates": "Visual Updates",
+  "@releaseNotesTimelineVisualUpdates": { "description": "Timeline highlight for v1.0.27" },
+
+  "releaseNotesTimelineExtendedOres": "Extended Ores",
+  "@releaseNotesTimelineExtendedOres": { "description": "Timeline highlight for v1.0.22" },
+
+  "releaseNotesTimelineStructures": "Structures",
+  "@releaseNotesTimelineStructures": { "description": "Timeline highlight for v1.0.15" },
+
+  "releaseNotesTimelineCoreFeatures": "Core Features",
+  "@releaseNotesTimelineCoreFeatures": { "description": "Timeline highlight for v1.0.10" },
+
+  "releaseNotesFooter": "New: Bedwars guide, gamer UI, and improved ore finding!",
+  "@releaseNotesFooter": { "description": "Footer info text on release notes page" },
+
+  "dialogReleaseNotesHeader": "Release Notes - Version 1.0.41",
+  "@dialogReleaseNotesHeader": { "description": "Header title for the v1.0.41 release notes dialog" },
+
+  "dialogRecentSeedsSection": "🌱 Recent Seeds History - NEW!",
+  "@dialogRecentSeedsSection": { "description": "Section header for recent seeds in dialog" },
+
+  "dialogQuickSeedAccessTitle": "Quick Seed Access",
+  "@dialogQuickSeedAccessTitle": { "description": "Feature title in dialog" },
+
+  "dialogQuickSeedAccessBody": "Never lose track of your favorite world seeds! The app now automatically saves your last 5 searched seeds and displays them as clickable options below the seed input field. Simply tap any recent seed to instantly use it again.",
+  "@dialogQuickSeedAccessBody": { "description": "Feature body in dialog" },
+
+  "dialogSmartSeedTitle": "Smart Seed Management",
+  "@dialogSmartSeedTitle": { "description": "Feature title in dialog" },
+
+  "dialogSmartSeedBody": "Recent seeds are automatically managed - when you search a seed again, it moves to the top of the list. The oldest seed is automatically removed when you reach the 5-seed limit. All seed digits are fully visible with improved monospace formatting for better readability.",
+  "@dialogSmartSeedBody": { "description": "Feature body in dialog" },
+
+  "dialogEnhancedUxTitle": "Enhanced User Experience",
+  "@dialogEnhancedUxTitle": { "description": "Feature title in dialog" },
+
+  "dialogEnhancedUxBody": "Perfect for players who test multiple seeds or return to favorite worlds. No more manually typing long seed numbers - just click and search! Seeds persist across app sessions, so your history is always available.",
+  "@dialogEnhancedUxBody": { "description": "Feature body in dialog" },
+
+  "dialogSearchMemorySection": "💾 Complete Search Memory Feature",
+  "@dialogSearchMemorySection": { "description": "Section header for search memory in dialog" },
+
+  "dialogAutoSaveTitle": "Automatic Parameter Saving",
+  "@dialogAutoSaveTitle": { "description": "Feature title in dialog" },
+
+  "dialogAutoSaveBody": "The app remembers ALL your search parameters including world seed, X/Y/Z coordinates, and search radius. Everything is automatically saved when you type and restored when you restart the app.",
+  "@dialogAutoSaveBody": { "description": "Feature body in dialog" },
+
+  "dialogSeamlessTitle": "Seamless Workflow",
+  "@dialogSeamlessTitle": { "description": "Feature title in dialog" },
+
+  "dialogSeamlessBody": "Continue your ore hunting sessions exactly where you left off. No more re-entering coordinates or adjusting search settings. Focus on finding ores instead of configuring search settings!",
+  "@dialogSeamlessBody": { "description": "Feature body in dialog" },
+
+  "dialogEnhancedUxSection": "🎯 Enhanced User Experience",
+  "@dialogEnhancedUxSection": { "description": "Section header in dialog" },
+
+  "dialogUxBullet1": "Recent Seeds: Quick access to your last 5 searched world seeds",
+  "@dialogUxBullet1": { "description": "UX bullet point 1" },
+
+  "dialogUxBullet2": "Time Saving: Eliminates the need to remember and re-enter search parameters",
+  "@dialogUxBullet2": { "description": "UX bullet point 2" },
+
+  "dialogUxBullet3": "Better Productivity: Focus purely on ore discovery",
+  "@dialogUxBullet3": { "description": "UX bullet point 3" },
+
+  "dialogUxBullet4": "Cross-Platform: Works consistently across all supported platforms",
+  "@dialogUxBullet4": { "description": "UX bullet point 4" },
+
+  "dialogUxBullet5": "Smart Defaults: Falls back to sensible defaults for new users",
+  "@dialogUxBullet5": { "description": "UX bullet point 5" },
+
+  "dialogUxBullet6": "Improved Readability: Monospace font for better seed number visibility",
+  "@dialogUxBullet6": { "description": "UX bullet point 6" },
+
+  "dialogTechSection": "🔧 Technical Improvements",
+  "@dialogTechSection": { "description": "Section header in dialog" },
+
+  "dialogTechBullet1": "Recent Seeds Storage: Persistent seed history with automatic management",
+  "@dialogTechBullet1": { "description": "Tech bullet point 1" },
+
+  "dialogTechBullet2": "Offline Font Support: Improved performance without internet connection",
+  "@dialogTechBullet2": { "description": "Tech bullet point 2" },
+
+  "dialogTechBullet3": "Comprehensive Persistence: All text input fields are automatically saved",
+  "@dialogTechBullet3": { "description": "Tech bullet point 3" },
+
+  "dialogTechBullet4": "Efficient Storage: Uses platform-native storage for optimal performance",
+  "@dialogTechBullet4": { "description": "Tech bullet point 4" },
+
+  "dialogTechBullet5": "Enhanced Stability: Better error handling and user experience",
+  "@dialogTechBullet5": { "description": "Tech bullet point 5" },
+
+  "dialogTechBullet6": "Full Seed Visibility: Complete seed numbers displayed without truncation",
+  "@dialogTechBullet6": { "description": "Tech bullet point 6" },
+
+  "dialogPreviousSection": "📋 Previous Updates",
+  "@dialogPreviousSection": { "description": "Section header in dialog" },
+
+  "dialogV1036Title": "Version 1.0.36 - Search Memory",
+  "@dialogV1036Title": { "description": "Version title in dialog" },
+
+  "dialogV1036Body": "Complete search parameter persistence including world seed, coordinates, and radius.",
+  "@dialogV1036Body": { "description": "Version body in dialog" },
+
+  "dialogV1027Title": "Version 1.0.27 - Minor Update",
+  "@dialogV1027Title": { "description": "Version title in dialog" },
+
+  "dialogV1027Body": "Updated splash screen and icons for better visual consistency.",
+  "@dialogV1027Body": { "description": "Version body in dialog" },
+
+  "dialogV1022Title": "Version 1.0.22 - Extended Ore Discovery",
+  "@dialogV1022Title": { "description": "Version title in dialog" },
+
+  "dialogV1022Body": "⚪ Iron Ore (Y -64 to 256, peaks at Y 15 & Y 232)\n🔴 Redstone Ore (Y -64 to 15, 90% at Y -64 to -59)\n⚫ Coal Ore (Y 0 to 256, peaks at Y 96)\n🔵 Lapis Lazuli (Y -64 to 64, enhanced at Y 0-32)\nEnhanced UI with compact ore selection and visual legend",
+  "@dialogV1022Body": { "description": "Version body in dialog" },
+
+  "dialogPlayersSection": "🎯 Perfect for All Players",
+  "@dialogPlayersSection": { "description": "Section header in dialog" },
+
+  "dialogPlayerBullet1": "Seed Explorers: Quickly switch between favorite world seeds",
+  "@dialogPlayerBullet1": { "description": "Player bullet point 1" },
+
+  "dialogPlayerBullet2": "Speedrunners: Quick access to essential ores with saved parameters",
+  "@dialogPlayerBullet2": { "description": "Player bullet point 2" },
+
+  "dialogPlayerBullet3": "Builders: Iron for tools, redstone for mechanisms",
+  "@dialogPlayerBullet3": { "description": "Player bullet point 3" },
+
+  "dialogPlayerBullet4": "Regular Players: Seamless continuation of mining sessions",
+  "@dialogPlayerBullet4": { "description": "Player bullet point 4" },
+
+  "dialogPlayerBullet5": "New Players: Learn optimal mining levels with persistent settings",
+  "@dialogPlayerBullet5": { "description": "Player bullet point 5" },
+
+  "dialogPlayerBullet6": "Content Creators: Easy seed management for showcasing different worlds",
+  "@dialogPlayerBullet6": { "description": "Player bullet point 6" },
+
+  "dialogFooter": "NEW: Recent seeds history + all search parameters automatically saved!",
+  "@dialogFooter": { "description": "Footer text in dialog" },
+
+  "dialogGotIt": "Got it!",
+  "@dialogGotIt": { "description": "Got it button in dialog" }
+}
+

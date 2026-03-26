@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
+import '../theme/gamer_theme.dart';
 import '../utils/ore_utils.dart';
 import '../utils/structure_utils.dart';
 
@@ -141,11 +143,11 @@ class _ResultsTabState extends State<ResultsTab> {
   @override
   Widget build(BuildContext context) {
     if (widget.isLoading) {
-      return _buildLoadingView();
+      return _buildLoadingView(context);
     }
 
     if (widget.results.isEmpty && widget.structureResults.isEmpty) {
-      return _buildEmptyView();
+      return _buildEmptyView(context);
     }
 
     final filteredResults = _filteredResults;
@@ -153,35 +155,43 @@ class _ResultsTabState extends State<ResultsTab> {
 
     return Column(
       children: [
-        _buildFilterHeader(filteredResults, filteredStructureResults),
+        _buildFilterHeader(context, filteredResults, filteredStructureResults),
         Expanded(
           child: (filteredResults.isEmpty && filteredStructureResults.isEmpty)
-              ? _buildNoResultsView()
+              ? _buildNoResultsView(context)
               : _buildResultsList(filteredResults, filteredStructureResults),
         ),
       ],
     );
   }
 
-  Widget _buildLoadingView() {
+  Widget _buildLoadingView(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
+          SizedBox(
+            width: 48, height: 48,
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: GamerColors.neonGreen,
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
             widget.findAllNetherite &&
                     widget.selectedOreTypes.contains(OreType.netherite)
-                ? 'Comprehensive netherite search in progress...'
-                : 'Analyzing world generation...',
+                ? l10n.loadingNetherite
+                : l10n.loadingAnalyzing,
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           if (widget.findAllNetherite &&
               widget.selectedOreTypes.contains(OreType.netherite)) ...[
             const SizedBox(height: 8),
-            const Text(
-              'This may take 30-60 seconds',
-              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+            Text(
+              l10n.loadingTimeMay,
+              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey[500]),
             ),
           ],
         ],
@@ -189,87 +199,95 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildEmptyView() {
+  Widget _buildEmptyView(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text('No results yet',
+          Text(l10n.noResultsYet,
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
-          const Text('Use the search tab to find ores'),
+          Text(l10n.useSearchTabToFind),
         ],
       ),
     );
   }
 
-  Widget _buildNoResultsView() {
+  Widget _buildNoResultsView(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.filter_alt_off, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text('No results match filters',
+          Text(l10n.noResultsMatchFilters,
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
-          const Text('Try adjusting your filter settings'),
+          Text(l10n.tryAdjustingFilters),
         ],
       ),
     );
   }
 
-  Widget _buildFilterHeader(List<OreLocation> filteredResults,
+  Widget _buildFilterHeader(BuildContext context, List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
+    final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-            bottom:
-                BorderSide(color: Theme.of(context).dividerColor, width: 1)),
+            bottom: BorderSide(
+                color: GamerColors.neonGreen.withValues(alpha: 0.15), width: 1)),
       ),
       child: Column(
         children: [
-          // Results count and filter toggle
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Results: ${filteredResults.length + filteredStructureResults.length} (${filteredResults.length} ores, ${filteredStructureResults.length} structures)',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  l10n.resultsCount(
+                    filteredResults.length + filteredStructureResults.length,
+                    filteredResults.length,
+                    filteredStructureResults.length,
+                  ),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
               ),
               IconButton(
                 icon: Icon(
-                    _showFilters ? Icons.filter_list_off : Icons.filter_list),
+                    _showFilters ? Icons.filter_list_off : Icons.filter_list,
+                    size: 20),
                 onPressed: () => setState(() => _showFilters = !_showFilters),
-                tooltip: _showFilters ? 'Hide filters' : 'Show filters',
+                tooltip: _showFilters ? l10n.hideFilters : l10n.showFilters,
               ),
             ],
           ),
-          // Ore filters
-          if (widget.results.isNotEmpty) _buildOreFilters(),
-          // Structure filters
-          if (widget.structureResults.isNotEmpty) _buildStructureFilters(),
-          // Biome filters
+          if (widget.results.isNotEmpty) _buildOreFilters(context),
+          if (widget.structureResults.isNotEmpty) _buildStructureFilters(context),
           if (widget.results.isNotEmpty || widget.structureResults.isNotEmpty)
-            _buildBiomeFilters(),
-          // Coordinate filters
-          if (_showFilters) _buildCoordinateFilters(),
+            _buildBiomeFilters(context),
+          if (_showFilters) _buildCoordinateFilters(context),
         ],
       ),
     );
   }
 
-  Widget _buildOreFilters() {
+  Widget _buildOreFilters(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 6),
-        Text('Ore Filters:',
+        Text(l10n.oreFiltersLabel,
             style:
                 Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 12)),
         const SizedBox(height: 3),
@@ -277,13 +295,13 @@ class _ResultsTabState extends State<ResultsTab> {
           spacing: 6,
           runSpacing: 4,
           children: [
-            _buildOreFilterChip(OreType.diamond, '💎 Diamonds'),
-            _buildOreFilterChip(OreType.gold, '🏅 Gold'),
-            _buildOreFilterChip(OreType.iron, '⚪ Iron'),
-            _buildOreFilterChip(OreType.redstone, '🔴 Redstone'),
-            _buildOreFilterChip(OreType.coal, '⚫ Coal'),
-            _buildOreFilterChip(OreType.lapis, '🔵 Lapis'),
-            _buildOreFilterChip(OreType.netherite, '🔥 Netherite'),
+            _buildOreFilterChip(OreType.diamond, l10n.filterDiamonds),
+            _buildOreFilterChip(OreType.gold, l10n.filterGold),
+            _buildOreFilterChip(OreType.iron, l10n.filterIron),
+            _buildOreFilterChip(OreType.redstone, l10n.filterRedstone),
+            _buildOreFilterChip(OreType.coal, l10n.filterCoal),
+            _buildOreFilterChip(OreType.lapis, l10n.filterLapis),
+            _buildOreFilterChip(OreType.netherite, l10n.filterNetherite),
           ],
         ),
       ],
@@ -308,12 +326,13 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildStructureFilters() {
+  Widget _buildStructureFilters(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        Text('Structure Filters:',
+        Text(l10n.structureFiltersLabel,
             style:
                 Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 12)),
         const SizedBox(height: 4),
@@ -354,15 +373,17 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildBiomeFilters() {
+  Widget _buildBiomeFilters(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final uniqueBiomes = _getUniqueBiomes();
     if (uniqueBiomes.isEmpty) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        Text('Biome Filters:',
+        Text(l10n.biomeFiltersLabel,
             style:
                 Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 12)),
         const SizedBox(height: 4),
@@ -396,13 +417,13 @@ class _ResultsTabState extends State<ResultsTab> {
                   }
                 });
               },
-              selectedColor: Colors.green.withValues(alpha: 0.3),
-              checkmarkColor: Colors.green[700],
+              selectedColor: GamerColors.neonGreen.withValues(alpha: 0.2),
+              checkmarkColor: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
               backgroundColor: Colors.grey.withValues(alpha: 0.1),
               side: BorderSide(
                 color: _visibleBiomes.isEmpty || _visibleBiomes.contains(biome)
-                    ? Colors.green
-                    : Colors.grey,
+                    ? GamerColors.neonGreen.withValues(alpha: isDark ? 0.5 : 0.4)
+                    : Colors.grey.withValues(alpha: 0.3),
                 width: 1,
               ),
             );
@@ -412,45 +433,46 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildCoordinateFilters() {
+  Widget _buildCoordinateFilters(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 16),
-        Text('Coordinate Filters',
+        Text(l10n.coordinateFiltersTitle,
             style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         // X filters
         Row(
           children: [
-            Expanded(child: _buildFilterField(_minXController, 'Min X')),
+            Expanded(child: _buildFilterField(_minXController, l10n.minX)),
             const SizedBox(width: 8),
-            Expanded(child: _buildFilterField(_maxXController, 'Max X')),
+            Expanded(child: _buildFilterField(_maxXController, l10n.maxX)),
           ],
         ),
         const SizedBox(height: 8),
         // Y filters
         Row(
           children: [
-            Expanded(child: _buildFilterField(_minYController, 'Min Y')),
+            Expanded(child: _buildFilterField(_minYController, l10n.minY)),
             const SizedBox(width: 8),
-            Expanded(child: _buildFilterField(_maxYController, 'Max Y')),
+            Expanded(child: _buildFilterField(_maxYController, l10n.maxY)),
           ],
         ),
         const SizedBox(height: 8),
         // Z filters
         Row(
           children: [
-            Expanded(child: _buildFilterField(_minZController, 'Min Z')),
+            Expanded(child: _buildFilterField(_minZController, l10n.minZ)),
             const SizedBox(width: 8),
-            Expanded(child: _buildFilterField(_maxZController, 'Max Z')),
+            Expanded(child: _buildFilterField(_maxZController, l10n.maxZ)),
           ],
         ),
         const SizedBox(height: 8),
         TextButton.icon(
           onPressed: _clearFilters,
           icon: const Icon(Icons.clear),
-          label: const Text('Clear All Filters'),
+          label: Text(l10n.clearAllFilters),
         ),
       ],
     );
@@ -477,29 +499,42 @@ class _ResultsTabState extends State<ResultsTab> {
       itemCount: filteredResults.length + filteredStructureResults.length,
       itemBuilder: (context, index) {
         if (index < filteredResults.length) {
-          return _buildOreResultCard(filteredResults[index], index + 1);
+          return _buildOreResultCard(context, filteredResults[index], index + 1);
         } else {
           final structureIndex = index - filteredResults.length;
           return _buildStructureResultCard(
-              filteredStructureResults[structureIndex]);
+              context, filteredStructureResults[structureIndex]);
         }
       },
     );
   }
 
-  Widget _buildOreResultCard(OreLocation location, int originalIndex) {
+  Widget _buildOreResultCard(BuildContext context, OreLocation location, int originalIndex) {
+    final l10n = AppLocalizations.of(context);
+    final oreColor = _getOreColor(location.oreType);
     return Card(
-      margin: const EdgeInsets.only(bottom: 4),
+      margin: const EdgeInsets.only(bottom: 6),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: oreColor.withValues(alpha: 0.25), width: 1),
+      ),
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        leading: CircleAvatar(
-          backgroundColor: _getOreColor(location.oreType),
-          radius: 16,
-          child: Text(
-            '$originalIndex',
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+        leading: Container(
+          width: 32, height: 32,
+          decoration: BoxDecoration(
+            color: oreColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: oreColor.withValues(alpha: 0.4)),
+          ),
+          child: Center(
+            child: Text(
+              '$originalIndex',
+              style: TextStyle(
+                color: oreColor, fontWeight: FontWeight.w800, fontSize: 11),
+            ),
           ),
         ),
         title: Row(
@@ -509,9 +544,8 @@ class _ResultsTabState extends State<ResultsTab> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Coordinates: (${location.x}, ${location.y}, ${location.z})',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                '(${location.x}, ${location.y}, ${location.z})',
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, fontFamily: 'monospace'),
               ),
             ),
           ],
@@ -519,36 +553,50 @@ class _ResultsTabState extends State<ResultsTab> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Chunk: (${location.chunkX}, ${location.chunkZ})',
-                style: const TextStyle(fontSize: 11)),
+            const SizedBox(height: 2),
+            Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
+                style: TextStyle(fontSize: 11, color: Colors.grey[500])),
             Text(
-                'Probability: ${(location.probability * 100).toStringAsFixed(1)}%',
-                style: const TextStyle(fontSize: 11)),
+                l10n.probabilityLabel((location.probability * 100).toStringAsFixed(1)),
+                style: TextStyle(fontSize: 11, color: oreColor, fontWeight: FontWeight.w600)),
             if (location.biome != null)
-              Text('Biome: ${location.biome}',
-                  style: const TextStyle(fontSize: 11)),
+              Text(l10n.biomeLabel(location.biome!),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.copy),
-          onPressed: () => _copyCoordinates(location.x, location.y, location.z),
-          tooltip: 'Copy coordinates',
+          icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+          onPressed: () => _copyCoordinates(context, location.x, location.y, location.z),
+          tooltip: l10n.copyCoordinates,
         ),
       ),
     );
   }
 
-  Widget _buildStructureResultCard(StructureLocation structure) {
+  Widget _buildStructureResultCard(BuildContext context, StructureLocation structure) {
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final structColor = GamerColors.orangeText(isDark);
     return Card(
-      margin: const EdgeInsets.only(bottom: 4),
-      color: Colors.brown.withValues(alpha: 0.1),
+      margin: const EdgeInsets.only(bottom: 6),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: structColor.withValues(alpha: 0.25), width: 1),
+      ),
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        leading: const CircleAvatar(
-          backgroundColor: Colors.brown,
-          radius: 16,
-          child: Text('🏰', style: TextStyle(fontSize: 12)),
+        leading: Container(
+          width: 32, height: 32,
+          decoration: BoxDecoration(
+            color: structColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: structColor.withValues(alpha: 0.4)),
+          ),
+          child: const Center(
+            child: Text('🏰', style: TextStyle(fontSize: 14)),
+          ),
         ),
         title: Row(
           children: [
@@ -558,8 +606,7 @@ class _ResultsTabState extends State<ResultsTab> {
             Expanded(
               child: Text(
                 '${StructureUtils.getStructureName(structure.structureType)}: (${structure.x}, ${structure.y}, ${structure.z})',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
             ),
           ],
@@ -567,42 +614,44 @@ class _ResultsTabState extends State<ResultsTab> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Chunk: (${structure.chunkX}, ${structure.chunkZ})',
-                style: const TextStyle(fontSize: 11)),
+            const SizedBox(height: 2),
+            Text(l10n.chunkLabel(structure.chunkX, structure.chunkZ),
+                style: TextStyle(fontSize: 11, color: Colors.grey[500])),
             Text(
-                'Probability: ${(structure.probability * 100).toStringAsFixed(1)}%',
-                style: const TextStyle(fontSize: 11)),
+                l10n.probabilityLabel((structure.probability * 100).toStringAsFixed(1)),
+                style: TextStyle(fontSize: 11, color: structColor, fontWeight: FontWeight.w600)),
             if (structure.biome != null)
-              Text('Biome: ${structure.biome}',
-                  style: const TextStyle(fontSize: 11)),
+              Text(l10n.biomeLabel(structure.biome!),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.copy),
+          icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
           onPressed: () =>
-              _copyCoordinates(structure.x, structure.y, structure.z),
-          tooltip: 'Copy coordinates',
+              _copyCoordinates(context, structure.x, structure.y, structure.z),
+          tooltip: l10n.copyCoordinates,
         ),
       ),
     );
   }
 
   Color _getOreColor(OreType oreType) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     switch (oreType) {
       case OreType.diamond:
-        return Colors.cyan;
+        return GamerColors.diamondText(isDark);
       case OreType.gold:
-        return Colors.amber;
+        return GamerColors.goldText(isDark);
       case OreType.netherite:
-        return Colors.deepPurple;
+        return GamerColors.netheriteText(isDark);
       case OreType.redstone:
-        return Colors.red;
+        return GamerColors.redstoneText(isDark);
       case OreType.iron:
-        return Colors.grey;
+        return GamerColors.ironText(isDark);
       case OreType.coal:
-        return Colors.black87;
+        return GamerColors.coalText(isDark);
       case OreType.lapis:
-        return Colors.blue;
+        return GamerColors.lapisText(isDark);
     }
   }
 
@@ -610,12 +659,13 @@ class _ResultsTabState extends State<ResultsTab> {
     return widget.structureResults.map((s) => s.structureType).toSet().toList();
   }
 
-  void _copyCoordinates(int x, int y, int z) {
+  void _copyCoordinates(BuildContext context, int x, int y, int z) {
+    final l10n = AppLocalizations.of(context);
     final coordinates = '$x $y $z';
     Clipboard.setData(ClipboardData(text: coordinates));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Copied coordinates: $coordinates'),
+        content: Text(l10n.copiedCoordinates(coordinates)),
         duration: const Duration(seconds: 2),
       ),
     );

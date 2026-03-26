@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/gamer_theme.dart';
 
 class ReleaseNotesTab extends StatelessWidget {
   final bool isDarkMode;
@@ -7,22 +9,9 @@ class ReleaseNotesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: isDarkMode
-              ? [
-                  const Color(0xFF1A237E), // Dark blue
-                  const Color(0xFF2E7D32), // Dark green
-                ]
-              : [
-                  const Color(0xFF87CEEB), // Sky blue
-                  const Color(0xFF98FB98), // Pale green
-                ],
-        ),
-      ),
+      color: isDarkMode ? GamerColors.darkBg : GamerColors.lightBg,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -32,22 +21,29 @@ class ReleaseNotesTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDarkMode
-                    ? const Color(0xFF2E7D32)
-                    : const Color(0xFF4CAF50),
                 borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  colors: isDarkMode
+                      ? [GamerColors.neonGreen.withValues(alpha: 0.2), GamerColors.neonCyan.withValues(alpha: 0.1)]
+                      : [GamerColors.lightGreen.withValues(alpha: 0.1), GamerColors.neonCyan.withValues(alpha: 0.05)],
+                ),
+                border: Border.all(
+                  color: GamerColors.neonGreen.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.new_releases, color: Colors.white, size: 24),
+                  Icon(Icons.update_outlined,
+                    color: GamerColors.greenText(isDarkMode), size: 24),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Release Notes - Version 1.0.42',
+                      l10n.releaseNotesHeader,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -56,189 +52,115 @@ class ReleaseNotesTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Content
-            _buildSectionHeader('🔵 Lapis Lazuli Ore Discovery - NEW!'),
+            _sectionHeader(l10n.releaseNotesBedwarsSection),
             const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Complete Ore Coverage',
-              'Added full Lapis Lazuli ore finding capabilities! Now supports all 7 major '
-                  'Minecraft ores including the essential enchanting resource. Lapis generates '
-                  'optimally at Y 0-32 with enhanced probability calculations for accurate results.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Enhanced Mining Guide',
-              'Comprehensive lapis mining information added to the guide tab. Learn optimal '
-                  'Y-levels, generation patterns, and uses including enchanting tables, blue dye, '
-                  'and villager trading. Perfect for setting up your enchanting room!',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Complete UI Integration',
-              'Lapis seamlessly integrated into ore selection, filtering, and results display. '
-                  'Blue-themed visual elements (🔵) maintain consistency throughout the app. '
-                  'All search and filter functionality works perfectly with the new ore type.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Enhanced Navigation Structure',
-              'Improved app organization with new 4-tab layout: Search, Results, Guide, and '
-                  'Updates. Release notes now have their own dedicated tab for better accessibility. '
-                  'Enhanced App Info dialog provides quick access to ore information and app details.',
-            ),
+            _featureItem(l10n.releaseNotesBedwarsGuideTitle,
+              l10n.releaseNotesBedwarsGuideBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesResourceStrategiesTitle,
+              l10n.releaseNotesResourceStrategiesBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesDefenseAttackTitle,
+              l10n.releaseNotesDefenseAttackBody),
             const SizedBox(height: 20),
 
-            _buildSectionHeader('🔄 Recent Seeds History'),
+            _sectionHeader(l10n.releaseNotesUiSection),
             const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Quick Seed Access',
-              'Never lose track of your favorite world seeds! The app now automatically '
-                  'saves your last 5 searched seeds and displays them as clickable options '
-                  'below the seed input field. Simply tap any recent seed to instantly use it again.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Smart Seed Management',
-              'Recent seeds are automatically managed - when you search a seed again, '
-                  'it moves to the top of the list. The oldest seed is automatically removed '
-                  'when you reach the 5-seed limit. All seed digits are fully visible with '
-                  'improved monospace formatting for better readability.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Enhanced User Experience',
-              'Perfect for players who test multiple seeds or return to favorite worlds. '
-                  'No more manually typing long seed numbers - just click and search! '
-                  'Seeds persist across app sessions, so your history is always available.',
-            ),
+            _featureItem(l10n.releaseNotesNeonTitle,
+              l10n.releaseNotesNeonBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesLightModeTitle,
+              l10n.releaseNotesLightModeBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesCardsTitle,
+              l10n.releaseNotesCardsBody),
             const SizedBox(height: 20),
 
-            _buildSectionHeader('💾 Complete Search Memory Feature'),
+            _sectionHeader(l10n.releaseNotesAlgorithmSection),
             const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Automatic Parameter Saving',
-              'The app remembers ALL your search parameters including world seed, '
-                  'X/Y/Z coordinates, and search radius. Everything is automatically '
-                  'saved when you type and restored when you restart the app.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Seamless Workflow',
-              'Continue your ore hunting sessions exactly where you left off. '
-                  'No more re-entering coordinates or adjusting search settings. '
-                  'Focus on finding ores instead of configuring search settings!',
-            ),
+            _featureItem(l10n.releaseNotesNoiseTitle,
+              l10n.releaseNotesNoiseBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesBiomeTitle,
+              l10n.releaseNotesBiomeBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesPerformanceTitle,
+              l10n.releaseNotesPerformanceBody),
             const SizedBox(height: 20),
 
-            _buildSectionHeader('🎯 Enhanced User Experience'),
+            _sectionHeader(l10n.releaseNotesHighlightsSection),
             const SizedBox(height: 12),
-            _buildFeatureList([
-              'Recent Seeds: Quick access to your last 5 searched world seeds',
-              'Time Saving: Eliminates the need to remember and re-enter search parameters',
-              'Better Productivity: Focus purely on ore discovery',
-              'Cross-Platform: Works consistently across all supported platforms',
-              'Smart Defaults: Falls back to sensible defaults for new users',
-              'Improved Readability: Monospace font for better seed number visibility',
+            _bulletList([
+              l10n.releaseNotesHighlight1,
+              l10n.releaseNotesHighlight2,
+              l10n.releaseNotesHighlight3,
+              l10n.releaseNotesHighlight4,
+              l10n.releaseNotesHighlight5,
+              l10n.releaseNotesHighlight6,
             ]),
             const SizedBox(height: 20),
 
-            _buildSectionHeader('🔧 Technical Improvements'),
+            _sectionHeader(l10n.releaseNotesTechnicalSection),
             const SizedBox(height: 12),
-            _buildFeatureList([
-              'Recent Seeds Storage: Persistent seed history with automatic management',
-              'Offline Font Support: Improved performance without internet connection',
-              'Comprehensive Persistence: All text input fields are automatically saved',
-              'Efficient Storage: Uses platform-native storage for optimal performance',
-              'Enhanced Stability: Better error handling and user experience',
-              'Full Seed Visibility: Complete seed numbers displayed without truncation',
+            _bulletList([
+              l10n.releaseNotesTechnical1,
+              l10n.releaseNotesTechnical2,
+              l10n.releaseNotesTechnical3,
+              l10n.releaseNotesTechnical4,
+              l10n.releaseNotesTechnical5,
             ]),
             const SizedBox(height: 20),
 
-            _buildSectionHeader('🎯 Perfect for All Players'),
+            _sectionHeader(l10n.releaseNotesPreviousSection),
             const SizedBox(height: 12),
-            _buildFeatureList([
-              'Seed Explorers: Quickly switch between favorite world seeds',
-              'Speedrunners: Quick access to essential ores with saved parameters',
-              'Builders: Iron for tools, redstone for mechanisms',
-              'Regular Players: Seamless continuation of mining sessions',
-              'New Players: Learn optimal mining levels with persistent settings',
-              'Content Creators: Easy seed management for showcasing different worlds',
-            ]),
+            _featureItem(l10n.releaseNotesV1042Title,
+              l10n.releaseNotesV1042Body),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesV1041Title,
+              l10n.releaseNotesV1041Body),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesV1036Title,
+              l10n.releaseNotesV1036Body),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesV1027Title,
+              l10n.releaseNotesV1027Body),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesV1022Title,
+              l10n.releaseNotesV1022Body),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesV1015Title,
+              l10n.releaseNotesV1015Body),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesV1010Title,
+              l10n.releaseNotesV1010Body),
             const SizedBox(height: 20),
 
-            _buildSectionHeader('📋 Previous Updates'),
+            _sectionHeader(l10n.releaseNotesTimelineSection),
             const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Version 1.0.41 - Recent Seeds History',
-              'Introduced automatic seed history management with quick access to your last 5 '
-                  'searched seeds. Enhanced user experience with one-tap seed selection, '
-                  'persistent storage across sessions, and improved seed number readability '
-                  'with monospace formatting.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Version 1.0.36 - Complete Search Memory',
-              'Introduced comprehensive search parameter persistence including world seed, '
-                  'X/Y/Z coordinates, and search radius. All search settings are now automatically '
-                  'saved when you type and restored when you restart the app. This update addressed '
-                  'the most requested feature from the community.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Version 1.0.27 - Visual Improvements',
-              'Updated splash screen and icons for better visual consistency across all platforms. '
-                  'Enhanced app branding and improved first-time user experience with cleaner '
-                  'visual elements and better icon recognition.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Version 1.0.22 - Extended Ore Discovery',
-              'Major expansion of ore finding capabilities:\n\n'
-                  '⚪ Iron Ore: Y -64 to 256 (peaks at Y 15 & Y 232)\n'
-                  '🔴 Redstone Ore: Y -64 to 15 (90% concentration at Y -64 to -59)\n'
-                  '⚫ Coal Ore: Y 0 to 256 (peaks at Y 96)\n'
-                  '🔵 Lapis Lazuli: Y -64 to 64 (enhanced at Y 0-32)\n\n'
-                  'Enhanced UI with compact ore selection interface and comprehensive visual legend. '
-                  'Improved mining efficiency with detailed Y-level optimization data.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Version 1.0.15 - Structure Discovery',
-              'Added comprehensive structure finding capabilities including villages, strongholds, '
-                  'dungeons, mineshafts, temples, and ocean monuments. Introduced biome-aware '
-                  'structure generation with accurate coordinate prediction and probability analysis.',
-            ),
-            const SizedBox(height: 12),
-            _buildFeatureItem(
-              'Version 1.0.10 - Foundation Release',
-              'Initial release with core diamond, gold, and netherite finding functionality. '
-                  'Established the fundamental seed analysis engine with coordinate-based searching '
-                  'and probability calculations. Introduced the basic UI framework and search system.',
-            ),
-            const SizedBox(height: 20),
-
-            _buildSectionHeader('🏆 Version History Highlights'),
-            const SizedBox(height: 12),
-            _buildVersionHistoryTimeline(),
+            _buildTimeline(l10n),
             const SizedBox(height: 20),
 
             // Footer
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF2E2E2E) : Colors.grey[100],
-                borderRadius: BorderRadius.circular(16),
+                color: isDarkMode ? GamerColors.darkCard : Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: GamerColors.neonCyan.withValues(alpha: 0.2),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                  Icon(Icons.info_outline, color: GamerColors.cyanText(isDarkMode), size: 18),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'NEW: Recent seeds history + all search parameters automatically saved!',
+                      l10n.releaseNotesFooter,
                       style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w500,
+                        color: GamerColors.cyanText(isDarkMode),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -251,200 +173,147 @@ class ReleaseNotesTab extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
+  Widget _sectionHeader(String title) {
+    return Text(title,
       style: TextStyle(
         fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: isDarkMode ? const Color(0xFF66BB6A) : const Color(0xFF2E7D32),
-      ),
-    );
+        fontWeight: FontWeight.w800,
+        color: GamerColors.greenText(isDarkMode),
+        letterSpacing: 0.3,
+      ));
   }
 
-  Widget _buildFeatureItem(String title, String description) {
+  Widget _featureItem(String title, String description) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E3A1E) : Colors.green[50],
-        borderRadius: BorderRadius.circular(8),
+        color: isDarkMode ? GamerColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: isDarkMode ? const Color(0xFF4CAF50) : Colors.green[200]!),
+          color: isDarkMode
+              ? GamerColors.neonGreen.withValues(alpha: 0.15)
+              : Colors.grey.shade200,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
+          Text(title,
             style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: isDarkMode ? Colors.white : Colors.black,
-            ),
-          ),
+              fontWeight: FontWeight.w700, fontSize: 14,
+              color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+            )),
           const SizedBox(height: 4),
-          Text(
-            description,
+          Text(description,
             style: TextStyle(
-              fontSize: 12,
-              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-              height: 1.3,
-            ),
-          ),
+              fontSize: 12, height: 1.4,
+              color: isDarkMode ? Colors.white60 : Colors.grey[600],
+            )),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureList(List<String> features) {
+  Widget _bulletList(List<String> items) {
     return Column(
-      children: features
-          .map((feature) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('• ',
-                        style: TextStyle(
-                            color: isDarkMode
-                                ? const Color(0xFF66BB6A)
-                                : const Color(0xFF4CAF50),
-                            fontWeight: FontWeight.bold)),
-                    Expanded(
-                      child: Text(
-                        feature,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.3,
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
+      children: items.map((item) => Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 6),
+              width: 5, height: 5,
+              decoration: BoxDecoration(
+                color: GamerColors.greenText(isDarkMode),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(item,
+                style: TextStyle(
+                  fontSize: 13, height: 1.4,
+                  color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+                )),
+            ),
+          ],
+        ),
+      )).toList(),
     );
   }
 
-  Widget _buildVersionHistoryTimeline() {
+  Widget _buildTimeline(AppLocalizations l10n) {
     final versions = [
-      {
-        'version': '1.0.41',
-        'date': 'Current',
-        'highlight': 'Recent Seeds History',
-        'color': Colors.green,
-      },
-      {
-        'version': '1.0.36',
-        'date': 'Previous',
-        'highlight': 'Search Memory',
-        'color': Colors.blue,
-      },
-      {
-        'version': '1.0.27',
-        'date': 'Earlier',
-        'highlight': 'Visual Updates',
-        'color': Colors.orange,
-      },
-      {
-        'version': '1.0.22',
-        'date': 'Earlier',
-        'highlight': 'Extended Ores',
-        'color': Colors.purple,
-      },
-      {
-        'version': '1.0.15',
-        'date': 'Earlier',
-        'highlight': 'Structure Finding',
-        'color': Colors.teal,
-      },
-      {
-        'version': '1.0.10',
-        'date': 'Earlier',
-        'highlight': 'Core Features',
-        'color': Colors.indigo,
-      },
+      ('1.0.50', l10n.releaseNotesTimelineCurrent, l10n.releaseNotesTimelineBedwarsUi, GamerColors.neonGreen),
+      ('1.0.42', l10n.releaseNotesTimelinePrevious, l10n.releaseNotesTimelineLapisUi, GamerColors.neonCyan),
+      ('1.0.41', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineRecentSeeds, GamerColors.lapisNeon),
+      ('1.0.36', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineSearchMemory, GamerColors.neonOrange),
+      ('1.0.27', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineVisualUpdates, GamerColors.neonPurple),
+      ('1.0.22', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineExtendedOres, GamerColors.diamondNeon),
+      ('1.0.15', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineStructures, GamerColors.redstoneNeon),
+      ('1.0.10', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineCoreFeatures, GamerColors.coalNeon),
     ];
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        color: isDarkMode ? GamerColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
+          color: isDarkMode ? Colors.white10 : Colors.grey.shade200,
         ),
       ),
       child: Column(
-        children: versions.map((version) {
-          final isLast = version == versions.last;
+        children: versions.asMap().entries.map((entry) {
+          final i = entry.key;
+          final (version, date, highlight, color) = entry.value;
+          final isLast = i == versions.length - 1;
+
           return Column(
             children: [
               Row(
                 children: [
                   Container(
-                    width: 12,
-                    height: 12,
+                    width: 10, height: 10,
                     decoration: BoxDecoration(
-                      color: version['color'] as Color,
-                      borderRadius: BorderRadius.circular(6),
+                      color: color,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: isDarkMode ? GamerColors.subtleGlow(color) : null,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Text(
-                          'v${version['version']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: (version['color'] as Color)
-                                .withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            version['date'] as String,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: version['color'] as Color,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          version['highlight'] as String,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDarkMode
-                                ? Colors.grey[400]
-                                : Colors.grey[600],
-                          ),
-                        ),
-                      ],
+                  Text('v$version',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 13,
+                      color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+                    )),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
                     ),
+                    child: Text(date,
+                      style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w600)),
                   ),
+                  const Spacer(),
+                  Text(highlight,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                    )),
                 ],
               ),
               if (!isLast) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Container(
-                  margin: const EdgeInsets.only(left: 6),
-                  width: 1,
-                  height: 20,
-                  color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                  margin: const EdgeInsets.only(left: 4.5),
+                  width: 1, height: 16,
+                  color: isDarkMode ? Colors.white12 : Colors.grey.shade200,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
               ],
             ],
           );

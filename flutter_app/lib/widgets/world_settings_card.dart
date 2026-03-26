@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/gamer_theme.dart';
 import 'recent_seeds_widget.dart';
 
 class WorldSettingsCard extends StatefulWidget {
@@ -26,101 +28,56 @@ class _WorldSettingsCardState extends State<WorldSettingsCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: const Color(0xFF4CAF50), width: 2),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: widget.isDarkMode
-                ? [
-                    const Color(0xFF2E2E2E),
-                    const Color(0xFF1E1E1E),
-                  ]
-                : [
-                    Colors.white,
-                    const Color(0xFFF1F8E9),
-                  ],
+    final l10n = AppLocalizations.of(context);
+    final isDark = widget.isDarkMode;
+    return GamerCard(
+      isDarkMode: isDark,
+      accentColor: GamerColors.neonGreen,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GamerSectionHeader(
+            emoji: '🌍',
+            title: l10n.worldSettingsTitle,
+            isDarkMode: isDark,
+            accentColor: GamerColors.neonGreen,
           ),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8B4513),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: const Center(
-                    child: Text('🌍', style: TextStyle(fontSize: 12)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'World Settings',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: const Color(0xFF2E7D32),
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: widget.seedController,
-              decoration: InputDecoration(
-                labelText: 'World Seed',
-                hintText: 'Enter your world seed',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: const Color(0xFF4CAF50)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide:
-                      BorderSide(color: const Color(0xFF2E7D32), width: 2),
-                ),
-                prefixIcon: Container(
-                  margin: const EdgeInsets.all(8),
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8B4513),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: const Center(
-                    child: Text('🌱', style: TextStyle(fontSize: 12)),
-                  ),
-                ),
-                filled: true,
-                fillColor:
-                    widget.isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: widget.seedController,
+            decoration: InputDecoration(
+              labelText: l10n.worldSeedLabel,
+              hintText: l10n.worldSeedHint,
+              prefixIcon: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('🌱', style: TextStyle(fontSize: 16)),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a world seed';
-                }
-                return null;
-              },
+              filled: true,
+              fillColor: isDark ? GamerColors.darkSurface : Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: isDark ? Colors.white12 : Colors.grey.shade300,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: GamerColors.neonGreen, width: 2),
+              ),
             ),
-            RecentSeedsWidget(
-              key: _recentSeedsKey,
-              seedController: widget.seedController,
-              isDarkMode: widget.isDarkMode,
-            ),
-          ],
-        ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return l10n.errorEmptySeed;
+              }
+              return null;
+            },
+          ),
+          RecentSeedsWidget(
+            key: _recentSeedsKey,
+            seedController: widget.seedController,
+            isDarkMode: isDark,
+          ),
+        ],
       ),
     );
   }

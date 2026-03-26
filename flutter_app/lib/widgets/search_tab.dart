@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
+import '../theme/gamer_theme.dart';
 import 'world_settings_card.dart';
 import 'search_center_card.dart';
 import 'ore_selection_card.dart';
@@ -67,21 +68,7 @@ class _SearchTabState extends State<SearchTab> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: widget.isDarkMode
-              ? [
-                  const Color(0xFF1A237E), // Dark blue
-                  const Color(0xFF2E7D32), // Dark green
-                ]
-              : [
-                  const Color(0xFF87CEEB), // Sky blue
-                  const Color(0xFF98FB98), // Pale green
-                ],
-        ),
-      ),
+      color: widget.isDarkMode ? GamerColors.darkBg : GamerColors.lightBg,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -94,7 +81,7 @@ class _SearchTabState extends State<SearchTab> {
                 seedController: widget.seedController,
                 isDarkMode: widget.isDarkMode,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               SearchCenterCard(
                 xController: widget.xController,
                 yController: widget.yController,
@@ -102,7 +89,7 @@ class _SearchTabState extends State<SearchTab> {
                 radiusController: widget.radiusController,
                 isDarkMode: widget.isDarkMode,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               OreSelectionCard(
                 selectedOreTypes: widget.selectedOreTypes,
                 includeNether: widget.includeNether,
@@ -114,7 +101,7 @@ class _SearchTabState extends State<SearchTab> {
                 onIncludeNetherChanged: widget.onIncludeNetherChanged,
                 onIncludeOresChanged: widget.onIncludeOresChanged,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               StructureSelectionCard(
                 includeStructures: widget.includeStructures,
                 selectedStructures: widget.selectedStructures,
@@ -122,7 +109,7 @@ class _SearchTabState extends State<SearchTab> {
                 onIncludeStructuresChanged: widget.onIncludeStructuresChanged,
                 onStructuresChanged: widget.onStructuresChanged,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               SearchButtons(
                 isLoading: widget.isLoading,
                 findAllNetherite: widget.findAllNetherite,

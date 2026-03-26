@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 
 import 'models/ore_finder.dart';
 import 'models/ore_location.dart';
 import 'models/structure_finder.dart';
 import 'models/structure_location.dart';
 import 'models/search_result.dart';
+import 'theme/gamer_theme.dart';
 import 'widgets/search_tab.dart';
 import 'widgets/results_tab.dart';
 import 'widgets/guide_tab.dart';
 import 'widgets/release_notes_tab.dart';
+import 'widgets/bedwars_guide_tab.dart';
 
 import 'widgets/app_info_dialog.dart';
 import 'utils/preferences_service.dart';
@@ -26,6 +29,29 @@ class GemOreStructFinderApp extends StatefulWidget {
 
 class _GemOreStructFinderAppState extends State<GemOreStructFinderApp> {
   bool _isDarkMode = false;
+  Locale? _locale;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocale();
+  }
+
+  Future<void> _loadLocale() async {
+    final localeCode = await PreferencesService.getLocale();
+    if (localeCode != null && localeCode.isNotEmpty) {
+      setState(() {
+        _locale = Locale(localeCode);
+      });
+    }
+  }
+
+  void _setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+    PreferencesService.saveLocale(locale.languageCode);
+  }
 
   void _toggleTheme() {
     setState(() {
@@ -36,64 +62,19 @@ class _GemOreStructFinderAppState extends State<GemOreStructFinderApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title:
-          'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
+      title: 'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
       debugShowCheckedModeBanner: false,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      home:
-          OreFinderScreen(onThemeToggle: _toggleTheme, isDarkMode: _isDarkMode),
-    );
-  }
-
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      primarySwatch: Colors.green,
-      useMaterial3: true,
-      fontFamily: null, // Use system default fonts
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF4CAF50),
-        brightness: Brightness.light,
-      ).copyWith(
-        primary: const Color(0xFF4CAF50),
-        secondary: const Color(0xFF8BC34A),
-        surface: const Color(0xFFF1F8E9),
-      ),
-      cardTheme: CardThemeData(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      ),
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      fontFamily: null, // Use system default fonts
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF4CAF50),
-        brightness: Brightness.dark,
-      ).copyWith(
-        primary: const Color(0xFF66BB6A),
-        secondary: const Color(0xFF8BC34A),
-        surface: const Color(0xFF1E1E1E),
-      ),
-      cardTheme: CardThemeData(
-        elevation: 6,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
+      theme: GamerTheme.buildLight(),
+      darkTheme: GamerTheme.buildDark(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: _locale,
+      home: OreFinderScreen(
+        onThemeToggle: _toggleTheme,
+        isDarkMode: _isDarkMode,
+        onLocaleChanged: _setLocale,
+        currentLocale: _locale,
       ),
     );
   }
@@ -102,11 +83,15 @@ class _GemOreStructFinderAppState extends State<GemOreStructFinderApp> {
 class OreFinderScreen extends StatefulWidget {
   final VoidCallback onThemeToggle;
   final bool isDarkMode;
+  final ValueChanged<Locale> onLocaleChanged;
+  final Locale? currentLocale;
 
   const OreFinderScreen({
     super.key,
     required this.onThemeToggle,
     required this.isDarkMode,
+    required this.onLocaleChanged,
+    required this.currentLocale,
   });
 
   @override
@@ -145,7 +130,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _loadLastSearchParams();
     _setupListeners();
   }
@@ -200,10 +185,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
     // Validate that at least one search type is enabled
     if (!_includeOres && !_includeStructures) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Please enable at least one search type (Ores or Structures)'),
+        SnackBar(
+          content: Text(l10n.errorEnableSearchType),
           backgroundColor: Colors.orange,
         ),
       );
@@ -212,10 +197,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
     // Validate that if structures are enabled, at least one structure type is selected
     if (_includeStructures && _selectedStructures.isEmpty) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('Please select at least one structure type to search for'),
+        SnackBar(
+          content: Text(l10n.errorSelectStructure),
           backgroundColor: Colors.orange,
         ),
       );
@@ -224,9 +209,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
     // Validate that if ores are enabled, at least one ore type is selected
     if (_includeOres && _selectedOreTypes.isEmpty) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select at least one ore type to search for'),
+        SnackBar(
+          content: Text(l10n.errorSelectOre),
           backgroundColor: Colors.orange,
         ),
       );
@@ -337,9 +323,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       });
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text(l10n.errorGeneric(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -349,137 +336,192 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = widget.isDarkMode;
     return Scaffold(
       appBar: _buildAppBar(),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          SearchTab(
-            key: _searchTabKey,
-            formKey: _formKey,
-            seedController: _seedController,
-            xController: _xController,
-            yController: _yController,
-            zController: _zController,
-            radiusController: _radiusController,
-            selectedOreTypes: _selectedOreTypes,
-            includeNether: _includeNether,
-            includeOres: _includeOres,
-            includeStructures: _includeStructures,
-            selectedStructures: _selectedStructures,
-            isLoading: _isLoading,
-            findAllNetherite: _findAllNetherite,
-            isDarkMode: widget.isDarkMode,
-            onOreTypesChanged: (types) =>
-                setState(() => _selectedOreTypes = types),
-            onIncludeNetherChanged: (value) =>
-                setState(() => _includeNether = value),
-            onIncludeOresChanged: (value) =>
-                setState(() => _includeOres = value),
-            onIncludeStructuresChanged: (value) =>
-                setState(() => _includeStructures = value),
-            onStructuresChanged: (structures) =>
-                setState(() => _selectedStructures = structures),
-            onFindOres: _findOres,
+          // Gamer-styled tab bar
+          Container(
+            color: isDark ? GamerColors.darkSurface : Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: GamerColors.neonGreen,
+              indicatorWeight: 3,
+              labelColor: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
+              unselectedLabelColor: isDark ? Colors.white54 : Colors.grey[500],
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5),
+              unselectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+              dividerColor: Colors.transparent,
+              tabs: [
+                Tab(icon: const Icon(Icons.search, size: 18), text: AppLocalizations.of(context).searchTab, height: 48),
+                Tab(icon: const Icon(Icons.inventory_2_outlined, size: 18), text: AppLocalizations.of(context).resultsTab, height: 48),
+                Tab(icon: const Icon(Icons.menu_book_outlined, size: 18), text: AppLocalizations.of(context).guideTab, height: 48),
+                Tab(icon: const Icon(Icons.sports_esports, size: 18), text: AppLocalizations.of(context).bedwarsTab, height: 48),
+                Tab(icon: const Icon(Icons.update_outlined, size: 18), text: AppLocalizations.of(context).updatesTab, height: 48),
+              ],
+            ),
           ),
-          ResultsTab(
-            results: _results,
-            structureResults: _structureResults,
-            isLoading: _isLoading,
-            findAllNetherite: _findAllNetherite,
-            selectedOreTypes: _selectedOreTypes,
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                SearchTab(
+                  key: _searchTabKey,
+                  formKey: _formKey,
+                  seedController: _seedController,
+                  xController: _xController,
+                  yController: _yController,
+                  zController: _zController,
+                  radiusController: _radiusController,
+                  selectedOreTypes: _selectedOreTypes,
+                  includeNether: _includeNether,
+                  includeOres: _includeOres,
+                  includeStructures: _includeStructures,
+                  selectedStructures: _selectedStructures,
+                  isLoading: _isLoading,
+                  findAllNetherite: _findAllNetherite,
+                  isDarkMode: widget.isDarkMode,
+                  onOreTypesChanged: (types) =>
+                      setState(() => _selectedOreTypes = types),
+                  onIncludeNetherChanged: (value) =>
+                      setState(() => _includeNether = value),
+                  onIncludeOresChanged: (value) =>
+                      setState(() => _includeOres = value),
+                  onIncludeStructuresChanged: (value) =>
+                      setState(() => _includeStructures = value),
+                  onStructuresChanged: (structures) =>
+                      setState(() => _selectedStructures = structures),
+                  onFindOres: _findOres,
+                ),
+                ResultsTab(
+                  results: _results,
+                  structureResults: _structureResults,
+                  isLoading: _isLoading,
+                  findAllNetherite: _findAllNetherite,
+                  selectedOreTypes: _selectedOreTypes,
+                ),
+                GuideTab(isDarkMode: widget.isDarkMode),
+                BedwarsGuideTab(isDarkMode: widget.isDarkMode),
+                ReleaseNotesTab(isDarkMode: widget.isDarkMode),
+              ],
+            ),
           ),
-          GuideTab(isDarkMode: widget.isDarkMode),
-          ReleaseNotesTab(isDarkMode: widget.isDarkMode),
         ],
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar() {
+    final isDark = widget.isDarkMode;
     return AppBar(
-      toolbarHeight: 48,
+      toolbarHeight: 52,
       title: Row(
         children: [
           Container(
-            width: 24,
-            height: 24,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFF8B4513),
-              borderRadius: BorderRadius.circular(3),
-              border: Border.all(color: const Color(0xFF654321), width: 1),
+              gradient: const LinearGradient(
+                colors: [GamerColors.neonGreen, GamerColors.neonCyan],
+              ),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: isDark ? GamerColors.subtleGlow(GamerColors.neonGreen) : null,
             ),
             child: const Center(
-              child: Text('⛏️', style: TextStyle(fontSize: 12)),
+              child: Text('⛏️', style: TextStyle(fontSize: 14)),
             ),
           ),
-          const SizedBox(width: 8),
-          const Expanded(
+          const SizedBox(width: 10),
+          Expanded(
             child: Text(
-              'Gem, Ore & Struct Finder',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              AppLocalizations.of(context).appTitle,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                letterSpacing: 0.5,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
-      backgroundColor:
-          widget.isDarkMode ? const Color(0xFF2E7D32) : const Color(0xFF4CAF50),
-      foregroundColor: Colors.white,
-      elevation: 2,
-      actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 2),
-          child: IconButton(
-            onPressed: () =>
-                AppInfoDialog.show(context, isDarkMode: widget.isDarkMode),
-            icon: const Icon(Icons.info_outline, color: Colors.white, size: 20),
-            tooltip: 'App Info',
-            padding: const EdgeInsets.all(8),
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.only(right: 4),
-          child: IconButton(
-            onPressed: widget.onThemeToggle,
-            icon: Icon(
-              widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-              color: Colors.white,
-              size: 20,
-            ),
-            tooltip: widget.isDarkMode ? 'Light' : 'Dark',
-            padding: const EdgeInsets.all(8),
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-          ),
-        ),
-      ],
+      backgroundColor: isDark ? GamerColors.darkSurface : Colors.white,
+      foregroundColor: isDark ? Colors.white : const Color(0xFF1A1A2E),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(40),
-        child: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          labelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-          unselectedLabelStyle: const TextStyle(fontSize: 11),
-          indicatorWeight: 2,
-          tabs: [
-            const Tab(
-                icon: Icon(Icons.search, size: 16), text: 'Search', height: 40),
-            const Tab(
-                icon: Icon(Icons.inventory, size: 16),
-                text: 'Results',
-                height: 40),
-            const Tab(
-                icon: Icon(Icons.info, size: 16), text: 'Guide', height: 40),
-            const Tab(
-                icon: Icon(Icons.new_releases, size: 16),
-                text: 'Updates',
-                height: 40),
+        preferredSize: const Size.fromHeight(1),
+        child: Container(
+          height: 1,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                GamerColors.neonGreen.withValues(alpha: 0.0),
+                GamerColors.neonGreen.withValues(alpha: isDark ? 0.6 : 0.3),
+                GamerColors.neonCyan.withValues(alpha: isDark ? 0.6 : 0.3),
+                GamerColors.neonCyan.withValues(alpha: 0.0),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () =>
+              AppInfoDialog.show(context, isDarkMode: widget.isDarkMode),
+          icon: Icon(Icons.info_outline,
+              color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+          tooltip: AppLocalizations.of(context).appInfoTooltip,
+        ),
+        PopupMenuButton<Locale>(
+          icon: Icon(Icons.language,
+              color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+          tooltip: AppLocalizations.of(context).languageTooltip,
+          onSelected: (locale) => widget.onLocaleChanged(locale),
+          itemBuilder: (context) => [
+            _buildLanguageItem(const Locale('en'), 'English'),
+            _buildLanguageItem(const Locale('de'), 'Deutsch'),
+            _buildLanguageItem(const Locale('es'), 'Español'),
+            _buildLanguageItem(const Locale('ja'), '日本語'),
+            _buildLanguageItem(const Locale('fr'), 'Français'),
           ],
         ),
+        IconButton(
+          onPressed: widget.onThemeToggle,
+          icon: Icon(
+            widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            color: isDark ? GamerColors.neonYellow : Colors.grey[700],
+            size: 20,
+          ),
+          tooltip: widget.isDarkMode ? AppLocalizations.of(context).lightThemeTooltip : AppLocalizations.of(context).darkThemeTooltip,
+        ),
+        const SizedBox(width: 4),
+      ],
+    );
+  }
+
+  PopupMenuItem<Locale> _buildLanguageItem(Locale locale, String name) {
+    final isActive = widget.currentLocale?.languageCode == locale.languageCode;
+    final isDark = widget.isDarkMode;
+    return PopupMenuItem<Locale>(
+      value: locale,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              name,
+              style: TextStyle(
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+          ),
+          if (isActive)
+            Icon(Icons.check,
+                size: 18,
+                color: isDark ? GamerColors.neonGreen : GamerColors.lightGreen),
+        ],
       ),
     );
   }
