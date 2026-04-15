@@ -842,7 +842,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aboutGotIt => '了解！';
 
   @override
-  String get releaseNotesHeader => 'リリースノート — v1.0.50';
+  String get releaseNotesHeader => 'リリースノート — v1.0.51';
 
   @override
   String get releaseNotesBedwarsSection => '🎮 ベッドウォーズ戦略ガイド — 新機能！';
@@ -938,6 +938,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get releaseNotesHighlight6 => '5タブレイアウト: 検索、結果、ガイド、ベッドウォーズ、更新情報';
 
   @override
+  String get releaseNotesHighlight7 =>
+      'エディション＆バージョン: Java/Bedrockエディションとレガシー/モダンバージョン対応';
+
+  @override
   String get releaseNotesTechnicalSection => '🔧 技術的な改善';
 
   @override
@@ -955,6 +959,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get releaseNotesTechnical5 => 'スムーズなスクロールのためのウィジェット再構築の削減';
+
+  @override
+  String get releaseNotesTechnical6 =>
+      'すべての鉱石計算でエディション対応RNGを実現するGameRandomストラテジーパターン';
 
   @override
   String get releaseNotesPreviousSection => '📋 過去の更新';
@@ -1039,7 +1047,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get releaseNotesTimelineCoreFeatures => 'コア機能';
 
   @override
-  String get releaseNotesFooter => '新機能: ベッドウォーズガイド、ゲーマーUI、改善された鉱石発見！';
+  String get releaseNotesFooter =>
+      '新機能: エディション＆バージョン選択、ベッドウォーズガイド、ゲーマーUI、改善された鉱石発見！';
 
   @override
   String get dialogReleaseNotesHeader => 'リリースノート - バージョン 1.0.41';
@@ -1176,4 +1185,38 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get dialogGotIt => '了解！';
+
+  @override
+  String get releaseNotesEditionSection => '🎮 エディション＆バージョン選択 — 新機能！';
+
+  @override
+  String get releaseNotesEditionSelectorTitle => 'Java＆Bedrockエディション対応';
+
+  @override
+  String get releaseNotesEditionSelectorBody =>
+      'JavaエディションとBedrockエディションを選択できます。各エディションに正しい乱数生成器を使用し、鉱石予測が実際のワールドと一致します。';
+
+  @override
+  String get releaseNotesVersionEraTitle => 'レガシー＆モダンバージョン';
+
+  @override
+  String get releaseNotesVersionEraBody =>
+      'Pre-1.18（レガシー）のクラシックな均一鉱石分布と固定Y範囲、または1.18+（モダン）の三角分布と拡張ワールド深度-64〜320を切り替えられます。';
+
+  @override
+  String get releaseNotesBedrockRngTitle => 'Bedrock RNGエンジン';
+
+  @override
+  String get releaseNotesBedrockRngBody =>
+      '専用のメルセンヌ・ツイスターRNGがBedrockエディションのC++エンジンを再現します。予測が近似値の場合、コンテキスト情報ボックスでお知らせします。';
+
+  @override
+  String get releaseNotesV1050Title => 'v1.0.50 — ベッドウォーズ + UI';
+
+  @override
+  String get releaseNotesV1050Body =>
+      '完全版ベッドウォーズ戦略ガイド。ネオン美学と改善されたライトモードによるモダンなゲーマーUIリデザイン。';
+
+  @override
+  String get releaseNotesTimelineEditionVersion => 'エディション + 時代';
 }

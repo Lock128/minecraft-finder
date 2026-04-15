@@ -955,7 +955,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aboutGotIt => 'Verstanden!';
 
   @override
-  String get releaseNotesHeader => 'Versionshinweise — v1.0.50';
+  String get releaseNotesHeader => 'Versionshinweise — v1.0.51';
 
   @override
   String get releaseNotesBedwarsSection => '🎮 Bedwars-Strategieguide — NEU!';
@@ -1060,6 +1060,10 @@ class AppLocalizationsDe extends AppLocalizations {
       '5-Tab-Layout: Suche, Ergebnisse, Anleitung, Bedwars und Aktualisierungen';
 
   @override
+  String get releaseNotesHighlight7 =>
+      'Editions- & Versionsauswahl: Java/Bedrock-Edition und Legacy/Modern-Unterstützung';
+
+  @override
   String get releaseNotesTechnicalSection => '🔧 Technische Verbesserungen';
 
   @override
@@ -1081,6 +1085,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get releaseNotesTechnical5 =>
       'Reduzierte Widget-Neuaufbauten für flüssigeres Scrollen';
+
+  @override
+  String get releaseNotesTechnical6 =>
+      'GameRandom-Strategiemuster für editionsabhängige Zufallszahlen bei allen Erzberechnungen';
 
   @override
   String get releaseNotesPreviousSection => '📋 Frühere Aktualisierungen';
@@ -1171,7 +1179,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get releaseNotesFooter =>
-      'Neu: Bedwars-Guide, Gamer-UI und verbesserte Erzsuche!';
+      'Neu: Editions- & Versionsauswahl, Bedwars-Guide, Gamer-UI und verbesserte Erzsuche!';
 
   @override
   String get dialogReleaseNotesHeader => 'Versionshinweise - Version 1.0.41';
@@ -1329,4 +1337,40 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dialogGotIt => 'Verstanden!';
+
+  @override
+  String get releaseNotesEditionSection =>
+      '🎮 Editions- & Versionsauswahl — NEU!';
+
+  @override
+  String get releaseNotesEditionSelectorTitle =>
+      'Java- & Bedrock-Edition-Unterstützung';
+
+  @override
+  String get releaseNotesEditionSelectorBody =>
+      'Wähle zwischen Java-Edition und Bedrock-Edition. Die App verwendet den korrekten Zufallsgenerator für jede Edition, damit die Erzvorhersagen zu deiner Welt passen.';
+
+  @override
+  String get releaseNotesVersionEraTitle => 'Legacy- & Modern-Versionsepochen';
+
+  @override
+  String get releaseNotesVersionEraBody =>
+      'Wechsle zwischen Pre-1.18 (Legacy) mit klassischer gleichmäßiger Erzverteilung und festen Y-Bereichen, oder 1.18+ (Modern) mit Dreiecksverteilungen und erweiterter Welttiefe von -64 bis 320.';
+
+  @override
+  String get releaseNotesBedrockRngTitle => 'Bedrock-RNG-Engine';
+
+  @override
+  String get releaseNotesBedrockRngBody =>
+      'Ein dedizierter Mersenne-Twister-RNG repliziert die C++-Engine der Bedrock-Edition. Kontextuelle Infoboxen zeigen an, wenn Vorhersagen approximativ sind.';
+
+  @override
+  String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
+
+  @override
+  String get releaseNotesV1050Body =>
+      'Kompletter Bedwars-Strategieguide. Modernes Gamer-UI-Redesign mit Neon-Ästhetik und verbessertem Lichtmodus.';
+
+  @override
+  String get releaseNotesTimelineEditionVersion => 'Editionen + Epochen';
 }

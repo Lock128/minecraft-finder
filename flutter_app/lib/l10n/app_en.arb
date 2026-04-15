@@ -849,7 +849,7 @@
   "aboutGotIt": "Got it!",
   "@aboutGotIt": { "description": "Got it button label in about dialog footer" },
 
-  "releaseNotesHeader": "Release Notes — v1.0.50",
+  "releaseNotesHeader": "Release Notes — v1.0.51",
   "@releaseNotesHeader": { "description": "Release notes page header" },
 
   "releaseNotesBedwarsSection": "🎮 Bedwars Strategy Guide — NEW!",
@@ -936,6 +936,9 @@
   "releaseNotesHighlight6": "5-Tab Layout: Search, Results, Guide, Bedwars, and Updates",
   "@releaseNotesHighlight6": { "description": "Highlight bullet 6" },
 
+  "releaseNotesHighlight7": "Edition & Version: Java/Bedrock edition and Legacy/Modern version support",
+  "@releaseNotesHighlight7": { "description": "Highlight bullet 7" },
+
   "releaseNotesTechnicalSection": "🔧 Technical Improvements",
   "@releaseNotesTechnicalSection": { "description": "Release notes technical section header" },
 
@@ -953,6 +956,9 @@
 
   "releaseNotesTechnical5": "Reduced widget rebuilds for smoother scrolling",
   "@releaseNotesTechnical5": { "description": "Technical improvement 5" },
+
+  "releaseNotesTechnical6": "GameRandom strategy pattern for edition-aware RNG across all ore calculations",
+  "@releaseNotesTechnical6": { "description": "Technical improvement 6" },
 
   "releaseNotesPreviousSection": "📋 Previous Updates",
   "@releaseNotesPreviousSection": { "description": "Release notes previous updates section header" },
@@ -1035,7 +1041,7 @@
   "releaseNotesTimelineCoreFeatures": "Core Features",
   "@releaseNotesTimelineCoreFeatures": { "description": "Timeline highlight for v1.0.10" },
 
-  "releaseNotesFooter": "New: Bedwars guide, gamer UI, and improved ore finding!",
+  "releaseNotesFooter": "New: Edition & version selection, Bedwars guide, gamer UI, and improved ore finding!",
   "@releaseNotesFooter": { "description": "Footer info text on release notes page" },
 
   "dialogReleaseNotesHeader": "Release Notes - Version 1.0.41",
@@ -1165,6 +1171,36 @@
   "@dialogFooter": { "description": "Footer text in dialog" },
 
   "dialogGotIt": "Got it!",
-  "@dialogGotIt": { "description": "Got it button in dialog" }
+  "@dialogGotIt": { "description": "Got it button in dialog" },
+
+  "releaseNotesEditionSection": "🎮 Edition & Version Selection — NEW!",
+  "@releaseNotesEditionSection": { "description": "Release notes edition section header" },
+
+  "releaseNotesEditionSelectorTitle": "Java & Bedrock Edition Support",
+  "@releaseNotesEditionSelectorTitle": { "description": "Edition selector feature title" },
+
+  "releaseNotesEditionSelectorBody": "Choose between Java Edition and Bedrock Edition. The app uses the correct random number generator for each edition, so ore predictions match your actual world.",
+  "@releaseNotesEditionSelectorBody": { "description": "Edition selector feature body" },
+
+  "releaseNotesVersionEraTitle": "Legacy & Modern Version Eras",
+  "@releaseNotesVersionEraTitle": { "description": "Version era feature title" },
+
+  "releaseNotesVersionEraBody": "Switch between Pre-1.18 (Legacy) with classic uniform ore distribution and fixed Y ranges, or 1.18+ (Modern) with triangular distributions and expanded -64 to 320 world depth.",
+  "@releaseNotesVersionEraBody": { "description": "Version era feature body" },
+
+  "releaseNotesBedrockRngTitle": "Bedrock RNG Engine",
+  "@releaseNotesBedrockRngTitle": { "description": "Bedrock RNG feature title" },
+
+  "releaseNotesBedrockRngBody": "A dedicated Mersenne Twister RNG replicates Bedrock Edition's C++ engine. Contextual info boxes let you know when predictions are approximate.",
+  "@releaseNotesBedrockRngBody": { "description": "Bedrock RNG feature body" },
+
+  "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
+  "@releaseNotesV1050Title": { "description": "Version 1.0.50 title" },
+
+  "releaseNotesV1050Body": "Complete Bedwars strategy guide. Modern gamer UI overhaul with neon aesthetic and improved light mode.",
+  "@releaseNotesV1050Body": { "description": "Version 1.0.50 body" },
+
+  "releaseNotesTimelineEditionVersion": "Editions + Eras",
+  "@releaseNotesTimelineEditionVersion": { "description": "Timeline highlight for v1.0.51" }
 }
 

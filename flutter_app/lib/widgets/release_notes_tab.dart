@@ -52,6 +52,18 @@ class ReleaseNotesTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
+            _sectionHeader(l10n.releaseNotesEditionSection),
+            const SizedBox(height: 12),
+            _featureItem(l10n.releaseNotesEditionSelectorTitle,
+              l10n.releaseNotesEditionSelectorBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesVersionEraTitle,
+              l10n.releaseNotesVersionEraBody),
+            const SizedBox(height: 8),
+            _featureItem(l10n.releaseNotesBedrockRngTitle,
+              l10n.releaseNotesBedrockRngBody),
+            const SizedBox(height: 20),
+
             _sectionHeader(l10n.releaseNotesBedwarsSection),
             const SizedBox(height: 12),
             _featureItem(l10n.releaseNotesBedwarsGuideTitle,
@@ -97,6 +109,7 @@ class ReleaseNotesTab extends StatelessWidget {
               l10n.releaseNotesHighlight4,
               l10n.releaseNotesHighlight5,
               l10n.releaseNotesHighlight6,
+              l10n.releaseNotesHighlight7,
             ]),
             const SizedBox(height: 20),
 
@@ -108,11 +121,15 @@ class ReleaseNotesTab extends StatelessWidget {
               l10n.releaseNotesTechnical3,
               l10n.releaseNotesTechnical4,
               l10n.releaseNotesTechnical5,
+              l10n.releaseNotesTechnical6,
             ]),
             const SizedBox(height: 20),
 
             _sectionHeader(l10n.releaseNotesPreviousSection),
             const SizedBox(height: 12),
+            _featureItem(l10n.releaseNotesV1050Title,
+              l10n.releaseNotesV1050Body),
+            const SizedBox(height: 8),
             _featureItem(l10n.releaseNotesV1042Title,
               l10n.releaseNotesV1042Body),
             const SizedBox(height: 8),
@@ -245,8 +262,9 @@ class ReleaseNotesTab extends StatelessWidget {
 
   Widget _buildTimeline(AppLocalizations l10n) {
     final versions = [
-      ('1.0.50', l10n.releaseNotesTimelineCurrent, l10n.releaseNotesTimelineBedwarsUi, GamerColors.neonGreen),
-      ('1.0.42', l10n.releaseNotesTimelinePrevious, l10n.releaseNotesTimelineLapisUi, GamerColors.neonCyan),
+      ('1.0.51', l10n.releaseNotesTimelineCurrent, l10n.releaseNotesTimelineEditionVersion, GamerColors.neonOrange),
+      ('1.0.50', l10n.releaseNotesTimelinePrevious, l10n.releaseNotesTimelineBedwarsUi, GamerColors.neonGreen),
+      ('1.0.42', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineLapisUi, GamerColors.neonCyan),
       ('1.0.41', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineRecentSeeds, GamerColors.lapisNeon),
       ('1.0.36', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineSearchMemory, GamerColors.neonOrange),
       ('1.0.27', l10n.releaseNotesTimelineEarlier, l10n.releaseNotesTimelineVisualUpdates, GamerColors.neonPurple),

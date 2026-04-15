@@ -948,7 +948,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutGotIt => 'Got it!';
 
   @override
-  String get releaseNotesHeader => 'Release Notes — v1.0.50';
+  String get releaseNotesHeader => 'Release Notes — v1.0.51';
 
   @override
   String get releaseNotesBedwarsSection => '🎮 Bedwars Strategy Guide — NEW!';
@@ -1052,6 +1052,10 @@ class AppLocalizationsEn extends AppLocalizations {
       '5-Tab Layout: Search, Results, Guide, Bedwars, and Updates';
 
   @override
+  String get releaseNotesHighlight7 =>
+      'Edition & Version: Java/Bedrock edition and Legacy/Modern version support';
+
+  @override
   String get releaseNotesTechnicalSection => '🔧 Technical Improvements';
 
   @override
@@ -1073,6 +1077,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get releaseNotesTechnical5 =>
       'Reduced widget rebuilds for smoother scrolling';
+
+  @override
+  String get releaseNotesTechnical6 =>
+      'GameRandom strategy pattern for edition-aware RNG across all ore calculations';
 
   @override
   String get releaseNotesPreviousSection => '📋 Previous Updates';
@@ -1163,7 +1171,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get releaseNotesFooter =>
-      'New: Bedwars guide, gamer UI, and improved ore finding!';
+      'New: Edition & version selection, Bedwars guide, gamer UI, and improved ore finding!';
 
   @override
   String get dialogReleaseNotesHeader => 'Release Notes - Version 1.0.41';
@@ -1320,4 +1328,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dialogGotIt => 'Got it!';
+
+  @override
+  String get releaseNotesEditionSection =>
+      '🎮 Edition & Version Selection — NEW!';
+
+  @override
+  String get releaseNotesEditionSelectorTitle =>
+      'Java & Bedrock Edition Support';
+
+  @override
+  String get releaseNotesEditionSelectorBody =>
+      'Choose between Java Edition and Bedrock Edition. The app uses the correct random number generator for each edition, so ore predictions match your actual world.';
+
+  @override
+  String get releaseNotesVersionEraTitle => 'Legacy & Modern Version Eras';
+
+  @override
+  String get releaseNotesVersionEraBody =>
+      'Switch between Pre-1.18 (Legacy) with classic uniform ore distribution and fixed Y ranges, or 1.18+ (Modern) with triangular distributions and expanded -64 to 320 world depth.';
+
+  @override
+  String get releaseNotesBedrockRngTitle => 'Bedrock RNG Engine';
+
+  @override
+  String get releaseNotesBedrockRngBody =>
+      'A dedicated Mersenne Twister RNG replicates Bedrock Edition\'s C++ engine. Contextual info boxes let you know when predictions are approximate.';
+
+  @override
+  String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
+
+  @override
+  String get releaseNotesV1050Body =>
+      'Complete Bedwars strategy guide. Modern gamer UI overhaul with neon aesthetic and improved light mode.';
+
+  @override
+  String get releaseNotesTimelineEditionVersion => 'Editions + Eras';
 }

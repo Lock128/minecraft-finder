@@ -966,7 +966,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get aboutGotIt => 'Compris !';
 
   @override
-  String get releaseNotesHeader => 'Notes de version — v1.0.50';
+  String get releaseNotesHeader => 'Notes de version — v1.0.51';
 
   @override
   String get releaseNotesBedwarsSection =>
@@ -1074,6 +1074,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Disposition à 5 onglets : Recherche, Résultats, Guide, Bedwars et Mises à jour';
 
   @override
+  String get releaseNotesHighlight7 =>
+      'Édition & Version : Support Java/Bedrock et versions Legacy/Modern';
+
+  @override
   String get releaseNotesTechnicalSection => '🔧 Améliorations techniques';
 
   @override
@@ -1095,6 +1099,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get releaseNotesTechnical5 =>
       'Reconstructions de widgets réduites pour un défilement plus fluide';
+
+  @override
+  String get releaseNotesTechnical6 =>
+      'Patron de stratégie GameRandom pour un RNG adapté à l\'édition dans tous les calculs de minerai';
 
   @override
   String get releaseNotesPreviousSection => '📋 Mises à jour précédentes';
@@ -1189,7 +1197,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get releaseNotesFooter =>
-      'Nouveau : Guide Bedwars, interface gamer et recherche de minerais améliorée !';
+      'Nouveau : Sélection d\'édition et version, guide Bedwars, interface gamer et recherche de minerais améliorée !';
 
   @override
   String get dialogReleaseNotesHeader => 'Notes de version - Version 1.0.41';
@@ -1349,4 +1357,40 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dialogGotIt => 'Compris !';
+
+  @override
+  String get releaseNotesEditionSection =>
+      '🎮 Sélection d\'édition & version — NOUVEAU !';
+
+  @override
+  String get releaseNotesEditionSelectorTitle =>
+      'Support Java & Bedrock Edition';
+
+  @override
+  String get releaseNotesEditionSelectorBody =>
+      'Choisissez entre Java Edition et Bedrock Edition. L\'application utilise le bon générateur de nombres aléatoires pour chaque édition, afin que les prédictions de minerai correspondent à votre monde.';
+
+  @override
+  String get releaseNotesVersionEraTitle => 'Époques Legacy & Modern';
+
+  @override
+  String get releaseNotesVersionEraBody =>
+      'Basculez entre Pre-1.18 (Legacy) avec la distribution uniforme classique et des plages Y fixes, ou 1.18+ (Modern) avec des distributions triangulaires et une profondeur de monde étendue de -64 à 320.';
+
+  @override
+  String get releaseNotesBedrockRngTitle => 'Moteur RNG Bedrock';
+
+  @override
+  String get releaseNotesBedrockRngBody =>
+      'Un RNG Mersenne Twister dédié réplique le moteur C++ de Bedrock Edition. Des boîtes d\'information contextuelles vous indiquent quand les prédictions sont approximatives.';
+
+  @override
+  String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
+
+  @override
+  String get releaseNotesV1050Body =>
+      'Guide stratégique Bedwars complet. Refonte moderne de l\'interface gamer avec esthétique néon et mode clair amélioré.';
+
+  @override
+  String get releaseNotesTimelineEditionVersion => 'Éditions + Époques';
 }

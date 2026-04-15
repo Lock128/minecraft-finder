@@ -319,7 +319,7 @@
   "aboutFooterTip": "最近のシードを使ってワールド間を素早く切り替えましょう！",
   "aboutGotIt": "了解！",
 
-  "releaseNotesHeader": "リリースノート — v1.0.50",
+  "releaseNotesHeader": "リリースノート — v1.0.51",
   "releaseNotesBedwarsSection": "🎮 ベッドウォーズ戦略ガイド — 新機能！",
   "releaseNotesBedwarsGuideTitle": "完全版ベッドウォーズガイド",
   "releaseNotesBedwarsGuideBody": "ベッドウォーズの詳細な戦略を網羅した専用タブ。序盤のラッシュ、中盤の防衛、終盤の戦術をカバーし、すべての試合で勝利を目指しましょう。",
@@ -351,6 +351,7 @@
   "releaseNotesHighlight4": "鉱石発見の改善: すべての鉱石タイプでより正確な予測",
   "releaseNotesHighlight5": "高速検索: 最適化されたアルゴリズムでより速い結果",
   "releaseNotesHighlight6": "5タブレイアウト: 検索、結果、ガイド、ベッドウォーズ、更新情報",
+  "releaseNotesHighlight7": "エディション＆バージョン: Java/Bedrockエディションとレガシー/モダンバージョン対応",
 
   "releaseNotesTechnicalSection": "🔧 技術的な改善",
   "releaseNotesTechnical1": "適応型ライト/ダークカラーヘルパーを備えた集中テーマシステム",
@@ -358,6 +359,7 @@
   "releaseNotesTechnical3": "鉱石生成モデリングのための改善されたパーリンノイズ",
   "releaseNotesTechnical4": "改善されたチャンクレベルの確率計算",
   "releaseNotesTechnical5": "スムーズなスクロールのためのウィジェット再構築の削減",
+  "releaseNotesTechnical6": "すべての鉱石計算でエディション対応RNGを実現するGameRandomストラテジーパターン",
 
   "releaseNotesPreviousSection": "📋 過去の更新",
   "releaseNotesV1042Title": "v1.0.42 — ラピスラズリ + UI",
@@ -387,7 +389,7 @@
   "releaseNotesTimelineExtendedOres": "拡張鉱石",
   "releaseNotesTimelineStructures": "構造物",
   "releaseNotesTimelineCoreFeatures": "コア機能",
-  "releaseNotesFooter": "新機能: ベッドウォーズガイド、ゲーマーUI、改善された鉱石発見！",
+  "releaseNotesFooter": "新機能: エディション＆バージョン選択、ベッドウォーズガイド、ゲーマーUI、改善された鉱石発見！",
 
   "dialogReleaseNotesHeader": "リリースノート - バージョン 1.0.41",
   "dialogRecentSeedsSection": "🌱 最近のシード履歴 - 新機能！",
@@ -431,5 +433,16 @@
   "dialogPlayerBullet5": "新規プレイヤー: 永続的な設定で最適な採掘レベルを学習",
   "dialogPlayerBullet6": "コンテンツクリエイター: 異なるワールドを紹介するための簡単なシード管理",
   "dialogFooter": "新機能: 最近のシード履歴 + すべての検索パラメータが自動保存！",
-  "dialogGotIt": "了解！"
+  "dialogGotIt": "了解！",
+
+  "releaseNotesEditionSection": "🎮 エディション＆バージョン選択 — 新機能！",
+  "releaseNotesEditionSelectorTitle": "Java＆Bedrockエディション対応",
+  "releaseNotesEditionSelectorBody": "JavaエディションとBedrockエディションを選択できます。各エディションに正しい乱数生成器を使用し、鉱石予測が実際のワールドと一致します。",
+  "releaseNotesVersionEraTitle": "レガシー＆モダンバージョン",
+  "releaseNotesVersionEraBody": "Pre-1.18（レガシー）のクラシックな均一鉱石分布と固定Y範囲、または1.18+（モダン）の三角分布と拡張ワールド深度-64〜320を切り替えられます。",
+  "releaseNotesBedrockRngTitle": "Bedrock RNGエンジン",
+  "releaseNotesBedrockRngBody": "専用のメルセンヌ・ツイスターRNGがBedrockエディションのC++エンジンを再現します。予測が近似値の場合、コンテキスト情報ボックスでお知らせします。",
+  "releaseNotesV1050Title": "v1.0.50 — ベッドウォーズ + UI",
+  "releaseNotesV1050Body": "完全版ベッドウォーズ戦略ガイド。ネオン美学と改善されたライトモードによるモダンなゲーマーUIリデザイン。",
+  "releaseNotesTimelineEditionVersion": "エディション + 時代"
 }

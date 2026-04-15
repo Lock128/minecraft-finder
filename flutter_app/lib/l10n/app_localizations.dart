@@ -1727,7 +1727,7 @@ abstract class AppLocalizations {
   /// Release notes page header
   ///
   /// In en, this message translates to:
-  /// **'Release Notes — v1.0.50'**
+  /// **'Release Notes — v1.0.51'**
   String get releaseNotesHeader;
 
   /// Release notes bedwars section header
@@ -1898,6 +1898,12 @@ abstract class AppLocalizations {
   /// **'5-Tab Layout: Search, Results, Guide, Bedwars, and Updates'**
   String get releaseNotesHighlight6;
 
+  /// Highlight bullet 7
+  ///
+  /// In en, this message translates to:
+  /// **'Edition & Version: Java/Bedrock edition and Legacy/Modern version support'**
+  String get releaseNotesHighlight7;
+
   /// Release notes technical section header
   ///
   /// In en, this message translates to:
@@ -1933,6 +1939,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reduced widget rebuilds for smoother scrolling'**
   String get releaseNotesTechnical5;
+
+  /// Technical improvement 6
+  ///
+  /// In en, this message translates to:
+  /// **'GameRandom strategy pattern for edition-aware RNG across all ore calculations'**
+  String get releaseNotesTechnical6;
 
   /// Release notes previous updates section header
   ///
@@ -2099,7 +2111,7 @@ abstract class AppLocalizations {
   /// Footer info text on release notes page
   ///
   /// In en, this message translates to:
-  /// **'New: Bedwars guide, gamer UI, and improved ore finding!'**
+  /// **'New: Edition & version selection, Bedwars guide, gamer UI, and improved ore finding!'**
   String get releaseNotesFooter;
 
   /// Header title for the v1.0.41 release notes dialog
@@ -2359,6 +2371,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it!'**
   String get dialogGotIt;
+
+  /// Release notes edition section header
+  ///
+  /// In en, this message translates to:
+  /// **'🎮 Edition & Version Selection — NEW!'**
+  String get releaseNotesEditionSection;
+
+  /// Edition selector feature title
+  ///
+  /// In en, this message translates to:
+  /// **'Java & Bedrock Edition Support'**
+  String get releaseNotesEditionSelectorTitle;
+
+  /// Edition selector feature body
+  ///
+  /// In en, this message translates to:
+  /// **'Choose between Java Edition and Bedrock Edition. The app uses the correct random number generator for each edition, so ore predictions match your actual world.'**
+  String get releaseNotesEditionSelectorBody;
+
+  /// Version era feature title
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy & Modern Version Eras'**
+  String get releaseNotesVersionEraTitle;
+
+  /// Version era feature body
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between Pre-1.18 (Legacy) with classic uniform ore distribution and fixed Y ranges, or 1.18+ (Modern) with triangular distributions and expanded -64 to 320 world depth.'**
+  String get releaseNotesVersionEraBody;
+
+  /// Bedrock RNG feature title
+  ///
+  /// In en, this message translates to:
+  /// **'Bedrock RNG Engine'**
+  String get releaseNotesBedrockRngTitle;
+
+  /// Bedrock RNG feature body
+  ///
+  /// In en, this message translates to:
+  /// **'A dedicated Mersenne Twister RNG replicates Bedrock Edition\'s C++ engine. Contextual info boxes let you know when predictions are approximate.'**
+  String get releaseNotesBedrockRngBody;
+
+  /// Version 1.0.50 title
+  ///
+  /// In en, this message translates to:
+  /// **'v1.0.50 — Bedwars + UI'**
+  String get releaseNotesV1050Title;
+
+  /// Version 1.0.50 body
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Bedwars strategy guide. Modern gamer UI overhaul with neon aesthetic and improved light mode.'**
+  String get releaseNotesV1050Body;
+
+  /// Timeline highlight for v1.0.51
+  ///
+  /// In en, this message translates to:
+  /// **'Editions + Eras'**
+  String get releaseNotesTimelineEditionVersion;
 }
 
 class _AppLocalizationsDelegate

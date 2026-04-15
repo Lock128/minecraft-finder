@@ -320,7 +320,7 @@
   "aboutFooterTip": "¡Usa Semillas Recientes para cambiar rápidamente entre mundos!",
   "aboutGotIt": "¡Entendido!",
 
-  "releaseNotesHeader": "Notas de la Versión — v1.0.50",
+  "releaseNotesHeader": "Notas de la Versión — v1.0.51",
   "releaseNotesBedwarsSection": "🎮 Guía de Estrategia Bedwars — ¡NUEVO!",
   "releaseNotesBedwarsGuideTitle": "Guía Completa de Bedwars",
   "releaseNotesBedwarsGuideBody": "Una pestaña dedicada con estrategias detalladas para Bedwars. Cubre ataque temprano, defensa a mitad de partida y tácticas de final para ayudarte a dominar cada partida.",
@@ -352,6 +352,7 @@
   "releaseNotesHighlight4": "Mejor Búsqueda de Minerales: Predicciones más precisas para todos los tipos de minerales",
   "releaseNotesHighlight5": "Búsquedas Más Rápidas: Algoritmos optimizados para resultados más rápidos",
   "releaseNotesHighlight6": "Diseño de 5 Pestañas: Buscar, Resultados, Guía, Bedwars y Novedades",
+  "releaseNotesHighlight7": "Edición y Versión: Soporte para Java/Bedrock y versiones Legacy/Modern",
 
   "releaseNotesTechnicalSection": "🔧 Mejoras Técnicas",
   "releaseNotesTechnical1": "Sistema de temas centralizado con ayudantes de color adaptativo claro/oscuro",
@@ -359,6 +360,7 @@
   "releaseNotesTechnical3": "Ruido Perlin mejorado para modelado de generación de minerales",
   "releaseNotesTechnical4": "Mejores cálculos de probabilidad a nivel de chunk",
   "releaseNotesTechnical5": "Reducción de reconstrucciones de widgets para desplazamiento más fluido",
+  "releaseNotesTechnical6": "Patrón de estrategia GameRandom para RNG adaptado a la edición en todos los cálculos de minerales",
 
   "releaseNotesPreviousSection": "📋 Actualizaciones Anteriores",
   "releaseNotesV1042Title": "v1.0.42 — Lapislázuli + Interfaz",
@@ -389,7 +391,7 @@
   "releaseNotesTimelineStructures": "Estructuras",
   "releaseNotesTimelineCoreFeatures": "Funciones Principales",
 
-  "releaseNotesFooter": "¡Nuevo: Guía Bedwars, interfaz gamer y búsqueda de minerales mejorada!",
+  "releaseNotesFooter": "¡Nuevo: Selección de edición y versión, guía Bedwars, interfaz gamer y búsqueda de minerales mejorada!",
 
   "dialogReleaseNotesHeader": "Notas de la Versión - Versión 1.0.41",
   "dialogRecentSeedsSection": "🌱 Historial de Semillas Recientes - ¡NUEVO!",
@@ -433,5 +435,16 @@
   "dialogPlayerBullet5": "Nuevos Jugadores: Aprende niveles óptimos de minería con configuraciones persistentes",
   "dialogPlayerBullet6": "Creadores de Contenido: Gestión fácil de semillas para mostrar diferentes mundos",
   "dialogFooter": "¡NUEVO: Historial de semillas recientes + todos los parámetros de búsqueda guardados automáticamente!",
-  "dialogGotIt": "¡Entendido!"
+  "dialogGotIt": "¡Entendido!",
+
+  "releaseNotesEditionSection": "🎮 Selección de Edición y Versión — ¡NUEVO!",
+  "releaseNotesEditionSelectorTitle": "Soporte para Java y Bedrock Edition",
+  "releaseNotesEditionSelectorBody": "Elige entre Java Edition y Bedrock Edition. La app usa el generador de números aleatorios correcto para cada edición, para que las predicciones de minerales coincidan con tu mundo.",
+  "releaseNotesVersionEraTitle": "Épocas Legacy y Modern",
+  "releaseNotesVersionEraBody": "Cambia entre Pre-1.18 (Legacy) con distribución uniforme clásica y rangos Y fijos, o 1.18+ (Modern) con distribuciones triangulares y profundidad de mundo expandida de -64 a 320.",
+  "releaseNotesBedrockRngTitle": "Motor RNG de Bedrock",
+  "releaseNotesBedrockRngBody": "Un RNG Mersenne Twister dedicado replica el motor C++ de Bedrock Edition. Cajas de información contextuales te avisan cuando las predicciones son aproximadas.",
+  "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
+  "releaseNotesV1050Body": "Guía completa de estrategia Bedwars. Rediseño moderno de interfaz gamer con estética neón y modo claro mejorado.",
+  "releaseNotesTimelineEditionVersion": "Ediciones + Épocas"
 }

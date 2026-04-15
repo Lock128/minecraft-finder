@@ -318,7 +318,7 @@
   "aboutFooterTip": "Utilisez les graines récentes pour basculer rapidement entre les mondes !",
   "aboutGotIt": "Compris !",
 
-  "releaseNotesHeader": "Notes de version — v1.0.50",
+  "releaseNotesHeader": "Notes de version — v1.0.51",
   "releaseNotesBedwarsSection": "🎮 Guide stratégique Bedwars — NOUVEAU !",
   "releaseNotesBedwarsGuideTitle": "Guide Bedwars complet",
   "releaseNotesBedwarsGuideBody": "Un onglet dédié avec des stratégies approfondies pour Bedwars. Couvre le rush en début de partie, la défense en milieu de partie et les tactiques de fin de partie pour dominer chaque match.",
@@ -350,6 +350,7 @@
   "releaseNotesHighlight4": "Meilleure recherche de minerais : Prédictions plus précises pour tous les types de minerais",
   "releaseNotesHighlight5": "Recherches plus rapides : Algorithmes optimisés pour des résultats plus rapides",
   "releaseNotesHighlight6": "Disposition à 5 onglets : Recherche, Résultats, Guide, Bedwars et Mises à jour",
+  "releaseNotesHighlight7": "Édition & Version : Support Java/Bedrock et versions Legacy/Modern",
 
   "releaseNotesTechnicalSection": "🔧 Améliorations techniques",
   "releaseNotesTechnical1": "Système de thème centralisé avec aides de couleur adaptatives clair/sombre",
@@ -357,6 +358,7 @@
   "releaseNotesTechnical3": "Bruit de Perlin amélioré pour la modélisation de génération de minerai",
   "releaseNotesTechnical4": "Meilleurs calculs de probabilité au niveau des chunks",
   "releaseNotesTechnical5": "Reconstructions de widgets réduites pour un défilement plus fluide",
+  "releaseNotesTechnical6": "Patron de stratégie GameRandom pour un RNG adapté à l'édition dans tous les calculs de minerai",
 
   "releaseNotesPreviousSection": "📋 Mises à jour précédentes",
   "releaseNotesV1042Title": "v1.0.42 — Lapis-lazuli + Interface",
@@ -387,7 +389,7 @@
   "releaseNotesTimelineStructures": "Structures",
   "releaseNotesTimelineCoreFeatures": "Fonctionnalités de base",
 
-  "releaseNotesFooter": "Nouveau : Guide Bedwars, interface gamer et recherche de minerais améliorée !",
+  "releaseNotesFooter": "Nouveau : Sélection d'édition et version, guide Bedwars, interface gamer et recherche de minerais améliorée !",
 
   "dialogReleaseNotesHeader": "Notes de version - Version 1.0.41",
   "dialogRecentSeedsSection": "🌱 Historique des graines récentes - NOUVEAU !",
@@ -431,5 +433,16 @@
   "dialogPlayerBullet5": "Nouveaux joueurs : Apprenez les niveaux de minage optimaux avec des paramètres persistants",
   "dialogPlayerBullet6": "Créateurs de contenu : Gestion facile des graines pour présenter différents mondes",
   "dialogFooter": "NOUVEAU : Historique des graines récentes + tous les paramètres de recherche sauvegardés automatiquement !",
-  "dialogGotIt": "Compris !"
+  "dialogGotIt": "Compris !",
+
+  "releaseNotesEditionSection": "🎮 Sélection d'édition & version — NOUVEAU !",
+  "releaseNotesEditionSelectorTitle": "Support Java & Bedrock Edition",
+  "releaseNotesEditionSelectorBody": "Choisissez entre Java Edition et Bedrock Edition. L'application utilise le bon générateur de nombres aléatoires pour chaque édition, afin que les prédictions de minerai correspondent à votre monde.",
+  "releaseNotesVersionEraTitle": "Époques Legacy & Modern",
+  "releaseNotesVersionEraBody": "Basculez entre Pre-1.18 (Legacy) avec la distribution uniforme classique et des plages Y fixes, ou 1.18+ (Modern) avec des distributions triangulaires et une profondeur de monde étendue de -64 à 320.",
+  "releaseNotesBedrockRngTitle": "Moteur RNG Bedrock",
+  "releaseNotesBedrockRngBody": "Un RNG Mersenne Twister dédié réplique le moteur C++ de Bedrock Edition. Des boîtes d'information contextuelles vous indiquent quand les prédictions sont approximatives.",
+  "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
+  "releaseNotesV1050Body": "Guide stratégique Bedwars complet. Refonte moderne de l'interface gamer avec esthétique néon et mode clair amélioré.",
+  "releaseNotesTimelineEditionVersion": "Éditions + Époques"
 }
