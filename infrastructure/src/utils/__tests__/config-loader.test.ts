@@ -441,9 +441,9 @@ describe('ConfigLoader', () => {
 
     it('should validate placeholder values are replaced', () => {
       const configWithPlaceholders = {
-        environment: 'dev',
+        environment: 'staging',
         environmentConfig: {
-          name: 'dev',
+          name: 'staging',
           description: 'test',
           isProduction: false,
           allowedRegions: ['us-east-1'],
@@ -485,7 +485,7 @@ describe('ConfigLoader', () => {
         },
         resourceNaming: {
           resourcePrefix: 'test',
-          resourceSuffix: 'dev',
+          resourceSuffix: 'staging',
           includeEnvironment: true,
           includeRandomSuffix: false
         },
@@ -503,7 +503,7 @@ describe('ConfigLoader', () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue(JSON.stringify(configWithPlaceholders));
 
-      expect(() => loadConfig('dev')).toThrow('Missing or placeholder hosted zone ID');
+      expect(() => loadConfig('staging')).toThrow('Missing or placeholder hosted zone ID');
     });
   });
 });

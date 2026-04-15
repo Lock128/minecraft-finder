@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 
+import 'models/game_random.dart';
 import 'models/ore_finder.dart';
 import 'models/ore_location.dart';
 import 'models/structure_finder.dart';
@@ -111,6 +112,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
   // Key for refreshing recent seeds
   final GlobalKey<State> _searchTabKey = GlobalKey();
 
+  // Edition & version state
+  MinecraftEdition _selectedEdition = MinecraftEdition.java;
+  VersionEra _selectedVersionEra = VersionEra.modern;
+
   // Search state
   Set<OreType> _selectedOreTypes = {OreType.diamond};
   bool _includeNether = false;
@@ -137,6 +142,12 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
   Future<void> _loadLastSearchParams() async {
     final params = await PreferencesService.getAllSearchParams();
+    final edition = await PreferencesService.getEdition();
+    final versionEra = await PreferencesService.getVersionEra();
+    setState(() {
+      _selectedEdition = edition;
+      _selectedVersionEra = versionEra;
+    });
     _seedController.text = params['seed']!;
     _xController.text = params['x']!;
     _yController.text = params['y']!;
@@ -241,6 +252,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             seed: _seedController.text,
             centerX: int.parse(_xController.text),
             centerZ: int.parse(_zController.text),
+            edition: _selectedEdition,
+            versionEra: _selectedVersionEra,
           );
           allResults.addAll(results);
         } else {
@@ -253,6 +266,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               radius: int.parse(_radiusController.text),
               oreType: oreType,
               includeNether: _includeNether && oreType == OreType.gold,
+              edition: _selectedEdition,
+              versionEra: _selectedVersionEra,
             );
             allResults.addAll(results);
           }
@@ -382,6 +397,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                   isLoading: _isLoading,
                   findAllNetherite: _findAllNetherite,
                   isDarkMode: widget.isDarkMode,
+                  selectedEdition: _selectedEdition,
+                  selectedVersionEra: _selectedVersionEra,
                   onOreTypesChanged: (types) =>
                       setState(() => _selectedOreTypes = types),
                   onIncludeNetherChanged: (value) =>
@@ -393,6 +410,14 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                   onStructuresChanged: (structures) =>
                       setState(() => _selectedStructures = structures),
                   onFindOres: _findOres,
+                  onEditionChanged: (edition) {
+                    setState(() => _selectedEdition = edition);
+                    PreferencesService.saveEdition(edition);
+                  },
+                  onVersionEraChanged: (era) {
+                    setState(() => _selectedVersionEra = era);
+                    PreferencesService.saveVersionEra(era);
+                  },
                 ),
                 ResultsTab(
                   results: _results,

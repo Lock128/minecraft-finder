@@ -9,7 +9,7 @@ describe('ErrorHandler', () => {
   let stack: Stack;
   let errorHandler: ErrorHandler;
 
-  beforeEach(() => {
+  beforeAll(() => {
     app = new App();
     stack = new Stack(app, 'TestStack');
     errorHandler = new ErrorHandler(stack, 'TestErrorHandler', { environment: 'test' });
@@ -239,7 +239,7 @@ describe('CommonErrorHandlers', () => {
   let app: App;
   let stack: Stack;
 
-  beforeEach(() => {
+  beforeAll(() => {
     app = new App();
     stack = new Stack(app, 'TestStack');
   });
@@ -331,7 +331,7 @@ describe('Error Scenarios Integration Tests', () => {
   let stack: Stack;
   let errorHandler: ErrorHandler;
 
-  beforeEach(() => {
+  beforeAll(() => {
     app = new App();
     stack = new Stack(app, 'TestStack');
     errorHandler = new ErrorHandler(stack, 'TestErrorHandler', { environment: 'test' });

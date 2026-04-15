@@ -1,15 +1,16 @@
 import 'dart:math';
+import 'game_random.dart';
 import 'java_random.dart';
 
 /// Perlin noise implementation using Java-compatible RNG for permutation table
 class PerlinNoise {
   final List<int> _permutation;
 
-  PerlinNoise(int seed) : _permutation = _generatePermutation(seed);
+  PerlinNoise(int seed, {GameRandom? rng}) : _permutation = _generatePermutation(seed, rng: rng);
 
-  static List<int> _generatePermutation(int seed) {
-    // Use Java-compatible random for permutation to match Minecraft's noise
-    JavaRandom random = JavaRandom(seed);
+  static List<int> _generatePermutation(int seed, {GameRandom? rng}) {
+    // Use provided GameRandom or fall back to JavaRandom for backward compatibility
+    GameRandom random = rng ?? JavaRandom(seed);
     List<int> p = List.generate(256, (i) => i);
 
     // Fisher-Yates shuffle using Java RNG
@@ -131,7 +132,7 @@ double _uniformFactor(double y, double minY, double maxY) {
 class DensityFunction {
   final PerlinNoise _noise;
 
-  DensityFunction(int seed) : _noise = PerlinNoise(seed);
+  DensityFunction(int seed, {GameRandom? rng}) : _noise = PerlinNoise(seed, rng: rng);
 
   /// Calculate ore density at given coordinates
   double getOreDensity(double x, double y, double z, String oreType) {

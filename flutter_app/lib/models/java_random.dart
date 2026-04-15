@@ -1,5 +1,7 @@
+import 'game_random.dart';
+
 /// Java-compatible Random implementation for Minecraft seed analysis
-class JavaRandom {
+class JavaRandom implements GameRandom {
   late int _seed;
 
   JavaRandom(int seed) {
@@ -7,6 +9,7 @@ class JavaRandom {
   }
 
   /// Set the seed (used for re-seeding)
+  @override
   void setSeed(int seed) {
     _seed = (seed ^ 0x5DEECE66D) & ((1 << 48) - 1);
   }
@@ -18,6 +21,7 @@ class JavaRandom {
   }
 
   /// Generate random integer in range [0, bound)
+  @override
   int nextInt(int bound) {
     if (bound <= 0) {
       throw ArgumentError('bound must be positive');
@@ -38,21 +42,25 @@ class JavaRandom {
   }
 
   /// Generate random long
+  @override
   int nextLong() {
     return (_next(32) << 32) + _next(32);
   }
 
   /// Generate random double [0.0, 1.0)
+  @override
   double nextDouble() {
     return ((_next(26) << 27) + _next(27)) / (1 << 53);
   }
 
   /// Generate random boolean
+  @override
   bool nextBool() {
     return _next(1) != 0;
   }
 
   /// Generate random float [0.0, 1.0)
+  @override
   double nextFloat() {
     return _next(24) / (1 << 24);
   }

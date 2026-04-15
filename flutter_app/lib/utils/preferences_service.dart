@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../models/game_random.dart';
 
 class PreferencesService {
   // Keys for different preferences
@@ -10,6 +11,8 @@ class PreferencesService {
   static const String _radiusKey = 'last_search_radius';
   static const String _recentSeedsKey = 'recent_world_seeds';
   static const String _localeKey = 'app_locale';
+  static const String _editionKey = 'minecraft_edition';
+  static const String _versionEraKey = 'version_era';
 
   // Default values
   static const String _defaultSeed = '8674308105921866736';
@@ -132,6 +135,38 @@ class PreferencesService {
   static Future<void> saveLocale(String localeCode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_localeKey, localeCode);
+  }
+
+  // Edition preferences
+  static Future<MinecraftEdition> getEdition() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_editionKey);
+    if (value == 'bedrock') return MinecraftEdition.bedrock;
+    return MinecraftEdition.java;
+  }
+
+  static Future<void> saveEdition(MinecraftEdition edition) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _editionKey,
+      edition == MinecraftEdition.bedrock ? 'bedrock' : 'java',
+    );
+  }
+
+  // Version era preferences
+  static Future<VersionEra> getVersionEra() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_versionEraKey);
+    if (value == 'legacy') return VersionEra.legacy;
+    return VersionEra.modern;
+  }
+
+  static Future<void> saveVersionEra(VersionEra era) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _versionEraKey,
+      era == VersionEra.legacy ? 'legacy' : 'modern',
+    );
   }
 
   // Convenience method to load all search parameters at once
