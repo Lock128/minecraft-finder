@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "feat",
   "description": "Add comprehensive unit tests for the new providers, models, and widgets. Also add a CI workflow for Flutter that runs analyze + test on every PR.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create flutter_app/test/providers/search_state_test.dart - tests for SearchState provider: initial state, setting values, form validation, performSearch triggers loading state and produces results, error handling",
     "Create flutter_app/test/providers/results_state_test.dart - tests for ResultsState: filtering by ore type, filtering by biome, coordinate range filtering, sorting",
@@ -25,5 +25,5 @@
     "Verify .github/workflows/flutter-ci.yml exists and has valid YAML syntax"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Added 54 new test cases across 6 test files: SearchState (10), FavoritesProvider (13), SearchHistoryProvider (9), FavoriteLocation model (9), SearchHistoryEntry model (6), ResultsMapView widget (7). All 263 tests pass (209 original + 54 new). CI workflow created at .github/workflows/flutter-ci.yml. Note: flutter analyze --fatal-warnings exits non-zero due to 2 pre-existing warnings in lib/models/noise.dart and test/ore_finder_legacy_range_property_test.dart (unused_element, unused_local_variable) - these are not from new code. Skipped creating results_state_test.dart as no separate ResultsState provider exists - results are managed within SearchState."
 }
