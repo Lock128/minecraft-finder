@@ -97,17 +97,6 @@ class PerlinNoise {
   }
 }
 
-/// Triangular distribution helper used by Minecraft 1.18+ ore placement.
-/// Returns a value between 0.0 and 1.0 representing spawn probability
-/// based on distance from the peak Y level within [minY, maxY].
-double _triangularFactor(double y, double minY, double maxY) {
-  double peak = (minY + maxY) / 2.0;
-  double halfRange = (maxY - minY) / 2.0;
-  if (halfRange <= 0) return 0.0;
-  double dist = (y - peak).abs();
-  return max(0.0, 1.0 - dist / halfRange);
-}
-
 /// Triangular distribution with an explicit peak (not necessarily centered).
 double _triangularFactorWithPeak(double y, double minY, double maxY, double peak) {
   if (y < minY || y > maxY) return 0.0;

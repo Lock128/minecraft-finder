@@ -28,6 +28,14 @@ class ResultsMapView extends StatefulWidget {
 class _ResultsMapViewState extends State<ResultsMapView> {
   String? _tooltipText;
   Offset? _tooltipPosition;
+  final TransformationController _transformationController =
+      TransformationController();
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,40 +53,43 @@ class _ResultsMapViewState extends State<ResultsMapView> {
       children: [
         _buildLegend(context, isDark, l10n),
         Expanded(
-          child: Stack(
-            children: [
-              InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 5.0,
-                boundaryMargin: const EdgeInsets.all(100),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return CustomPaint(
-                      size: Size(constraints.maxWidth, constraints.maxHeight),
-                      painter: _MapPainter(
-                        results: widget.results,
-                        structureResults: widget.structureResults,
-                        isDarkMode: isDark,
-                      ),
-                      child: GestureDetector(
-                        onTapDown: (details) =>
-                            _handleTap(details, constraints),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return GestureDetector(
+                onTapDown: (details) =>
+                    _handleTap(details, constraints),
+                child: Stack(
+                  children: [
+                    InteractiveViewer(
+                      transformationController: _transformationController,
+                      minScale: 0.5,
+                      maxScale: 5.0,
+                      boundaryMargin: const EdgeInsets.all(100),
+                      child: CustomPaint(
+                        size: Size(constraints.maxWidth, constraints.maxHeight),
+                        painter: _MapPainter(
+                          results: widget.results,
+                          structureResults: widget.structureResults,
+                          isDarkMode: isDark,
+                        ),
                         child: SizedBox(
                           width: constraints.maxWidth,
                           height: constraints.maxHeight,
                         ),
                       ),
-                    );
-                  },
+                    ),
+                    if (_tooltipText != null && _tooltipPosition != null)
+                      Positioned(
+                        left: _tooltipPosition!.dx.clamp(
+                            0.0, constraints.maxWidth - 180),
+                        top: _tooltipPosition!.dy.clamp(
+                            0.0, constraints.maxHeight - 60),
+                        child: _buildTooltip(),
+                      ),
+                  ],
                 ),
-              ),
-              if (_tooltipText != null && _tooltipPosition != null)
-                Positioned(
-                  left: _tooltipPosition!.dx.clamp(0, 200),
-                  top: _tooltipPosition!.dy.clamp(0, 200),
-                  child: _buildTooltip(),
-                ),
-            ],
+              );
+            },
           ),
         ),
       ],
@@ -165,7 +176,14 @@ class _ResultsMapViewState extends State<ResultsMapView> {
   }
 
   void _handleTap(TapDownDetails details, BoxConstraints constraints) {
-    final tapPos = details.localPosition;
+    // Transform the tap position from screen space to canvas space
+    // by inverting the InteractiveViewer's transformation matrix
+    final Matrix4 matrix = _transformationController.value;
+    final Matrix4 inverse = Matrix4.tryInvert(matrix) ?? Matrix4.identity();
+    final tapScreenPos = details.localPosition;
+    // Apply inverse transform to get the position in untransformed canvas space
+    final tapPos = MatrixUtils.transformPoint(inverse, tapScreenPos);
+
     final width = constraints.maxWidth;
     final height = constraints.maxHeight;
 
@@ -192,17 +210,21 @@ class _ResultsMapViewState extends State<ResultsMapView> {
     final drawW = width - padding * 2;
     final drawH = height - padding * 2;
 
+    // Scale the hit-test radius inversely with zoom level
+    final scale = _transformationController.value.getMaxScaleOnAxis();
+    final hitRadius = 12.0 / scale;
+
     // Check ore hits
     for (final ore in widget.results) {
       final px = padding + ((ore.x - minX) / rangeX) * drawW;
       final py = padding + ((ore.z - minZ) / rangeZ) * drawH;
-      if ((tapPos - Offset(px, py)).distance < 12) {
+      if ((tapPos - Offset(px, py)).distance < hitRadius) {
         setState(() {
           _tooltipText =
               '${OreUtils.getOreEmoji(ore.oreType)} ${ore.oreType.name}\n'
               '(${ore.x}, ${ore.y}, ${ore.z})\n'
               '${(ore.probability * 100).toStringAsFixed(1)}%';
-          _tooltipPosition = tapPos;
+          _tooltipPosition = tapScreenPos;
         });
         return;
       }
@@ -212,13 +234,13 @@ class _ResultsMapViewState extends State<ResultsMapView> {
     for (final s in widget.structureResults) {
       final px = padding + ((s.x - minX) / rangeX) * drawW;
       final py = padding + ((s.z - minZ) / rangeZ) * drawH;
-      if ((tapPos - Offset(px, py)).distance < 12) {
+      if ((tapPos - Offset(px, py)).distance < hitRadius) {
         setState(() {
           _tooltipText =
               '${StructureUtils.getStructureEmoji(s.structureType)} ${s.structureType.name}\n'
               '(${s.x}, ${s.y}, ${s.z})\n'
               '${(s.probability * 100).toStringAsFixed(1)}%';
-          _tooltipPosition = tapPos;
+          _tooltipPosition = tapScreenPos;
         });
         return;
       }

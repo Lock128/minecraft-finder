@@ -33,26 +33,32 @@ class OreFinderScreen extends StatefulWidget {
 class _OreFinderScreenState extends State<OreFinderScreen>
     with TickerProviderStateMixin {
   late final TabController _tabController;
-  late final SearchState _searchState;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
-    _searchState = SearchState();
-    _searchState.tabController = _tabController;
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _searchState.dispose();
     super.dispose();
   }
 
-  Future<void> _findOres(bool comprehensiveNetherite) async {
-    final l10n = AppLocalizations.of(context);
-    final errorMessage = await _searchState.findOres(
+  Future<void> _findOres(bool comprehensiveNetherite, BuildContext providerContext) async {
+    final searchState = providerContext.read<SearchState>();
+    final l10n = AppLocalizations.of(providerContext);
+
+    // Capture the history provider before any async gap
+    SearchHistoryProvider? historyProvider;
+    try {
+      historyProvider = providerContext.read<SearchHistoryProvider>();
+    } catch (_) {
+      // SearchHistoryProvider may not be in tree during tests
+    }
+
+    final errorMessage = await searchState.findOres(
       comprehensiveNetherite,
       errorEnableSearchType: l10n.errorEnableSearchType,
       errorSelectStructure: l10n.errorSelectStructure,
@@ -60,7 +66,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       errorGeneric: (e) => l10n.errorGeneric(e),
     );
 
-    if (errorMessage != null && mounted) {
+    if (!mounted) return;
+
+    if (errorMessage != null) {
       final isGenericError = errorMessage.contains(RegExp(r'Exception|Error'));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -68,33 +76,35 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           backgroundColor: isGenericError ? Colors.red : Colors.orange,
         ),
       );
-    } else if (errorMessage == null && mounted) {
+    } else if (historyProvider != null) {
       // Record successful search in history
-      final historyProvider =
-          context.read<SearchHistoryProvider>();
       historyProvider.addEntry(SearchHistoryEntry(
-        seed: _searchState.seedController.text,
-        centerX: int.tryParse(_searchState.xController.text) ?? 0,
-        centerY: int.tryParse(_searchState.yController.text) ?? -59,
-        centerZ: int.tryParse(_searchState.zController.text) ?? 0,
-        radius: int.tryParse(_searchState.radiusController.text) ?? 50,
-        oreTypes: Set.from(_searchState.selectedOreTypes),
-        structures: Set.from(_searchState.selectedStructures),
-        edition: _searchState.selectedEdition,
-        versionEra: _searchState.selectedVersionEra,
+        seed: searchState.seedController.text,
+        centerX: int.tryParse(searchState.xController.text) ?? 0,
+        centerY: int.tryParse(searchState.yController.text) ?? -59,
+        centerZ: int.tryParse(searchState.zController.text) ?? 0,
+        radius: int.tryParse(searchState.radiusController.text) ?? 50,
+        oreTypes: Set.from(searchState.selectedOreTypes),
+        structures: Set.from(searchState.selectedStructures),
+        edition: searchState.selectedEdition,
+        versionEra: searchState.selectedVersionEra,
         timestamp: DateTime.now(),
         resultCount:
-            _searchState.results.length + _searchState.structureResults.length,
-        includeOres: _searchState.includeOres,
-        includeStructures: _searchState.includeStructures,
+            searchState.results.length + searchState.structureResults.length,
+        includeOres: searchState.includeOres,
+        includeStructures: searchState.includeStructures,
       ));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<SearchState>.value(
-      value: _searchState,
+    return ChangeNotifierProvider<SearchState>(
+      create: (_) {
+        final state = SearchState();
+        state.tabController = _tabController;
+        return state;
+      },
       child: Consumer<SearchState>(
         builder: (context, searchState, _) {
           final isDark = widget.isDarkMode;
@@ -130,7 +140,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         onIncludeStructuresChanged:
                             searchState.setIncludeStructures,
                         onStructuresChanged: searchState.setSelectedStructures,
-                        onFindOres: _findOres,
+                        onFindOres: (b) => _findOres(b, context),
                         onEditionChanged: searchState.setEdition,
                         onVersionEraChanged: searchState.setVersionEra,
                       ),
