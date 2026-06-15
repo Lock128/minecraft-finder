@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
+import '../providers/favorites_provider.dart';
+import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
 import '../utils/ore_utils.dart';
 import '../utils/structure_utils.dart';
+import 'results_map_view.dart';
 
 class ResultsTab extends StatefulWidget {
   final List<OreLocation> results;
@@ -40,6 +44,7 @@ class _ResultsTabState extends State<ResultsTab> {
   Set<StructureType> _visibleStructures = {};
   Set<String> _visibleBiomes = {};
   bool _showFilters = false;
+  bool _showMap = false;
 
   // Filter controllers
   final _minXController = TextEditingController();
@@ -157,9 +162,15 @@ class _ResultsTabState extends State<ResultsTab> {
       children: [
         _buildFilterHeader(context, filteredResults, filteredStructureResults),
         Expanded(
-          child: (filteredResults.isEmpty && filteredStructureResults.isEmpty)
-              ? _buildNoResultsView(context)
-              : _buildResultsList(filteredResults, filteredStructureResults),
+          child: _showMap
+              ? ResultsMapView(
+                  results: filteredResults,
+                  structureResults: filteredStructureResults,
+                  isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                )
+              : (filteredResults.isEmpty && filteredStructureResults.isEmpty)
+                  ? _buildNoResultsView(context)
+                  : _buildResultsList(filteredResults, filteredStructureResults),
         ),
       ],
     );
@@ -261,6 +272,13 @@ class _ResultsTabState extends State<ResultsTab> {
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
+              ),
+              IconButton(
+                icon: Icon(
+                    _showMap ? Icons.view_list : Icons.map_outlined,
+                    size: 20),
+                onPressed: () => setState(() => _showMap = !_showMap),
+                tooltip: _showMap ? l10n.resultsListView : l10n.resultsMapView,
               ),
               IconButton(
                 icon: Icon(
@@ -564,12 +582,49 @@ class _ResultsTabState extends State<ResultsTab> {
                   style: TextStyle(fontSize: 11, color: Colors.grey[500])),
           ],
         ),
-        trailing: IconButton(
-          icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
-          onPressed: () => _copyCoordinates(context, location.x, location.y, location.z),
-          tooltip: l10n.copyCoordinates,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildOreBookmarkButton(context, location),
+            IconButton(
+              icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+              onPressed: () => _copyCoordinates(context, location.x, location.y, location.z),
+              tooltip: l10n.copyCoordinates,
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildOreBookmarkButton(BuildContext context, OreLocation location) {
+    FavoritesProvider? favProvider;
+    try {
+      favProvider = context.watch<FavoritesProvider>();
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+    String seed = '';
+    try {
+      seed = context.read<SearchState>().seedController.text;
+    } catch (_) {}
+    final isFav = favProvider.isOreFavorite(location, seed);
+    return IconButton(
+      icon: Icon(
+        isFav ? Icons.bookmark : Icons.bookmark_border,
+        size: 18,
+        color: isFav ? GamerColors.neonPurple : Colors.grey[400],
+      ),
+      onPressed: () {
+        if (isFav) {
+          favProvider!.removeOreFavorite(location, seed);
+        } else {
+          favProvider!.addOreFavorite(location, seed);
+        }
+      },
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
     );
   }
 
@@ -625,13 +680,51 @@ class _ResultsTabState extends State<ResultsTab> {
                   style: TextStyle(fontSize: 11, color: Colors.grey[500])),
           ],
         ),
-        trailing: IconButton(
-          icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
-          onPressed: () =>
-              _copyCoordinates(context, structure.x, structure.y, structure.z),
-          tooltip: l10n.copyCoordinates,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildStructureBookmarkButton(context, structure),
+            IconButton(
+              icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+              onPressed: () =>
+                  _copyCoordinates(context, structure.x, structure.y, structure.z),
+              tooltip: l10n.copyCoordinates,
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStructureBookmarkButton(
+      BuildContext context, StructureLocation structure) {
+    FavoritesProvider? favProvider;
+    try {
+      favProvider = context.watch<FavoritesProvider>();
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+    String seed = '';
+    try {
+      seed = context.read<SearchState>().seedController.text;
+    } catch (_) {}
+    final isFav = favProvider.isStructureFavorite(structure, seed);
+    return IconButton(
+      icon: Icon(
+        isFav ? Icons.bookmark : Icons.bookmark_border,
+        size: 18,
+        color: isFav ? GamerColors.neonPurple : Colors.grey[400],
+      ),
+      onPressed: () {
+        if (isFav) {
+          favProvider!.removeStructureFavorite(structure, seed);
+        } else {
+          favProvider!.addStructureFavorite(structure, seed);
+        }
+      },
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
     );
   }
 

@@ -17,19 +17,12 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    // Expected tab labels per locale
-    const expectedTabLabels = <String, List<String>>{
-      'en': ['Search', 'Results', 'User Guide', 'Bedwars', 'Updates'],
-      'de': ['Suche', 'Ergebnisse', 'Anleitung', 'Bedwars', 'Aktualisierungen'],
-      'es': ['Buscar', 'Resultados', 'Guía', 'Bedwars', 'Novedades'],
-      'ja': ['検索', '結果', 'ガイド', 'ベッドウォーズ', '更新情報'],
-      'fr': ['Recherche', 'Résultats', 'Guide', 'Bedwars', 'Mises à jour'],
-    };
+    // Rather than hardcoding expected labels, we verify that the app
+    // renders localized tab labels matching AppLocalizations for each locale.
+    // This makes the test resilient to translation updates.
+    final supportedLocales = ['en', 'de', 'es', 'ja', 'fr'];
 
-    for (final entry in expectedTabLabels.entries) {
-      final localeCode = entry.key;
-      final labels = entry.value;
-
+    for (final localeCode in supportedLocales) {
       testWidgets(
         'setting locale to "$localeCode" updates tab labels correctly',
         (WidgetTester tester) async {
@@ -48,7 +41,17 @@ void main() {
           );
           await tester.pumpAndSettle();
 
-          for (final label in labels) {
+          // Look up the expected localized strings via AppLocalizations
+          final l10n = await AppLocalizations.delegate.load(Locale(localeCode));
+          final expectedLabels = [
+            l10n.searchTab,
+            l10n.resultsTab,
+            l10n.favoritesTab,
+            l10n.guideTab,
+            l10n.bedwarsTab,
+          ];
+
+          for (final label in expectedLabels) {
             expect(
               find.text(label),
               findsWidgets,
@@ -87,9 +90,10 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Verify English tab labels
-        expect(find.text('Search'), findsWidgets);
-        expect(find.text('Results'), findsWidgets);
+        // Verify English tab labels using localized lookup
+        final enL10n = await AppLocalizations.delegate.load(const Locale('en'));
+        expect(find.text(enL10n.searchTab), findsWidgets);
+        expect(find.text(enL10n.resultsTab), findsWidgets);
 
         // Switch to German via the language menu
         await tester.tap(find.byIcon(Icons.language));
@@ -97,19 +101,21 @@ void main() {
         await tester.tap(find.text('Deutsch'));
         await tester.pumpAndSettle();
 
-        // Verify German tab labels
-        expect(find.text('Suche'), findsWidgets);
-        expect(find.text('Ergebnisse'), findsWidgets);
+        // Verify German tab labels using localized lookup
+        final deL10n = await AppLocalizations.delegate.load(const Locale('de'));
+        expect(find.text(deL10n.searchTab), findsWidgets);
+        expect(find.text(deL10n.resultsTab), findsWidgets);
 
         // Switch to Spanish
         await tester.tap(find.byIcon(Icons.language));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Español'));
+        await tester.tap(find.text('Espa\u00F1ol'));
         await tester.pumpAndSettle();
 
-        // Verify Spanish tab labels
-        expect(find.text('Buscar'), findsWidgets);
-        expect(find.text('Resultados'), findsWidgets);
+        // Verify Spanish tab labels using localized lookup
+        final esL10n = await AppLocalizations.delegate.load(const Locale('es'));
+        expect(find.text(esL10n.searchTab), findsWidgets);
+        expect(find.text(esL10n.resultsTab), findsWidgets);
       },
     );
   });

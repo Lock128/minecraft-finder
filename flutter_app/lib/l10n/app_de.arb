@@ -444,5 +444,15 @@
   "releaseNotesBedrockRngBody": "Ein dedizierter Mersenne-Twister-RNG repliziert die C++-Engine der Bedrock-Edition. Kontextuelle Infoboxen zeigen an, wenn Vorhersagen approximativ sind.",
   "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
   "releaseNotesV1050Body": "Kompletter Bedwars-Strategieguide. Modernes Gamer-UI-Redesign mit Neon-Ästhetik und verbessertem Lichtmodus.",
-  "releaseNotesTimelineEditionVersion": "Editionen + Epochen"
+  "releaseNotesTimelineEditionVersion": "Editionen + Epochen",
+  "favoritesTab": "Favorites",
+  "favoritesEmpty": "No favorites yet",
+  "favoritesEmptyHint": "Bookmark results from the Results tab to save them here",
+  "favoritesSeedLabel": "Seed:",
+  "searchHistoryTitle": "Search History",
+  "searchHistoryReplay": "Replay",
+  "searchHistoryResults": "results",
+  "resultsListView": "List view",
+  "resultsMapView": "Map view",
+  "mapLegendStructures": "Structures"
 }

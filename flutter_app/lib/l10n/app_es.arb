@@ -446,5 +446,15 @@
   "releaseNotesBedrockRngBody": "Un RNG Mersenne Twister dedicado replica el motor C++ de Bedrock Edition. Cajas de información contextuales te avisan cuando las predicciones son aproximadas.",
   "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
   "releaseNotesV1050Body": "Guía completa de estrategia Bedwars. Rediseño moderno de interfaz gamer con estética neón y modo claro mejorado.",
-  "releaseNotesTimelineEditionVersion": "Ediciones + Épocas"
+  "releaseNotesTimelineEditionVersion": "Ediciones + Épocas",
+  "favoritesTab": "Favorites",
+  "favoritesEmpty": "No favorites yet",
+  "favoritesEmptyHint": "Bookmark results from the Results tab to save them here",
+  "favoritesSeedLabel": "Seed:",
+  "searchHistoryTitle": "Search History",
+  "searchHistoryReplay": "Replay",
+  "searchHistoryResults": "results",
+  "resultsListView": "List view",
+  "resultsMapView": "Map view",
+  "mapLegendStructures": "Structures"
 }

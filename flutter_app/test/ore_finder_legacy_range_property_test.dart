@@ -18,7 +18,6 @@ void main() {
   group('Property 5: Legacy mode restricts ore locations to legacy Y ranges',
       () {
     final inputRng = Random(99);
-    const int iterations = 12; // one per (edition, oreType) combo
 
     /// Ore types to test — excludes netherite (same range in both eras).
     const legacyOreTypes = [

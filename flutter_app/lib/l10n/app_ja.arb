@@ -444,5 +444,15 @@
   "releaseNotesBedrockRngBody": "専用のメルセンヌ・ツイスターRNGがBedrockエディションのC++エンジンを再現します。予測が近似値の場合、コンテキスト情報ボックスでお知らせします。",
   "releaseNotesV1050Title": "v1.0.50 — ベッドウォーズ + UI",
   "releaseNotesV1050Body": "完全版ベッドウォーズ戦略ガイド。ネオン美学と改善されたライトモードによるモダンなゲーマーUIリデザイン。",
-  "releaseNotesTimelineEditionVersion": "エディション + 時代"
+  "releaseNotesTimelineEditionVersion": "エディション + 時代",
+  "favoritesTab": "Favorites",
+  "favoritesEmpty": "No favorites yet",
+  "favoritesEmptyHint": "Bookmark results from the Results tab to save them here",
+  "favoritesSeedLabel": "Seed:",
+  "searchHistoryTitle": "Search History",
+  "searchHistoryReplay": "Replay",
+  "searchHistoryResults": "results",
+  "resultsListView": "List view",
+  "resultsMapView": "Map view",
+  "mapLegendStructures": "Structures"
 }

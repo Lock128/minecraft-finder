@@ -3,7 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/gamer_theme.dart';
 import 'recent_seeds_widget.dart';
 
-class WorldSettingsCard extends StatefulWidget {
+class WorldSettingsCard extends StatelessWidget {
   final TextEditingController seedController;
   final bool isDarkMode;
   final VoidCallback? onSeedSearched;
@@ -16,20 +16,9 @@ class WorldSettingsCard extends StatefulWidget {
   });
 
   @override
-  State<WorldSettingsCard> createState() => _WorldSettingsCardState();
-}
-
-class _WorldSettingsCardState extends State<WorldSettingsCard> {
-  final GlobalKey<State<RecentSeedsWidget>> _recentSeedsKey = GlobalKey();
-
-  void refreshRecentSeeds() {
-    (_recentSeedsKey.currentState as dynamic)?.refreshSeeds();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isDark = widget.isDarkMode;
+    final isDark = isDarkMode;
     return GamerCard(
       isDarkMode: isDark,
       accentColor: GamerColors.neonGreen,
@@ -37,20 +26,20 @@ class _WorldSettingsCardState extends State<WorldSettingsCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GamerSectionHeader(
-            emoji: '🌍',
+            emoji: '\u{1F30D}',
             title: l10n.worldSettingsTitle,
             isDarkMode: isDark,
             accentColor: GamerColors.neonGreen,
           ),
           const SizedBox(height: 16),
           TextFormField(
-            controller: widget.seedController,
+            controller: seedController,
             decoration: InputDecoration(
               labelText: l10n.worldSeedLabel,
               hintText: l10n.worldSeedHint,
               prefixIcon: const Padding(
                 padding: EdgeInsets.all(12),
-                child: Text('🌱', style: TextStyle(fontSize: 16)),
+                child: Text('\u{1F331}', style: TextStyle(fontSize: 16)),
               ),
               filled: true,
               fillColor: isDark ? GamerColors.darkSurface : Colors.white,
@@ -62,7 +51,8 @@ class _WorldSettingsCardState extends State<WorldSettingsCard> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: GamerColors.neonGreen, width: 2),
+                borderSide:
+                    const BorderSide(color: GamerColors.neonGreen, width: 2),
               ),
             ),
             validator: (value) {
@@ -73,8 +63,7 @@ class _WorldSettingsCardState extends State<WorldSettingsCard> {
             },
           ),
           RecentSeedsWidget(
-            key: _recentSeedsKey,
-            seedController: widget.seedController,
+            seedController: seedController,
             isDarkMode: isDark,
           ),
         ],
