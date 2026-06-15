@@ -2431,6 +2431,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Editions + Eras'**
   String get releaseNotesTimelineEditionVersion;
+
+  /// Label for the Favorites tab
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTab;
+
+  /// Empty state title when no favorites saved
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get favoritesEmpty;
+
+  /// Empty state hint for favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark results from the Results tab to save them here'**
+  String get favoritesEmptyHint;
+
+  /// Label prefix for seed in favorites/history
+  ///
+  /// In en, this message translates to:
+  /// **'Seed:'**
+  String get favoritesSeedLabel;
+
+  /// Title for search history collapsible section
+  ///
+  /// In en, this message translates to:
+  /// **'Search History'**
+  String get searchHistoryTitle;
+
+  /// Button label to replay a past search
+  ///
+  /// In en, this message translates to:
+  /// **'Replay'**
+  String get searchHistoryReplay;
+
+  /// Label for result count in history entry
+  ///
+  /// In en, this message translates to:
+  /// **'results'**
+  String get searchHistoryResults;
+
+  /// Tooltip for switching to list view
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get resultsListView;
+
+  /// Tooltip for switching to map view
+  ///
+  /// In en, this message translates to:
+  /// **'Map view'**
+  String get resultsMapView;
+
+  /// Legend label for structures on the map
+  ///
+  /// In en, this message translates to:
+  /// **'Structures'**
+  String get mapLegendStructures;
 }
 
 class _AppLocalizationsDelegate

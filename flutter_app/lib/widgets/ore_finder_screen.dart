@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../models/search_history_entry.dart';
+import '../providers/search_history_provider.dart';
 import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
 import '../widgets/search_tab.dart';
 import '../widgets/results_tab.dart';
+import '../widgets/favorites_tab.dart';
 import '../widgets/guide_tab.dart';
-import '../widgets/release_notes_tab.dart';
 import '../widgets/bedwars_guide_tab.dart';
 import '../widgets/app_info_dialog.dart';
 import 'package:provider/provider.dart';
@@ -66,6 +68,26 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           backgroundColor: isGenericError ? Colors.red : Colors.orange,
         ),
       );
+    } else if (errorMessage == null && mounted) {
+      // Record successful search in history
+      final historyProvider =
+          context.read<SearchHistoryProvider>();
+      historyProvider.addEntry(SearchHistoryEntry(
+        seed: _searchState.seedController.text,
+        centerX: int.tryParse(_searchState.xController.text) ?? 0,
+        centerY: int.tryParse(_searchState.yController.text) ?? -59,
+        centerZ: int.tryParse(_searchState.zController.text) ?? 0,
+        radius: int.tryParse(_searchState.radiusController.text) ?? 50,
+        oreTypes: Set.from(_searchState.selectedOreTypes),
+        structures: Set.from(_searchState.selectedStructures),
+        edition: _searchState.selectedEdition,
+        versionEra: _searchState.selectedVersionEra,
+        timestamp: DateTime.now(),
+        resultCount:
+            _searchState.results.length + _searchState.structureResults.length,
+        includeOres: _searchState.includeOres,
+        includeStructures: _searchState.includeStructures,
+      ));
     }
   }
 
@@ -119,9 +141,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         findAllNetherite: searchState.findAllNetherite,
                         selectedOreTypes: searchState.selectedOreTypes,
                       ),
+                      FavoritesTab(isDarkMode: isDark),
                       GuideTab(isDarkMode: isDark),
                       BedwarsGuideTab(isDarkMode: isDark),
-                      ReleaseNotesTab(isDarkMode: isDark),
                     ],
                   ),
                 ),
@@ -157,16 +179,16 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               text: AppLocalizations.of(context).resultsTab,
               height: 48),
           Tab(
+              icon: const Icon(Icons.bookmark_outlined, size: 18),
+              text: AppLocalizations.of(context).favoritesTab,
+              height: 48),
+          Tab(
               icon: const Icon(Icons.menu_book_outlined, size: 18),
               text: AppLocalizations.of(context).guideTab,
               height: 48),
           Tab(
               icon: const Icon(Icons.sports_esports, size: 18),
               text: AppLocalizations.of(context).bedwarsTab,
-              height: 48),
-          Tab(
-              icon: const Icon(Icons.update_outlined, size: 18),
-              text: AppLocalizations.of(context).updatesTab,
               height: 48),
         ],
       ),

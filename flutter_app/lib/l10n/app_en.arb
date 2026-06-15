@@ -1201,6 +1201,36 @@
   "@releaseNotesV1050Body": { "description": "Version 1.0.50 body" },
 
   "releaseNotesTimelineEditionVersion": "Editions + Eras",
-  "@releaseNotesTimelineEditionVersion": { "description": "Timeline highlight for v1.0.51" }
+  "@releaseNotesTimelineEditionVersion": { "description": "Timeline highlight for v1.0.51" },
+
+  "favoritesTab": "Favorites",
+  "@favoritesTab": { "description": "Label for the Favorites tab" },
+
+  "favoritesEmpty": "No favorites yet",
+  "@favoritesEmpty": { "description": "Empty state title when no favorites saved" },
+
+  "favoritesEmptyHint": "Bookmark results from the Results tab to save them here",
+  "@favoritesEmptyHint": { "description": "Empty state hint for favorites" },
+
+  "favoritesSeedLabel": "Seed:",
+  "@favoritesSeedLabel": { "description": "Label prefix for seed in favorites/history" },
+
+  "searchHistoryTitle": "Search History",
+  "@searchHistoryTitle": { "description": "Title for search history collapsible section" },
+
+  "searchHistoryReplay": "Replay",
+  "@searchHistoryReplay": { "description": "Button label to replay a past search" },
+
+  "searchHistoryResults": "results",
+  "@searchHistoryResults": { "description": "Label for result count in history entry" },
+
+  "resultsListView": "List view",
+  "@resultsListView": { "description": "Tooltip for switching to list view" },
+
+  "resultsMapView": "Map view",
+  "@resultsMapView": { "description": "Tooltip for switching to map view" },
+
+  "mapLegendStructures": "Structures",
+  "@mapLegendStructures": { "description": "Legend label for structures on the map" }
 }
 

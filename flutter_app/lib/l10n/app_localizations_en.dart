@@ -1364,4 +1364,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get releaseNotesTimelineEditionVersion => 'Editions + Eras';
+
+  @override
+  String get favoritesTab => 'Favorites';
+
+  @override
+  String get favoritesEmpty => 'No favorites yet';
+
+  @override
+  String get favoritesEmptyHint =>
+      'Bookmark results from the Results tab to save them here';
+
+  @override
+  String get favoritesSeedLabel => 'Seed:';
+
+  @override
+  String get searchHistoryTitle => 'Search History';
+
+  @override
+  String get searchHistoryReplay => 'Replay';
+
+  @override
+  String get searchHistoryResults => 'results';
+
+  @override
+  String get resultsListView => 'List view';
+
+  @override
+  String get resultsMapView => 'Map view';
+
+  @override
+  String get mapLegendStructures => 'Structures';
 }

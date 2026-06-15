@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/app_settings.dart';
+import 'providers/favorites_provider.dart';
+import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
 import 'widgets/ore_finder_screen.dart';
 
@@ -16,8 +18,12 @@ class GemOreStructFinderApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppSettings(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppSettings()),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+        ChangeNotifierProvider(create: (_) => SearchHistoryProvider()),
+      ],
       child: Consumer<AppSettings>(
         builder: (context, settings, _) {
           return MaterialApp(

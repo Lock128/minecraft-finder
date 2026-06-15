@@ -19,11 +19,11 @@ void main() {
 
     // Expected tab labels per locale
     const expectedTabLabels = <String, List<String>>{
-      'en': ['Search', 'Results', 'User Guide', 'Bedwars', 'Updates'],
-      'de': ['Suche', 'Ergebnisse', 'Anleitung', 'Bedwars', 'Aktualisierungen'],
-      'es': ['Buscar', 'Resultados', 'Guía', 'Bedwars', 'Novedades'],
-      'ja': ['検索', '結果', 'ガイド', 'ベッドウォーズ', '更新情報'],
-      'fr': ['Recherche', 'Résultats', 'Guide', 'Bedwars', 'Mises à jour'],
+      'en': ['Search', 'Results', 'Favorites', 'User Guide', 'Bedwars'],
+      'de': ['Suche', 'Ergebnisse', 'Favorites', 'Anleitung', 'Bedwars'],
+      'es': ['Buscar', 'Resultados', 'Favorites', 'Guía', 'Bedwars'],
+      'ja': ['検索', '結果', 'Favorites', 'ガイド', 'ベッドウォーズ'],
+      'fr': ['Recherche', 'Résultats', 'Favorites', 'Guide', 'Bedwars'],
     };
 
     for (final entry in expectedTabLabels.entries) {

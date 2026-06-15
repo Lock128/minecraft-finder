@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Add new features: Favorites/Bookmarks system, Search History with replay, and an interactive 2D mini-map visualization of results. These features enhance the app's usability and provide functionality that competing tools lack.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create flutter_app/lib/models/favorite_location.dart - a model class that wraps either an OreLocation or StructureLocation with metadata (timestamp, optional user label/note, seed used). Include fromJson/toJson for persistence.",
     "Create flutter_app/lib/providers/favorites_provider.dart - a ChangeNotifier that loads/saves favorites to SharedPreferences (JSON list). Provides add, remove, reorder, and label-editing methods. Max 100 favorites.",

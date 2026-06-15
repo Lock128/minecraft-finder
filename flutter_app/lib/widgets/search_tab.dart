@@ -9,6 +9,7 @@ import 'search_center_card.dart';
 import 'ore_selection_card.dart';
 import 'structure_selection_card.dart';
 import 'search_buttons.dart';
+import 'search_history_widget.dart';
 
 class SearchTab extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -87,6 +88,8 @@ class SearchTab extends StatelessWidget {
                 seedController: seedController,
                 isDarkMode: isDarkMode,
               ),
+              const SizedBox(height: 4),
+              SearchHistoryWidget(isDarkMode: isDarkMode),
               const SizedBox(height: 12),
               SearchCenterCard(
                 xController: xController,
