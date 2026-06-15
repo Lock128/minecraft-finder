@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "feat",
   "description": "Add comprehensive unit tests for the new providers, models, and widgets. Also add a CI workflow for Flutter that runs analyze + test on every PR.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create flutter_app/test/providers/search_state_test.dart - tests for SearchState provider: initial state, setting values, form validation, performSearch triggers loading state and produces results, error handling",
     "Create flutter_app/test/providers/results_state_test.dart - tests for ResultsState: filtering by ore type, filtering by biome, coordinate range filtering, sorting",
