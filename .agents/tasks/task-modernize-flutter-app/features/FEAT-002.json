@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "refactor",
   "description": "Introduce Provider state management, fix anti-patterns, and restructure main.dart to follow Flutter best practices. This eliminates the monolithic stateful widget, fixes the listener removal anti-pattern, removes unsafe dynamic casts, and establishes a proper separation of concerns.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Add 'provider: ^6.1.1' to flutter_app/pubspec.yaml dependencies and run flutter pub get",
     "Update flutter_app/pubspec.yaml to replace 'flutter_lints: ^6.0.0' with 'flutter_lints: ^5.0.0' (the correct package) or 'lints: ^5.1.0' in dev_dependencies, whichever resolves correctly",

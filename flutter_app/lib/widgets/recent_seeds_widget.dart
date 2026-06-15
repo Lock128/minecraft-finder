@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
 import '../utils/preferences_service.dart';
 
@@ -19,11 +21,36 @@ class RecentSeedsWidget extends StatefulWidget {
 
 class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
   List<String> _recentSeeds = [];
+  ValueNotifier<int>? _refreshNotifier;
 
   @override
   void initState() {
     super.initState();
     _loadRecentSeeds();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Listen to the SearchState's refresh notifier if available
+    SearchState? searchState;
+    try {
+      searchState = Provider.of<SearchState>(context, listen: false);
+    } catch (_) {
+      // Provider not available in tree (e.g., standalone usage)
+    }
+    if (searchState != null &&
+        _refreshNotifier != searchState.recentSeedsRefreshNotifier) {
+      _refreshNotifier?.removeListener(_loadRecentSeeds);
+      _refreshNotifier = searchState.recentSeedsRefreshNotifier;
+      _refreshNotifier!.addListener(_loadRecentSeeds);
+    }
+  }
+
+  @override
+  void dispose() {
+    _refreshNotifier?.removeListener(_loadRecentSeeds);
+    super.dispose();
   }
 
   Future<void> _loadRecentSeeds() async {
@@ -32,8 +59,6 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
       setState(() => _recentSeeds = seeds);
     }
   }
-
-  void refreshSeeds() => _loadRecentSeeds();
 
   void _selectSeed(String seed) {
     widget.seedController.text = seed;
@@ -52,14 +77,15 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Icon(Icons.history, size: 14,
-              color: isDark ? Colors.white54 : Colors.grey[500]),
+            Icon(Icons.history,
+                size: 14, color: isDark ? Colors.white54 : Colors.grey[500]),
             const SizedBox(width: 4),
             Text(l10n.recentSeeds,
-              style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white54 : Colors.grey[500],
-              )),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white54 : Colors.grey[500],
+                )),
           ],
         ),
         const SizedBox(height: 8),
@@ -70,7 +96,8 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
             return GestureDetector(
               onTap: () => _selectSeed(seed),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: isDark
                       ? GamerColors.neonGreen.withValues(alpha: 0.1)
@@ -84,7 +111,8 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
                   seed,
                   style: TextStyle(
                     fontSize: 11,
-                    color: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
+                    color:
+                        isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'monospace',
                   ),
