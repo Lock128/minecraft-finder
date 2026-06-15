@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Add comprehensive unit tests for the new providers, models, and widgets. Also add a CI workflow for Flutter that runs analyze + test on every PR.",
+  "status": "pending",
+  "steps": [
+    "Create flutter_app/test/providers/search_state_test.dart - tests for SearchState provider: initial state, setting values, form validation, performSearch triggers loading state and produces results, error handling",
+    "Create flutter_app/test/providers/results_state_test.dart - tests for ResultsState: filtering by ore type, filtering by biome, coordinate range filtering, sorting",
+    "Create flutter_app/test/providers/favorites_provider_test.dart - tests for favorites: add/remove/reorder, persistence to SharedPreferences, max limit enforcement, JSON serialization roundtrip",
+    "Create flutter_app/test/providers/search_history_provider_test.dart - tests for search history: auto-recording, max 20 limit, replay populates state, persistence",
+    "Create flutter_app/test/models/favorite_location_test.dart - tests for FavoriteLocation model: fromJson/toJson roundtrip, equality",
+    "Create flutter_app/test/widgets/results_map_view_test.dart - widget test for map view: renders dots, legend is visible, tap interaction works",
+    "Create .github/workflows/flutter-ci.yml - GitHub Actions workflow that runs on push/PR to main: checkout, setup Flutter, pub get, analyze --fatal-warnings, test with coverage. Uses actions/checkout@v4, subosito/flutter-action@v2.",
+    "Ensure all new and existing tests pass by running flutter test"
+  ],
+  "acceptance_criteria": [
+    "At least 10 new test cases covering providers and models",
+    "All new tests pass (flutter test)",
+    "CI workflow file exists at .github/workflows/flutter-ci.yml",
+    "CI workflow triggers on PRs and pushes to main branch",
+    "flutter analyze --fatal-warnings passes"
+  ],
+  "verification": [
+    "Run 'cd /projects/sandbox/minecraft-finder/flutter_app && flutter test'",
+    "Verify .github/workflows/flutter-ci.yml exists and has valid YAML syntax"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -1,0 +1,34 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Add new features: Favorites/Bookmarks system, Search History with replay, and an interactive 2D mini-map visualization of results. These features enhance the app's usability and provide functionality that competing tools lack.",
+  "status": "pending",
+  "steps": [
+    "Create flutter_app/lib/models/favorite_location.dart - a model class that wraps either an OreLocation or StructureLocation with metadata (timestamp, optional user label/note, seed used). Include fromJson/toJson for persistence.",
+    "Create flutter_app/lib/providers/favorites_provider.dart - a ChangeNotifier that loads/saves favorites to SharedPreferences (JSON list). Provides add, remove, reorder, and label-editing methods. Max 100 favorites.",
+    "Create flutter_app/lib/widgets/favorites_tab.dart - A new tab (replacing the Release Notes tab position, or add as 6th tab) that shows saved locations grouped by seed. Each item shows coordinates, ore/structure type, biome, and a note field. Swipe-to-delete and tap-to-copy-coordinates. Follow the GamerCard styling pattern from guide_tab.dart.",
+    "Create flutter_app/lib/models/search_history_entry.dart - model for a past search (seed, coordinates, radius, ore types, structures, edition, version era, timestamp, result count).",
+    "Create flutter_app/lib/providers/search_history_provider.dart - ChangeNotifier that persists last 20 searches to SharedPreferences. Each successful search auto-saves. Provides a replay(entry) method that populates SearchState.",
+    "Create flutter_app/lib/widgets/search_history_widget.dart - a collapsible section in SearchTab (below recent seeds) showing last 5 searches with a 'Replay' button that fills all form fields from the history entry. Style consistently with RecentSeedsWidget.",
+    "Create flutter_app/lib/widgets/results_map_view.dart - a 2D top-down mini-map widget showing found ore/structure locations as colored dots on a coordinate grid. X-axis is X coordinate, Y-axis is Z coordinate. Color by ore type using GamerColors. Includes zoom (pinch) and pan gestures using InteractiveViewer. Shows a legend. Tapping a dot shows a tooltip with full details.",
+    "Add a toggle button in the results_tab header (between list view and map view) that switches between the existing list and the new map visualization.",
+    "Wire favorites into results_tab.dart: add a bookmark icon to each result card that saves/removes from favorites.",
+    "Add favorites_provider and search_history_provider to the MultiProvider in main.dart.",
+    "Add localization strings for the new features in the English ARB file (flutter_app/lib/l10n/app_en.arb) and regenerate localizations."
+  ],
+  "acceptance_criteria": [
+    "Users can bookmark any ore or structure result and see it in a Favorites view",
+    "Favorites persist across app restarts (stored in SharedPreferences)",
+    "Search history auto-records each search and allows replay",
+    "Results can be viewed as a 2D map with colored dots representing findings",
+    "Map supports zoom and pan via InteractiveViewer",
+    "All new features follow the GamerCard/GamerColors styling conventions",
+    "flutter analyze passes without errors",
+    "flutter test passes (existing tests still work)"
+  ],
+  "verification": [
+    "Run 'cd /projects/sandbox/minecraft-finder/flutter_app && flutter pub get && flutter analyze && flutter test'"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

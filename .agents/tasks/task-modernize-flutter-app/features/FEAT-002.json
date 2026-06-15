@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-002",
+  "type": "refactor",
+  "description": "Introduce Provider state management, fix anti-patterns, and restructure main.dart to follow Flutter best practices. This eliminates the monolithic stateful widget, fixes the listener removal anti-pattern, removes unsafe dynamic casts, and establishes a proper separation of concerns.",
+  "status": "pending",
+  "steps": [
+    "Add 'provider: ^6.1.1' to flutter_app/pubspec.yaml dependencies and run flutter pub get",
+    "Update flutter_app/pubspec.yaml to replace 'flutter_lints: ^6.0.0' with 'flutter_lints: ^5.0.0' (the correct package) or 'lints: ^5.1.0' in dev_dependencies, whichever resolves correctly",
+    "Create flutter_app/lib/providers/search_state.dart - a ChangeNotifier that holds all search form state (seed, coordinates, radius, selected ore types, include flags, selected structures, edition, version era) and exposes typed setters. Move the _findOres logic from main.dart into a performSearch() method here.",
+    "Create flutter_app/lib/providers/results_state.dart - a ChangeNotifier that holds search results (List<OreLocation>, List<StructureLocation>), isLoading, findAllNetherite flag, and provides filtering logic currently in ResultsTab._filteredResults.",
+    "Create flutter_app/lib/providers/app_settings.dart - a ChangeNotifier for theme mode (isDarkMode) and locale, with toggle/set methods that persist via PreferencesService.",
+    "Refactor flutter_app/lib/main.dart to use MultiProvider wrapping the MaterialApp, providing SearchState, ResultsState, and AppSettings. Remove all state variables from _OreFinderScreenState and use context.watch/context.read instead.",
+    "Fix the listener removal anti-pattern: In the SearchState provider, attach TextEditingController listeners as named method references (e.g., _onSeedChanged) so they can be properly removed in dispose(). Remove the broken removeListener calls from the old main.dart.",
+    "Remove the unsafe dynamic cast: Replace '(_searchTabKey.currentState as dynamic).refreshRecentSeeds()' with a proper pattern - either use a callback, a ValueNotifier, or have the RecentSeedsWidget listen to the SearchState provider's recentSeeds property directly.",
+    "Update flutter_app/lib/widgets/search_tab.dart to read from SearchState provider instead of receiving 15+ parameters. The widget becomes simpler with Consumer or context.watch.",
+    "Update flutter_app/lib/widgets/results_tab.dart to read from ResultsState provider instead of receiving parameters.",
+    "Update flutter_app/lib/widgets/world_settings_card.dart and flutter_app/lib/widgets/recent_seeds_widget.dart to listen to provider state instead of using dynamic casts and GlobalKeys for cross-widget communication.",
+    "Ensure all existing tests still pass after refactoring by running flutter test"
+  ],
+  "acceptance_criteria": [
+    "No dynamic casts remain in the codebase (grep for 'as dynamic' returns nothing)",
+    "No broken listener removal pattern exists (removeListener with anonymous closures)",
+    "Provider package is used for state management across the app",
+    "main.dart is under 100 lines (just app setup + provider wiring)",
+    "All existing tests pass (flutter test)",
+    "flutter analyze passes without errors"
+  ],
+  "verification": [
+    "Run 'cd /projects/sandbox/minecraft-finder/flutter_app && flutter pub get && flutter analyze && flutter test'",
+    "Run 'grep -r \"as dynamic\" /projects/sandbox/minecraft-finder/flutter_app/lib/' to confirm no dynamic casts",
+    "Run 'wc -l /projects/sandbox/minecraft-finder/flutter_app/lib/main.dart' to confirm it's under 100 lines"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
