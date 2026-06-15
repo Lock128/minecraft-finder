@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Add new features: Favorites/Bookmarks system, Search History with replay, and an interactive 2D mini-map visualization of results. These features enhance the app's usability and provide functionality that competing tools lack.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create flutter_app/lib/models/favorite_location.dart - a model class that wraps either an OreLocation or StructureLocation with metadata (timestamp, optional user label/note, seed used). Include fromJson/toJson for persistence.",
     "Create flutter_app/lib/providers/favorites_provider.dart - a ChangeNotifier that loads/saves favorites to SharedPreferences (JSON list). Provides add, remove, reorder, and label-editing methods. Max 100 favorites.",
@@ -30,5 +30,5 @@
     "Run 'cd /projects/sandbox/minecraft-finder/flutter_app && flutter pub get && flutter analyze && flutter test'"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Successfully implemented all three new features. Key decisions: (1) Replaced Release Notes tab (position 4) with Favorites tab (position 2) to keep the total tab count at 5 and give favorites prominent placement. Tab order is now: Search, Results, Favorites, Guide, Bedwars. (2) All new widgets (SearchHistoryWidget, FavoritesTab, bookmark buttons in ResultsTab) use try-catch around Provider.of to remain resilient when providers are not in tree (important for test compatibility). (3) SearchHistoryProvider and FavoritesProvider are provided at the app level via MultiProvider in main.dart. (4) Search history is recorded in OreFinderScreen._findOres after a successful search. (5) The map view uses CustomPainter with InteractiveViewer for performant zoom/pan. Ore dots are circles sized by probability, structure markers are squares. (6) Added 10 new l10n keys to all ARB files (English text used as placeholder in other locales). (7) Updated ui_locale_reactivity_test to match new tab labels. All 209 tests pass."
 }
