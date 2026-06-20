@@ -379,7 +379,7 @@ export function generateResourceName(
   }
   
   // Generate standard name
-  let parts: string[] = [];
+  const parts: string[] = [];
   
   if (baseName) {
     parts.push(baseName);
