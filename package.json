@@ -40,10 +40,10 @@
     "validate-security-config": "cd infrastructure && ts-node -e \"import { SecurityConfig } from './src/utils/security-config'; console.log('Security config validation passed');\""
   },
   "dependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.0.0",
     "aws-cdk-lib": "^2.260.0",
-    "constructs": "^10.6.0"
+    "constructs": "^10.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "ts-node": {
     "esm": true,
@@ -65,12 +65,12 @@
   "author": "Johannes Lockhead Koch",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^26.0.0",
     "@types/jest": "^29.5.14",
-    "@typescript-eslint/eslint-plugin": "^8.61.1",
-    "@typescript-eslint/parser": "^8.61.1",
-    "eslint": "^8.57.0",
-    "jest": "^29.5.0",
-    "ts-jest": "^29.1.0"
+    "@types/node": "^26.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
+    "@typescript-eslint/parser": "^8.62.0",
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.11"
   }
 }
