@@ -1,4 +1,3 @@
-import { Construct } from 'constructs';
 import { App, Stack } from 'aws-cdk-lib';
 import { ErrorHandler, ErrorSeverity, ErrorCategory, CommonErrorHandlers } from '../error-handler';
 

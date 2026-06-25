@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import { Duration, Stack, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack, RemovalPolicy } from 'aws-cdk-lib';
 
 /**
  * Error severity levels
@@ -90,7 +90,7 @@ export class ErrorHandler {
           RemovalPolicy.RETAIN : 
           RemovalPolicy.DESTROY,
       });
-    } catch (error) {
+    } catch (_error) {
       // If we're not in a Stack context (e.g., at App level), skip log group creation
       console.log(`⚠️ ErrorHandler created outside Stack context, skipping CloudWatch log group creation`);
       this.logGroup = null as any; // We'll handle null checks in methods that use it

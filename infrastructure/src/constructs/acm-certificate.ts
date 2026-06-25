@@ -1,6 +1,5 @@
 import { Construct } from 'constructs';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cr from 'aws-cdk-lib/custom-resources';
@@ -49,7 +48,7 @@ export class AcmCertificateConstruct extends Construct {
   constructor(scope: Construct, id: string, props: AcmCertificateConstructProps) {
     super(scope, id);
 
-    const { domainConfig, environment, tags = {} } = props;
+    const { domainConfig, tags = {} } = props;
     this.domainName = domainConfig.domainName;
 
     // Validate that we're in the correct region for CloudFront certificates
@@ -110,7 +109,7 @@ export class AcmCertificateConstruct extends Construct {
    * Gets subject alternative names for the certificate
    * This allows the certificate to work with both www and non-www versions
    */
-  private getSubjectAlternativeNames(domainName: string): string[] | undefined {
+  private getSubjectAlternativeNames(_domainName: string): string[] | undefined {
     // For subdomains like app.minecraft.lockhead.cloud, we might want to include
     // the wildcard version *.minecraft.lockhead.cloud if needed
     // For now, we'll keep it simple and only include the exact domain

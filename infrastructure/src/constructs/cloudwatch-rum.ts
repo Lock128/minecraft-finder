@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import * as rum from 'aws-cdk-lib/aws-rum';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { Stack } from 'aws-cdk-lib';
 import { MonitoringConfig } from '../types/config';
 
 /**

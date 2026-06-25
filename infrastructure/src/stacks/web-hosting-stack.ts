@@ -1,8 +1,6 @@
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import { DeploymentConfig } from '../types/config';
 import { S3BucketConstruct } from '../constructs/s3-bucket';
 import { CloudFrontDistributionConstruct } from '../constructs/cloudfront-distribution';
