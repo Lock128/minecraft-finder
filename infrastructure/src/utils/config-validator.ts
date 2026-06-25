@@ -1,4 +1,4 @@
-import { DeploymentConfig, Environment } from '../types/config';
+import { DeploymentConfig } from '../types/config';
 
 /**
  * Configuration validation result

@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { 
   loadConfig, 
   getEnvironment, 
@@ -8,7 +7,7 @@ import {
   validateRegion,
   getConfigSummary
 } from '../config-loader';
-import { DeploymentConfig, Environment } from '../../types/config';
+import { DeploymentConfig } from '../../types/config';
 
 // Mock fs module
 jest.mock('fs');

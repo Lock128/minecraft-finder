@@ -191,10 +191,10 @@ describe('DnsManagementConstruct', () => {
   });
 
   describe('AWS Resources', () => {
-    let construct: DnsManagementConstruct;
+    let _construct: DnsManagementConstruct;
 
     beforeEach(() => {
-      construct = new DnsManagementConstruct(stack, 'DnsManagement', {
+      _construct = new DnsManagementConstruct(stack, 'DnsManagement', {
         domainConfig,
         cloudFrontDomainName: 'd123456789.cloudfront.net',
         environment: 'test'
@@ -391,7 +391,7 @@ describe('DnsManagementConstruct', () => {
 
   describe('Lambda Function Code', () => {
     it('should include comprehensive error handling in Lambda code', () => {
-      const construct = new DnsManagementConstruct(stack, 'DnsManagement', {
+      const _construct = new DnsManagementConstruct(stack, 'DnsManagement', {
         domainConfig,
         cloudFrontDomainName: 'd123456789.cloudfront.net',
         environment: 'test'
@@ -417,7 +417,7 @@ describe('DnsManagementConstruct', () => {
     });
 
     it('should include proper error messages in Lambda code', () => {
-      const construct = new DnsManagementConstruct(stack, 'DnsManagement', {
+      const _construct = new DnsManagementConstruct(stack, 'DnsManagement', {
         domainConfig,
         cloudFrontDomainName: 'd123456789.cloudfront.net',
         environment: 'test'

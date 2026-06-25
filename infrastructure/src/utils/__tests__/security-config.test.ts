@@ -74,7 +74,7 @@ describe('SecurityConfig', () => {
 
   describe('createGitHubActionsRole', () => {
     it('should create IAM role with correct trust policy', () => {
-      const role = SecurityConfig.createGitHubActionsRole(stack, 'dev');
+      const _role = SecurityConfig.createGitHubActionsRole(stack, 'dev');
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::IAM::Role', {
@@ -102,7 +102,7 @@ describe('SecurityConfig', () => {
     });
 
     it('should create role with minimal required policies', () => {
-      const role = SecurityConfig.createGitHubActionsRole(stack, 'dev');
+      const _role = SecurityConfig.createGitHubActionsRole(stack, 'dev');
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::IAM::Role', {
@@ -121,7 +121,7 @@ describe('SecurityConfig', () => {
     });
 
     it('should set maximum session duration', () => {
-      const role = SecurityConfig.createGitHubActionsRole(stack, 'dev');
+      const _role = SecurityConfig.createGitHubActionsRole(stack, 'dev');
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::IAM::Role', {
@@ -133,7 +133,7 @@ describe('SecurityConfig', () => {
   describe('createCrossAccountDNSRole', () => {
     it('should create cross-account role with correct trust policy', () => {
       const trustedAccountId = '123456789012';
-      const role = SecurityConfig.createCrossAccountDNSRole(stack, trustedAccountId);
+      const _role = SecurityConfig.createCrossAccountDNSRole(stack, trustedAccountId);
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::IAM::Role', {
@@ -156,7 +156,7 @@ describe('SecurityConfig', () => {
 
     it('should have minimal Route53 permissions', () => {
       const trustedAccountId = '123456789012';
-      const role = SecurityConfig.createCrossAccountDNSRole(stack, trustedAccountId);
+      const _role = SecurityConfig.createCrossAccountDNSRole(stack, trustedAccountId);
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::IAM::Role', {

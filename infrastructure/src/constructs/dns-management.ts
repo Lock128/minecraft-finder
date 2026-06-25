@@ -50,7 +50,7 @@ export class DnsManagementConstruct extends Construct {
   constructor(scope: Construct, id: string, props: DnsManagementConstructProps) {
     super(scope, id);
 
-    const { domainConfig, cloudFrontDomainName, environment, tags = {} } = props;
+    const { domainConfig, cloudFrontDomainName, tags = {} } = props;
     
     // Validate inputs
     this.validateInputs(domainConfig, cloudFrontDomainName);

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { loadConfig, getEnvironment, validateRegion, getConfigSummary } from './utils/config-loader';
+import { loadConfig, getEnvironment, getConfigSummary } from './utils/config-loader';
 import { generateValidationReport } from './utils/config-validator';
 import { WebHostingStack } from './stacks/web-hosting-stack';
-import { ErrorHandler, ErrorSeverity, ErrorCategory } from './utils/error-handler';
+import { ErrorHandler } from './utils/error-handler';
 import { DeploymentValidator } from './utils/deployment-validator';
 
 /**

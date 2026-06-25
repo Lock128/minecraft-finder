@@ -88,7 +88,6 @@ const createMockConfig = (overrides: Partial<DeploymentConfig> = {}): Deployment
 describe('DeploymentValidator', () => {
   let app: App;
   let stack: Stack;
-  let validator: DeploymentValidator;
   let mockConfig: DeploymentConfig;
 
   beforeEach(() => {

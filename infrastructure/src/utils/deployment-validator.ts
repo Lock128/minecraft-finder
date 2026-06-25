@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
 import { DeploymentConfig } from '../types/config';
-import { ErrorHandler, ErrorSeverity, ErrorCategory } from './error-handler';
+import { ErrorHandler } from './error-handler';
 
 /**
  * Pre-deployment validation result

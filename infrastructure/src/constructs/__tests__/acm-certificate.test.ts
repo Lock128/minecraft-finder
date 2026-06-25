@@ -2,7 +2,7 @@ import { Template, Match } from 'aws-cdk-lib/assertions';
 import { Stack, App } from 'aws-cdk-lib';
 import { AcmCertificateConstruct } from '../acm-certificate';
 import { DomainConfig } from '../../types/config';
-import { describe, it, beforeEach } from '@jest/globals';
+import { describe, beforeEach } from '@jest/globals';
 
 // Jest provides describe, it, beforeEach globally
 
@@ -395,7 +395,7 @@ describe('AcmCertificateConstruct', () => {
   describe('Lambda Function Code', () => {
     test('should include proper error handling in Lambda code', () => {
       // Act
-      const construct = new AcmCertificateConstruct(stack, 'TestCertificate', {
+      const _construct = new AcmCertificateConstruct(stack, 'TestCertificate', {
         domainConfig,
         environment: 'test',
       });

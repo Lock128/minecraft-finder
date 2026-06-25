@@ -70,7 +70,7 @@ class SecurityChecker {
         this.addResult('DEPENDENCY_VULNERABILITIES', 'PASS', 
           'No critical or high severity vulnerabilities found', 'LOW');
       }
-    } catch (error) {
+    } catch (_error) {
       this.addResult('DEPENDENCY_VULNERABILITIES', 'WARN', 
         'Could not run dependency vulnerability check', 'MEDIUM');
     }
@@ -94,9 +94,9 @@ class SecurityChecker {
             SecurityConfig.validateSecurityConfig(config);
             this.addResult(`CONFIG_VALIDATION_${configFile.toUpperCase()}`, 'PASS', 
               `Configuration ${configFile} passed security validation`, 'LOW');
-          } catch (error) {
+          } catch (_error) {
             this.addResult(`CONFIG_VALIDATION_${configFile.toUpperCase()}`, 'FAIL', 
-              `Configuration ${configFile} failed validation: ${(error as Error).message}`, 'HIGH');
+              `Configuration ${configFile} failed validation: ${(_error as Error).message}`, 'HIGH');
           }
         }
       }
@@ -104,9 +104,9 @@ class SecurityChecker {
       // Check for sensitive data in config files
       this.checkForSensitiveDataInConfigs(configDir);
       
-    } catch (error) {
+    } catch (_error) {
       this.addResult('CONFIGURATION_SECURITY', 'FAIL', 
-        `Configuration security check failed: ${(error as Error).message}`, 'HIGH');
+        `Configuration security check failed: ${(_error as Error).message}`, 'HIGH');
     }
   }
 
@@ -139,7 +139,7 @@ class SecurityChecker {
       
       this.addResult('SENSITIVE_DATA_IN_CONFIG', 'PASS', 
         'No sensitive data found in configuration files', 'LOW');
-    } catch (error) {
+    } catch (_error) {
       this.addResult('SENSITIVE_DATA_IN_CONFIG', 'WARN', 
         'Could not scan configuration files for sensitive data', 'MEDIUM');
     }
@@ -200,7 +200,7 @@ class SecurityChecker {
         this.addResult('HARDCODED_SECRETS', 'PASS', 
           'No hardcoded secrets found in source code', 'LOW');
       }
-    } catch (error) {
+    } catch (_error) {
       this.addResult('HARDCODED_SECRETS', 'WARN', 
         'Could not scan for hardcoded secrets', 'MEDIUM');
     }
@@ -235,7 +235,7 @@ class SecurityChecker {
           'IAM policies follow least privilege principle', 'LOW');
       }
       
-    } catch (error) {
+    } catch (_error) {
       this.addResult('IAM_POLICY_CHECK', 'WARN', 
         'Could not analyze IAM policies', 'MEDIUM');
     }
@@ -281,7 +281,7 @@ class SecurityChecker {
           `Only ${headersConfigured}/${securityHeaders.length} security headers configured`, 'MEDIUM');
       }
       
-    } catch (error) {
+    } catch (_error) {
       this.addResult('NETWORK_SECURITY', 'WARN', 
         'Could not analyze network security configuration', 'MEDIUM');
     }
@@ -324,7 +324,7 @@ class SecurityChecker {
           'HTTPS-only bucket policy not found', 'MEDIUM');
       }
       
-    } catch (error) {
+    } catch (_error) {
       this.addResult('ENCRYPTION_SETTINGS', 'WARN', 
         'Could not analyze encryption settings', 'MEDIUM');
     }
@@ -357,7 +357,7 @@ class SecurityChecker {
           'CloudFront access logging not configured', 'MEDIUM');
       }
       
-    } catch (error) {
+    } catch (_error) {
       this.addResult('LOGGING_MONITORING', 'WARN', 
         'Could not analyze logging and monitoring configuration', 'MEDIUM');
     }
@@ -390,7 +390,7 @@ class SecurityChecker {
         const result = compliance.check();
         this.addResult(compliance.name, result ? 'PASS' : 'WARN', 
           `${compliance.name} compliance check`, compliance.severity);
-      } catch (error) {
+      } catch (_error) {
         this.addResult(compliance.name, 'WARN', 
           `Could not verify ${compliance.name} compliance`, compliance.severity);
       }
@@ -460,7 +460,7 @@ class SecurityChecker {
           files.push(fullPath);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors for inaccessible directories
     }
     

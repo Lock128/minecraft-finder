@@ -18,12 +18,14 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "typeRoots": ["../node_modules/@types"],
+    "types": ["node", "jest"],
     "outDir": "./lib",
     "rootDir": "./src",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*"],
   "exclude": [
