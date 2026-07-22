@@ -1,4 +1,3 @@
-import { App, Stack } from 'aws-cdk-lib';
 import { DeploymentValidator } from '../deployment-validator';
 import { DeploymentConfig } from '../../types/config';
 import { describe, it, beforeEach } from '@jest/globals';
@@ -86,21 +85,15 @@ const createMockConfig = (overrides: Partial<DeploymentConfig> = {}): Deployment
 };
 
 describe('DeploymentValidator', () => {
-  let app: App;
-  let stack: Stack;
   let mockConfig: DeploymentConfig;
 
   beforeEach(() => {
-    app = new App();
-    stack = new Stack(app, 'TestStack', {
-      env: { region: 'us-east-1' }
-    });
     mockConfig = createMockConfig();
   });
 
   describe('validatePreDeployment', () => {
     it('should pass validation with valid configuration', async () => {
-      const validator = new DeploymentValidator(stack, mockConfig);
+      const validator = new DeploymentValidator(mockConfig);
       const result = await validator.validatePreDeployment();
       
       expect(result.isValid).toBe(true);
@@ -109,10 +102,6 @@ describe('DeploymentValidator', () => {
     });
 
     it('should fail validation with placeholder values', async () => {
-      const placeholderStack = new Stack(app, 'PlaceholderStack', {
-        env: { region: 'us-east-1' }
-      });
-      
       const configWithPlaceholders = createMockConfig({
         domainConfig: {
           ...mockConfig.domainConfig,
@@ -121,7 +110,7 @@ describe('DeploymentValidator', () => {
         },
       });
       
-      const validatorWithPlaceholders = new DeploymentValidator(placeholderStack, configWithPlaceholders);
+      const validatorWithPlaceholders = new DeploymentValidator(configWithPlaceholders);
       const result = await validatorWithPlaceholders.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -130,11 +119,18 @@ describe('DeploymentValidator', () => {
     });
 
     it('should fail validation with invalid region', async () => {
-      const invalidRegionStack = new Stack(app, 'InvalidRegionStack', {
-        env: { region: 'eu-west-1' }
+      const configWithInvalidRegion = createMockConfig({
+        domainConfig: {
+          ...mockConfig.domainConfig,
+          certificateRegion: 'eu-west-1',
+        },
+        environmentConfig: {
+          ...mockConfig.environmentConfig,
+          allowedRegions: ['us-east-1', 'us-west-2'],
+        },
       });
       
-      const validatorWithInvalidRegion = new DeploymentValidator(invalidRegionStack, mockConfig);
+      const validatorWithInvalidRegion = new DeploymentValidator(configWithInvalidRegion);
       const result = await validatorWithInvalidRegion.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -146,7 +142,7 @@ describe('DeploymentValidator', () => {
 
   describe('checkDeploymentReadiness', () => {
     it('should check AWS credentials', async () => {
-      const credentialsValidator = new DeploymentValidator(stack, mockConfig);
+      const credentialsValidator = new DeploymentValidator(mockConfig);
       const result = await credentialsValidator.checkDeploymentReadiness();
       
       expect(result.checks).toBeDefined();
@@ -160,7 +156,7 @@ describe('DeploymentValidator', () => {
         domainConfig: undefined as any,
       });
       
-      const validatorWithMissingFields = new DeploymentValidator(stack, configWithMissingFields);
+      const validatorWithMissingFields = new DeploymentValidator(configWithMissingFields);
       const result = await validatorWithMissingFields.checkDeploymentReadiness();
       
       const configCheck = result.checks.find(check => check.name === 'Configuration');
@@ -171,17 +167,13 @@ describe('DeploymentValidator', () => {
 
   describe('Error Handling', () => {
     it('should handle validation errors gracefully', async () => {
-      const errorApp = new App();
-      const errorStack = new Stack(errorApp, 'ErrorValidationStack', {
-        env: { region: 'us-east-1' }
-      });
       const invalidConfig = {} as DeploymentConfig;
       
       expect(() => {
-        new DeploymentValidator(errorStack, invalidConfig);
+        new DeploymentValidator(invalidConfig);
       }).not.toThrow(); // Constructor should not throw
       
-      const errorValidator = new DeploymentValidator(errorStack, invalidConfig);
+      const errorValidator = new DeploymentValidator(invalidConfig);
       const result = await errorValidator.validatePreDeployment();
       
       expect(result.isValid).toBe(false);
@@ -191,7 +183,7 @@ describe('DeploymentValidator', () => {
 
   describe('Integration Tests', () => {
     it('should perform complete validation workflow', async () => {
-      const integrationValidator = new DeploymentValidator(stack, mockConfig);
+      const integrationValidator = new DeploymentValidator(mockConfig);
       const result = await integrationValidator.validatePreDeployment();
       
       expect(result).toHaveProperty('isValid');
@@ -207,7 +199,7 @@ describe('DeploymentValidator', () => {
     });
 
     it('should perform complete readiness check workflow', async () => {
-      const readinessValidator = new DeploymentValidator(stack, mockConfig);
+      const readinessValidator = new DeploymentValidator(mockConfig);
       const result = await readinessValidator.checkDeploymentReadiness();
       
       expect(result).toHaveProperty('ready');

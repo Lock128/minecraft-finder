@@ -43,7 +43,7 @@ async function main() {
     
     // Perform pre-deployment validation
     console.log('🔍 Performing pre-deployment validation...');
-    const validator = new DeploymentValidator(app, config);
+    const validator = new DeploymentValidator(config);
     const validationResult = await validator.validatePreDeployment();
     
     if (!validationResult.isValid) {

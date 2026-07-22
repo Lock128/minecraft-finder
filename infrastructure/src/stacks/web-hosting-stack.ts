@@ -73,7 +73,7 @@ export class WebHostingStack extends Stack {
         stackName: id
       });
 
-      this.validator = new DeploymentValidator(this, this.config);
+      this.validator = new DeploymentValidator(this.config);
 
       // Validate stack configuration with comprehensive error handling
       this.validateStackConfiguration();

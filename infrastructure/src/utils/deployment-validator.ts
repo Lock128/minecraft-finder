@@ -1,7 +1,40 @@
-import { Construct } from 'constructs';
-import { Stack } from 'aws-cdk-lib';
 import { DeploymentConfig } from '../types/config';
-import { ErrorHandler } from './error-handler';
+
+/**
+ * Lightweight validation helper for pre-deployment checks.
+ * Does not require a CDK Construct scope.
+ */
+class ValidationHelper {
+  /**
+   * Validates AWS resource ARN format
+   */
+  validateArn(arn: string, resourceType: string): void {
+    const arnPattern = /^arn:aws:[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\d{12}:[a-zA-Z0-9-\/]+$/;
+    if (!arnPattern.test(arn)) {
+      throw new Error(`Invalid ARN format for ${resourceType}: ${arn}`);
+    }
+  }
+
+  /**
+   * Validates domain name format
+   */
+  validateDomainName(domainName: string): void {
+    const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.)*[a-zA-Z]{2,}$/;
+    if (!domainPattern.test(domainName)) {
+      throw new Error(`Invalid domain name format: ${domainName}`);
+    }
+  }
+
+  /**
+   * Validates that a value is not null or undefined
+   */
+  validateRequired<T>(value: T | null | undefined, fieldName: string): T {
+    if (value === null || value === undefined) {
+      throw new Error(`Required field '${fieldName}' is missing or null`);
+    }
+    return value;
+  }
+}
 
 /**
  * Pre-deployment validation result
@@ -29,19 +62,18 @@ export interface DeploymentReadinessResult {
 
 /**
  * Pre-deployment validator for CDK stacks
+ * 
+ * This validator performs pre-deployment checks (configuration, permissions, etc.)
+ * and does NOT need to be created within a CDK Stack scope. It operates purely
+ * on configuration data without creating CDK constructs.
  */
 export class DeploymentValidator {
-  private readonly errorHandler: ErrorHandler;
+  private readonly validationHelper: ValidationHelper;
   private readonly config: DeploymentConfig;
-  private readonly stack: Stack;
 
-  constructor(scope: Construct, config: DeploymentConfig) {
+  constructor(config: DeploymentConfig) {
     this.config = config;
-    this.stack = Stack.of(scope);
-    this.errorHandler = new ErrorHandler(scope, `DeploymentValidator-${Math.random().toString(36).substr(2, 9)}`, {
-      environment: config.environment,
-      stackName: this.stack.stackName
-    });
+    this.validationHelper = new ValidationHelper();
   }
 
   /**
@@ -204,20 +236,13 @@ export class DeploymentValidator {
    */
   private async validateAwsEnvironment(result: PreDeploymentValidationResult): Promise<void> {
     try {
-      // Check if we're in the correct region
-      const currentRegion = this.stack.region;
+      // Check if the configured region is valid
       const requiredRegion = this.config.domainConfig.certificateRegion;
 
-      if (currentRegion !== requiredRegion) {
-        result.blockers.push(
-          `Stack must be deployed to ${requiredRegion} region for CloudFront certificate. Current region: ${currentRegion}`
-        );
-      }
-
       // Check if region is allowed for environment
-      if (!this.config.environmentConfig.allowedRegions.includes(currentRegion)) {
+      if (!this.config.environmentConfig.allowedRegions.includes(requiredRegion)) {
         result.blockers.push(
-          `Region ${currentRegion} is not allowed for ${this.config.environment} environment. ` +
+          `Region ${requiredRegion} is not allowed for ${this.config.environment} environment. ` +
           `Allowed regions: ${this.config.environmentConfig.allowedRegions.join(', ')}`
         );
       }
@@ -253,13 +278,13 @@ export class DeploymentValidator {
       }
 
       // Validate ARN format
-      this.errorHandler.validateArn(
+      this.validationHelper.validateArn(
         this.config.domainConfig.crossAccountRoleArn,
         'Cross-account role'
       );
 
       // Validate domain name format
-      this.errorHandler.validateDomainName(this.config.domainConfig.domainName);
+      this.validationHelper.validateDomainName(this.config.domainConfig.domainName);
 
     } catch (error) {
       result.errors.push(`Configuration validation failed: ${(error as Error).message}`);
@@ -314,9 +339,9 @@ export class DeploymentValidator {
       }
 
       const crossAccountId = accountIdMatch[1];
-      const currentAccountId = this.stack.account;
+      const currentAccountId = process.env.CDK_DEFAULT_ACCOUNT;
 
-      if (crossAccountId === currentAccountId) {
+      if (currentAccountId && crossAccountId === currentAccountId) {
         result.warnings.push('Cross-account role is in the same account - this may not be intended');
       }
 
@@ -462,10 +487,10 @@ export class DeploymentValidator {
    */
   private validateConfigurationIntegrity(): void {
     // Comprehensive configuration validation
-    this.errorHandler.validateRequired(this.config.domainConfig, 'domainConfig');
-    this.errorHandler.validateRequired(this.config.monitoringConfig, 'monitoringConfig');
-    this.errorHandler.validateRequired(this.config.cachingConfig, 'cachingConfig');
-    this.errorHandler.validateRequired(this.config.s3Config, 's3Config');
+    this.validationHelper.validateRequired(this.config.domainConfig, 'domainConfig');
+    this.validationHelper.validateRequired(this.config.monitoringConfig, 'monitoringConfig');
+    this.validationHelper.validateRequired(this.config.cachingConfig, 'cachingConfig');
+    this.validationHelper.validateRequired(this.config.s3Config, 's3Config');
   }
 
   /**
@@ -489,7 +514,7 @@ export class DeploymentValidator {
   private async validateDomainSetup(): Promise<void> {
     // This would typically check DNS resolution and hosted zone
     // For now, we'll validate the domain format
-    this.errorHandler.validateDomainName(this.config.domainConfig.domainName);
+    this.validationHelper.validateDomainName(this.config.domainConfig.domainName);
     
     if (!this.config.domainConfig.hostedZoneId.startsWith('Z')) {
       throw new Error('Invalid hosted zone ID format');
