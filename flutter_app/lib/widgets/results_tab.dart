@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
 import '../providers/favorites_provider.dart';
+import '../providers/pro_status_provider.dart';
 import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
 import '../utils/ore_utils.dart';
 import '../utils/structure_utils.dart';
+import 'pro_upgrade_dialog.dart';
 import 'results_map_view.dart';
 
 class ResultsTab extends StatefulWidget {
@@ -512,18 +515,95 @@ class _ResultsTabState extends State<ResultsTab> {
 
   Widget _buildResultsList(List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
+    final isPro = !FeatureFlags.enableMonetization || context.watch<ProStatusProvider>().isPro;
+    final totalItems = filteredResults.length + filteredStructureResults.length;
+    // Add 1 extra item for the Pro upsell card if not pro and has results
+    final showProUpsell = !isPro && totalItems > 0;
+
     return ListView.builder(
       padding: const EdgeInsets.all(8),
-      itemCount: filteredResults.length + filteredStructureResults.length,
+      itemCount: totalItems + (showProUpsell ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < filteredResults.length) {
           return _buildOreResultCard(context, filteredResults[index], index + 1);
-        } else {
+        } else if (index < totalItems) {
           final structureIndex = index - filteredResults.length;
           return _buildStructureResultCard(
               context, filteredStructureResults[structureIndex]);
+        } else {
+          // Pro upsell card at the end
+          return _buildProUpsellCard(context);
         }
       },
+    );
+  }
+
+  Widget _buildProUpsellCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 6, top: 8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: GamerColors.neonPurple.withValues(alpha: 0.3)),
+      ),
+      color: isDark
+          ? GamerColors.neonPurple.withValues(alpha: 0.08)
+          : GamerColors.lightPurple.withValues(alpha: 0.05),
+      child: InkWell(
+        onTap: () {
+          // Import is handled via the provider already in scope
+          showDialog(
+            context: context,
+            builder: (_) => ProUpgradeDialog(isDarkMode: isDark),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [GamerColors.neonPurple, GamerColors.neonCyan],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.diamond, color: Colors.white, size: 16),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Want more results?',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A2E),
+                      ),
+                    ),
+                    Text(
+                      'Upgrade to Pro for up to 500 results, unlimited radius, and more.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.white54 : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios,
+                  size: 14,
+                  color: isDark ? GamerColors.neonPurple : GamerColors.lightPurple),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

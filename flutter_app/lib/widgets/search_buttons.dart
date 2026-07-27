@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
+import '../widgets/pro_upgrade_dialog.dart';
 
 class SearchButtons extends StatelessWidget {
   final bool isLoading;
@@ -19,6 +23,8 @@ class SearchButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isPro = !FeatureFlags.enableMonetization || context.watch<ProStatusProvider>().isPro;
+
     return Column(
       children: [
         Row(
@@ -38,12 +44,21 @@ class SearchButtons extends StatelessWidget {
             Expanded(
               flex: 2,
               child: _GamerButton(
-                onPressed: isLoading ? null : () => onFindOres(true),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        if (isPro) {
+                          onFindOres(true);
+                        } else {
+                          ProUpgradeDialog.show(context, isDarkMode: isDarkMode);
+                        }
+                      },
                 isLoading: isLoading && findAllNetherite,
                 label: isLoading && findAllNetherite ? l10n.searchingButton : l10n.findAllNetheriteButton,
                 emoji: '🔥',
                 gradient: const [GamerColors.neonPurple, GamerColors.neonPink],
                 isDarkMode: isDarkMode,
+                showProBadge: !isPro,
               ),
             ),
           ],
@@ -134,6 +149,7 @@ class _GamerButton extends StatelessWidget {
   final String emoji;
   final List<Color> gradient;
   final bool isDarkMode;
+  final bool showProBadge;
 
   const _GamerButton({
     required this.onPressed,
@@ -142,6 +158,7 @@ class _GamerButton extends StatelessWidget {
     required this.emoji,
     required this.gradient,
     required this.isDarkMode,
+    this.showProBadge = false,
   });
 
   @override
@@ -190,6 +207,24 @@ class _GamerButton extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                if (showProBadge) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'PRO',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

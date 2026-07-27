@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/app_settings.dart';
 import 'providers/favorites_provider.dart';
+import 'providers/pro_status_provider.dart';
 import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
 import 'widgets/ore_finder_screen.dart';
@@ -23,6 +24,7 @@ class GemOreStructFinderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppSettings()),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
         ChangeNotifierProvider(create: (_) => SearchHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProStatusProvider()),
       ],
       child: Consumer<AppSettings>(
         builder: (context, settings, _) {

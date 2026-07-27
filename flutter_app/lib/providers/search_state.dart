@@ -147,11 +147,18 @@ class SearchState extends ChangeNotifier {
 
   /// Performs the ore/structure search. Returns an error message string
   /// if validation fails, or null on success.
+  ///
+  /// When [isPro] is false, certain limits apply:
+  /// - Comprehensive netherite search is blocked
+  /// - Search radius is capped at 50
+  /// - Only 1 structure type can be searched at a time
+  /// - Results are capped at 50
   Future<String?> findOres(bool comprehensiveNetherite, {
     required String errorEnableSearchType,
     required String errorSelectStructure,
     required String errorSelectOre,
     required String Function(String) errorGeneric,
+    bool isPro = false,
   }) async {
     if (!formKey.currentState!.validate()) return null;
 
@@ -176,6 +183,27 @@ class SearchState extends ChangeNotifier {
     _findAllNetherite = comprehensiveNetherite;
     notifyListeners();
 
+    // Apply Pro tier limits
+    final int effectiveRadius;
+    if (isPro) {
+      effectiveRadius = int.parse(radiusController.text);
+    } else {
+      // Free users capped at 50-block radius
+      final requested = int.parse(radiusController.text);
+      effectiveRadius = requested > 50 ? 50 : requested;
+    }
+
+    // Free users cannot use comprehensive netherite search
+    final bool effectiveComprehensiveNetherite = isPro && comprehensiveNetherite;
+
+    // Free users can only search 1 structure type at a time
+    final Set<StructureType> effectiveStructures;
+    if (isPro || _selectedStructures.length <= 1) {
+      effectiveStructures = _selectedStructures;
+    } else {
+      effectiveStructures = {_selectedStructures.first};
+    }
+
     // Add the current seed to recent seeds when starting a search
     await PreferencesService.addRecentSeed(seedController.text);
 
@@ -186,7 +214,7 @@ class SearchState extends ChangeNotifier {
 
       // Search for ores if enabled
       if (_includeOres) {
-        if (comprehensiveNetherite) {
+        if (effectiveComprehensiveNetherite) {
           final results = await finder.findAllNetherite(
             seed: seedController.text,
             centerX: int.parse(xController.text),
@@ -202,7 +230,7 @@ class SearchState extends ChangeNotifier {
               centerX: int.parse(xController.text),
               centerY: int.parse(yController.text),
               centerZ: int.parse(zController.text),
-              radius: int.parse(radiusController.text),
+              radius: effectiveRadius,
               oreType: oreType,
               includeNether: _includeNether && oreType == OreType.gold,
               edition: _selectedEdition,
@@ -215,13 +243,13 @@ class SearchState extends ChangeNotifier {
 
       // Search for structures if enabled
       List<StructureLocation> structureResults = [];
-      if (_includeStructures && _selectedStructures.isNotEmpty) {
+      if (_includeStructures && effectiveStructures.isNotEmpty) {
         structureResults = await structureFinder.findStructures(
           seed: seedController.text,
           centerX: int.parse(xController.text),
           centerZ: int.parse(zController.text),
-          radius: int.parse(radiusController.text),
-          structureTypes: _selectedStructures,
+          radius: effectiveRadius,
+          structureTypes: effectiveStructures,
         );
       }
 
@@ -237,8 +265,14 @@ class SearchState extends ChangeNotifier {
       // Sort all results by probability (highest first)
       combinedResults.sort((a, b) => b.probability.compareTo(a.probability));
 
-      // Take top 250 results (or 300 for comprehensive netherite search)
-      int maxResults = comprehensiveNetherite ? 300 : 250;
+      // Take top results based on Pro status
+      // Free: 50 results, Pro: 500 (or 300 for comprehensive netherite)
+      int maxResults;
+      if (isPro) {
+        maxResults = effectiveComprehensiveNetherite ? 300 : 500;
+      } else {
+        maxResults = 50;
+      }
       final topResults = combinedResults.take(maxResults).toList();
 
       // Separate back into ore and structure lists for the UI
