@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/structure_location.dart';
+import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
 import '../utils/structure_utils.dart';
 
@@ -181,6 +184,19 @@ class StructureSelectionCard extends StatelessWidget {
               fontSize: 12,
             ),
           ),
+          if (selectedStructures.length > 1 &&
+              FeatureFlags.enableMonetization &&
+              !context.watch<ProStatusProvider>().isPro) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Free tier searches 1 structure at a time. Upgrade to Pro for all at once.',
+              style: TextStyle(
+                color: isDarkMode ? GamerColors.neonPurple.withValues(alpha: 0.7) : GamerColors.lightPurple.withValues(alpha: 0.8),
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
         ],
       ],
     );

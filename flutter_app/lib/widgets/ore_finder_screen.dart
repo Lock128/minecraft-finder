@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/search_history_entry.dart';
+import '../providers/pro_status_provider.dart';
 import '../providers/search_history_provider.dart';
 import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
@@ -10,6 +12,7 @@ import '../widgets/favorites_tab.dart';
 import '../widgets/guide_tab.dart';
 import '../widgets/bedwars_guide_tab.dart';
 import '../widgets/app_info_dialog.dart';
+import '../widgets/pro_upgrade_dialog.dart';
 import 'package:provider/provider.dart';
 
 class OreFinderScreen extends StatefulWidget {
@@ -48,6 +51,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
 
   Future<void> _findOres(bool comprehensiveNetherite, BuildContext providerContext) async {
     final searchState = providerContext.read<SearchState>();
+    final proStatus = providerContext.read<ProStatusProvider>();
     final l10n = AppLocalizations.of(providerContext);
 
     // Capture the history provider before any async gap
@@ -64,6 +68,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       errorSelectStructure: l10n.errorSelectStructure,
       errorSelectOre: l10n.errorSelectOre,
       errorGeneric: (e) => l10n.errorGeneric(e),
+      isPro: proStatus.isPro,
     );
 
     if (!mounted) return;
@@ -260,6 +265,34 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         ),
       ),
       actions: [
+        if (FeatureFlags.enableMonetization)
+          Consumer<ProStatusProvider>(
+            builder: (context, pro, _) {
+              if (pro.isPro) return const SizedBox.shrink();
+              return IconButton(
+                onPressed: () => ProUpgradeDialog.show(context, isDarkMode: isDark),
+                icon: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [GamerColors.neonPurple, GamerColors.neonCyan],
+                    ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                tooltip: 'Upgrade to Pro',
+              );
+            },
+          ),
         IconButton(
           onPressed: () =>
               AppInfoDialog.show(context, isDarkMode: widget.isDarkMode),

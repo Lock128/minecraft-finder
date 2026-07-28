@@ -123,13 +123,16 @@ class DensityFunction {
 
   DensityFunction(int seed, {GameRandom? rng}) : _noise = PerlinNoise(seed, rng: rng);
 
-  /// Calculate ore density at given coordinates
-  double getOreDensity(double x, double y, double z, String oreType) {
+  /// Calculate ore density at given coordinates.
+  /// 
+  /// [isNether] should be true when calculating for nether dimension ores
+  /// (affects gold distribution).
+  double getOreDensity(double x, double y, double z, String oreType, {bool isNether = false}) {
     switch (oreType) {
       case 'diamond':
         return _getDiamondDensity(x, y, z);
       case 'gold':
-        return _getGoldDensity(x, y, z);
+        return _getGoldDensity(x, y, z, isNether: isNether);
       case 'iron':
         return _getIronDensity(x, y, z);
       case 'coal':
@@ -140,21 +143,34 @@ class DensityFunction {
         return _getNetheriteDensity(x, y, z);
       case 'lapis':
         return _getLapisDensity(x, y, z);
+      case 'copper':
+        return _getCopperDensity(x, y, z);
+      case 'emerald':
+        return _getEmeraldDensity(x, y, z);
       default:
         return 0.0;
     }
   }
 
   // ---------------------------------------------------------------------------
-  // Diamond: triangular distribution peaking at Y=-64, tapering to Y=16.
+  // Diamond: two placements (Java Edition 1.18+):
+  //   1. Triangular distribution peaking at Y=-64, tapering to Y=16.
+  //   2. Uniform distribution from Y=-64 to Y=-4 (adds a density floor in
+  //      the deep layers, filling in what the triangular alone underestimates).
   // Minecraft also reduces generation when exposed to air (cave reduction).
   // We approximate air exposure with a secondary noise check.
   // ---------------------------------------------------------------------------
   double _getDiamondDensity(double x, double y, double z) {
     if (y > 16 || y < -64) return 0.0;
 
-    // Triangular peak at Y=-64, linearly decreasing to 0 at Y=16
-    double yFactor = _triangularFactorWithPeak(y, -64, 16, -64);
+    // Placement 1: triangular peak at Y=-64, linearly decreasing to 0 at Y=16
+    double tri = _triangularFactorWithPeak(y, -64, 16, -64);
+
+    // Placement 2: uniform layer from Y=-64 to Y=-4 at reduced density
+    double uniform = _uniformFactor(y, -64, -4) * 0.35;
+
+    // Take the max of both placements so neither suppresses the other
+    double yFactor = max(tri, uniform);
 
     // Air-exposure reduction: use noise to simulate cave proximity.
     // Negative noise values at this scale hint at open spaces (caves).
@@ -170,9 +186,19 @@ class DensityFunction {
   // ---------------------------------------------------------------------------
   // Gold (overworld): triangular distribution peaking at Y=-16 (from -64 to 32).
   // Badlands adds a uniform distribution from Y=32 to Y=256.
-  // Nether gold is handled via biome modifier in OreFinder.
+  // Nether gold ore has a completely different distribution — uniform Y=10-117.
   // ---------------------------------------------------------------------------
-  double _getGoldDensity(double x, double y, double z) {
+  double _getGoldDensity(double x, double y, double z, {bool isNether = false}) {
+    if (isNether) {
+      // Nether gold ore: uniform distribution from Y=10 to Y=117
+      if (y < 10 || y > 117) return 0.0;
+      double yFactor = 1.0; // Uniform within range
+      double noise =
+          _noise.octaveNoise3D(x * 0.012, y * 0.01, z * 0.012, 3, 0.5, 1.0);
+      return max(0.0, (noise + 0.3) * yFactor * 0.8); // Slightly lower than overworld
+    }
+
+    // Overworld gold
     if (y > 256 || y < -64) return 0.0;
 
     // Primary: triangular peak at Y=-16, range -64 to 32
@@ -218,13 +244,22 @@ class DensityFunction {
   }
 
   // ---------------------------------------------------------------------------
-  // Coal: triangular distribution peaking at Y=96, from Y=0 to Y=192.
-  // (Not Y=256 — the wiki specifies the range ends at 192.)
+  // Coal: two placements (Java Edition 1.18+):
+  //   1. Triangular distribution peaking at Y=96, from Y=0 to Y=192.
+  //   2. Uniform distribution from Y=136 to Y=320 at reduced density.
+  //      This upper layer is why coal can be found all the way to Y=256+
+  //      in mountains and the new 1.18+ world height.
   // ---------------------------------------------------------------------------
   double _getCoalDensity(double x, double y, double z) {
-    if (y > 192 || y < 0) return 0.0;
+    if (y > 320 || y < 0) return 0.0;
 
-    double yFactor = _triangularFactorWithPeak(y, 0, 192, 96);
+    // Placement 1: triangular peak at Y=96, range 0 to 192
+    double tri = _triangularFactorWithPeak(y, 0, 192, 96);
+
+    // Placement 2: uniform upper layer 136 to 320 at low density
+    double uniform = _uniformFactor(y, 136, 320) * 0.3;
+
+    double yFactor = max(tri, uniform);
 
     double noise =
         _noise.octaveNoise3D(x * 0.015, y * 0.01, z * 0.015, 3, 0.6, 1.0);
@@ -285,5 +320,35 @@ class DensityFunction {
     double noise =
         _noise.octaveNoise3D(x * 0.008, y * 0.018, z * 0.008, 3, 0.5, 1.0);
     return max(0.0, (noise + 0.4) * yFactor);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Copper (Java Edition 1.17+): triangular distribution peaking at Y=48,
+  // ranging from Y=-16 to Y=112. Copper is common and generates in large veins.
+  // ---------------------------------------------------------------------------
+  double _getCopperDensity(double x, double y, double z) {
+    if (y > 112 || y < -16) return 0.0;
+
+    double yFactor = _triangularFactorWithPeak(y, -16, 112, 48);
+
+    double noise =
+        _noise.octaveNoise3D(x * 0.01, y * 0.012, z * 0.01, 3, 0.55, 1.0);
+    return max(0.0, (noise + 0.35) * yFactor);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Emerald (Java Edition 1.18+): triangular distribution peaking at Y=236,
+  // ranging from Y=-16 to Y=320. Only generates in mountain biomes.
+  // Biome restriction is handled in OreFinder._getBiomeModifier.
+  // ---------------------------------------------------------------------------
+  double _getEmeraldDensity(double x, double y, double z) {
+    if (y > 320 || y < -16) return 0.0;
+
+    double yFactor = _triangularFactorWithPeak(y, -16, 320, 236);
+
+    // Emerald is rare — apply rarity factor
+    double noise =
+        _noise.octaveNoise3D(x * 0.006, y * 0.008, z * 0.006, 2, 0.6, 1.0);
+    return max(0.0, (noise + 0.6) * yFactor * 0.4);
   }
 }

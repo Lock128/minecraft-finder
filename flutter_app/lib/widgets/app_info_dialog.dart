@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
+import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/gamer_theme.dart';
 
@@ -103,7 +103,7 @@ class AppInfoDialog extends StatelessWidget {
                     _sectionTitle(l10n.aboutFeaturesTitle),
                     const SizedBox(height: 12),
                     _buildFeatures(l10n),
-                    if (kIsWeb) ...[
+                    if (FeatureFlags.enableMonetization) ...[
                       const SizedBox(height: 20),
                       _sectionTitle(l10n.aboutSupportTitle),
                       const SizedBox(height: 12),
@@ -339,7 +339,7 @@ class AppInfoDialog extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.local_cafe, color: Color(0xFFFF6F00), size: 22),
+              const Icon(Icons.favorite, color: Color(0xFF635BFF), size: 22),
               const SizedBox(width: 8),
               Text(l10n.aboutBuyMeCoffee, style: TextStyle(
                 fontSize: 15, fontWeight: FontWeight.w800,
@@ -359,13 +359,13 @@ class AppInfoDialog extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _openBuyMeCoffee,
-              icon: const Icon(Icons.local_cafe, size: 16),
+              onPressed: _openSupportLink,
+              icon: const Icon(Icons.favorite, size: 16),
               label: Text(l10n.aboutSupportButton,
                 style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFDD44),
-                foregroundColor: Colors.black,
+                backgroundColor: const Color(0xFF635BFF),
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -376,15 +376,14 @@ class AppInfoDialog extends StatelessWidget {
     );
   }
 
-  Future<void> _openBuyMeCoffee() async {
-    if (kIsWeb) {
-      try {
-        final Uri uri = Uri.parse('https://buymeacoffee.com/lockhead');
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
-      } catch (_) {}
-    }
+  Future<void> _openSupportLink() async {
+    try {
+      // Stripe Payment Link — replace with your actual Stripe Payment Link URL
+      final Uri uri = Uri.parse('https://donate.stripe.com/YOUR_STRIPE_PAYMENT_LINK');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {}
   }
 
   static void show(BuildContext context, {bool isDarkMode = false}) {

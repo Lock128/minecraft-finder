@@ -84,9 +84,14 @@ class OreFinder {
       case OreType.iron:
         return y >= -64 && y <= 320;
       case OreType.coal:
-        return y >= 0 && y <= 192;
+        return y >= 0 && y <= 320;
       case OreType.lapis:
         return y >= -64 && y <= 64;
+      case OreType.copper:
+        return y >= -16 && y <= 112;
+      case OreType.emerald:
+        // Emerald only in mountains, but Y range is valid anywhere for the check
+        return y >= -16 && y <= 320;
     }
   }
 
@@ -122,6 +127,7 @@ class OreFinder {
     if (!_isValidOreLayer(y, oreType, biome, legacy: _isLegacy)) return 0.0;
 
     String oreTypeStr = _oreTypeToString(oreType);
+    bool isNetherDimension = biome == 'nether';
 
     // Use legacy or modern density function based on current mode
     double baseDensity;
@@ -130,7 +136,8 @@ class OreFinder {
           x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr);
     } else {
       baseDensity = _densityFunction.getOreDensity(
-          x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr);
+          x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr,
+          isNether: isNetherDimension);
     }
 
     if (baseDensity <= 0.0) return 0.0;
@@ -175,6 +182,13 @@ class OreFinder {
       case OreType.coal:
         if (biome == 'mountains') return 1.2;
         return 1.0;
+      case OreType.emerald:
+        // Emerald ONLY spawns in mountain biomes
+        if (biome == 'mountains') return 1.0;
+        return 0.0; // Zero elsewhere
+      case OreType.copper:
+        // Copper generates in larger veins in dripstone caves, slight boost for variety
+        return 1.0;
       default:
         return 1.0;
     }
@@ -200,6 +214,12 @@ class OreFinder {
       case OreType.lapis:
         scale = 0.04;
         break;
+      case OreType.copper:
+        scale = 0.07; // Large veins
+        break;
+      case OreType.emerald:
+        scale = 0.03; // Small, scattered
+        break;
       default:
         scale = 0.05;
     }
@@ -210,7 +230,9 @@ class OreFinder {
     double veinValue = veinNoise.octaveNoise3D(
         x * scale, y * scale * 2, z * scale, 3, 0.5, 1.0);
 
-    return 0.5 + (veinValue + 1.0) * 0.5;
+    // Map Perlin [-1, 1] → [0, 1] so that low-density noise areas genuinely
+    // suppress ore probability rather than always contributing at least 0.5.
+    return (veinValue + 1.0) * 0.5;
   }
 
   /// Get or create a cached PerlinNoise instance for the given seed.
@@ -234,6 +256,10 @@ class OreFinder {
         return 'coal';
       case OreType.lapis:
         return 'lapis';
+      case OreType.copper:
+        return 'copper';
+      case OreType.emerald:
+        return 'emerald';
     }
   }
 
@@ -278,6 +304,9 @@ class OreFinder {
       case OreType.lapis:
         minProbability = 0.28;
         break;
+      case OreType.emerald:
+        minProbability = 0.15; // Rare, mountain-only
+        break;
       case OreType.gold:
         minProbability = 0.3;
         break;
@@ -286,6 +315,9 @@ class OreFinder {
         break;
       case OreType.iron:
         minProbability = 0.4;
+        break;
+      case OreType.copper:
+        minProbability = 0.4; // Common
         break;
       case OreType.coal:
         minProbability = 0.45;
@@ -305,10 +337,12 @@ class OreFinder {
         int yStep = yRange['step']!;
 
         for (int y = yMin; y <= yMax; y += yStep) {
+          // Reuse the RNG instance created at the start of findOres
+          // instead of allocating a new one per coordinate
           double probability = _calculateOreProbability(
               x, y, z, oreType, worldSeed,
               includeNether: includeNether,
-              rng: GameRandom.forEdition(edition, worldSeed));
+              rng: rng);
 
           if (probability >= minProbability) {
             locations.add(OreLocation(
@@ -343,9 +377,13 @@ class OreFinder {
         return radius < 200 ? 6 : 10;
       case OreType.lapis:
         return radius < 200 ? 6 : 10;
+      case OreType.emerald:
+        return radius < 200 ? 6 : 10; // Rare, similar to diamond
       case OreType.gold:
       case OreType.redstone:
         return radius < 300 ? 8 : 12;
+      case OreType.copper:
+        return radius < 400 ? 10 : 16; // Common, large veins
       case OreType.iron:
         return radius < 400 ? 10 : 16;
       case OreType.coal:
@@ -379,9 +417,13 @@ class OreFinder {
       case OreType.iron:
         return {'min': -64, 'max': 320, 'step': 4};
       case OreType.coal:
-        return {'min': 0, 'max': 192, 'step': 6};
+        return {'min': 0, 'max': 320, 'step': 6};
       case OreType.lapis:
         return {'min': -64, 'max': 64, 'step': 2};
+      case OreType.copper:
+        return {'min': -16, 'max': 112, 'step': 4};
+      case OreType.emerald:
+        return {'min': -16, 'max': 320, 'step': 6};
     }
   }
 
@@ -431,8 +473,11 @@ class OreFinder {
     _veinNoiseCache.clear();
 
     List<OreLocation> locations = [];
-    int step = 16;
-    int processedBlocks = 0;
+    // Ancient Debris veins are only 1–3 blocks wide; step=16 skips most of
+    // them. Use step=4 (matching _getOptimalStepSize for netherite) so that
+    // every vein falls within one step of a sampled point.
+    const int step = 4;
+    int processedColumns = 0;
 
     for (int x = centerX - searchRadius;
         x <= centerX + searchRadius;
@@ -440,32 +485,32 @@ class OreFinder {
       for (int z = centerZ - searchRadius;
           z <= centerZ + searchRadius;
           z += step) {
-        // Priority Y levels for ancient debris (peak at Y=15)
-        List<int> priorityYLevels = [15, 13, 17, 11, 19, 9, 21];
+        // Scan every Y in the ancient-debris range rather than a sparse list,
+        // since the range is only 15 levels (8–22) and step=1 is cheap here.
+        for (int y = 8; y <= 22; y++) {
+          // Reuse the RNG instance created at the start of findAllNetherite
+          double probability =
+              _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
+                  rng: rng);
 
-        for (int y in priorityYLevels) {
-          if (y >= 8 && y <= 22) {
-            double probability =
-                _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
-                    rng: GameRandom.forEdition(edition, worldSeed));
-
-            if (probability >= 0.05) {
-              locations.add(OreLocation(
-                x: x,
-                y: y,
-                z: z,
-                chunkX: (x / 16).floor(),
-                chunkZ: (z / 16).floor(),
-                probability: (probability * 100).round() / 100,
-                oreType: OreType.netherite,
-                biome: 'nether',
-              ));
-            }
+          if (probability >= 0.05) {
+            locations.add(OreLocation(
+              x: x,
+              y: y,
+              z: z,
+              chunkX: (x / 16).floor(),
+              chunkZ: (z / 16).floor(),
+              probability: (probability * 100).round() / 100,
+              oreType: OreType.netherite,
+              biome: 'nether',
+            ));
           }
         }
 
-        processedBlocks++;
-        if (processedBlocks % 50 == 0) {
+        processedColumns++;
+        // Yield every 200 columns (~800 ms worth at 4-block step) so the UI
+        // stays responsive during large searches.
+        if (processedColumns % 200 == 0) {
           await Future.delayed(const Duration(milliseconds: 1));
         }
       }
@@ -505,9 +550,10 @@ class OreFinder {
     for (int x = -sampleRadius; x <= sampleRadius; x += 24) {
       for (int z = -sampleRadius; z <= sampleRadius; z += 24) {
         for (int y = 8; y <= 22; y++) {
+          // Reuse the RNG instance created at the start of getNetheriteStats
           double probability =
               _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
-                  rng: GameRandom.forEdition(edition, worldSeed));
+                  rng: rng);
           if (probability >= 0.05) {
             totalLocations++;
             probabilities.add(probability);

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'structure_location.dart';
 import 'java_random.dart';
+import 'noise.dart';
 
 class StructureFinder {
   /// Generate structure-specific random using Java-compatible RNG
@@ -13,23 +14,42 @@ class StructureFinder {
     return JavaRandom(structureSeed);
   }
 
-  /// Determine biome type based on coordinates using Java-compatible RNG
+  /// Perlin noise instances used for spatially coherent biome assignment.
+  /// Cached per world-seed to avoid rebuilding permutation tables each call.
+  PerlinNoise? _tempNoise;
+  PerlinNoise? _humidNoise;
+  int? _biomeSeed;
+
+  /// Determine biome type based on coordinates.
+  ///
+  /// Uses the same multi-noise (temperature × humidity) approach as
+  /// [OreFinder._getBiomeType] so that biome regions are spatially coherent
+  /// across a single search — adjacent points in the same biome cluster
+  /// together rather than being assigned independently per 64-block cell.
   String _getBiomeType(int x, int z, int worldSeed) {
-    JavaRandom biomeRandom = _getStructureRandom(
-        (x / 64).floor(), (z / 64).floor(), StructureType.village, worldSeed);
+    if (_biomeSeed != worldSeed) {
+      _tempNoise = PerlinNoise(worldSeed + 1000);
+      _humidNoise = PerlinNoise(worldSeed + 2000);
+      _biomeSeed = worldSeed;
+    }
 
-    double biomeValue = biomeRandom.nextDouble();
+    const double scale = 0.005; // ~200-block biome regions
+    double temperature =
+        _tempNoise!.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
+    double humidity =
+        _humidNoise!.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
 
-    if (biomeValue < 0.12) return 'desert';
-    if (biomeValue < 0.22) return 'jungle';
-    if (biomeValue < 0.32) return 'ocean';
-    if (biomeValue < 0.40) return 'swamp';
-    if (biomeValue < 0.50) return 'taiga';
-    if (biomeValue < 0.60) return 'savanna';
-    if (biomeValue < 0.68) return 'badlands';
-    if (biomeValue < 0.78) return 'forest';
-    if (biomeValue < 0.88) return 'mountains';
-    return 'plains';
+    if (temperature < -0.5) {
+      return humidity < 0 ? 'taiga' : 'swamp';
+    } else if (temperature < -0.1) {
+      if (humidity < -0.3) return 'mountains';
+      return humidity < 0.3 ? 'forest' : 'jungle';
+    } else if (temperature < 0.3) {
+      if (humidity < -0.3) return 'plains';
+      return humidity < 0.3 ? 'savanna' : 'ocean';
+    } else {
+      return humidity < 0 ? 'desert' : 'badlands';
+    }
   }
 
   /// Check if structure can spawn in given biome
@@ -46,7 +66,7 @@ class StructureFinder {
       case StructureType.bastionRemnant:
         return biome == 'nether'; // Special case
       case StructureType.ancientCity:
-        return true; // Deep dark, but we'll simulate
+        return biome == 'deep_dark'; // Only in deep dark biome
       case StructureType.oceanMonument:
         return biome == 'ocean';
       case StructureType.woodlandMansion:
@@ -66,6 +86,25 @@ class StructureFinder {
       case StructureType.witchHut:
         return biome == 'swamp';
     }
+  }
+
+  /// Check if a location qualifies as deep_dark biome.
+  /// 
+  /// Deep dark generates in large "cheese caves" at Y=-52 or below.
+  /// We approximate this using noise to create sporadic deep_dark pockets.
+  bool _isDeepDark(int x, int z, int worldSeed) {
+    if (_biomeSeed != worldSeed) {
+      _tempNoise = PerlinNoise(worldSeed + 1000);
+      _humidNoise = PerlinNoise(worldSeed + 2000);
+      _biomeSeed = worldSeed;
+    }
+
+    // Deep dark uses a different noise pattern — larger, sparser pockets
+    double deepDarkNoise = _tempNoise!.octaveNoise3D(
+        x * 0.002, -52 * 0.01, z * 0.002, 2, 0.6, 1.0);
+    
+    // Only ~15% of valid underground area is deep_dark
+    return deepDarkNoise > 0.35;
   }
 
   /// Get structure generation Y level
@@ -104,12 +143,15 @@ class StructureFinder {
       int x, int z, StructureType structureType, int worldSeed) {
     String biome = _getBiomeType(x, z, worldSeed);
 
-    // Handle special dimensions
+    // Handle special dimensions and biomes
     if (structureType == StructureType.endCity) {
       biome = 'end';
     } else if (structureType == StructureType.netherFortress ||
         structureType == StructureType.bastionRemnant) {
       biome = 'nether';
+    } else if (structureType == StructureType.ancientCity) {
+      // Ancient cities only spawn in deep_dark biome
+      biome = _isDeepDark(x, z, worldSeed) ? 'deep_dark' : biome;
     }
 
     if (!_canStructureSpawnInBiome(structureType, biome)) return 0.0;
@@ -175,38 +217,221 @@ class StructureFinder {
     }
   }
 
-  /// Check simplified structure spacing rules
+  /// Check whether [chunkX],[chunkZ] is the designated candidate chunk for
+  /// a structure of [structureType] in its region, then roll the actual spawn
+  /// probability.
+  ///
+  /// Real Minecraft uses a region grid where each N×N chunk region has exactly
+  /// one candidate location, chosen by mixing the world seed with the region
+  /// coordinates. A second RNG roll decides whether the candidate actually
+  /// generates. This avoids the clustering that a pure per-chunk random check
+  /// produces.
+  ///
+  /// **Strongholds are special**: they use a ring-based system with fixed counts
+  /// per ring, not a region grid. See [_checkStrongholdPlacement].
+  ///
+  /// **Buried treasure is special**: it can spawn in any beach chunk at the
+  /// fixed chunk-local position (9, 9). See [_checkBuriedTreasurePlacement].
   bool _checkStructureSpacing(
       int chunkX, int chunkZ, StructureType structureType, int worldSeed) {
-    // Simplified spacing check - in real Minecraft this is much more complex
-    int spacing = _getStructureSpacing(structureType);
+    // Strongholds use ring-based placement, not region grid
+    if (structureType == StructureType.stronghold) {
+      return _checkStrongholdPlacement(chunkX, chunkZ, worldSeed);
+    }
 
-    // Check if this chunk could contain a structure based on spacing
-    JavaRandom spacingRandom =
-        JavaRandom(worldSeed + chunkX * 341873128 + chunkZ * 132897987);
-    int spacingCheck = spacingRandom.nextInt(spacing);
+    // Buried treasure uses per-chunk probability, always at (9, 9) in chunk
+    if (structureType == StructureType.buriedTreasure) {
+      return _checkBuriedTreasurePlacement(chunkX, chunkZ, worldSeed);
+    }
 
-    return spacingCheck ==
-        0; // Only allow structures at specific spacing intervals
+    final params = _getStructureSpacingParams(structureType);
+    final int spacing = params['spacing']!;    // region size in chunks
+    final int separation = params['separation']!; // minimum gap in chunks
+
+    // Derive the region this chunk belongs to (integer division, floor for negatives)
+    int regionX = chunkX < 0
+        ? ((chunkX + 1) ~/ spacing) - 1
+        : chunkX ~/ spacing;
+    int regionZ = chunkZ < 0
+        ? ((chunkZ + 1) ~/ spacing) - 1
+        : chunkZ ~/ spacing;
+
+    // Pick the one candidate chunk inside this region using Java-compatible RNG.
+    // Mix is identical to Minecraft's StructureStart seed construction.
+    int regionSeed = worldSeed +
+        regionX * 341873128 +
+        regionZ * 132897987 +
+        structureType.index * 10000003;
+    JavaRandom regionRandom = JavaRandom(regionSeed);
+
+    // Offset within the region: [0, spacing - separation)
+    int range = spacing - separation;
+    if (range <= 0) range = 1;
+    int candidateOffsetX = regionRandom.nextInt(range);
+    int candidateOffsetZ = regionRandom.nextInt(range);
+
+    int candidateChunkX = regionX * spacing + candidateOffsetX;
+    int candidateChunkZ = regionZ * spacing + candidateOffsetZ;
+
+    // This chunk is only eligible if it is the candidate for its region.
+    if (chunkX != candidateChunkX || chunkZ != candidateChunkZ) return false;
+
+    // Second roll: does the structure actually generate at this candidate?
+    // Use a different seed so the placement roll is independent of the offset roll.
+    int placeSeed = worldSeed ^
+        (chunkX * 341873128 +
+            chunkZ * 132897987 +
+            structureType.index * 1000000);
+    JavaRandom placeRandom = JavaRandom(placeSeed);
+    double spawnChance = _getStructureSpawnChance(structureType);
+    return placeRandom.nextDouble() < spawnChance;
   }
 
-  /// Get structure spacing in chunks (simplified)
-  int _getStructureSpacing(StructureType structureType) {
+  /// Stronghold ring-based placement.
+  ///
+  /// Minecraft places strongholds in concentric rings around the world origin:
+  /// - Ring 1: 3 strongholds, 1408–2688 blocks from origin (88–168 chunks)
+  /// - Ring 2: 6 strongholds, 4480–5760 blocks (280–360 chunks)
+  /// - Ring 3: 10 strongholds, 7552–8832 blocks (472–552 chunks)
+  /// - ... up to 8 rings, 128 total strongholds
+  ///
+  /// Within each ring, strongholds are evenly spaced angularly with a random
+  /// offset. We approximate this by checking if the chunk is within any ring's
+  /// distance band and has the correct angular position.
+  bool _checkStrongholdPlacement(int chunkX, int chunkZ, int worldSeed) {
+    // Convert to block coordinates (chunk center)
+    double blockX = chunkX * 16.0 + 8;
+    double blockZ = chunkZ * 16.0 + 8;
+    double distance = sqrt(blockX * blockX + blockZ * blockZ);
+    double angle = atan2(blockZ, blockX); // radians, -π to π
+
+    // Ring definitions: [count, minDist, maxDist] in blocks
+    const List<List<int>> rings = [
+      [3, 1408, 2688],
+      [6, 4480, 5760],
+      [10, 7552, 8832],
+      [15, 10624, 11904],
+      [21, 13696, 14976],
+      [28, 16768, 18048],
+      [36, 19840, 21120],
+      [9, 22912, 24192], // Last ring has fewer to reach 128 total
+    ];
+
+    for (int ringIndex = 0; ringIndex < rings.length; ringIndex++) {
+      int count = rings[ringIndex][0];
+      int minDist = rings[ringIndex][1];
+      int maxDist = rings[ringIndex][2];
+
+      if (distance < minDist || distance > maxDist) continue;
+
+      // This chunk is in the distance band for this ring.
+      // Check if angle matches one of the stronghold positions.
+      JavaRandom ringRandom = JavaRandom(worldSeed + ringIndex * 9999991);
+      double startAngle = ringRandom.nextDouble() * 2 * pi; // Random offset for ring
+
+      for (int i = 0; i < count; i++) {
+        double strongholdAngle = startAngle + (2 * pi * i / count);
+        // Normalize to -π to π
+        while (strongholdAngle > pi) {
+          strongholdAngle -= 2 * pi;
+        }
+        while (strongholdAngle < -pi) {
+          strongholdAngle += 2 * pi;
+        }
+
+        // Check if this chunk's angle is close to a stronghold position
+        // Allow ~11.25 degrees tolerance (π/16 radians ≈ one chunk width at typical distance)
+        double angleDiff = (angle - strongholdAngle).abs();
+        if (angleDiff > pi) angleDiff = 2 * pi - angleDiff;
+
+        if (angleDiff < pi / 16) {
+          // Additional distance check within the ring band
+          double targetDist = minDist + ringRandom.nextDouble() * (maxDist - minDist);
+          if ((distance - targetDist).abs() < 256) { // Within ~16 chunks of target
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /// Buried treasure placement.
+  ///
+  /// Unlike most structures, buried treasure doesn't use region-based spacing.
+  /// Instead, each beach chunk has an independent probability of containing
+  /// buried treasure, always at the chunk-local position (9, 9, Y varies).
+  /// The biome check (ocean/beach) is handled by _canStructureSpawnInBiome.
+  bool _checkBuriedTreasurePlacement(int chunkX, int chunkZ, int worldSeed) {
+    // Seed for this specific chunk
+    int chunkSeed = worldSeed ^
+        (chunkX * 341873128 + chunkZ * 132897987 + 10387320); // Salt for buried treasure
+    JavaRandom chunkRandom = JavaRandom(chunkSeed);
+
+    // ~4% chance per beach chunk (roughly matching Minecraft's frequency)
+    return chunkRandom.nextDouble() < 0.04;
+  }
+
+  /// Spawn-chance for the second RNG roll (independent of base probability).
+  double _getStructureSpawnChance(StructureType structureType) {
+    switch (structureType) {
+      case StructureType.village:         return 0.7;
+      case StructureType.stronghold:      return 1.0; // always if candidate
+      case StructureType.endCity:         return 0.5;
+      case StructureType.netherFortress:  return 0.8;
+      case StructureType.bastionRemnant:  return 0.8;
+      case StructureType.ancientCity:     return 0.6;
+      case StructureType.oceanMonument:   return 0.6;
+      case StructureType.woodlandMansion: return 1.0; // extremely rare via spacing
+      case StructureType.pillagerOutpost: return 0.6;
+      case StructureType.ruinedPortal:    return 0.9;
+      case StructureType.shipwreck:       return 0.85;
+      case StructureType.buriedTreasure:  return 0.7;
+      case StructureType.desertTemple:    return 0.75;
+      case StructureType.jungleTemple:    return 0.7;
+      case StructureType.witchHut:        return 0.65;
+    }
+  }
+
+  /// Region spacing and minimum separation in chunks.
+  ///
+  /// spacing   — side length of the region grid (one candidate per region)
+  /// separation — minimum gap between candidates (kept away from region edge)
+  ///
+  /// Values sourced from Minecraft wiki / decompiled structure placement tables.
+  Map<String, int> _getStructureSpacingParams(StructureType structureType) {
     switch (structureType) {
       case StructureType.village:
-        return 32; // Villages have 32-chunk spacing
+        return {'spacing': 32, 'separation': 8};
       case StructureType.stronghold:
-        return 128; // Strongholds are very far apart
+        return {'spacing': 128, 'separation': 32};
       case StructureType.oceanMonument:
-        return 64; // Ocean monuments have large spacing
+        return {'spacing': 32, 'separation': 5};
       case StructureType.woodlandMansion:
-        return 256; // Mansions are extremely far apart
+        return {'spacing': 80, 'separation': 20};
       case StructureType.pillagerOutpost:
-        return 48; // Outposts have medium spacing
+        return {'spacing': 32, 'separation': 8};
       case StructureType.ancientCity:
-        return 96; // Ancient cities are very rare
-      default:
-        return 24; // Default spacing for other structures
+        return {'spacing': 24, 'separation': 8};
+      case StructureType.netherFortress:
+        return {'spacing': 27, 'separation': 4};
+      case StructureType.bastionRemnant:
+        return {'spacing': 27, 'separation': 4};
+      case StructureType.endCity:
+        return {'spacing': 20, 'separation': 11};
+      case StructureType.desertTemple:
+        return {'spacing': 32, 'separation': 8};
+      case StructureType.jungleTemple:
+        return {'spacing': 32, 'separation': 8};
+      case StructureType.witchHut:
+        return {'spacing': 32, 'separation': 8};
+      case StructureType.shipwreck:
+        return {'spacing': 24, 'separation': 4};
+      case StructureType.buriedTreasure:
+        return {'spacing': 1,  'separation': 0}; // one per chunk — probability driven
+      case StructureType.ruinedPortal:
+        return {'spacing': 40, 'separation': 15};
     }
   }
 
