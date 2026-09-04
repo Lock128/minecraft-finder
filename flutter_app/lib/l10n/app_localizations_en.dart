@@ -69,6 +69,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get worldSeedHint => 'Enter your world seed';
 
   @override
+  String get quickStartTitle => 'Quick Start';
+
+  @override
+  String get quickStartHint =>
+      'New here? Tap a preset to fill in sensible defaults, then hit search.';
+
+  @override
+  String get quickStartDiamondsNearSpawn => 'Diamonds near spawn';
+
+  @override
+  String get quickStartSeedTip =>
+      'Tip: paste your world seed above. You can copy it from your Minecraft world settings.';
+
+  @override
+  String get quickStartSpawnTip =>
+      'Coordinates default to world spawn (0, 0). Change them to search elsewhere.';
+
+  @override
   String get errorEmptySeed => 'Please enter a world seed';
 
   @override
@@ -511,6 +529,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideStructureAncientCities =>
       '• Ancient Cities: Deep dark biome (Y -52)';
+
+  @override
+  String get guideStructureAbandonedCamp =>
+      '• Abandoned Camp: Dappled Forest and Cherry Grove biomes';
+
+  @override
+  String get guideBiomeDappledForest =>
+      '• New in Third Drop 2026: the Dappled Forest, an autumn forest that generates next to cold biomes. It is the home of the new Abandoned Camp structure.';
 
   @override
   String get proTipTitle => 'Pro Tip';
@@ -1356,6 +1382,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'A dedicated Mersenne Twister RNG replicates Bedrock Edition\'s C++ engine. Contextual info boxes let you know when predictions are approximate.';
 
   @override
+  String get releaseNotesThirdDrop2026Title => 'Third Drop 2026 Support';
+
+  @override
+  String get releaseNotesThirdDrop2026Body =>
+      'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50). Find the new Abandoned Camp structure, which generates in the new Dappled Forest biome and in Cherry Groves, plus refreshed edition and version info throughout the app.';
+
+  @override
   String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
 
   @override
@@ -1395,4 +1428,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLegendStructures => 'Structures';
+
+  @override
+  String get editionVersionTitle => 'Edition & Version';
+
+  @override
+  String get editionJava => 'Java Edition';
+
+  @override
+  String get editionBedrock => 'Bedrock Edition';
+
+  @override
+  String get versionEraLegacy => 'Pre-1.18 (Legacy)';
+
+  @override
+  String get versionEraModern => '1.18+ (Modern)';
+
+  @override
+  String get editionBedrockInfo =>
+      'Bedrock ore prediction accuracy is approximate due to incomplete documentation of Bedrock\'s RNG internals.';
+
+  @override
+  String get versionLegacyInfo =>
+      'Legacy ore placement uses uniform distribution with classic Y-level sweet spots (e.g., Y=12 for diamonds).';
+
+  @override
+  String get latestUpdateTitle => 'Latest update';
+
+  @override
+  String get latestUpdateInfo =>
+      'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50): new Abandoned Camp structure and Dappled Forest biome.';
 }

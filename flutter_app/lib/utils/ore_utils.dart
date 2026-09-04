@@ -18,6 +18,10 @@ class OreUtils {
         return '⚫';
       case OreType.lapis:
         return '🔵';
+      case OreType.copper:
+        return '🟠';
+      case OreType.emerald:
+        return '💚';
     }
   }
 

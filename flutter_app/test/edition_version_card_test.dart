@@ -6,8 +6,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
 import 'package:gem_ore_struct_finder_mc/models/game_random.dart';
 import 'package:gem_ore_struct_finder_mc/widgets/edition_version_card.dart';
+
+/// English localizations used to assert on the localized labels.
+final AppLocalizations enL10n =
+    lookupAppLocalizations(const Locale('en'));
 
 /// Helper to wrap EditionVersionCard in a MaterialApp for testing.
 Widget buildTestWidget({
@@ -18,6 +23,9 @@ Widget buildTestWidget({
   bool isDarkMode = false,
 }) {
   return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('en'),
     home: Scaffold(
       body: SingleChildScrollView(
         child: EditionVersionCard(
@@ -41,10 +49,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Both segment labels should be present
-      expect(find.text('Java Edition'), findsOneWidget);
-      expect(find.text('Bedrock Edition'), findsOneWidget);
-      expect(find.text('Pre-1.18 (Legacy)'), findsOneWidget);
-      expect(find.text('1.18+ (Modern)'), findsOneWidget);
+      expect(find.text(enL10n.editionJava), findsOneWidget);
+      expect(find.text(enL10n.editionBedrock), findsOneWidget);
+      expect(find.text(enL10n.versionEraLegacy), findsOneWidget);
+      expect(find.text(enL10n.versionEraModern), findsOneWidget);
     });
   });
 
@@ -56,7 +64,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('🎮'), findsOneWidget);
-      expect(find.text('Edition & Version'), findsOneWidget);
+      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
     });
 
     // Validates: Requirement 1.1
@@ -85,7 +93,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Bedrock Edition'));
+      await tester.tap(find.text(enL10n.editionBedrock));
       await tester.pumpAndSettle();
 
       expect(changedEdition, MinecraftEdition.bedrock);
@@ -103,7 +111,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Java Edition'));
+      await tester.tap(find.text(enL10n.editionJava));
       await tester.pumpAndSettle();
 
       expect(changedEdition, MinecraftEdition.java);
@@ -124,7 +132,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Pre-1.18 (Legacy)'));
+      await tester.tap(find.text(enL10n.versionEraLegacy));
       await tester.pumpAndSettle();
 
       expect(changedEra, VersionEra.legacy);
@@ -142,7 +150,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('1.18+ (Modern)'));
+      await tester.tap(find.text(enL10n.versionEraModern));
       await tester.pumpAndSettle();
 
       expect(changedEra, VersionEra.modern);
@@ -172,12 +180,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('Bedrock ore prediction accuracy is approximate'),
+        find.text(enL10n.editionBedrockInfo),
         findsOneWidget,
       );
       // Legacy info box should NOT be present
       expect(
-        find.textContaining('Legacy ore placement uses uniform distribution'),
+        find.text(enL10n.versionLegacyInfo),
         findsNothing,
       );
     });
@@ -192,12 +200,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('Legacy ore placement uses uniform distribution'),
+        find.text(enL10n.versionLegacyInfo),
         findsOneWidget,
       );
       // Bedrock info box should NOT be present
       expect(
-        find.textContaining('Bedrock ore prediction accuracy is approximate'),
+        find.text(enL10n.editionBedrockInfo),
         findsNothing,
       );
     });
@@ -212,11 +220,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('Bedrock ore prediction accuracy is approximate'),
+        find.text(enL10n.editionBedrockInfo),
         findsOneWidget,
       );
       expect(
-        find.textContaining('Legacy ore placement uses uniform distribution'),
+        find.text(enL10n.versionLegacyInfo),
         findsOneWidget,
       );
     });
@@ -247,17 +255,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // Widget should render all elements in dark mode
-      expect(find.text('Java Edition'), findsOneWidget);
-      expect(find.text('Bedrock Edition'), findsOneWidget);
-      expect(find.text('Pre-1.18 (Legacy)'), findsOneWidget);
-      expect(find.text('1.18+ (Modern)'), findsOneWidget);
-      expect(find.text('Edition & Version'), findsOneWidget);
+      expect(find.text(enL10n.editionJava), findsOneWidget);
+      expect(find.text(enL10n.editionBedrock), findsOneWidget);
+      expect(find.text(enL10n.versionEraLegacy), findsOneWidget);
+      expect(find.text(enL10n.versionEraModern), findsOneWidget);
+      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
       expect(
-        find.textContaining('Bedrock ore prediction accuracy is approximate'),
+        find.text(enL10n.editionBedrockInfo),
         findsOneWidget,
       );
       expect(
-        find.textContaining('Legacy ore placement uses uniform distribution'),
+        find.text(enL10n.versionLegacyInfo),
         findsOneWidget,
       );
     });
@@ -273,11 +281,28 @@ void main() {
       await tester.pumpAndSettle();
 
       // Widget should render all elements in light mode
-      expect(find.text('Java Edition'), findsOneWidget);
-      expect(find.text('Bedrock Edition'), findsOneWidget);
-      expect(find.text('Pre-1.18 (Legacy)'), findsOneWidget);
-      expect(find.text('1.18+ (Modern)'), findsOneWidget);
-      expect(find.text('Edition & Version'), findsOneWidget);
+      expect(find.text(enL10n.editionJava), findsOneWidget);
+      expect(find.text(enL10n.editionBedrock), findsOneWidget);
+      expect(find.text(enL10n.versionEraLegacy), findsOneWidget);
+      expect(find.text(enL10n.versionEraModern), findsOneWidget);
+      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
+    });
+  });
+
+  group('EditionVersionCard - latest update info box', () {
+    testWidgets('always renders the latest-update title and body',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(buildTestWidget(
+        edition: MinecraftEdition.java,
+        versionEra: VersionEra.modern,
+      ));
+      await tester.pumpAndSettle();
+
+      // The Third Drop 2026 update affordance is shown regardless of
+      // the edition/version selection.
+      expect(find.text(enL10n.latestUpdateTitle), findsOneWidget);
+      expect(find.text(enL10n.latestUpdateInfo), findsOneWidget);
+      expect(find.byIcon(Icons.new_releases_outlined), findsOneWidget);
     });
   });
 }

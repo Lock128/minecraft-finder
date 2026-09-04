@@ -825,6 +825,10 @@ class _ResultsTabState extends State<ResultsTab> {
         return GamerColors.coalText(isDark);
       case OreType.lapis:
         return GamerColors.lapisText(isDark);
+      case OreType.copper:
+        return GamerColors.orangeText(isDark);
+      case OreType.emerald:
+        return GamerColors.greenText(isDark);
     }
   }
 
@@ -870,13 +874,20 @@ class _ResultsTabState extends State<ResultsTab> {
         return '🐸';
       case 'taiga':
         return '🌲';
+      case 'dappled_forest':
+        return '🍂';
+      case 'cherry_grove':
+        return '🌸';
       case 'savanna':
         return '🦁';
       case 'badlands':
       case 'mesa':
         return '🏔️';
       case 'ocean':
+      case 'deep_ocean':
         return '🌊';
+      case 'beach':
+        return '🏖️';
       case 'nether':
         return '🔥';
       case 'end':

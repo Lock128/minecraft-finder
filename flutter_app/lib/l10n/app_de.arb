@@ -23,6 +23,11 @@
   "worldSettingsTitle": "Welt-Einstellungen",
   "worldSeedLabel": "Welt-Seed",
   "worldSeedHint": "Gib deinen Welt-Seed ein",
+  "quickStartTitle": "Schnellstart",
+  "quickStartHint": "Neu hier? Tippe auf eine Vorlage, um sinnvolle Standardwerte einzutragen, und starte dann die Suche.",
+  "quickStartDiamondsNearSpawn": "Diamanten beim Spawn",
+  "quickStartSeedTip": "Tipp: Füge oben deinen Welt-Seed ein. Du kannst ihn aus den Welteinstellungen von Minecraft kopieren.",
+  "quickStartSpawnTip": "Die Koordinaten stehen standardmäßig auf dem Welt-Spawn (0, 0). Ändere sie, um woanders zu suchen.",
   "errorEmptySeed": "Bitte gib einen Welt-Seed ein",
   "recentSeeds": "Letzte Seeds",
 
@@ -172,6 +177,8 @@
   "guideStructureEndCities": "• Endstädte: End-Dimension, äußere Inseln",
   "guideStructureMonuments": "• Ozeanmonumente: Tiefozean-Biome",
   "guideStructureAncientCities": "• Antike Städte: Tiefes Dunkelbiom (Y -52)",
+  "guideStructureAbandonedCamp": "• Abandoned Camp: Biome „Dappled Forest“ und Kirschhaine",
+  "guideBiomeDappledForest": "• Neu in Third Drop 2026: der „Dappled Forest“, ein Herbstwald, der neben kalten Biomen entsteht. Er ist die Heimat der neuen Struktur „Abandoned Camp“.",
 
   "proTipTitle": "Profi-Tipp",
   "proTipBody": "Dieses Tool liefert statistische Vorhersagen basierend auf Blockspiel-Generierungsalgorithmen. Nutze die Koordinaten als Ausgangspunkte für deine Bergbau-Expeditionen und erkunde immer die umliegenden Gebiete, sobald du Erzadern findest!",
@@ -442,6 +449,8 @@
   "releaseNotesVersionEraBody": "Wechsle zwischen Pre-1.18 (Legacy) mit klassischer gleichmäßiger Erzverteilung und festen Y-Bereichen, oder 1.18+ (Modern) mit Dreiecksverteilungen und erweiterter Welttiefe von -64 bis 320.",
   "releaseNotesBedrockRngTitle": "Bedrock-RNG-Engine",
   "releaseNotesBedrockRngBody": "Ein dedizierter Mersenne-Twister-RNG repliziert die C++-Engine der Bedrock-Edition. Kontextuelle Infoboxen zeigen an, wenn Vorhersagen approximativ sind.",
+  "releaseNotesThirdDrop2026Title": "Unterstützung für Third Drop 2026",
+  "releaseNotesThirdDrop2026Body": "Aktualisiert für Third Drop 2026 (Java 26.3 / Bedrock 26.50). Finde die neue Struktur „Abandoned Camp“, die im neuen Biom „Dappled Forest“ und in Kirschhainen entsteht, plus aktualisierte Editions- und Versionsinfos in der ganzen App.",
   "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
   "releaseNotesV1050Body": "Kompletter Bedwars-Strategieguide. Modernes Gamer-UI-Redesign mit Neon-Ästhetik und verbessertem Lichtmodus.",
   "releaseNotesTimelineEditionVersion": "Editionen + Epochen",
@@ -454,5 +463,14 @@
   "searchHistoryResults": "results",
   "resultsListView": "List view",
   "resultsMapView": "Map view",
-  "mapLegendStructures": "Structures"
+  "mapLegendStructures": "Structures",
+  "editionVersionTitle": "Edition & Version",
+  "editionJava": "Java Edition",
+  "editionBedrock": "Bedrock Edition",
+  "versionEraLegacy": "Vor 1.18 (Klassisch)",
+  "versionEraModern": "1.18+ (Modern)",
+  "editionBedrockInfo": "Die Genauigkeit der Erzvorhersage für Bedrock ist ungefähr, da die RNG-Interna der Bedrock-Edition nur unvollständig dokumentiert sind.",
+  "versionLegacyInfo": "Die klassische Erzverteilung nutzt eine gleichmäßige Verteilung mit bewährten Y-Ebenen (z. B. Y=12 für Diamanten).",
+  "latestUpdateTitle": "Neuestes Update",
+  "latestUpdateInfo": "Aktualisiert für Third Drop 2026 (Java 26.3 / Bedrock 26.50): neue Struktur „Abandoned Camp“ und Biom „Dappled Forest“."
 }

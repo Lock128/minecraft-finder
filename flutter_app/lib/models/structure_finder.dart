@@ -2,6 +2,7 @@ import 'dart:math';
 import 'structure_location.dart';
 import 'java_random.dart';
 import 'noise.dart';
+import 'biome_classifier.dart';
 
 class StructureFinder {
   /// Generate structure-specific random using Java-compatible RNG
@@ -14,43 +15,29 @@ class StructureFinder {
     return JavaRandom(structureSeed);
   }
 
-  /// Perlin noise instances used for spatially coherent biome assignment.
-  /// Cached per world-seed to avoid rebuilding permutation tables each call.
+  /// Deep-dark noise instance, cached per world-seed. Kept separate from the
+  /// shared biome classifier because deep_dark uses its own (larger, sparser)
+  /// noise pattern rather than the temperature/humidity model.
   PerlinNoise? _tempNoise;
-  PerlinNoise? _humidNoise;
   int? _biomeSeed;
+
+  /// Shared biome classifier (source of truth in biome_classifier.dart).
+  /// OreFinder uses the same class so biome assignments stay identical.
+  final BiomeClassifier _biomeClassifier = BiomeClassifier();
 
   /// Determine biome type based on coordinates.
   ///
-  /// Uses the same multi-noise (temperature × humidity) approach as
-  /// [OreFinder._getBiomeType] so that biome regions are spatially coherent
-  /// across a single search — adjacent points in the same biome cluster
-  /// together rather than being assigned independently per 64-block cell.
+  /// Delegates to the shared [BiomeClassifier] (source of truth in
+  /// biome_classifier.dart) so ore and structure searches classify the same
+  /// (x, z, seed) identically. See that class for the threshold map.
   String _getBiomeType(int x, int z, int worldSeed) {
-    if (_biomeSeed != worldSeed) {
-      _tempNoise = PerlinNoise(worldSeed + 1000);
-      _humidNoise = PerlinNoise(worldSeed + 2000);
-      _biomeSeed = worldSeed;
-    }
-
-    const double scale = 0.005; // ~200-block biome regions
-    double temperature =
-        _tempNoise!.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
-    double humidity =
-        _humidNoise!.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
-
-    if (temperature < -0.5) {
-      return humidity < 0 ? 'taiga' : 'swamp';
-    } else if (temperature < -0.1) {
-      if (humidity < -0.3) return 'mountains';
-      return humidity < 0.3 ? 'forest' : 'jungle';
-    } else if (temperature < 0.3) {
-      if (humidity < -0.3) return 'plains';
-      return humidity < 0.3 ? 'savanna' : 'ocean';
-    } else {
-      return humidity < 0 ? 'desert' : 'badlands';
-    }
+    return _biomeClassifier.classify(x, z, worldSeed);
   }
+
+  /// Test hook: expose the biome classification for a coordinate/seed so tests
+  /// can assert OreFinder and StructureFinder stay in lockstep. Not used by
+  /// production code.
+  String biomeAt(int x, int z, int worldSeed) => _getBiomeType(x, z, worldSeed);
 
   /// Check if structure can spawn in given biome
   bool _canStructureSpawnInBiome(StructureType structureType, String biome) {
@@ -68,23 +55,46 @@ class StructureFinder {
       case StructureType.ancientCity:
         return biome == 'deep_dark'; // Only in deep dark biome
       case StructureType.oceanMonument:
-        return biome == 'ocean';
+        // Ocean monuments require deep ocean. The classifier now emits both
+        // 'ocean' and 'deep_ocean' where it previously emitted a single
+        // 'ocean'; accept both so the monument's eligible area does not shrink
+        // relative to the pre-split classifier.
+        return ['ocean', 'deep_ocean'].contains(biome);
       case StructureType.woodlandMansion:
-        return biome == 'forest';
+        // Third Drop 2026: the cool-temperate forest band was subdivided to
+        // introduce 'dappled_forest' and 'cherry_grove'. Woodland mansions are
+        // wooded-biome structures, so we keep them eligible across all three of
+        // the wooded slices that used to be a single 'forest' region. This
+        // preserves the mansion's original eligible area (humidity [-0.3, 0.3))
+        // that the new biomes would otherwise have halved.
+        return ['forest', 'dappled_forest', 'cherry_grove'].contains(biome);
       case StructureType.pillagerOutpost:
         return ['plains', 'desert', 'savanna', 'taiga'].contains(biome);
       case StructureType.ruinedPortal:
         return true; // Can spawn anywhere
       case StructureType.shipwreck:
-        return biome == 'ocean';
+        // Shipwrecks generate in oceans and on beaches. Accept every category
+        // carved out of the old single 'ocean' band so the eligible area is
+        // at least as large as before the split.
+        return ['ocean', 'deep_ocean', 'beach'].contains(biome);
       case StructureType.buriedTreasure:
-        return biome == 'ocean';
+        // Buried treasure generates in beach chunks and along ocean edges.
+        // The pre-split classifier returned a single 'ocean' for this whole
+        // humidity strip, so we accept every category it was subdivided into
+        // (beach + ocean + deep_ocean) to guarantee the eligible area does not
+        // shrink. Beach is the canonical biome; the ocean categories preserve
+        // the original coverage.
+        return ['beach', 'ocean', 'deep_ocean'].contains(biome);
       case StructureType.desertTemple:
         return biome == 'desert';
       case StructureType.jungleTemple:
         return biome == 'jungle';
       case StructureType.witchHut:
         return biome == 'swamp';
+      case StructureType.abandonedCamp:
+        // Third Drop 2026: Abandoned Camp generates in the new Dappled Forest
+        // biome and in Cherry Groves.
+        return ['dappled_forest', 'cherry_grove'].contains(biome);
     }
   }
 
@@ -95,7 +105,6 @@ class StructureFinder {
   bool _isDeepDark(int x, int z, int worldSeed) {
     if (_biomeSeed != worldSeed) {
       _tempNoise = PerlinNoise(worldSeed + 1000);
-      _humidNoise = PerlinNoise(worldSeed + 2000);
       _biomeSeed = worldSeed;
     }
 
@@ -115,6 +124,7 @@ class StructureFinder {
       case StructureType.desertTemple:
       case StructureType.jungleTemple:
       case StructureType.witchHut:
+      case StructureType.abandonedCamp:
         return 64; // Surface level
       case StructureType.stronghold:
         return -20; // Underground
@@ -214,6 +224,8 @@ class StructureFinder {
         return 0.25; // Rare in jungle
       case StructureType.witchHut:
         return 0.2; // Rare in swamp
+      case StructureType.abandonedCamp:
+        return 0.45; // Common-ish surface structure in its native biomes
     }
   }
 
@@ -391,6 +403,7 @@ class StructureFinder {
       case StructureType.desertTemple:    return 0.75;
       case StructureType.jungleTemple:    return 0.7;
       case StructureType.witchHut:        return 0.65;
+      case StructureType.abandonedCamp:   return 0.6;
     }
   }
 
@@ -432,6 +445,8 @@ class StructureFinder {
         return {'spacing': 1,  'separation': 0}; // one per chunk — probability driven
       case StructureType.ruinedPortal:
         return {'spacing': 40, 'separation': 15};
+      case StructureType.abandonedCamp:
+        return {'spacing': 32, 'separation': 8}; // surface spacing like villages
     }
   }
 
@@ -451,7 +466,13 @@ class StructureFinder {
       case StructureType.witchHut:
         return biome == 'swamp' ? 1.5 : 0.0;
       case StructureType.oceanMonument:
-        return biome == 'ocean' ? 1.3 : 0.0;
+        // Accept both ocean categories (see _canStructureSpawnInBiome). Deep
+        // ocean is the canonical monument biome, so give it the full modifier
+        // while shallow ocean keeps the same 1.3 it had before the split.
+        return ['ocean', 'deep_ocean'].contains(biome) ? 1.3 : 0.0;
+      case StructureType.abandonedCamp:
+        // Slightly more common in its native Dappled Forest / Cherry Grove.
+        return ['dappled_forest', 'cherry_grove'].contains(biome) ? 1.2 : 1.0;
       default:
         return 1.0;
     }
