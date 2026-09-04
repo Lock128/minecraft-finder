@@ -27,7 +27,10 @@ on:
 env:
   FLUTTER_VERSION: '3.35.5'
   NODE_VERSION: '22'
-  AWS_REGION: 'eu-central-1'
+  # Must match the CDK stack region (see infrastructure/config/*.json certificateRegion).
+  # CloudFront requires its ACM certificate in us-east-1, so the whole web-hosting
+  # stack, its S3 bucket, bootstrap, and deploy all target us-east-1.
+  AWS_REGION: 'us-east-1'
 
 # Security: Restrict permissions to minimum required
 permissions:
