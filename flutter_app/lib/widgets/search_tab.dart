@@ -4,6 +4,7 @@ import '../models/ore_location.dart';
 import '../models/structure_location.dart';
 import '../theme/gamer_theme.dart';
 import 'edition_version_card.dart';
+import 'quick_start_card.dart';
 import 'world_settings_card.dart';
 import 'search_center_card.dart';
 import 'ore_selection_card.dart';
@@ -76,6 +77,16 @@ class SearchTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              QuickStartCard(
+                xController: xController,
+                yController: yController,
+                zController: zController,
+                radiusController: radiusController,
+                onIncludeOresChanged: onIncludeOresChanged,
+                onOreTypesChanged: onOreTypesChanged,
+                isDarkMode: isDarkMode,
+              ),
+              const SizedBox(height: 12),
               EditionVersionCard(
                 selectedEdition: selectedEdition,
                 selectedVersionEra: selectedVersionEra,

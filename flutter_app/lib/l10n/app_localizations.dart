@@ -212,6 +212,36 @@ abstract class AppLocalizations {
   /// **'Enter your world seed'**
   String get worldSeedHint;
 
+  /// Section header for the Quick Start card
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Start'**
+  String get quickStartTitle;
+
+  /// Intro helper text explaining what Quick Start presets do
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Tap a preset to fill in sensible defaults, then hit search.'**
+  String get quickStartHint;
+
+  /// Label for the preset that searches for diamonds around world spawn
+  ///
+  /// In en, this message translates to:
+  /// **'Diamonds near spawn'**
+  String get quickStartDiamondsNearSpawn;
+
+  /// Inline hint telling the user a seed can be pasted from Minecraft world settings
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: paste your world seed above. You can copy it from your Minecraft world settings.'**
+  String get quickStartSeedTip;
+
+  /// Inline hint explaining that coordinates default to world spawn 0,0
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates default to world spawn (0, 0). Change them to search elsewhere.'**
+  String get quickStartSpawnTip;
+
   /// Validation error when seed field is empty
   ///
   /// In en, this message translates to:
@@ -991,6 +1021,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'• Ancient Cities: Deep dark biome (Y -52)'**
   String get guideStructureAncientCities;
+
+  /// Abandoned Camp spawn info
+  ///
+  /// In en, this message translates to:
+  /// **'• Abandoned Camp: Dappled Forest and Cherry Grove biomes'**
+  String get guideStructureAbandonedCamp;
+
+  /// Note about the new Dappled Forest biome and where it generates
+  ///
+  /// In en, this message translates to:
+  /// **'• New in Third Drop 2026: the Dappled Forest, an autumn forest that generates next to cold biomes. It is the home of the new Abandoned Camp structure.'**
+  String get guideBiomeDappledForest;
 
   /// Title for the pro tip section in the guide
   ///
@@ -2414,6 +2456,18 @@ abstract class AppLocalizations {
   /// **'A dedicated Mersenne Twister RNG replicates Bedrock Edition\'s C++ engine. Contextual info boxes let you know when predictions are approximate.'**
   String get releaseNotesBedrockRngBody;
 
+  /// Release notes title for the Third Drop 2026 update entry
+  ///
+  /// In en, this message translates to:
+  /// **'Third Drop 2026 Support'**
+  String get releaseNotesThirdDrop2026Title;
+
+  /// Release notes body describing the Third Drop 2026 update content
+  ///
+  /// In en, this message translates to:
+  /// **'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50). Find the new Abandoned Camp structure, which generates in the new Dappled Forest biome and in Cherry Groves, plus refreshed edition and version info throughout the app.'**
+  String get releaseNotesThirdDrop2026Body;
+
   /// Version 1.0.50 title
   ///
   /// In en, this message translates to:
@@ -2491,6 +2545,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Structures'**
   String get mapLegendStructures;
+
+  /// Section header title for the edition and version selection card
+  ///
+  /// In en, this message translates to:
+  /// **'Edition & Version'**
+  String get editionVersionTitle;
+
+  /// Label for the Java Edition segment button
+  ///
+  /// In en, this message translates to:
+  /// **'Java Edition'**
+  String get editionJava;
+
+  /// Label for the Bedrock Edition segment button
+  ///
+  /// In en, this message translates to:
+  /// **'Bedrock Edition'**
+  String get editionBedrock;
+
+  /// Label for the legacy (pre-1.18) version era segment button
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-1.18 (Legacy)'**
+  String get versionEraLegacy;
+
+  /// Label for the modern (1.18+) version era segment button
+  ///
+  /// In en, this message translates to:
+  /// **'1.18+ (Modern)'**
+  String get versionEraModern;
+
+  /// Info box shown when Bedrock edition is selected, explaining prediction accuracy
+  ///
+  /// In en, this message translates to:
+  /// **'Bedrock ore prediction accuracy is approximate due to incomplete documentation of Bedrock\'s RNG internals.'**
+  String get editionBedrockInfo;
+
+  /// Info box shown when the legacy version era is selected, explaining legacy ore placement
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy ore placement uses uniform distribution with classic Y-level sweet spots (e.g., Y=12 for diamonds).'**
+  String get versionLegacyInfo;
+
+  /// Title of the info box highlighting the most recent supported Minecraft update
+  ///
+  /// In en, this message translates to:
+  /// **'Latest update'**
+  String get latestUpdateTitle;
+
+  /// Body text of the info box describing the latest supported Minecraft update and its new content
+  ///
+  /// In en, this message translates to:
+  /// **'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50): new Abandoned Camp structure and Dappled Forest biome.'**
+  String get latestUpdateInfo;
 }
 
 class _AppLocalizationsDelegate

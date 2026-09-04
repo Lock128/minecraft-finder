@@ -65,6 +65,24 @@ class AppLocalizationsJa extends AppLocalizations {
   String get worldSeedHint => 'ワールドシードを入力';
 
   @override
+  String get quickStartTitle => 'クイックスタート';
+
+  @override
+  String get quickStartHint =>
+      '初めての方は、プリセットをタップすると適切な初期値が入力されます。その後、検索を押してください。';
+
+  @override
+  String get quickStartDiamondsNearSpawn => 'スポーン付近のダイヤモンド';
+
+  @override
+  String get quickStartSeedTip =>
+      'ヒント：上にワールドシードを貼り付けてください。Minecraftのワールド設定からコピーできます。';
+
+  @override
+  String get quickStartSpawnTip =>
+      '座標は初期設定でワールドスポーン（0, 0）になっています。別の場所を検索するには変更してください。';
+
+  @override
   String get errorEmptySeed => 'ワールドシードを入力してください';
 
   @override
@@ -467,6 +485,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get guideStructureAncientCities => '• 古代都市: ディープダークバイオーム（Y -52）';
+
+  @override
+  String get guideStructureAbandonedCamp =>
+      '• Abandoned Camp: Dappled Forest と桜の林バイオーム';
+
+  @override
+  String get guideBiomeDappledForest =>
+      '• Third Drop 2026 の新要素: 寒冷バイオームの隣に生成される秋の森「Dappled Forest」。新しい構造物「Abandoned Camp」が生成される場所です。';
 
   @override
   String get proTipTitle => 'プロのヒント';
@@ -1211,6 +1237,13 @@ class AppLocalizationsJa extends AppLocalizations {
       '専用のメルセンヌ・ツイスターRNGがBedrockエディションのC++エンジンを再現します。予測が近似値の場合、コンテキスト情報ボックスでお知らせします。';
 
   @override
+  String get releaseNotesThirdDrop2026Title => 'Third Drop 2026 対応';
+
+  @override
+  String get releaseNotesThirdDrop2026Body =>
+      'Third Drop 2026（Java 26.3 / Bedrock 26.50）に対応。新バイオーム「Dappled Forest」と桜の林に生成される新しい構造物「Abandoned Camp」を探せます。さらにアプリ全体のエディション・バージョン情報も刷新しました。';
+
+  @override
   String get releaseNotesV1050Title => 'v1.0.50 — ベッドウォーズ + UI';
 
   @override
@@ -1250,4 +1283,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get mapLegendStructures => 'Structures';
+
+  @override
+  String get editionVersionTitle => 'エディションとバージョン';
+
+  @override
+  String get editionJava => 'Java Edition';
+
+  @override
+  String get editionBedrock => 'Bedrock Edition';
+
+  @override
+  String get versionEraLegacy => '1.18より前（レガシー）';
+
+  @override
+  String get versionEraModern => '1.18以降（モダン）';
+
+  @override
+  String get editionBedrockInfo =>
+      'BedrockのRNG内部仕様のドキュメントが不完全なため、Bedrockの鉱石予測の精度はおおよそのものです。';
+
+  @override
+  String get versionLegacyInfo =>
+      'レガシーの鉱石配置は、定番のYレベル（例：ダイヤモンドはY=12）を用いた一様分布を使用します。';
+
+  @override
+  String get latestUpdateTitle => '最新のアップデート';
+
+  @override
+  String get latestUpdateInfo =>
+      'Third Drop 2026（Java 26.3 / Bedrock 26.50）に対応：新しい構造物「Abandoned Camp」と新バイオーム「Dappled Forest」。';
 }

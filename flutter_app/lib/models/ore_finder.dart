@@ -4,10 +4,15 @@ import 'game_random.dart';
 import 'java_random.dart';
 import 'legacy_density_function.dart';
 import 'noise.dart';
+import 'biome_classifier.dart';
 
 class OreFinder {
   late DensityFunction _densityFunction;
   LegacyDensityFunction? _legacyDensityFunction;
+
+  /// Shared biome classifier (source of truth in biome_classifier.dart).
+  /// StructureFinder uses the same class so biome assignments stay identical.
+  final BiomeClassifier _biomeClassifier = BiomeClassifier();
 
   /// The active GameRandom instance for the current search.
   GameRandom? _gameRandom;
@@ -25,30 +30,17 @@ class OreFinder {
 
   /// Determine biome type based on coordinates.
   ///
-  /// Uses multi-noise sampling (temperature + humidity) for spatially coherent
-  /// biome regions instead of a single random value per 64-block cell.
+  /// Delegates to the shared [BiomeClassifier] (source of truth in
+  /// biome_classifier.dart) so ore and structure searches classify the same
+  /// (x, z, seed) identically. See that class for the threshold map.
   String _getBiomeType(int x, int z, int worldSeed) {
-    PerlinNoise tempNoise = _getOrCreateNoise(worldSeed + 1000, rng: _gameRandom);
-    PerlinNoise humidNoise = _getOrCreateNoise(worldSeed + 2000, rng: _gameRandom);
-
-    double scale = 0.005; // ~200 block biome regions
-    double temperature =
-        tempNoise.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
-    double humidity =
-        humidNoise.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
-
-    if (temperature < -0.5) {
-      return humidity < 0 ? 'taiga' : 'swamp';
-    } else if (temperature < -0.1) {
-      if (humidity < -0.3) return 'mountains';
-      return humidity < 0.3 ? 'forest' : 'jungle';
-    } else if (temperature < 0.3) {
-      if (humidity < -0.3) return 'plains';
-      return humidity < 0.3 ? 'savanna' : 'ocean';
-    } else {
-      return humidity < 0 ? 'desert' : 'badlands';
-    }
+    return _biomeClassifier.classify(x, z, worldSeed);
   }
+
+  /// Test hook: expose the biome classification for a coordinate/seed so tests
+  /// can assert OreFinder and StructureFinder stay in lockstep. Not used by
+  /// production code.
+  String biomeAt(int x, int z, int worldSeed) => _getBiomeType(x, z, worldSeed);
 
   /// Check if ore can spawn at given coordinates.
   ///

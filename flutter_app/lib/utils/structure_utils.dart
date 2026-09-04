@@ -34,6 +34,8 @@ class StructureUtils {
         return '🌿';
       case StructureType.witchHut:
         return '🧙';
+      case StructureType.abandonedCamp:
+        return '⛺';
     }
   }
 
@@ -69,6 +71,8 @@ class StructureUtils {
         return 'Jungle Temple';
       case StructureType.witchHut:
         return 'Witch Hut';
+      case StructureType.abandonedCamp:
+        return 'Abandoned Camp';
     }
   }
 
@@ -130,6 +134,11 @@ class StructureUtils {
       {
         'type': StructureType.pillagerOutpost,
         'name': '🗼 Pillager Outpost',
+        'rarity': 'Common'
+      },
+      {
+        'type': StructureType.abandonedCamp,
+        'name': '⛺ Abandoned Camp',
         'rarity': 'Common'
       },
       {

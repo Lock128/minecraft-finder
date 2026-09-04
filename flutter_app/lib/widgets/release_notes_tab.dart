@@ -52,6 +52,10 @@ class ReleaseNotesTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
+            _featureItem(l10n.releaseNotesThirdDrop2026Title,
+              l10n.releaseNotesThirdDrop2026Body),
+            const SizedBox(height: 20),
+
             _sectionHeader(l10n.releaseNotesEditionSection),
             const SizedBox(height: 12),
             _featureItem(l10n.releaseNotesEditionSelectorTitle,

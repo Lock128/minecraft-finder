@@ -60,6 +60,21 @@
   "worldSeedHint": "Enter your world seed",
   "@worldSeedHint": { "description": "Hint text for the world seed text field" },
 
+  "quickStartTitle": "Quick Start",
+  "@quickStartTitle": { "description": "Section header for the Quick Start card" },
+
+  "quickStartHint": "New here? Tap a preset to fill in sensible defaults, then hit search.",
+  "@quickStartHint": { "description": "Intro helper text explaining what Quick Start presets do" },
+
+  "quickStartDiamondsNearSpawn": "Diamonds near spawn",
+  "@quickStartDiamondsNearSpawn": { "description": "Label for the preset that searches for diamonds around world spawn" },
+
+  "quickStartSeedTip": "Tip: paste your world seed above. You can copy it from your Minecraft world settings.",
+  "@quickStartSeedTip": { "description": "Inline hint telling the user a seed can be pasted from Minecraft world settings" },
+
+  "quickStartSpawnTip": "Coordinates default to world spawn (0, 0). Change them to search elsewhere.",
+  "@quickStartSpawnTip": { "description": "Inline hint explaining that coordinates default to world spawn 0,0" },
+
   "errorEmptySeed": "Please enter a world seed",
   "@errorEmptySeed": { "description": "Validation error when seed field is empty" },
 
@@ -482,6 +497,12 @@
 
   "guideStructureAncientCities": "• Ancient Cities: Deep dark biome (Y -52)",
   "@guideStructureAncientCities": { "description": "Ancient city spawn info" },
+
+  "guideStructureAbandonedCamp": "• Abandoned Camp: Dappled Forest and Cherry Grove biomes",
+  "@guideStructureAbandonedCamp": { "description": "Abandoned Camp spawn info" },
+
+  "guideBiomeDappledForest": "• New in Third Drop 2026: the Dappled Forest, an autumn forest that generates next to cold biomes. It is the home of the new Abandoned Camp structure.",
+  "@guideBiomeDappledForest": { "description": "Note about the new Dappled Forest biome and where it generates" },
 
   "proTipTitle": "Pro Tip",
   "@proTipTitle": { "description": "Title for the pro tip section in the guide" },
@@ -1194,6 +1215,12 @@
   "releaseNotesBedrockRngBody": "A dedicated Mersenne Twister RNG replicates Bedrock Edition's C++ engine. Contextual info boxes let you know when predictions are approximate.",
   "@releaseNotesBedrockRngBody": { "description": "Bedrock RNG feature body" },
 
+  "releaseNotesThirdDrop2026Title": "Third Drop 2026 Support",
+  "@releaseNotesThirdDrop2026Title": { "description": "Release notes title for the Third Drop 2026 update entry" },
+
+  "releaseNotesThirdDrop2026Body": "Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50). Find the new Abandoned Camp structure, which generates in the new Dappled Forest biome and in Cherry Groves, plus refreshed edition and version info throughout the app.",
+  "@releaseNotesThirdDrop2026Body": { "description": "Release notes body describing the Third Drop 2026 update content" },
+
   "releaseNotesV1050Title": "v1.0.50 — Bedwars + UI",
   "@releaseNotesV1050Title": { "description": "Version 1.0.50 title" },
 
@@ -1231,6 +1258,33 @@
   "@resultsMapView": { "description": "Tooltip for switching to map view" },
 
   "mapLegendStructures": "Structures",
-  "@mapLegendStructures": { "description": "Legend label for structures on the map" }
+  "@mapLegendStructures": { "description": "Legend label for structures on the map" },
+
+  "editionVersionTitle": "Edition & Version",
+  "@editionVersionTitle": { "description": "Section header title for the edition and version selection card" },
+
+  "editionJava": "Java Edition",
+  "@editionJava": { "description": "Label for the Java Edition segment button" },
+
+  "editionBedrock": "Bedrock Edition",
+  "@editionBedrock": { "description": "Label for the Bedrock Edition segment button" },
+
+  "versionEraLegacy": "Pre-1.18 (Legacy)",
+  "@versionEraLegacy": { "description": "Label for the legacy (pre-1.18) version era segment button" },
+
+  "versionEraModern": "1.18+ (Modern)",
+  "@versionEraModern": { "description": "Label for the modern (1.18+) version era segment button" },
+
+  "editionBedrockInfo": "Bedrock ore prediction accuracy is approximate due to incomplete documentation of Bedrock's RNG internals.",
+  "@editionBedrockInfo": { "description": "Info box shown when Bedrock edition is selected, explaining prediction accuracy" },
+
+  "versionLegacyInfo": "Legacy ore placement uses uniform distribution with classic Y-level sweet spots (e.g., Y=12 for diamonds).",
+  "@versionLegacyInfo": { "description": "Info box shown when the legacy version era is selected, explaining legacy ore placement" },
+
+  "latestUpdateTitle": "Latest update",
+  "@latestUpdateTitle": { "description": "Title of the info box highlighting the most recent supported Minecraft update" },
+
+  "latestUpdateInfo": "Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50): new Abandoned Camp structure and Dappled Forest biome.",
+  "@latestUpdateInfo": { "description": "Body text of the info box describing the latest supported Minecraft update and its new content" }
 }
 

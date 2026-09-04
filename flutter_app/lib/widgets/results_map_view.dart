@@ -269,6 +269,10 @@ class _ResultsMapViewState extends State<ResultsMapView> {
         return isDark ? GamerColors.coalNeon : GamerColors.lightCoal;
       case OreType.lapis:
         return isDark ? GamerColors.lapisNeon : GamerColors.lightLapis;
+      case OreType.copper:
+        return isDark ? GamerColors.neonOrange : GamerColors.lightOrange;
+      case OreType.emerald:
+        return isDark ? GamerColors.neonGreen : GamerColors.lightGreen;
     }
   }
 }
@@ -448,6 +452,10 @@ class _MapPainter extends CustomPainter {
         return GamerColors.coalNeon;
       case OreType.lapis:
         return GamerColors.lapisNeon;
+      case OreType.copper:
+        return GamerColors.neonOrange;
+      case OreType.emerald:
+        return GamerColors.neonGreen;
     }
   }
 

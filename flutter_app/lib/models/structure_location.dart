@@ -14,6 +14,10 @@ enum StructureType {
   desertTemple,
   jungleTemple,
   witchHut,
+  // Third Drop 2026 (Java 26.3 / Bedrock 26.50): appended at the END so the
+  // .index values of all existing structures stay stable (index is used in
+  // RNG seed mixing in structure_finder.dart). Do not reorder above this line.
+  abandonedCamp,
 }
 
 class StructureLocation {

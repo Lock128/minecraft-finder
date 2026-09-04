@@ -48,6 +48,10 @@ void main() {
           return 'lapis';
         case OreType.netherite:
           return 'netherite';
+        case OreType.copper:
+          return 'copper';
+        case OreType.emerald:
+          return 'emerald';
       }
     }
 

@@ -69,6 +69,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String get worldSeedHint => 'Ingresa tu semilla del mundo';
 
   @override
+  String get quickStartTitle => 'Inicio rápido';
+
+  @override
+  String get quickStartHint =>
+      '¿Eres nuevo? Toca un ajuste predefinido para completar valores sensatos y luego pulsa buscar.';
+
+  @override
+  String get quickStartDiamondsNearSpawn => 'Diamantes cerca del spawn';
+
+  @override
+  String get quickStartSeedTip =>
+      'Consejo: pega tu semilla del mundo arriba. Puedes copiarla desde la configuración del mundo de Minecraft.';
+
+  @override
+  String get quickStartSpawnTip =>
+      'Las coordenadas usan por defecto el spawn del mundo (0, 0). Cámbialas para buscar en otro lugar.';
+
+  @override
   String get errorEmptySeed => 'Por favor ingresa una semilla del mundo';
 
   @override
@@ -518,6 +536,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get guideStructureAncientCities =>
       '• Ciudades Antiguas: Bioma de oscuridad profunda (Y -52)';
+
+  @override
+  String get guideStructureAbandonedCamp =>
+      '• Abandoned Camp: Biomas Dappled Forest y Arboledas de Cerezos';
+
+  @override
+  String get guideBiomeDappledForest =>
+      '• Nuevo en Third Drop 2026: el Dappled Forest, un bosque otoñal que se genera junto a biomas fríos. Es el hogar de la nueva estructura Abandoned Camp.';
 
   @override
   String get proTipTitle => 'Consejo Pro';
@@ -1383,6 +1409,14 @@ class AppLocalizationsEs extends AppLocalizations {
       'Un RNG Mersenne Twister dedicado replica el motor C++ de Bedrock Edition. Cajas de información contextuales te avisan cuando las predicciones son aproximadas.';
 
   @override
+  String get releaseNotesThirdDrop2026Title =>
+      'Compatibilidad con Third Drop 2026';
+
+  @override
+  String get releaseNotesThirdDrop2026Body =>
+      'Actualizado para Third Drop 2026 (Java 26.3 / Bedrock 26.50). Encuentra la nueva estructura Abandoned Camp, que se genera en el nuevo bioma Dappled Forest y en las Arboledas de Cerezos, además de información de edición y versión actualizada en toda la app.';
+
+  @override
   String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
 
   @override
@@ -1422,4 +1456,34 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get mapLegendStructures => 'Structures';
+
+  @override
+  String get editionVersionTitle => 'Edición y versión';
+
+  @override
+  String get editionJava => 'Java Edition';
+
+  @override
+  String get editionBedrock => 'Bedrock Edition';
+
+  @override
+  String get versionEraLegacy => 'Anterior a 1.18 (Clásica)';
+
+  @override
+  String get versionEraModern => '1.18+ (Moderna)';
+
+  @override
+  String get editionBedrockInfo =>
+      'La precisión de la predicción de minerales en Bedrock es aproximada debido a la documentación incompleta de los detalles internos del RNG de Bedrock.';
+
+  @override
+  String get versionLegacyInfo =>
+      'La colocación clásica de minerales usa una distribución uniforme con los niveles Y de siempre (por ejemplo, Y=12 para los diamantes).';
+
+  @override
+  String get latestUpdateTitle => 'Última actualización';
+
+  @override
+  String get latestUpdateInfo =>
+      'Actualizado para Third Drop 2026 (Java 26.3 / Bedrock 26.50): nueva estructura Abandoned Camp y bioma Dappled Forest.';
 }
