@@ -6,7 +6,7 @@ import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
 import '../widgets/pro_upgrade_dialog.dart';
 
-class SearchButtons extends StatelessWidget {
+class SearchButtons extends StatefulWidget {
   final bool isLoading;
   final bool findAllNetherite;
   final Function(bool) onFindOres;
@@ -19,6 +19,20 @@ class SearchButtons extends StatelessWidget {
     required this.onFindOres,
     this.isDarkMode = false,
   });
+
+  @override
+  State<SearchButtons> createState() => _SearchButtonsState();
+}
+
+class _SearchButtonsState extends State<SearchButtons> {
+  // Info boxes are collapsed by default to keep the important action buttons
+  // and results in view without extra scrolling.
+  bool _showInfo = false;
+
+  bool get isLoading => widget.isLoading;
+  bool get findAllNetherite => widget.findAllNetherite;
+  Function(bool) get onFindOres => widget.onFindOres;
+  bool get isDarkMode => widget.isDarkMode;
 
   @override
   Widget build(BuildContext context) {
@@ -63,20 +77,44 @@ class SearchButtons extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        _buildInfoBox(
-          icon: Icons.info_outline,
-          color: GamerColors.neonPurple,
-          title: l10n.comprehensiveNetheriteSearch,
-          body: l10n.comprehensiveNetheriteBody,
+        const SizedBox(height: 10),
+        // Collapsible help section: keeps the buttons prominent and the
+        // screen short, while info is a tap away.
+        Align(
+          alignment: Alignment.center,
+          child: TextButton.icon(
+            onPressed: () => setState(() => _showInfo = !_showInfo),
+            icon: Icon(
+              _showInfo ? Icons.expand_less : Icons.help_outline,
+              size: 16,
+            ),
+            label: Text(
+              _showInfo ? l10n.hideSearchInfo : l10n.showSearchInfo,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+            style: TextButton.styleFrom(
+              foregroundColor:
+                  isDarkMode ? GamerColors.neonGreen : GamerColors.lightGreen,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
         ),
-        const SizedBox(height: 8),
-        _buildInfoBox(
-          icon: Icons.info_outline,
-          color: GamerColors.neonGreen,
-          title: null,
-          body: l10n.regularSearchInfo,
-        ),
+        if (_showInfo) ...[
+          const SizedBox(height: 6),
+          _buildInfoBox(
+            icon: Icons.info_outline,
+            color: GamerColors.neonPurple,
+            title: l10n.comprehensiveNetheriteSearch,
+            body: l10n.comprehensiveNetheriteBody,
+          ),
+          const SizedBox(height: 8),
+          _buildInfoBox(
+            icon: Icons.info_outline,
+            color: GamerColors.neonGreen,
+            title: null,
+            body: l10n.regularSearchInfo,
+          ),
+        ],
       ],
     );
   }

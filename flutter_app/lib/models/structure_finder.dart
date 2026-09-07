@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'bounded_top_results.dart';
 import 'structure_location.dart';
 import 'java_random.dart';
 import 'noise.dart';
@@ -478,7 +479,10 @@ class StructureFinder {
     }
   }
 
-  /// Find structure locations using improved algorithms and Java-compatible RNG
+  /// Find structure locations using improved algorithms and Java-compatible RNG.
+  ///
+  /// At most [maxResults] highest-probability locations are retained, keeping
+  /// peak memory bounded regardless of [radius].
   Future<List<StructureLocation>> findStructures({
     required String seed,
     required int centerX,
@@ -486,10 +490,13 @@ class StructureFinder {
     required int radius,
     required Set<StructureType> structureTypes,
     double minProbability = 0.3,
+    int maxResults = 500,
+    void Function(int)? onTotalFound,
   }) async {
     // Use Java-compatible seed conversion
     int worldSeed = MinecraftRandom.stringToSeed(seed);
-    List<StructureLocation> locations = [];
+    final locations = BoundedTopResults<StructureLocation>(
+        maxResults, (s) => s.probability);
 
     // Use chunk-aligned search for better accuracy
     int step = 32; // Check every 2 chunks for better coverage
@@ -532,9 +539,9 @@ class StructureFinder {
       }
     }
 
-    // Sort by probability (highest first)
-    locations.sort((a, b) => b.probability.compareTo(a.probability));
+    onTotalFound?.call(locations.totalOffered);
 
-    return locations;
+    // Already sorted descending by probability inside the bounded collector.
+    return locations.toList();
   }
 }

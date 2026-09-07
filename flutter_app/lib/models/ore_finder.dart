@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'bounded_top_results.dart';
 import 'ore_location.dart';
 import 'game_random.dart';
 import 'java_random.dart';
@@ -255,7 +256,10 @@ class OreFinder {
     }
   }
 
-  /// Find ore locations in a given area
+  /// Find ore locations in a given area.
+  ///
+  /// At most [maxResults] locations (the highest-probability ones) are ever
+  /// retained in memory, so peak memory stays bounded regardless of [radius].
   Future<List<OreLocation>> findOres({
     required String seed,
     required int centerX,
@@ -267,6 +271,8 @@ class OreFinder {
     double minProbability = 0.5,
     MinecraftEdition edition = MinecraftEdition.java,
     VersionEra versionEra = VersionEra.modern,
+    int maxResults = 500,
+    void Function(int)? onTotalFound,
   }) async {
     int worldSeed = MinecraftRandom.stringToSeed(seed);
 
@@ -316,7 +322,8 @@ class OreFinder {
         break;
     }
 
-    List<OreLocation> locations = [];
+    final locations =
+        BoundedTopResults<OreLocation>(maxResults, (o) => o.probability);
     int step = _getOptimalStepSize(oreType, radius);
 
     for (int x = centerX - radius; x <= centerX + radius; x += step) {
@@ -356,8 +363,12 @@ class OreFinder {
       }
     }
 
-    locations.sort((a, b) => b.probability.compareTo(a.probability));
-    return locations;
+    // Report the total number of qualifying candidates (before the display
+    // cap) so callers can show an accurate "top N of X" label.
+    onTotalFound?.call(locations.totalOffered);
+
+    // Already sorted descending by probability inside the bounded collector.
+    return locations.toList();
   }
 
   /// Get optimal step size based on ore type and search radius
@@ -439,7 +450,10 @@ class OreFinder {
     return {'min': 0, 'max': 256, 'step': 4};
   }
 
-  /// Comprehensive search for all netherite (Ancient Debris)
+  /// Comprehensive search for all netherite (Ancient Debris).
+  ///
+  /// At most [maxResults] highest-probability locations are retained, keeping
+  /// peak memory bounded on large-radius searches.
   Future<List<OreLocation>> findAllNetherite({
     required String seed,
     required int centerX,
@@ -447,6 +461,8 @@ class OreFinder {
     int searchRadius = 1000,
     MinecraftEdition edition = MinecraftEdition.java,
     VersionEra versionEra = VersionEra.modern,
+    int maxResults = 200,
+    void Function(int)? onTotalFound,
   }) async {
     int worldSeed = MinecraftRandom.stringToSeed(seed);
 
@@ -464,7 +480,8 @@ class OreFinder {
     }
     _veinNoiseCache.clear();
 
-    List<OreLocation> locations = [];
+    final locations =
+        BoundedTopResults<OreLocation>(maxResults, (o) => o.probability);
     // Ancient Debris veins are only 1–3 blocks wide; step=16 skips most of
     // them. Use step=4 (matching _getOptimalStepSize for netherite) so that
     // every vein falls within one step of a sampled point.
@@ -508,8 +525,10 @@ class OreFinder {
       }
     }
 
-    locations.sort((a, b) => b.probability.compareTo(a.probability));
-    return locations.take(200).toList();
+    onTotalFound?.call(locations.totalOffered);
+
+    // Already sorted descending and capped by the bounded collector.
+    return locations.toList();
   }
 
   /// Get netherite statistics for a seed

@@ -50,6 +50,18 @@ class SearchState extends ChangeNotifier {
   List<StructureLocation> _structureResults = [];
   List<StructureLocation> get structureResults => _structureResults;
 
+  // Total number of candidate locations found before the display cap was
+  // applied. Lets the UI show "showing top N of X found".
+  int _totalFound = 0;
+  int get totalFound => _totalFound;
+
+  // The display cap applied to the last search (based on Pro status).
+  int _resultLimit = 0;
+  int get resultLimit => _resultLimit;
+
+  // Whether the last search produced more results than were displayed.
+  bool get wasCapped => _totalFound > _results.length + _structureResults.length;
+
   bool _findAllNetherite = false;
   bool get findAllNetherite => _findAllNetherite;
 
@@ -59,6 +71,15 @@ class SearchState extends ChangeNotifier {
 
   // Tab controller for auto-switching to results
   TabController? tabController;
+
+  // Set once dispose() runs so post-await callbacks don't touch a dead notifier.
+  bool _disposed = false;
+
+  // Incremented at the start of every search. A running search compares its
+  // captured value against this after each await; if they differ, a newer
+  // search has superseded it and the stale one bails out without mutating
+  // state. This prevents overlapping searches from clobbering each other.
+  int _searchGeneration = 0;
 
   SearchState() {
     _setupListeners();
@@ -100,6 +121,7 @@ class SearchState extends ChangeNotifier {
     final versionEra = await PreferencesService.getVersionEra();
     _selectedEdition = edition;
     _selectedVersionEra = versionEra;
+    if (_disposed) return;
     seedController.text = params['seed']!;
     xController.text = params['x']!;
     yController.text = params['y']!;
@@ -177,6 +199,10 @@ class SearchState extends ChangeNotifier {
       return errorSelectOre;
     }
 
+    // Mark a new search generation. Any previously running search will see a
+    // mismatch after its next await and abort without touching state.
+    final int generation = ++_searchGeneration;
+
     _isLoading = true;
     _results = [];
     _structureResults = [];
@@ -204,6 +230,15 @@ class SearchState extends ChangeNotifier {
       effectiveStructures = {_selectedStructures.first};
     }
 
+    // Display cap based on Pro status.
+    // Free: 50 results, Pro: 500 (or 300 for comprehensive netherite).
+    final int maxResults;
+    if (isPro) {
+      maxResults = effectiveComprehensiveNetherite ? 300 : 500;
+    } else {
+      maxResults = 50;
+    }
+
     // Add the current seed to recent seeds when starting a search
     await PreferencesService.addRecentSeed(seedController.text);
 
@@ -212,7 +247,13 @@ class SearchState extends ChangeNotifier {
       final structureFinder = StructureFinder();
       List<OreLocation> allResults = [];
 
-      // Search for ores if enabled
+      // Total qualifying candidates across all finders, before the display cap.
+      // Drives the "showing top N of X found" label in the results tab.
+      int totalCandidates = 0;
+
+      // Search for ores if enabled. Each finder retains at most [maxResults]
+      // locations internally, so peak memory stays bounded no matter how large
+      // the search radius is — this is what prevents the OOM crash.
       if (_includeOres) {
         if (effectiveComprehensiveNetherite) {
           final results = await finder.findAllNetherite(
@@ -221,6 +262,8 @@ class SearchState extends ChangeNotifier {
             centerZ: int.parse(zController.text),
             edition: _selectedEdition,
             versionEra: _selectedVersionEra,
+            maxResults: maxResults,
+            onTotalFound: (n) => totalCandidates += n,
           );
           allResults.addAll(results);
         } else {
@@ -235,6 +278,8 @@ class SearchState extends ChangeNotifier {
               includeNether: _includeNether && oreType == OreType.gold,
               edition: _selectedEdition,
               versionEra: _selectedVersionEra,
+              maxResults: maxResults,
+              onTotalFound: (n) => totalCandidates += n,
             );
             allResults.addAll(results);
           }
@@ -250,7 +295,15 @@ class SearchState extends ChangeNotifier {
           centerZ: int.parse(zController.text),
           radius: effectiveRadius,
           structureTypes: effectiveStructures,
+          maxResults: maxResults,
+          onTotalFound: (n) => totalCandidates += n,
         );
+      }
+
+      // A newer search started (or the provider was disposed) while this one
+      // was running. Discard these stale results without touching state.
+      if (_disposed || generation != _searchGeneration) {
+        return null;
       }
 
       // Combine all results into a unified list for proper sorting
@@ -265,15 +318,12 @@ class SearchState extends ChangeNotifier {
       // Sort all results by probability (highest first)
       combinedResults.sort((a, b) => b.probability.compareTo(a.probability));
 
-      // Take top results based on Pro status
-      // Free: 50 results, Pro: 500 (or 300 for comprehensive netherite)
-      int maxResults;
-      if (isPro) {
-        maxResults = effectiveComprehensiveNetherite ? 300 : 500;
-      } else {
-        maxResults = 50;
-      }
       final topResults = combinedResults.take(maxResults).toList();
+
+      // Record how many candidates were found before capping, so the UI can
+      // show the true number of potential findings.
+      _totalFound = totalCandidates;
+      _resultLimit = maxResults;
 
       // Separate back into ore and structure lists for the UI
       final topOreResults = <OreLocation>[];
@@ -301,6 +351,11 @@ class SearchState extends ChangeNotifier {
 
       return null; // success
     } catch (e) {
+      // Only surface the error if this search is still the current one and the
+      // provider is alive; otherwise there's nothing to update.
+      if (_disposed || generation != _searchGeneration) {
+        return null;
+      }
       _isLoading = false;
       notifyListeners();
       return errorGeneric(e.toString());
@@ -309,6 +364,7 @@ class SearchState extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     seedController.removeListener(_onSeedChanged);
     xController.removeListener(_onXChanged);
     yController.removeListener(_onYChanged);

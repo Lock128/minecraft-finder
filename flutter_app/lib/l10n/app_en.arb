@@ -222,6 +222,21 @@
     }
   },
 
+  "showingTopOf": "Showing top {shown} of {found} potential findings",
+  "@showingTopOf": {
+    "description": "Shown when results were capped, indicating how many candidates were found",
+    "placeholders": {
+      "shown": { "type": "int", "example": "500" },
+      "found": { "type": "int", "example": "1200" }
+    }
+  },
+
+  "showSearchInfo": "How search works",
+  "@showSearchInfo": { "description": "Button to reveal search help info boxes" },
+
+  "hideSearchInfo": "Hide info",
+  "@hideSearchInfo": { "description": "Button to collapse search help info boxes" },
+
   "hideFilters": "Hide filters",
   "@hideFilters": { "description": "Tooltip to hide the filter panel" },
 

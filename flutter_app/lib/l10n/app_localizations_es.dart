@@ -232,6 +232,17 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String showingTopOf(int shown, int found) {
+    return 'Mostrando los mejores $shown de $found hallazgos potenciales';
+  }
+
+  @override
+  String get showSearchInfo => 'Cómo funciona la búsqueda';
+
+  @override
+  String get hideSearchInfo => 'Ocultar info';
+
+  @override
   String get hideFilters => 'Ocultar filtros';
 
   @override

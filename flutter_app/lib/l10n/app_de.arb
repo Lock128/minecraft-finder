@@ -81,6 +81,9 @@
   "tryAdjustingFilters": "Versuche, deine Filtereinstellungen anzupassen",
 
   "resultsCount": "{total} Ergebnisse  ·  {oreCount} Erze  ·  {structureCount} Strukturen",
+  "showingTopOf": "Zeigt die besten {shown} von {found} möglichen Fundorten",
+  "showSearchInfo": "So funktioniert die Suche",
+  "hideSearchInfo": "Info ausblenden",
 
   "hideFilters": "Filter ausblenden",
   "showFilters": "Filter anzeigen",

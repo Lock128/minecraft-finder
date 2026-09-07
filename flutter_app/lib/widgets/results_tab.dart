@@ -20,6 +20,7 @@ class ResultsTab extends StatefulWidget {
   final bool isLoading;
   final bool findAllNetherite;
   final Set<OreType> selectedOreTypes;
+  final int totalFound;
 
   const ResultsTab({
     super.key,
@@ -28,6 +29,7 @@ class ResultsTab extends StatefulWidget {
     required this.isLoading,
     required this.findAllNetherite,
     required this.selectedOreTypes,
+    this.totalFound = 0,
   });
 
   @override
@@ -148,6 +150,17 @@ class _ResultsTabState extends State<ResultsTab> {
     return biomes.toList()..sort();
   }
 
+  /// Returns a localized "Showing top N of X potential findings" label when
+  /// the search produced more candidates than are displayed. Returns null
+  /// when nothing was capped (so the extra line is hidden).
+  String? _totalFoundLabel(AppLocalizations l10n) {
+    final shown = widget.results.length + widget.structureResults.length;
+    if (widget.totalFound > shown) {
+      return l10n.showingTopOf(shown, widget.totalFound);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.isLoading) {
@@ -263,17 +276,44 @@ class _ResultsTabState extends State<ResultsTab> {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  l10n.resultsCount(
-                    filteredResults.length + filteredStructureResults.length,
-                    filteredResults.length,
-                    filteredStructureResults.length,
-                  ),
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.resultsCount(
+                        filteredResults.length + filteredStructureResults.length,
+                        filteredResults.length,
+                        filteredStructureResults.length,
+                      ),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    if (_totalFoundLabel(l10n) != null) ...[
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.info_outline,
+                              size: 12, color: GamerColors.neonGreen),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              _totalFoundLabel(l10n)!,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: GamerColors.neonGreen,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
               IconButton(
@@ -292,11 +332,15 @@ class _ResultsTabState extends State<ResultsTab> {
               ),
             ],
           ),
-          if (widget.results.isNotEmpty) _buildOreFilters(context),
-          if (widget.structureResults.isNotEmpty) _buildStructureFilters(context),
-          if (widget.results.isNotEmpty || widget.structureResults.isNotEmpty)
-            _buildBiomeFilters(context),
-          if (_showFilters) _buildCoordinateFilters(context),
+          // Filters are hidden by default so results get maximum space.
+          // Tap the filter icon to reveal ore/biome/coordinate filters.
+          if (_showFilters) ...[
+            if (widget.results.isNotEmpty) _buildOreFilters(context),
+            if (widget.structureResults.isNotEmpty) _buildStructureFilters(context),
+            if (widget.results.isNotEmpty || widget.structureResults.isNotEmpty)
+              _buildBiomeFilters(context),
+            _buildCoordinateFilters(context),
+          ],
         ],
       ),
     );

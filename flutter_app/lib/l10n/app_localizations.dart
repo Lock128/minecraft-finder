@@ -512,6 +512,24 @@ abstract class AppLocalizations {
   /// **'{total} results  ·  {oreCount} ores  ·  {structureCount} structures'**
   String resultsCount(int total, int oreCount, int structureCount);
 
+  /// Shown when results were capped, indicating how many candidates were found
+  ///
+  /// In en, this message translates to:
+  /// **'Showing top {shown} of {found} potential findings'**
+  String showingTopOf(int shown, int found);
+
+  /// Button to reveal search help info boxes
+  ///
+  /// In en, this message translates to:
+  /// **'How search works'**
+  String get showSearchInfo;
+
+  /// Button to collapse search help info boxes
+  ///
+  /// In en, this message translates to:
+  /// **'Hide info'**
+  String get hideSearchInfo;
+
   /// Tooltip to hide the filter panel
   ///
   /// In en, this message translates to:

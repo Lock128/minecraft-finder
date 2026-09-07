@@ -81,6 +81,9 @@
   "tryAdjustingFilters": "Intenta ajustar la configuración de filtros",
 
   "resultsCount": "{total} resultados  ·  {oreCount} minerales  ·  {structureCount} estructuras",
+  "showingTopOf": "Mostrando los mejores {shown} de {found} hallazgos potenciales",
+  "showSearchInfo": "Cómo funciona la búsqueda",
+  "hideSearchInfo": "Ocultar info",
 
   "hideFilters": "Ocultar filtros",
   "showFilters": "Mostrar filtros",

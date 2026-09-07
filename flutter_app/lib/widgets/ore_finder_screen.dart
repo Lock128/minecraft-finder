@@ -117,7 +117,11 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             appBar: _buildAppBar(isDark),
             body: Column(
               children: [
-                _buildTabBar(isDark),
+                _buildTabBar(
+                  isDark,
+                  resultCount: searchState.results.length +
+                      searchState.structureResults.length,
+                ),
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
@@ -155,6 +159,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         isLoading: searchState.isLoading,
                         findAllNetherite: searchState.findAllNetherite,
                         selectedOreTypes: searchState.selectedOreTypes,
+                        totalFound: searchState.totalFound,
                       ),
                       FavoritesTab(isDarkMode: isDark),
                       GuideTab(isDarkMode: isDark),
@@ -170,7 +175,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     );
   }
 
-  Widget _buildTabBar(bool isDark) {
+  Widget _buildTabBar(bool isDark, {int resultCount = 0}) {
     return Container(
       color: isDark ? GamerColors.darkSurface : Colors.white,
       child: TabBar(
@@ -190,7 +195,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               text: AppLocalizations.of(context).searchTab,
               height: 48),
           Tab(
-              icon: const Icon(Icons.inventory_2_outlined, size: 18),
+              icon: _resultsTabIcon(isDark, resultCount),
               text: AppLocalizations.of(context).resultsTab,
               height: 48),
           Tab(
@@ -207,6 +212,42 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               height: 48),
         ],
       ),
+    );
+  }
+
+  /// Builds the Results tab icon, overlaying a small count badge when there
+  /// are results, so the number of findings is visible from any tab.
+  Widget _resultsTabIcon(bool isDark, int resultCount) {
+    const icon = Icon(Icons.inventory_2_outlined, size: 18);
+    if (resultCount <= 0) return icon;
+    final label = resultCount > 999 ? '999+' : '$resultCount';
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        icon,
+        Positioned(
+          right: -10,
+          top: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            constraints: const BoxConstraints(minWidth: 16),
+            decoration: BoxDecoration(
+              color: GamerColors.neonGreen,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+                height: 1.1,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

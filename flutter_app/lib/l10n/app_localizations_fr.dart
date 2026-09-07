@@ -233,6 +233,17 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String showingTopOf(int shown, int found) {
+    return 'Affichage des $shown meilleurs sur $found résultats potentiels';
+  }
+
+  @override
+  String get showSearchInfo => 'Comment fonctionne la recherche';
+
+  @override
+  String get hideSearchInfo => 'Masquer les infos';
+
+  @override
   String get hideFilters => 'Masquer les filtres';
 
   @override

@@ -82,6 +82,9 @@
   "tryAdjustingFilters": "フィルター設定を調整してみてください",
 
   "resultsCount": "{total}件の結果 · {oreCount}件の鉱石 · {structureCount}件の構造物",
+  "showingTopOf": "候補{found}件のうち上位{shown}件を表示",
+  "showSearchInfo": "検索の仕組み",
+  "hideSearchInfo": "情報を隠す",
 
   "hideFilters": "フィルターを隠す",
   "showFilters": "フィルターを表示",

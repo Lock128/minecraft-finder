@@ -223,6 +223,17 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String showingTopOf(int shown, int found) {
+    return '候補$found件のうち上位$shown件を表示';
+  }
+
+  @override
+  String get showSearchInfo => '検索の仕組み';
+
+  @override
+  String get hideSearchInfo => '情報を隠す';
+
+  @override
   String get hideFilters => 'フィルターを隠す';
 
   @override
