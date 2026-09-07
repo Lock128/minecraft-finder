@@ -1,3 +1,39 @@
+# Release Notes - Version 1.0.52
+## Major Update: New Ores, Vein Size Estimates & Accuracy Overhaul
+
+### 🆕 **Two New Ore Types**
+- **🟠 Copper Ore**: Now searchable across Y -16 to 112, peaking around Y 48. Copper generates in large veins, so expect plenty per find.
+- **💚 Emerald Ore**: Now searchable in mountain biomes only, all the way up to Y 320. Rare and valuable, generated as single blocks.
+
+### 📦 **Estimated Vein Sizes**
+- Every ore result now shows an **estimated number of blocks** in the vein, not just a probability.
+- See at a glance whether a location is likely a small pocket or a large haul.
+- Estimates scale with location quality — higher-probability spots suggest bigger veins.
+- Includes the min/max range per ore type (e.g. coal 1–17, copper 1–20, diamond 1–10).
+
+### 🎯 **Ore Distribution Accuracy Improvements**
+- **Diamonds**: More accurate deep-layer distribution, better reflecting the Y -4 to 16 band.
+- **Coal**: Now correctly found up to Y 320 in mountainous terrain.
+- **Nether Gold**: Uses the correct Nether distribution (Y 10–117) instead of the overworld pattern.
+- **Ore Veins**: Cleaner contrast between dense vein centers and empty rock for more realistic results.
+
+### 🏛 **Structure Finding Accuracy Improvements**
+- **Strongholds**: Now placed using Minecraft's authentic ring-based system (concentric rings around the world origin) instead of an even grid.
+- **Ancient Cities**: Restricted to Deep Dark areas, matching real generation.
+- **Buried Treasure**: Uses proper per-chunk placement at the correct chunk position.
+- **Biomes**: Structure biome detection is now spatially coherent, so structures show up in believable, connected regions instead of scattered noise.
+
+### ⚡ **Performance**
+- Faster searches through reduced overhead during large-radius scans.
+- More thorough Netherite scanning that no longer skips over small Ancient Debris veins.
+
+### 🎯 **Perfect for All Players**
+- **Miners**: Know roughly how much ore awaits before you dig.
+- **Builders**: Locate copper and emerald for the first time in-app.
+- **Explorers**: Trust structure locations with more realistic placement.
+
+---
+
 # Release Notes - Version 1.0.36
 ## Quality of Life Update: Complete Search Persistence
 
