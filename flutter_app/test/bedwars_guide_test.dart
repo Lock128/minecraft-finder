@@ -5,8 +5,45 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
 import 'package:gem_ore_struct_finder_mc/main.dart';
 import 'package:gem_ore_struct_finder_mc/models/bedwars_guide_data.dart';
+import 'package:gem_ore_struct_finder_mc/providers/favorites_provider.dart';
+import 'package:gem_ore_struct_finder_mc/providers/monetization_config.dart';
+import 'package:gem_ore_struct_finder_mc/providers/pro_status_provider.dart';
+import 'package:gem_ore_struct_finder_mc/providers/search_history_provider.dart';
 import 'package:gem_ore_struct_finder_mc/widgets/bedwars_guide_tab.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Wraps [OreFinderScreen] in the same providers the app supplies in main.dart
+/// so that widgets depending on MonetizationConfig / ProStatusProvider build.
+Widget _wrapOreFinderScreen({required String localeCode}) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+      ChangeNotifierProvider(create: (_) => SearchHistoryProvider()),
+      ChangeNotifierProvider(create: (_) => MonetizationConfig()),
+      ChangeNotifierProxyProvider<MonetizationConfig, ProStatusProvider>(
+        create: (context) => ProStatusProvider(
+          monetizationEnabled: context.read<MonetizationConfig>().isEnabled,
+        ),
+        update: (_, monetization, proStatus) {
+          proStatus!.updateMonetization(monetization.isEnabled);
+          return proStatus;
+        },
+      ),
+    ],
+    child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale(localeCode),
+      home: OreFinderScreen(
+        onThemeToggle: () {},
+        isDarkMode: false,
+        onLocaleChanged: (_) {},
+        currentLocale: Locale(localeCode),
+      ),
+    ),
+  );
+}
 
 void main() {
   /// **Validates: Requirements 3.2, 4.2, 5.2**
@@ -129,19 +166,7 @@ void main() {
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({});
 
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: OreFinderScreen(
-            onThemeToggle: () {},
-            isDarkMode: false,
-            onLocaleChanged: (_) {},
-            currentLocale: const Locale('en'),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrapOreFinderScreen(localeCode: 'en'));
       await tester.pumpAndSettle();
 
       // Verify the "Bedwars" label text exists in the TabBar
@@ -160,19 +185,7 @@ void main() {
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({});
 
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: OreFinderScreen(
-            onThemeToggle: () {},
-            isDarkMode: false,
-            onLocaleChanged: (_) {},
-            currentLocale: const Locale('en'),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrapOreFinderScreen(localeCode: 'en'));
       await tester.pumpAndSettle();
 
       // Tap the Bedwars tab
