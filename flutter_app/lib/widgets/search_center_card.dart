@@ -96,8 +96,9 @@ class SearchCenterCard extends StatelessWidget {
               if (wholeWorld) return null;
               if (value == null || value.isEmpty) return l10n.errorEmptyRadius;
               final radius = int.tryParse(value);
-              if (radius == null || radius <= 0)
+              if (radius == null || radius <= 0) {
                 return l10n.errorRadiusPositive;
+              }
               if (radius > 2000) return l10n.errorRadiusMax;
               return null;
             },
@@ -238,8 +239,9 @@ class SearchCenterCard extends StatelessWidget {
         if (value == null || value.isEmpty) return l10n.errorFieldRequired;
         final v = int.tryParse(value);
         if (v == null) return l10n.errorFieldInvalid;
-        if (label == l10n.coordinateY && (v < -64 || v > 320))
+        if (label == l10n.coordinateY && (v < -64 || v > 320)) {
           return l10n.errorYRange;
+        }
         return null;
       },
     );

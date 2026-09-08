@@ -214,8 +214,9 @@ class GuideTab extends StatelessWidget {
   Color _lightVariant(Color neonColor) {
     if (neonColor == GamerColors.diamondNeon) return GamerColors.lightDiamond;
     if (neonColor == GamerColors.goldNeon) return GamerColors.lightGold;
-    if (neonColor == GamerColors.netheriteNeon)
+    if (neonColor == GamerColors.netheriteNeon) {
       return GamerColors.lightNetherite;
+    }
     if (neonColor == GamerColors.ironNeon) return GamerColors.lightIron;
     if (neonColor == GamerColors.redstoneNeon) return GamerColors.lightRedstone;
     if (neonColor == GamerColors.coalNeon) return GamerColors.lightCoal;
