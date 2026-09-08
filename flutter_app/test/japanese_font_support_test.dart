@@ -47,7 +47,8 @@ void main() {
         (v) => v.runes.any((r) => r >= 0x4E00 && r <= 0x9FFF),
       );
       expect(hasKanji, isTrue,
-          reason: 'Japanese translations should contain Kanji (CJK Unified Ideographs)');
+          reason:
+              'Japanese translations should contain Kanji (CJK Unified Ideographs)');
     });
   });
 

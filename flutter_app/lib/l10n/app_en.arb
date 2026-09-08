@@ -237,6 +237,24 @@
   "hideSearchInfo": "Hide info",
   "@hideSearchInfo": { "description": "Button to collapse search help info boxes" },
 
+  "showDetails": "Details",
+  "@showDetails": { "description": "Button to reveal collapsed detail info" },
+
+  "hideDetails": "Hide details",
+  "@hideDetails": { "description": "Button to collapse detail info" },
+
+  "showTips": "Tips",
+  "@showTips": { "description": "Button to reveal quick start tips" },
+
+  "wholeWorldNetheriteTitle": "Scan whole world",
+  "@wholeWorldNetheriteTitle": { "description": "Title for the whole-world Netherite scope toggle" },
+
+  "wholeWorldNetheriteSubtitle": "Searches the entire world for Netherite, ignoring the radius. Takes longer.",
+  "@wholeWorldNetheriteSubtitle": { "description": "Subtitle explaining the whole-world Netherite scan" },
+
+  "wholeWorldActiveHint": "Whole world (radius ignored)",
+  "@wholeWorldActiveHint": { "description": "Hint shown in the radius field when whole-world scan is active" },
+
   "hideFilters": "Hide filters",
   "@hideFilters": { "description": "Tooltip to hide the filter panel" },
 
@@ -332,6 +350,61 @@
       "biome": { "type": "String", "example": "Plains" }
     }
   },
+
+  "placesFound": "{count, plural, =1{{count} place found} other{{count} places found}}",
+  "@placesFound": {
+    "description": "Prominent count of matching locations in the results header",
+    "placeholders": {
+      "count": { "type": "int", "example": "42" }
+    }
+  },
+
+  "minProbabilityFilterLabel": "Minimum probability: {percent}%",
+  "@minProbabilityFilterLabel": {
+    "description": "Label for the minimum probability slider filter",
+    "placeholders": {
+      "percent": { "type": "int", "example": "80" }
+    }
+  },
+
+  "biomeNamePlains": "Plains",
+  "@biomeNamePlains": { "description": "Friendly biome name: plains" },
+  "biomeNameForest": "Forest",
+  "@biomeNameForest": { "description": "Friendly biome name: forest" },
+  "biomeNameDesert": "Desert",
+  "@biomeNameDesert": { "description": "Friendly biome name: desert" },
+  "biomeNameJungle": "Jungle",
+  "@biomeNameJungle": { "description": "Friendly biome name: jungle" },
+  "biomeNameSwamp": "Swamp",
+  "@biomeNameSwamp": { "description": "Friendly biome name: swamp" },
+  "biomeNameTaiga": "Taiga",
+  "@biomeNameTaiga": { "description": "Friendly biome name: taiga" },
+  "biomeNameMountains": "Mountains",
+  "@biomeNameMountains": { "description": "Friendly biome name: mountains" },
+  "biomeNameDappledForest": "Autumn Forest",
+  "@biomeNameDappledForest": { "description": "Friendly biome name: dappled_forest" },
+  "biomeNameCherryGrove": "Cherry Grove",
+  "@biomeNameCherryGrove": { "description": "Friendly biome name: cherry_grove" },
+  "biomeNameSavanna": "Savanna",
+  "@biomeNameSavanna": { "description": "Friendly biome name: savanna" },
+  "biomeNameBadlands": "Badlands",
+  "@biomeNameBadlands": { "description": "Friendly biome name: badlands" },
+  "biomeNameOcean": "Ocean",
+  "@biomeNameOcean": { "description": "Friendly biome name: ocean" },
+  "biomeNameDeepOcean": "Deep Ocean",
+  "@biomeNameDeepOcean": { "description": "Friendly biome name: deep_ocean" },
+  "biomeNameBeach": "Beach",
+  "@biomeNameBeach": { "description": "Friendly biome name: beach" },
+  "biomeNameNether": "Nether",
+  "@biomeNameNether": { "description": "Friendly biome name: nether" },
+  "biomeNameEnd": "The End",
+  "@biomeNameEnd": { "description": "Friendly biome name: end" },
+  "biomeNameDeepDark": "Deep Dark",
+  "@biomeNameDeepDark": { "description": "Friendly biome name: deep_dark" },
+  "biomeNameOverworld": "Overworld",
+  "@biomeNameOverworld": { "description": "Friendly biome name: overworld" },
+  "biomeNameUnknown": "Unknown",
+  "@biomeNameUnknown": { "description": "Friendly biome name: unknown" },
 
   "guideDiamondTitle": "Diamond Generation",
   "@guideDiamondTitle": { "description": "Guide card title for diamond generation" },

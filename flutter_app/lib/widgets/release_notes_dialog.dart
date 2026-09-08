@@ -63,17 +63,22 @@ class ReleaseNotesDialog extends StatelessWidget {
                     children: [
                       _buildSectionHeader(l10n.dialogRecentSeedsSection),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogQuickSeedAccessTitle, l10n.dialogQuickSeedAccessBody),
+                      _buildFeatureItem(l10n.dialogQuickSeedAccessTitle,
+                          l10n.dialogQuickSeedAccessBody),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogSmartSeedTitle, l10n.dialogSmartSeedBody),
+                      _buildFeatureItem(
+                          l10n.dialogSmartSeedTitle, l10n.dialogSmartSeedBody),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogEnhancedUxTitle, l10n.dialogEnhancedUxBody),
+                      _buildFeatureItem(l10n.dialogEnhancedUxTitle,
+                          l10n.dialogEnhancedUxBody),
                       const SizedBox(height: 20),
                       _buildSectionHeader(l10n.dialogSearchMemorySection),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogAutoSaveTitle, l10n.dialogAutoSaveBody),
+                      _buildFeatureItem(
+                          l10n.dialogAutoSaveTitle, l10n.dialogAutoSaveBody),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogSeamlessTitle, l10n.dialogSeamlessBody),
+                      _buildFeatureItem(
+                          l10n.dialogSeamlessTitle, l10n.dialogSeamlessBody),
                       const SizedBox(height: 20),
                       _buildSectionHeader(l10n.dialogEnhancedUxSection),
                       const SizedBox(height: 12),
@@ -99,11 +104,14 @@ class ReleaseNotesDialog extends StatelessWidget {
                       const SizedBox(height: 20),
                       _buildSectionHeader(l10n.dialogPreviousSection),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogV1036Title, l10n.dialogV1036Body),
+                      _buildFeatureItem(
+                          l10n.dialogV1036Title, l10n.dialogV1036Body),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogV1027Title, l10n.dialogV1027Body),
+                      _buildFeatureItem(
+                          l10n.dialogV1027Title, l10n.dialogV1027Body),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(l10n.dialogV1022Title, l10n.dialogV1022Body),
+                      _buildFeatureItem(
+                          l10n.dialogV1022Title, l10n.dialogV1022Body),
                       const SizedBox(height: 20),
                       _buildSectionHeader(l10n.dialogPlayersSection),
                       const SizedBox(height: 12),

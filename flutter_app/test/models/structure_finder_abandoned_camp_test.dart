@@ -13,7 +13,8 @@ import 'package:gem_ore_struct_finder_mc/models/structure_location.dart';
 void main() {
   group('Third Drop 2026: Abandoned Camp structure', () {
     test('StructureType enum contains abandonedCamp as the last value', () {
-      expect(StructureType.values.contains(StructureType.abandonedCamp), isTrue);
+      expect(
+          StructureType.values.contains(StructureType.abandonedCamp), isTrue);
       expect(StructureType.values.last, StructureType.abandonedCamp);
     });
 
@@ -55,7 +56,8 @@ void main() {
       }
     });
 
-    test('existing structures (village) still generate for a fixed seed '
+    test(
+        'existing structures (village) still generate for a fixed seed '
         '(index-shift regression guard)', () async {
       final finder = StructureFinder();
 
@@ -79,14 +81,17 @@ void main() {
       }
 
       expect(villages, isNotEmpty,
-          reason: 'Villages should still generate after appending abandonedCamp');
+          reason:
+              'Villages should still generate after appending abandonedCamp');
       for (final loc in villages) {
         expect(loc.structureType, StructureType.village);
       }
     });
 
-    test('woodland mansions still generate after the forest band was '
-        'subdivided for the new biomes (spawn-area regression guard)', () async {
+    test(
+        'woodland mansions still generate after the forest band was '
+        'subdivided for the new biomes (spawn-area regression guard)',
+        () async {
       final finder = StructureFinder();
 
       // Subdividing the cool-temperate 'forest' band to introduce
@@ -115,8 +120,7 @@ void main() {
               'Woodland mansions should still generate after the forest band was subdivided');
       for (final loc in mansions) {
         expect(loc.structureType, StructureType.woodlandMansion);
-        expect(
-            ['forest', 'dappled_forest', 'cherry_grove'].contains(loc.biome),
+        expect(['forest', 'dappled_forest', 'cherry_grove'].contains(loc.biome),
             isTrue,
             reason:
                 'Woodland mansions should appear in the wooded biome slices');

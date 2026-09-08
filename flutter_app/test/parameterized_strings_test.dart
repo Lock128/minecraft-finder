@@ -97,8 +97,7 @@ void main() {
                     'Iteration $i, locale $localeCode: chunkLabel should contain chunkZ "$chunkZ"');
 
             // probabilityLabel(String percent)
-            final percent =
-                (random.nextDouble() * 100).toStringAsFixed(1);
+            final percent = (random.nextDouble() * 100).toStringAsFixed(1);
             final probOutput = l10n.probabilityLabel(percent);
             expect(probOutput, contains(percent),
                 reason:

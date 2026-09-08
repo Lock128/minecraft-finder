@@ -46,14 +46,22 @@ void main() {
     testWidgets('renders map with ore results', (tester) async {
       final ores = [
         OreLocation(
-          x: 10, y: -59, z: 20,
-          chunkX: 0, chunkZ: 1,
-          probability: 0.85, oreType: OreType.diamond,
+          x: 10,
+          y: -59,
+          z: 20,
+          chunkX: 0,
+          chunkZ: 1,
+          probability: 0.85,
+          oreType: OreType.diamond,
         ),
         OreLocation(
-          x: 50, y: -59, z: 100,
-          chunkX: 3, chunkZ: 6,
-          probability: 0.65, oreType: OreType.gold,
+          x: 50,
+          y: -59,
+          z: 100,
+          chunkX: 3,
+          chunkZ: 6,
+          probability: 0.65,
+          oreType: OreType.gold,
         ),
       ];
 
@@ -69,9 +77,13 @@ void main() {
     testWidgets('renders legend with ore types', (tester) async {
       final ores = [
         OreLocation(
-          x: 10, y: -59, z: 20,
-          chunkX: 0, chunkZ: 1,
-          probability: 0.85, oreType: OreType.diamond,
+          x: 10,
+          y: -59,
+          z: 20,
+          chunkX: 0,
+          chunkZ: 1,
+          probability: 0.85,
+          oreType: OreType.diamond,
         ),
       ];
 
@@ -86,9 +98,13 @@ void main() {
         (tester) async {
       final structures = [
         StructureLocation(
-          x: 100, y: 64, z: -200,
-          chunkX: 6, chunkZ: -13,
-          probability: 0.92, structureType: StructureType.village,
+          x: 100,
+          y: 64,
+          z: -200,
+          chunkX: 6,
+          chunkZ: -13,
+          probability: 0.92,
+          structureType: StructureType.village,
         ),
       ];
 
@@ -102,9 +118,13 @@ void main() {
     testWidgets('InteractiveViewer is present for zoom/pan', (tester) async {
       final ores = [
         OreLocation(
-          x: 10, y: -59, z: 20,
-          chunkX: 0, chunkZ: 1,
-          probability: 0.85, oreType: OreType.diamond,
+          x: 10,
+          y: -59,
+          z: 20,
+          chunkX: 0,
+          chunkZ: 1,
+          probability: 0.85,
+          oreType: OreType.diamond,
         ),
       ];
 
@@ -117,9 +137,13 @@ void main() {
     testWidgets('renders in dark mode without errors', (tester) async {
       final ores = [
         OreLocation(
-          x: 10, y: -59, z: 20,
-          chunkX: 0, chunkZ: 1,
-          probability: 0.85, oreType: OreType.diamond,
+          x: 10,
+          y: -59,
+          z: 20,
+          chunkX: 0,
+          chunkZ: 1,
+          probability: 0.85,
+          oreType: OreType.diamond,
         ),
       ];
 
@@ -137,9 +161,13 @@ void main() {
         (tester) async {
       final ores = [
         OreLocation(
-          x: 10, y: -59, z: 20,
-          chunkX: 0, chunkZ: 1,
-          probability: 0.85, oreType: OreType.diamond,
+          x: 10,
+          y: -59,
+          z: 20,
+          chunkX: 0,
+          chunkZ: 1,
+          probability: 0.85,
+          oreType: OreType.diamond,
         ),
       ];
 

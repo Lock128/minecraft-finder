@@ -32,7 +32,8 @@ class FavoriteLocation {
       return oreLocation!.x;
     }
     if (structureLocation == null) {
-      throw StateError('FavoriteLocation of type structure has null structureLocation');
+      throw StateError(
+          'FavoriteLocation of type structure has null structureLocation');
     }
     return structureLocation!.x;
   }
@@ -45,7 +46,8 @@ class FavoriteLocation {
       return oreLocation!.y;
     }
     if (structureLocation == null) {
-      throw StateError('FavoriteLocation of type structure has null structureLocation');
+      throw StateError(
+          'FavoriteLocation of type structure has null structureLocation');
     }
     return structureLocation!.y;
   }
@@ -58,7 +60,8 @@ class FavoriteLocation {
       return oreLocation!.z;
     }
     if (structureLocation == null) {
-      throw StateError('FavoriteLocation of type structure has null structureLocation');
+      throw StateError(
+          'FavoriteLocation of type structure has null structureLocation');
     }
     return structureLocation!.z;
   }
@@ -74,7 +77,8 @@ class FavoriteLocation {
   }
 
   factory FavoriteLocation.fromJson(Map<String, dynamic> json) {
-    final type = json['type'] == 'ore' ? FavoriteType.ore : FavoriteType.structure;
+    final type =
+        json['type'] == 'ore' ? FavoriteType.ore : FavoriteType.structure;
     final oreLocation = json['oreLocation'] != null
         ? OreLocation.fromJson(json['oreLocation'] as Map<String, dynamic>)
         : null;

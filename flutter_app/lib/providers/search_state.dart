@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/game_random.dart';
-import '../models/ore_finder.dart';
 import '../models/ore_location.dart';
-import '../models/structure_finder.dart';
+import '../models/search_runner.dart';
 import '../models/structure_location.dart';
 import '../models/search_result.dart';
 import '../utils/preferences_service.dart';
@@ -40,6 +39,17 @@ class SearchState extends ChangeNotifier {
   Set<StructureType> _selectedStructures = {};
   Set<StructureType> get selectedStructures => _selectedStructures;
 
+  // When true (and Netherite is selected), the single "Find" action performs a
+  // whole-world Netherite deep scan instead of a radius-bounded search. This
+  // replaces the former separate "Find all Netherite" button.
+  bool _wholeWorldNetherite = false;
+  bool get wholeWorldNetherite => _wholeWorldNetherite;
+
+  void setWholeWorldNetherite(bool value) {
+    _wholeWorldNetherite = value;
+    notifyListeners();
+  }
+
   // Results state
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -60,7 +70,8 @@ class SearchState extends ChangeNotifier {
   int get resultLimit => _resultLimit;
 
   // Whether the last search produced more results than were displayed.
-  bool get wasCapped => _totalFound > _results.length + _structureResults.length;
+  bool get wasCapped =>
+      _totalFound > _results.length + _structureResults.length;
 
   bool _findAllNetherite = false;
   bool get findAllNetherite => _findAllNetherite;
@@ -175,7 +186,8 @@ class SearchState extends ChangeNotifier {
   /// - Search radius is capped at 50
   /// - Only 1 structure type can be searched at a time
   /// - Results are capped at 50
-  Future<String?> findOres(bool comprehensiveNetherite, {
+  Future<String?> findOres(
+    bool comprehensiveNetherite, {
     required String errorEnableSearchType,
     required String errorSelectStructure,
     required String errorSelectOre,
@@ -220,7 +232,8 @@ class SearchState extends ChangeNotifier {
     }
 
     // Free users cannot use comprehensive netherite search
-    final bool effectiveComprehensiveNetherite = isPro && comprehensiveNetherite;
+    final bool effectiveComprehensiveNetherite =
+        isPro && comprehensiveNetherite;
 
     // Free users can only search 1 structure type at a time
     final Set<StructureType> effectiveStructures;
@@ -242,62 +255,74 @@ class SearchState extends ChangeNotifier {
     // Add the current seed to recent seeds when starting a search
     await PreferencesService.addRecentSeed(seedController.text);
 
+    // Parse coordinates once, before dispatching to the background isolate.
+    final int centerX = int.parse(xController.text);
+    final int centerY = int.parse(yController.text);
+    final int centerZ = int.parse(zController.text);
+    final String seed = seedController.text;
+
     try {
-      final finder = OreFinder();
-      final structureFinder = StructureFinder();
       List<OreLocation> allResults = [];
 
       // Total qualifying candidates across all finders, before the display cap.
       // Drives the "showing top N of X found" label in the results tab.
       int totalCandidates = 0;
 
-      // Search for ores if enabled. Each finder retains at most [maxResults]
-      // locations internally, so peak memory stays bounded no matter how large
-      // the search radius is — this is what prevents the OOM crash.
+      // Search for ores if enabled. Each search runs on a background isolate
+      // (via compute) so the heavy loops never block the UI thread — the app
+      // stays responsive and the spinner keeps animating. Each finder also
+      // retains at most [maxResults] locations, keeping memory bounded.
       if (_includeOres) {
         if (effectiveComprehensiveNetherite) {
-          final results = await finder.findAllNetherite(
-            seed: seedController.text,
-            centerX: int.parse(xController.text),
-            centerZ: int.parse(zController.text),
-            edition: _selectedEdition,
-            versionEra: _selectedVersionEra,
-            maxResults: maxResults,
-            onTotalFound: (n) => totalCandidates += n,
-          );
-          allResults.addAll(results);
-        } else {
-          for (OreType oreType in _selectedOreTypes) {
-            final results = await finder.findOres(
-              seed: seedController.text,
-              centerX: int.parse(xController.text),
-              centerY: int.parse(yController.text),
-              centerZ: int.parse(zController.text),
-              radius: effectiveRadius,
-              oreType: oreType,
-              includeNether: _includeNether && oreType == OreType.gold,
+          final output = await SearchRunner.findAllNetherite(
+            NetheriteSearchParams(
+              seed: seed,
+              centerX: centerX,
+              centerZ: centerZ,
               edition: _selectedEdition,
               versionEra: _selectedVersionEra,
               maxResults: maxResults,
-              onTotalFound: (n) => totalCandidates += n,
+            ),
+          );
+          allResults.addAll(output.results);
+          totalCandidates += output.totalFound;
+        } else {
+          for (OreType oreType in _selectedOreTypes) {
+            final output = await SearchRunner.findOres(
+              OreSearchParams(
+                seed: seed,
+                centerX: centerX,
+                centerY: centerY,
+                centerZ: centerZ,
+                radius: effectiveRadius,
+                oreType: oreType,
+                includeNether: _includeNether && oreType == OreType.gold,
+                edition: _selectedEdition,
+                versionEra: _selectedVersionEra,
+                maxResults: maxResults,
+              ),
             );
-            allResults.addAll(results);
+            allResults.addAll(output.results);
+            totalCandidates += output.totalFound;
           }
         }
       }
 
-      // Search for structures if enabled
+      // Search for structures if enabled (also on a background isolate).
       List<StructureLocation> structureResults = [];
       if (_includeStructures && effectiveStructures.isNotEmpty) {
-        structureResults = await structureFinder.findStructures(
-          seed: seedController.text,
-          centerX: int.parse(xController.text),
-          centerZ: int.parse(zController.text),
-          radius: effectiveRadius,
-          structureTypes: effectiveStructures,
-          maxResults: maxResults,
-          onTotalFound: (n) => totalCandidates += n,
+        final output = await SearchRunner.findStructures(
+          StructureSearchParams(
+            seed: seed,
+            centerX: centerX,
+            centerZ: centerZ,
+            radius: effectiveRadius,
+            structureTypes: effectiveStructures,
+            maxResults: maxResults,
+          ),
         );
+        structureResults = output.results;
+        totalCandidates += output.totalFound;
       }
 
       // A newer search started (or the provider was disposed) while this one

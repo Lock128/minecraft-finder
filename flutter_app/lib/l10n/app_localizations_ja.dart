@@ -234,6 +234,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get hideSearchInfo => '情報を隠す';
 
   @override
+  String get showDetails => '詳細';
+
+  @override
+  String get hideDetails => '詳細を隠す';
+
+  @override
+  String get showTips => 'ヒント';
+
+  @override
+  String get wholeWorldNetheriteTitle => 'ワールド全体を検索';
+
+  @override
+  String get wholeWorldNetheriteSubtitle =>
+      '半径を無視してワールド全体でネザライトを検索します。時間がかかります。';
+
+  @override
+  String get wholeWorldActiveHint => 'ワールド全体（半径は無視）';
+
+  @override
   String get hideFilters => 'フィルターを隠す';
 
   @override
@@ -315,6 +334,78 @@ class AppLocalizationsJa extends AppLocalizations {
   String biomeLabel(String biome) {
     return 'バイオーム: $biome';
   }
+
+  @override
+  String placesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件の場所が見つかりました',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minProbabilityFilterLabel(int percent) {
+    return '最小確率: $percent%';
+  }
+
+  @override
+  String get biomeNamePlains => '平原';
+
+  @override
+  String get biomeNameForest => '森林';
+
+  @override
+  String get biomeNameDesert => '砂漠';
+
+  @override
+  String get biomeNameJungle => 'ジャングル';
+
+  @override
+  String get biomeNameSwamp => '湿地';
+
+  @override
+  String get biomeNameTaiga => 'タイガ';
+
+  @override
+  String get biomeNameMountains => '山岳';
+
+  @override
+  String get biomeNameDappledForest => '紅葉の森';
+
+  @override
+  String get biomeNameCherryGrove => '桜の林';
+
+  @override
+  String get biomeNameSavanna => 'サバンナ';
+
+  @override
+  String get biomeNameBadlands => '荒れ地';
+
+  @override
+  String get biomeNameOcean => '海洋';
+
+  @override
+  String get biomeNameDeepOcean => '深海';
+
+  @override
+  String get biomeNameBeach => '砂浜';
+
+  @override
+  String get biomeNameNether => 'ネザー';
+
+  @override
+  String get biomeNameEnd => 'ジ・エンド';
+
+  @override
+  String get biomeNameDeepDark => '深層の闇';
+
+  @override
+  String get biomeNameOverworld => 'オーバーワールド';
+
+  @override
+  String get biomeNameUnknown => '不明';
 
   @override
   String get guideDiamondTitle => 'ダイヤモンドの生成';

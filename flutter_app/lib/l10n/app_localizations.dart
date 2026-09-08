@@ -530,6 +530,42 @@ abstract class AppLocalizations {
   /// **'Hide info'**
   String get hideSearchInfo;
 
+  /// Button to reveal collapsed detail info
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get showDetails;
+
+  /// Button to collapse detail info
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get hideDetails;
+
+  /// Button to reveal quick start tips
+  ///
+  /// In en, this message translates to:
+  /// **'Tips'**
+  String get showTips;
+
+  /// Title for the whole-world Netherite scope toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Scan whole world'**
+  String get wholeWorldNetheriteTitle;
+
+  /// Subtitle explaining the whole-world Netherite scan
+  ///
+  /// In en, this message translates to:
+  /// **'Searches the entire world for Netherite, ignoring the radius. Takes longer.'**
+  String get wholeWorldNetheriteSubtitle;
+
+  /// Hint shown in the radius field when whole-world scan is active
+  ///
+  /// In en, this message translates to:
+  /// **'Whole world (radius ignored)'**
+  String get wholeWorldActiveHint;
+
   /// Tooltip to hide the filter panel
   ///
   /// In en, this message translates to:
@@ -679,6 +715,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Biome: {biome}'**
   String biomeLabel(String biome);
+
+  /// Prominent count of matching locations in the results header
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} place found} other{{count} places found}}'**
+  String placesFound(int count);
+
+  /// Label for the minimum probability slider filter
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum probability: {percent}%'**
+  String minProbabilityFilterLabel(int percent);
+
+  /// Friendly biome name: plains
+  ///
+  /// In en, this message translates to:
+  /// **'Plains'**
+  String get biomeNamePlains;
+
+  /// Friendly biome name: forest
+  ///
+  /// In en, this message translates to:
+  /// **'Forest'**
+  String get biomeNameForest;
+
+  /// Friendly biome name: desert
+  ///
+  /// In en, this message translates to:
+  /// **'Desert'**
+  String get biomeNameDesert;
+
+  /// Friendly biome name: jungle
+  ///
+  /// In en, this message translates to:
+  /// **'Jungle'**
+  String get biomeNameJungle;
+
+  /// Friendly biome name: swamp
+  ///
+  /// In en, this message translates to:
+  /// **'Swamp'**
+  String get biomeNameSwamp;
+
+  /// Friendly biome name: taiga
+  ///
+  /// In en, this message translates to:
+  /// **'Taiga'**
+  String get biomeNameTaiga;
+
+  /// Friendly biome name: mountains
+  ///
+  /// In en, this message translates to:
+  /// **'Mountains'**
+  String get biomeNameMountains;
+
+  /// Friendly biome name: dappled_forest
+  ///
+  /// In en, this message translates to:
+  /// **'Autumn Forest'**
+  String get biomeNameDappledForest;
+
+  /// Friendly biome name: cherry_grove
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Grove'**
+  String get biomeNameCherryGrove;
+
+  /// Friendly biome name: savanna
+  ///
+  /// In en, this message translates to:
+  /// **'Savanna'**
+  String get biomeNameSavanna;
+
+  /// Friendly biome name: badlands
+  ///
+  /// In en, this message translates to:
+  /// **'Badlands'**
+  String get biomeNameBadlands;
+
+  /// Friendly biome name: ocean
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get biomeNameOcean;
+
+  /// Friendly biome name: deep_ocean
+  ///
+  /// In en, this message translates to:
+  /// **'Deep Ocean'**
+  String get biomeNameDeepOcean;
+
+  /// Friendly biome name: beach
+  ///
+  /// In en, this message translates to:
+  /// **'Beach'**
+  String get biomeNameBeach;
+
+  /// Friendly biome name: nether
+  ///
+  /// In en, this message translates to:
+  /// **'Nether'**
+  String get biomeNameNether;
+
+  /// Friendly biome name: end
+  ///
+  /// In en, this message translates to:
+  /// **'The End'**
+  String get biomeNameEnd;
+
+  /// Friendly biome name: deep_dark
+  ///
+  /// In en, this message translates to:
+  /// **'Deep Dark'**
+  String get biomeNameDeepDark;
+
+  /// Friendly biome name: overworld
+  ///
+  /// In en, this message translates to:
+  /// **'Overworld'**
+  String get biomeNameOverworld;
+
+  /// Friendly biome name: unknown
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get biomeNameUnknown;
 
   /// Guide card title for diamond generation
   ///

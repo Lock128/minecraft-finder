@@ -76,10 +76,8 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
 
   Widget _buildHistoryItem(BuildContext context, SearchHistoryEntry entry,
       AppLocalizations l10n, bool isDark) {
-    final oreNames =
-        entry.oreTypes.map((o) => o.name).take(3).join(', ');
-    final structNames =
-        entry.structures.map((s) => s.name).take(2).join(', ');
+    final oreNames = entry.oreTypes.map((o) => o.name).take(3).join(', ');
+    final structNames = entry.structures.map((s) => s.name).take(2).join(', ');
 
     String subtitle = '';
     if (entry.includeOres && oreNames.isNotEmpty) {
@@ -114,7 +112,8 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'monospace',
-                    color: isDark ? GamerColors.neonCyan : GamerColors.lightCyan,
+                    color:
+                        isDark ? GamerColors.neonCyan : GamerColors.lightCyan,
                   ),
                 ),
                 if (subtitle.isNotEmpty)
@@ -148,7 +147,8 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
+                  color:
+                      isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
                 ),
               ),
             ),

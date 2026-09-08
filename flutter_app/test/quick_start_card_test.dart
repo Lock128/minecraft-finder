@@ -66,10 +66,16 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
+      // Header and the one-tap preset chip are always visible.
       expect(find.text(enL10n.quickStartTitle), findsOneWidget);
+      expect(find.text(enL10n.quickStartDiamondsNearSpawn), findsOneWidget);
+
+      // Hints/tips are collapsed behind the "Tips" toggle by default.
+      expect(find.text(enL10n.quickStartSeedTip), findsNothing);
+      await tester.tap(find.text(enL10n.showTips));
+      await tester.pumpAndSettle();
+
       expect(find.text(enL10n.quickStartHint), findsOneWidget);
-      expect(
-          find.text(enL10n.quickStartDiamondsNearSpawn), findsOneWidget);
       expect(find.text(enL10n.quickStartSeedTip), findsOneWidget);
       expect(find.text(enL10n.quickStartSpawnTip), findsOneWidget);
     });
@@ -80,8 +86,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(enL10n.quickStartTitle), findsOneWidget);
-      expect(
-          find.text(enL10n.quickStartDiamondsNearSpawn), findsOneWidget);
+      expect(find.text(enL10n.quickStartDiamondsNearSpawn), findsOneWidget);
     });
   });
 

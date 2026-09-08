@@ -26,8 +26,14 @@ class AppInfoDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: isDarkMode
-                      ? [GamerColors.neonGreen.withValues(alpha: 0.2), GamerColors.neonCyan.withValues(alpha: 0.1)]
-                      : [GamerColors.lightGreen.withValues(alpha: 0.1), GamerColors.neonCyan.withValues(alpha: 0.05)],
+                      ? [
+                          GamerColors.neonGreen.withValues(alpha: 0.2),
+                          GamerColors.neonCyan.withValues(alpha: 0.1)
+                        ]
+                      : [
+                          GamerColors.lightGreen.withValues(alpha: 0.1),
+                          GamerColors.neonCyan.withValues(alpha: 0.05)
+                        ],
                 ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
@@ -42,7 +48,8 @@ class AppInfoDialog extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 28, height: 28,
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [GamerColors.neonGreen, GamerColors.neonCyan],
@@ -58,7 +65,8 @@ class AppInfoDialog extends StatelessWidget {
                     child: Text(
                       l10n.aboutTitle,
                       style: TextStyle(
-                        color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+                        color:
+                            isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                       ),
@@ -67,7 +75,7 @@ class AppInfoDialog extends StatelessWidget {
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: Icon(Icons.close,
-                      color: isDarkMode ? Colors.white54 : Colors.grey[500]),
+                        color: isDarkMode ? Colors.white54 : Colors.grey[500]),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -117,7 +125,8 @@ class AppInfoDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+                color:
+                    isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -125,13 +134,19 @@ class AppInfoDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: isDarkMode ? GamerColors.neonYellow : GamerColors.lightYellow, size: 18),
+                  Icon(Icons.lightbulb_outline,
+                      color: isDarkMode
+                          ? GamerColors.neonYellow
+                          : GamerColors.lightYellow,
+                      size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       l10n.aboutFooterTip,
                       style: TextStyle(
-                        color: isDarkMode ? GamerColors.neonYellow : GamerColors.lightYellow,
+                        color: isDarkMode
+                            ? GamerColors.neonYellow
+                            : GamerColors.lightYellow,
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),
@@ -140,10 +155,10 @@ class AppInfoDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(l10n.aboutGotIt,
-                      style: TextStyle(
-                        color: GamerColors.greenText(isDarkMode),
-                        fontWeight: FontWeight.w700,
-                      )),
+                        style: TextStyle(
+                          color: GamerColors.greenText(isDarkMode),
+                          fontWeight: FontWeight.w700,
+                        )),
                   ),
                 ],
               ),
@@ -156,32 +171,39 @@ class AppInfoDialog extends StatelessWidget {
 
   Widget _sectionTitle(String title) {
     return Text(title,
-      style: TextStyle(
-        fontSize: 16, fontWeight: FontWeight.w800,
-        color: GamerColors.greenText(isDarkMode),
-      ));
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+          color: GamerColors.greenText(isDarkMode),
+        ));
   }
 
   Widget _descCard(String title, String desc) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkMode ? GamerColors.darkSurface : GamerColors.neonGreen.withValues(alpha: 0.04),
+        color: isDarkMode
+            ? GamerColors.darkSurface
+            : GamerColors.neonGreen.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: GamerColors.neonGreen.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(
-            fontWeight: FontWeight.w700, fontSize: 15,
-            color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-          )),
+          Text(title,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+              )),
           const SizedBox(height: 8),
-          Text(desc, style: TextStyle(
-            fontSize: 13, height: 1.5,
-            color: isDarkMode ? Colors.white60 : Colors.grey[600],
-          )),
+          Text(desc,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: isDarkMode ? Colors.white60 : Colors.grey[600],
+              )),
         ],
       ),
     );
@@ -191,15 +213,26 @@ class AppInfoDialog extends StatelessWidget {
     final resources = [
       (l10n.aboutResourceDiamond, '💎', 'Y -64 to 16', GamerColors.diamondNeon),
       (l10n.aboutResourceGold, '🏅', 'Y -64 to 32', GamerColors.goldNeon),
-      (l10n.aboutResourceNetherite, '🔥', 'Y 8 to 22', GamerColors.netheriteNeon),
+      (
+        l10n.aboutResourceNetherite,
+        '🔥',
+        'Y 8 to 22',
+        GamerColors.netheriteNeon
+      ),
       (l10n.aboutResourceIron, '⚪', 'Y -64 to 256', GamerColors.ironNeon),
-      (l10n.aboutResourceRedstone, '🔴', 'Y -64 to 15', GamerColors.redstoneNeon),
+      (
+        l10n.aboutResourceRedstone,
+        '🔴',
+        'Y -64 to 15',
+        GamerColors.redstoneNeon
+      ),
       (l10n.aboutResourceCoal, '⚫', 'Y 0 to 256', GamerColors.coalNeon),
       (l10n.aboutResourceLapis, '🔵', 'Y -64 to 64', GamerColors.lapisNeon),
     ];
 
     return Wrap(
-      spacing: 8, runSpacing: 8,
+      spacing: 8,
+      runSpacing: 8,
       children: resources.map((r) {
         final (name, emoji, levels, color) = r;
         return Container(
@@ -213,13 +246,17 @@ class AppInfoDialog extends StatelessWidget {
             children: [
               Text(emoji, style: const TextStyle(fontSize: 20)),
               const SizedBox(height: 4),
-              Text(name, style: TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 12,
-                color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-              )),
-              Text(levels, style: TextStyle(
-                fontSize: 10, color: isDarkMode ? Colors.white38 : Colors.grey[500],
-              )),
+              Text(name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+                  )),
+              Text(levels,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                  )),
             ],
           ),
         );
@@ -242,19 +279,28 @@ class AppInfoDialog extends StatelessWidget {
     ];
 
     return Wrap(
-      spacing: 6, runSpacing: 4,
-      children: structures.map((s) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isDarkMode ? GamerColors.darkSurface : GamerColors.neonCyan.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: GamerColors.neonCyan.withValues(alpha: 0.2)),
-        ),
-        child: Text(s, style: TextStyle(
-          fontSize: 11,
-          color: isDarkMode ? GamerColors.neonCyan : Colors.blueGrey[700],
-        )),
-      )).toList(),
+      spacing: 6,
+      runSpacing: 4,
+      children: structures
+          .map((s) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDarkMode
+                      ? GamerColors.darkSurface
+                      : GamerColors.neonCyan.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: GamerColors.neonCyan.withValues(alpha: 0.2)),
+                ),
+                child: Text(s,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDarkMode
+                          ? GamerColors.neonCyan
+                          : Colors.blueGrey[700],
+                    )),
+              ))
+          .toList(),
     );
   }
 
@@ -269,33 +315,51 @@ class AppInfoDialog extends StatelessWidget {
     ];
 
     return Column(
-      children: steps.asMap().entries.map((e) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 22, height: 22,
-              decoration: BoxDecoration(
-                color: isDarkMode ? GamerColors.neonGreen.withValues(alpha: 0.2) : GamerColors.lightGreen.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: (isDarkMode ? GamerColors.neonGreen : GamerColors.lightGreen).withValues(alpha: 0.3)),
-              ),
-              child: Center(
-                child: Text('${e.key + 1}', style: TextStyle(
-                  color: GamerColors.greenText(isDarkMode),
-                  fontWeight: FontWeight.w800, fontSize: 11,
-                )),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(child: Text(e.value, style: TextStyle(
-              fontSize: 13, height: 1.4,
-              color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-            ))),
-          ],
-        ),
-      )).toList(),
+      children: steps
+          .asMap()
+          .entries
+          .map((e) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: isDarkMode
+                            ? GamerColors.neonGreen.withValues(alpha: 0.2)
+                            : GamerColors.lightGreen.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: (isDarkMode
+                                    ? GamerColors.neonGreen
+                                    : GamerColors.lightGreen)
+                                .withValues(alpha: 0.3)),
+                      ),
+                      child: Center(
+                        child: Text('${e.key + 1}',
+                            style: TextStyle(
+                              color: GamerColors.greenText(isDarkMode),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 11,
+                            )),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: Text(e.value,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.4,
+                              color: isDarkMode
+                                  ? Colors.white
+                                  : const Color(0xFF1A1A2E),
+                            ))),
+                  ],
+                ),
+              ))
+          .toList(),
     );
   }
 
@@ -309,21 +373,29 @@ class AppInfoDialog extends StatelessWidget {
     ];
 
     return Column(
-      children: features.map((f) => Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('✅ ', style: TextStyle(
-              color: GamerColors.greenText(isDarkMode),
-            )),
-            Expanded(child: Text(f, style: TextStyle(
-              fontSize: 13, height: 1.4,
-              color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-            ))),
-          ],
-        ),
-      )).toList(),
+      children: features
+          .map((f) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('✅ ',
+                        style: TextStyle(
+                          color: GamerColors.greenText(isDarkMode),
+                        )),
+                    Expanded(
+                        child: Text(f,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.4,
+                              color: isDarkMode
+                                  ? Colors.white
+                                  : const Color(0xFF1A1A2E),
+                            ))),
+                  ],
+                ),
+              ))
+          .toList(),
     );
   }
 
@@ -331,9 +403,12 @@ class AppInfoDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkMode ? GamerColors.darkSurface : GamerColors.neonYellow.withValues(alpha: 0.05),
+        color: isDarkMode
+            ? GamerColors.darkSurface
+            : GamerColors.neonYellow.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: GamerColors.neonYellow.withValues(alpha: 0.3)),
+        border:
+            Border.all(color: GamerColors.neonYellow.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -341,17 +416,20 @@ class AppInfoDialog extends StatelessWidget {
             children: [
               const Icon(Icons.favorite, color: Color(0xFF635BFF), size: 22),
               const SizedBox(width: 8),
-              Text(l10n.aboutBuyMeCoffee, style: TextStyle(
-                fontSize: 15, fontWeight: FontWeight.w800,
-                color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-              )),
+              Text(l10n.aboutBuyMeCoffee,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+                  )),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             l10n.aboutSupportBody,
             style: TextStyle(
-              fontSize: 13, height: 1.4,
+              fontSize: 13,
+              height: 1.4,
               color: isDarkMode ? Colors.white60 : Colors.grey[600],
             ),
           ),
@@ -362,12 +440,14 @@ class AppInfoDialog extends StatelessWidget {
               onPressed: _openSupportLink,
               icon: const Icon(Icons.favorite, size: 16),
               label: Text(l10n.aboutSupportButton,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 13)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF635BFF),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -379,7 +459,8 @@ class AppInfoDialog extends StatelessWidget {
   Future<void> _openSupportLink() async {
     try {
       // Stripe Payment Link — replace with your actual Stripe Payment Link URL
-      final Uri uri = Uri.parse('https://donate.stripe.com/YOUR_STRIPE_PAYMENT_LINK');
+      final Uri uri =
+          Uri.parse('https://donate.stripe.com/YOUR_STRIPE_PAYMENT_LINK');
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }

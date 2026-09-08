@@ -47,7 +47,8 @@ class OreFinder {
   ///
   /// When [legacy] is true, uses the pre-1.18 Y ranges from
   /// [LegacyDensityFunction.oreYRanges] and world height 0–256.
-  bool _isValidOreLayer(int y, OreType oreType, String biome, {bool legacy = false}) {
+  bool _isValidOreLayer(int y, OreType oreType, String biome,
+      {bool legacy = false}) {
     if (legacy) {
       // Legacy world height: 0–256
       if (y < 0 || y > 256) return false;
@@ -104,7 +105,8 @@ class OreFinder {
         if (rng != null) {
           int chunkX = (x / 128).floor();
           int chunkZ = (z / 128).floor();
-          int netherSeed = worldSeed ^ (chunkX * 341873128 + chunkZ * 132897987);
+          int netherSeed =
+              worldSeed ^ (chunkX * 341873128 + chunkZ * 132897987);
           rng.setSeed(netherSeed);
           netherRandom = rng;
         } else {
@@ -125,8 +127,8 @@ class OreFinder {
     // Use legacy or modern density function based on current mode
     double baseDensity;
     if (_isLegacy && _legacyDensityFunction != null) {
-      baseDensity = _legacyDensityFunction!.getOreDensity(
-          x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr);
+      baseDensity = _legacyDensityFunction!
+          .getOreDensity(x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr);
     } else {
       baseDensity = _densityFunction.getOreDensity(
           x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr,
@@ -340,8 +342,7 @@ class OreFinder {
           // instead of allocating a new one per coordinate
           double probability = _calculateOreProbability(
               x, y, z, oreType, worldSeed,
-              includeNether: includeNether,
-              rng: rng);
+              includeNether: includeNether, rng: rng);
 
           if (probability >= minProbability) {
             locations.add(OreLocation(
@@ -398,7 +399,8 @@ class OreFinder {
   ///
   /// When [legacy] is true, returns the pre-1.18 Y ranges clamped to
   /// world height 0–256.
-  Map<String, int> _getYRange(OreType oreType, String biome, {bool legacy = false}) {
+  Map<String, int> _getYRange(OreType oreType, String biome,
+      {bool legacy = false}) {
     if (legacy) {
       return _getLegacyYRange(oreType, biome);
     }
@@ -498,9 +500,9 @@ class OreFinder {
         // since the range is only 15 levels (8–22) and step=1 is cheap here.
         for (int y = 8; y <= 22; y++) {
           // Reuse the RNG instance created at the start of findAllNetherite
-          double probability =
-              _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
-                  rng: rng);
+          double probability = _calculateOreProbability(
+              x, y, z, OreType.netherite, worldSeed,
+              rng: rng);
 
           if (probability >= 0.05) {
             locations.add(OreLocation(
@@ -562,9 +564,9 @@ class OreFinder {
       for (int z = -sampleRadius; z <= sampleRadius; z += 24) {
         for (int y = 8; y <= 22; y++) {
           // Reuse the RNG instance created at the start of getNetheriteStats
-          double probability =
-              _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
-                  rng: rng);
+          double probability = _calculateOreProbability(
+              x, y, z, OreType.netherite, worldSeed,
+              rng: rng);
           if (probability >= 0.05) {
             totalLocations++;
             probabilities.add(probability);

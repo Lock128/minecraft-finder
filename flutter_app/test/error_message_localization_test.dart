@@ -30,9 +30,11 @@ void main() {
     const expectedErrorEnableSearchType = {
       'en': 'Please enable at least one search type (Ores or Structures)',
       'de': 'Bitte aktiviere mindestens einen Suchtyp (Erze oder Strukturen)',
-      'es': 'Por favor activa al menos un tipo de búsqueda (Minerales o Estructuras)',
+      'es':
+          'Por favor activa al menos un tipo de búsqueda (Minerales o Estructuras)',
       'ja': '少なくとも1つの検索タイプ（鉱石または構造物）を有効にしてください',
-      'fr': 'Veuillez activer au moins un type de recherche (Minerais ou Structures)',
+      'fr':
+          'Veuillez activer au moins un type de recherche (Minerais ou Structures)',
     };
 
     const expectedErrorSelectStructure = {
@@ -76,8 +78,8 @@ void main() {
           expect(l10n.errorEmptySeed, isNotEmpty,
               reason:
                   'errorEmptySeed should be non-empty for locale "$localeCode"');
-          expect(l10n.errorEmptySeed,
-              equals(expectedErrorEmptySeed[localeCode]),
+          expect(
+              l10n.errorEmptySeed, equals(expectedErrorEmptySeed[localeCode]),
               reason:
                   'errorEmptySeed should match expected translation for "$localeCode"');
 
@@ -103,8 +105,8 @@ void main() {
           expect(l10n.errorSelectOre, isNotEmpty,
               reason:
                   'errorSelectOre should be non-empty for locale "$localeCode"');
-          expect(l10n.errorSelectOre,
-              equals(expectedErrorSelectOre[localeCode]),
+          expect(
+              l10n.errorSelectOre, equals(expectedErrorSelectOre[localeCode]),
               reason:
                   'errorSelectOre should match expected translation for "$localeCode"');
         },
@@ -147,8 +149,7 @@ void main() {
         // Non-English locales should have different error messages than English
         for (final l10n in [deL10n, esL10n, jaL10n, frL10n]) {
           expect(l10n.errorEmptySeed, isNot(equals(enL10n.errorEmptySeed)),
-              reason:
-                  'Non-English errorEmptySeed should differ from English');
+              reason: 'Non-English errorEmptySeed should differ from English');
           expect(l10n.errorEnableSearchType,
               isNot(equals(enL10n.errorEnableSearchType)),
               reason:
@@ -158,8 +159,7 @@ void main() {
               reason:
                   'Non-English errorSelectStructure should differ from English');
           expect(l10n.errorSelectOre, isNot(equals(enL10n.errorSelectOre)),
-              reason:
-                  'Non-English errorSelectOre should differ from English');
+              reason: 'Non-English errorSelectOre should differ from English');
         }
       },
     );

@@ -35,9 +35,11 @@ void main() {
         expect(loc.y, lessThanOrEqualTo(256),
             reason: 'Legacy world height max is 256, got Y=${loc.y}');
         expect(loc.y, greaterThanOrEqualTo(legacyRange[0]),
-            reason: 'Diamond legacy min Y is ${legacyRange[0]}, got Y=${loc.y}');
+            reason:
+                'Diamond legacy min Y is ${legacyRange[0]}, got Y=${loc.y}');
         expect(loc.y, lessThanOrEqualTo(legacyRange[1]),
-            reason: 'Diamond legacy max Y is ${legacyRange[1]}, got Y=${loc.y}');
+            reason:
+                'Diamond legacy max Y is ${legacyRange[1]}, got Y=${loc.y}');
       }
     });
 

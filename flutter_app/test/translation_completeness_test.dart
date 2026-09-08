@@ -33,9 +33,8 @@ void main() {
       // Extract translation keys from English template
       // (keys that don't start with '@' or '@@')
       englishArb = allArbs['en']!;
-      translationKeys = englishArb.keys
-          .where((key) => !key.startsWith('@'))
-          .toList();
+      translationKeys =
+          englishArb.keys.where((key) => !key.startsWith('@')).toList();
 
       // Sanity check: we should have a meaningful number of keys
       expect(translationKeys.length, greaterThan(10),
@@ -57,12 +56,10 @@ void main() {
         }
 
         expect(missingKeys, isEmpty,
-            reason:
-                'Locale "$locale" is missing ${missingKeys.length} keys: '
+            reason: 'Locale "$locale" is missing ${missingKeys.length} keys: '
                 '${missingKeys.take(10).join(", ")}');
         expect(emptyKeys, isEmpty,
-            reason:
-                'Locale "$locale" has ${emptyKeys.length} empty values: '
+            reason: 'Locale "$locale" has ${emptyKeys.length} empty values: '
                 '${emptyKeys.take(10).join(", ")}');
       });
     }
@@ -84,7 +81,8 @@ void main() {
         }
       }
       // Ensure we checked a meaningful number of combinations
-      expect(checked, greaterThanOrEqualTo(translationKeys.length * locales.length));
+      expect(checked,
+          greaterThanOrEqualTo(translationKeys.length * locales.length));
     });
   });
 }

@@ -20,7 +20,8 @@ import 'package:gem_ore_struct_finder_mc/models/java_random.dart';
 
 void main() {
   group('Round 2: shared biome classifier', () {
-    test('OreFinder and StructureFinder classify a coordinate grid '
+    test(
+        'OreFinder and StructureFinder classify a coordinate grid '
         'identically for a fixed seed (drift guard)', () {
       final ore = OreFinder();
       final structure = StructureFinder();
@@ -50,7 +51,8 @@ void main() {
       }
     });
 
-    test('classifier emits only known biome strings and produces the new '
+    test(
+        'classifier emits only known biome strings and produces the new '
         'water categories (ocean, deep_ocean, beach) plus the round-1 biomes',
         () {
       const knownBiomes = {
@@ -83,7 +85,8 @@ void main() {
 
       // The classifier must never emit an unexpected biome string.
       expect(seen.difference(knownBiomes), isEmpty,
-          reason: 'Unexpected biome string(s): ${seen.difference(knownBiomes)}');
+          reason:
+              'Unexpected biome string(s): ${seen.difference(knownBiomes)}');
 
       // Round-1 biomes must still be reachable.
       expect(seen.contains('dappled_forest'), isTrue);

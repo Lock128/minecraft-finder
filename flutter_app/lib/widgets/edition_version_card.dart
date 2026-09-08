@@ -3,7 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../models/game_random.dart';
 import '../theme/gamer_theme.dart';
 
-class EditionVersionCard extends StatelessWidget {
+class EditionVersionCard extends StatefulWidget {
   final MinecraftEdition selectedEdition;
   final VersionEra selectedVersionEra;
   final ValueChanged<MinecraftEdition> onEditionChanged;
@@ -18,6 +18,18 @@ class EditionVersionCard extends StatelessWidget {
     required this.onVersionEraChanged,
     this.isDarkMode = false,
   });
+
+  @override
+  State<EditionVersionCard> createState() => _EditionVersionCardState();
+}
+
+class _EditionVersionCardState extends State<EditionVersionCard> {
+  // Info boxes are collapsed by default so the selectors stay compact.
+  bool _showInfo = false;
+
+  bool get isDarkMode => widget.isDarkMode;
+  MinecraftEdition get selectedEdition => widget.selectedEdition;
+  VersionEra get selectedVersionEra => widget.selectedVersionEra;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +63,7 @@ class EditionVersionCard extends StatelessWidget {
               ],
               selected: {selectedEdition},
               onSelectionChanged: (selected) {
-                onEditionChanged(selected.first);
+                widget.onEditionChanged(selected.first);
               },
             ),
           ),
@@ -72,34 +84,58 @@ class EditionVersionCard extends StatelessWidget {
               ],
               selected: {selectedVersionEra},
               onSelectionChanged: (selected) {
-                onVersionEraChanged(selected.first);
+                widget.onVersionEraChanged(selected.first);
               },
             ),
           ),
-          // Latest update info box (Third Drop 2026)
-          const SizedBox(height: 12),
-          _buildInfoBox(
-            icon: Icons.new_releases_outlined,
-            color: GamerColors.neonGreen,
-            title: l10n.latestUpdateTitle,
-            body: l10n.latestUpdateInfo,
+          const SizedBox(height: 8),
+          // Collapsible details: latest update + edition/version caveats.
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => setState(() => _showInfo = !_showInfo),
+              icon: Icon(
+                _showInfo ? Icons.expand_less : Icons.info_outline,
+                size: 16,
+              ),
+              label: Text(
+                _showInfo ? l10n.hideDetails : l10n.showDetails,
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: isDarkMode
+                    ? GamerColors.neonOrange
+                    : GamerColors.lightOrange,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+              ),
+            ),
           ),
-          // Conditional info boxes
-          if (selectedEdition == MinecraftEdition.bedrock) ...[
-            const SizedBox(height: 12),
+          if (_showInfo) ...[
+            const SizedBox(height: 4),
             _buildInfoBox(
-              icon: Icons.info_outline,
-              color: GamerColors.neonOrange,
-              body: l10n.editionBedrockInfo,
+              icon: Icons.new_releases_outlined,
+              color: GamerColors.neonGreen,
+              title: l10n.latestUpdateTitle,
+              body: l10n.latestUpdateInfo,
             ),
-          ],
-          if (selectedVersionEra == VersionEra.legacy) ...[
-            const SizedBox(height: 12),
-            _buildInfoBox(
-              icon: Icons.info_outline,
-              color: GamerColors.neonOrange,
-              body: l10n.versionLegacyInfo,
-            ),
+            if (selectedEdition == MinecraftEdition.bedrock) ...[
+              const SizedBox(height: 12),
+              _buildInfoBox(
+                icon: Icons.info_outline,
+                color: GamerColors.neonOrange,
+                body: l10n.editionBedrockInfo,
+              ),
+            ],
+            if (selectedVersionEra == VersionEra.legacy) ...[
+              const SizedBox(height: 12),
+              _buildInfoBox(
+                icon: Icons.info_outline,
+                color: GamerColors.neonOrange,
+                body: l10n.versionLegacyInfo,
+              ),
+            ],
           ],
         ],
       ),

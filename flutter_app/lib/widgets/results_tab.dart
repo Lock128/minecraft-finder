@@ -51,6 +51,10 @@ class _ResultsTabState extends State<ResultsTab> {
   bool _showFilters = false;
   bool _showMap = false;
 
+  /// Minimum probability (0.0–1.0) a finding must have to be shown.
+  /// Defaults to 0.8 so users see only high-confidence results out of the box.
+  double _minProbability = 0.8;
+
   // Filter controllers
   final _minXController = TextEditingController();
   final _maxXController = TextEditingController();
@@ -73,6 +77,7 @@ class _ResultsTabState extends State<ResultsTab> {
   List<OreLocation> get _filteredResults {
     return widget.results.where((location) {
       if (!_visibleOreTypes.contains(location.oreType)) return false;
+      if (location.probability < _minProbability) return false;
       if (!_passesBiomeFilter(location.biome)) return false;
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
@@ -84,6 +89,7 @@ class _ResultsTabState extends State<ResultsTab> {
           !_visibleStructures.contains(location.structureType)) {
         return false;
       }
+      if (location.probability < _minProbability) return false;
       if (!_passesBiomeFilter(location.biome)) return false;
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
@@ -186,7 +192,8 @@ class _ResultsTabState extends State<ResultsTab> {
                 )
               : (filteredResults.isEmpty && filteredStructureResults.isEmpty)
                   ? _buildNoResultsView(context)
-                  : _buildResultsList(filteredResults, filteredStructureResults),
+                  : _buildResultsList(
+                      filteredResults, filteredStructureResults),
         ),
       ],
     );
@@ -199,7 +206,8 @@ class _ResultsTabState extends State<ResultsTab> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            width: 48, height: 48,
+            width: 48,
+            height: 48,
             child: CircularProgressIndicator(
               strokeWidth: 3,
               color: GamerColors.neonGreen,
@@ -218,7 +226,10 @@ class _ResultsTabState extends State<ResultsTab> {
             const SizedBox(height: 8),
             Text(
               l10n.loadingTimeMay,
-              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey[500]),
+              style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey[500]),
             ),
           ],
         ],
@@ -260,7 +271,9 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildFilterHeader(BuildContext context, List<OreLocation> filteredResults,
+  Widget _buildFilterHeader(
+      BuildContext context,
+      List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
     final l10n = AppLocalizations.of(context);
     return Container(
@@ -269,7 +282,8 @@ class _ResultsTabState extends State<ResultsTab> {
         color: Theme.of(context).colorScheme.surface,
         border: Border(
             bottom: BorderSide(
-                color: GamerColors.neonGreen.withValues(alpha: 0.15), width: 1)),
+                color: GamerColors.neonGreen.withValues(alpha: 0.15),
+                width: 1)),
       ),
       child: Column(
         children: [
@@ -280,16 +294,40 @@ class _ResultsTabState extends State<ResultsTab> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.place_outlined,
+                            size: 16, color: GamerColors.neonGreen),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            l10n.placesFound(filteredResults.length +
+                                filteredStructureResults.length),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
                     Text(
                       l10n.resultsCount(
-                        filteredResults.length + filteredStructureResults.length,
+                        filteredResults.length +
+                            filteredStructureResults.length,
                         filteredResults.length,
                         filteredStructureResults.length,
                       ),
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                     if (_totalFoundLabel(l10n) != null) ...[
@@ -317,8 +355,7 @@ class _ResultsTabState extends State<ResultsTab> {
                 ),
               ),
               IconButton(
-                icon: Icon(
-                    _showMap ? Icons.view_list : Icons.map_outlined,
+                icon: Icon(_showMap ? Icons.view_list : Icons.map_outlined,
                     size: 20),
                 onPressed: () => setState(() => _showMap = !_showMap),
                 tooltip: _showMap ? l10n.resultsListView : l10n.resultsMapView,
@@ -335,14 +372,39 @@ class _ResultsTabState extends State<ResultsTab> {
           // Filters are hidden by default so results get maximum space.
           // Tap the filter icon to reveal ore/biome/coordinate filters.
           if (_showFilters) ...[
+            _buildProbabilityFilter(context),
             if (widget.results.isNotEmpty) _buildOreFilters(context),
-            if (widget.structureResults.isNotEmpty) _buildStructureFilters(context),
+            if (widget.structureResults.isNotEmpty)
+              _buildStructureFilters(context),
             if (widget.results.isNotEmpty || widget.structureResults.isNotEmpty)
               _buildBiomeFilters(context),
             _buildCoordinateFilters(context),
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildProbabilityFilter(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final percent = (_minProbability * 100).round();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        Text(l10n.minProbabilityFilterLabel(percent),
+            style:
+                Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 12)),
+        Slider(
+          value: _minProbability,
+          min: 0.0,
+          max: 1.0,
+          divisions: 20,
+          label: '$percent%',
+          activeColor: GamerColors.neonGreen,
+          onChanged: (value) => setState(() => _minProbability = value),
+        ),
+      ],
     );
   }
 
@@ -458,7 +520,7 @@ class _ResultsTabState extends State<ResultsTab> {
           children: uniqueBiomes.map((biome) {
             return FilterChip(
               label: Text(
-                '${_getBiomeEmoji(biome)} $biome',
+                '${_getBiomeEmoji(biome)} ${_getBiomeName(context, biome)}',
                 style:
                     const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
               ),
@@ -483,11 +545,13 @@ class _ResultsTabState extends State<ResultsTab> {
                 });
               },
               selectedColor: GamerColors.neonGreen.withValues(alpha: 0.2),
-              checkmarkColor: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
+              checkmarkColor:
+                  isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
               backgroundColor: Colors.grey.withValues(alpha: 0.1),
               side: BorderSide(
                 color: _visibleBiomes.isEmpty || _visibleBiomes.contains(biome)
-                    ? GamerColors.neonGreen.withValues(alpha: isDark ? 0.5 : 0.4)
+                    ? GamerColors.neonGreen
+                        .withValues(alpha: isDark ? 0.5 : 0.4)
                     : Colors.grey.withValues(alpha: 0.3),
                 width: 1,
               ),
@@ -559,7 +623,8 @@ class _ResultsTabState extends State<ResultsTab> {
 
   Widget _buildResultsList(List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
-    final isPro = !FeatureFlags.enableMonetization || context.watch<ProStatusProvider>().isPro;
+    final isPro = !FeatureFlags.enableMonetization ||
+        context.watch<ProStatusProvider>().isPro;
     final totalItems = filteredResults.length + filteredStructureResults.length;
     // Add 1 extra item for the Pro upsell card if not pro and has results
     final showProUpsell = !isPro && totalItems > 0;
@@ -569,7 +634,8 @@ class _ResultsTabState extends State<ResultsTab> {
       itemCount: totalItems + (showProUpsell ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < filteredResults.length) {
-          return _buildOreResultCard(context, filteredResults[index], index + 1);
+          return _buildOreResultCard(
+              context, filteredResults[index], index + 1);
         } else if (index < totalItems) {
           final structureIndex = index - filteredResults.length;
           return _buildStructureResultCard(
@@ -643,7 +709,9 @@ class _ResultsTabState extends State<ResultsTab> {
               ),
               Icon(Icons.arrow_forward_ios,
                   size: 14,
-                  color: isDark ? GamerColors.neonPurple : GamerColors.lightPurple),
+                  color: isDark
+                      ? GamerColors.neonPurple
+                      : GamerColors.lightPurple),
             ],
           ),
         ),
@@ -651,7 +719,8 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildOreResultCard(BuildContext context, OreLocation location, int originalIndex) {
+  Widget _buildOreResultCard(
+      BuildContext context, OreLocation location, int originalIndex) {
     final l10n = AppLocalizations.of(context);
     final oreColor = _getOreColor(location.oreType);
     return Card(
@@ -665,7 +734,8 @@ class _ResultsTabState extends State<ResultsTab> {
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         leading: Container(
-          width: 32, height: 32,
+          width: 32,
+          height: 32,
           decoration: BoxDecoration(
             color: oreColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
@@ -675,7 +745,7 @@ class _ResultsTabState extends State<ResultsTab> {
             child: Text(
               '$originalIndex',
               style: TextStyle(
-                color: oreColor, fontWeight: FontWeight.w800, fontSize: 11),
+                  color: oreColor, fontWeight: FontWeight.w800, fontSize: 11),
             ),
           ),
         ),
@@ -687,7 +757,10 @@ class _ResultsTabState extends State<ResultsTab> {
             Expanded(
               child: Text(
                 '(${location.x}, ${location.y}, ${location.z})',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, fontFamily: 'monospace'),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    fontFamily: 'monospace'),
               ),
             ),
           ],
@@ -699,10 +772,14 @@ class _ResultsTabState extends State<ResultsTab> {
             Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
                 style: TextStyle(fontSize: 11, color: Colors.grey[500])),
             Text(
-                l10n.probabilityLabel((location.probability * 100).toStringAsFixed(1)),
-                style: TextStyle(fontSize: 11, color: oreColor, fontWeight: FontWeight.w600)),
+                l10n.probabilityLabel(
+                    (location.probability * 100).toStringAsFixed(1)),
+                style: TextStyle(
+                    fontSize: 11,
+                    color: oreColor,
+                    fontWeight: FontWeight.w600)),
             if (location.biome != null)
-              Text(l10n.biomeLabel(location.biome!),
+              Text(l10n.biomeLabel(_getBiomeName(context, location.biome!)),
                   style: TextStyle(fontSize: 11, color: Colors.grey[500])),
           ],
         ),
@@ -712,7 +789,8 @@ class _ResultsTabState extends State<ResultsTab> {
             _buildOreBookmarkButton(context, location),
             IconButton(
               icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
-              onPressed: () => _copyCoordinates(context, location.x, location.y, location.z),
+              onPressed: () =>
+                  _copyCoordinates(context, location.x, location.y, location.z),
               tooltip: l10n.copyCoordinates,
             ),
           ],
@@ -752,7 +830,8 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
-  Widget _buildStructureResultCard(BuildContext context, StructureLocation structure) {
+  Widget _buildStructureResultCard(
+      BuildContext context, StructureLocation structure) {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final structColor = GamerColors.orangeText(isDark);
@@ -767,7 +846,8 @@ class _ResultsTabState extends State<ResultsTab> {
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         leading: Container(
-          width: 32, height: 32,
+          width: 32,
+          height: 32,
           decoration: BoxDecoration(
             color: structColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
@@ -785,7 +865,8 @@ class _ResultsTabState extends State<ResultsTab> {
             Expanded(
               child: Text(
                 '${StructureUtils.getStructureName(structure.structureType)}: (${structure.x}, ${structure.y}, ${structure.z})',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
             ),
           ],
@@ -797,10 +878,14 @@ class _ResultsTabState extends State<ResultsTab> {
             Text(l10n.chunkLabel(structure.chunkX, structure.chunkZ),
                 style: TextStyle(fontSize: 11, color: Colors.grey[500])),
             Text(
-                l10n.probabilityLabel((structure.probability * 100).toStringAsFixed(1)),
-                style: TextStyle(fontSize: 11, color: structColor, fontWeight: FontWeight.w600)),
+                l10n.probabilityLabel(
+                    (structure.probability * 100).toStringAsFixed(1)),
+                style: TextStyle(
+                    fontSize: 11,
+                    color: structColor,
+                    fontWeight: FontWeight.w600)),
             if (structure.biome != null)
-              Text(l10n.biomeLabel(structure.biome!),
+              Text(l10n.biomeLabel(_getBiomeName(context, structure.biome!)),
                   style: TextStyle(fontSize: 11, color: Colors.grey[500])),
           ],
         ),
@@ -810,8 +895,8 @@ class _ResultsTabState extends State<ResultsTab> {
             _buildStructureBookmarkButton(context, structure),
             IconButton(
               icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
-              onPressed: () =>
-                  _copyCoordinates(context, structure.x, structure.y, structure.z),
+              onPressed: () => _copyCoordinates(
+                  context, structure.x, structure.y, structure.z),
               tooltip: l10n.copyCoordinates,
             ),
           ],
@@ -901,6 +986,7 @@ class _ResultsTabState extends State<ResultsTab> {
       _minZController.clear();
       _maxZController.clear();
       _visibleBiomes.clear(); // Also clear biome filters
+      _minProbability = 0.8; // Reset probability threshold to default
     });
   }
 
@@ -943,5 +1029,65 @@ class _ResultsTabState extends State<ResultsTab> {
       default:
         return '🌍';
     }
+  }
+
+  /// Maps an internal biome id (e.g. "dappled_forest") to a friendly,
+  /// localized display name (e.g. "Autumn Forest"). Falls back to a
+  /// title-cased version of the id for any biome we don't have a name for.
+  String _getBiomeName(BuildContext context, String biome) {
+    final l10n = AppLocalizations.of(context);
+    switch (biome.toLowerCase()) {
+      case 'plains':
+        return l10n.biomeNamePlains;
+      case 'forest':
+        return l10n.biomeNameForest;
+      case 'desert':
+        return l10n.biomeNameDesert;
+      case 'jungle':
+        return l10n.biomeNameJungle;
+      case 'swamp':
+        return l10n.biomeNameSwamp;
+      case 'taiga':
+        return l10n.biomeNameTaiga;
+      case 'mountains':
+        return l10n.biomeNameMountains;
+      case 'dappled_forest':
+        return l10n.biomeNameDappledForest;
+      case 'cherry_grove':
+        return l10n.biomeNameCherryGrove;
+      case 'savanna':
+        return l10n.biomeNameSavanna;
+      case 'badlands':
+      case 'mesa':
+        return l10n.biomeNameBadlands;
+      case 'ocean':
+        return l10n.biomeNameOcean;
+      case 'deep_ocean':
+        return l10n.biomeNameDeepOcean;
+      case 'beach':
+        return l10n.biomeNameBeach;
+      case 'nether':
+        return l10n.biomeNameNether;
+      case 'end':
+        return l10n.biomeNameEnd;
+      case 'deep_dark':
+        return l10n.biomeNameDeepDark;
+      case 'overworld':
+        return l10n.biomeNameOverworld;
+      case 'unknown':
+        return l10n.biomeNameUnknown;
+      default:
+        return _titleCaseBiomeId(biome);
+    }
+  }
+
+  /// Fallback: turn a snake_case biome id into a readable label,
+  /// e.g. "some_new_biome" -> "Some New Biome".
+  String _titleCaseBiomeId(String biome) {
+    return biome
+        .split('_')
+        .where((part) => part.isNotEmpty)
+        .map((part) => part[0].toUpperCase() + part.substring(1))
+        .join(' ');
   }
 }

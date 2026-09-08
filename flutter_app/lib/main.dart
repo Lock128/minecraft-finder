@@ -29,7 +29,8 @@ class GemOreStructFinderApp extends StatelessWidget {
       child: Consumer<AppSettings>(
         builder: (context, settings, _) {
           return MaterialApp(
-            title: 'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
+            title:
+                'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
             debugShowCheckedModeBanner: false,
             themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             theme: GamerTheme.buildLight(),

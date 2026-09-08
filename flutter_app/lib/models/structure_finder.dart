@@ -100,7 +100,7 @@ class StructureFinder {
   }
 
   /// Check if a location qualifies as deep_dark biome.
-  /// 
+  ///
   /// Deep dark generates in large "cheese caves" at Y=-52 or below.
   /// We approximate this using noise to create sporadic deep_dark pockets.
   bool _isDeepDark(int x, int z, int worldSeed) {
@@ -110,9 +110,9 @@ class StructureFinder {
     }
 
     // Deep dark uses a different noise pattern — larger, sparser pockets
-    double deepDarkNoise = _tempNoise!.octaveNoise3D(
-        x * 0.002, -52 * 0.01, z * 0.002, 2, 0.6, 1.0);
-    
+    double deepDarkNoise = _tempNoise!
+        .octaveNoise3D(x * 0.002, -52 * 0.01, z * 0.002, 2, 0.6, 1.0);
+
     // Only ~15% of valid underground area is deep_dark
     return deepDarkNoise > 0.35;
   }
@@ -258,16 +258,14 @@ class StructureFinder {
     }
 
     final params = _getStructureSpacingParams(structureType);
-    final int spacing = params['spacing']!;    // region size in chunks
+    final int spacing = params['spacing']!; // region size in chunks
     final int separation = params['separation']!; // minimum gap in chunks
 
     // Derive the region this chunk belongs to (integer division, floor for negatives)
-    int regionX = chunkX < 0
-        ? ((chunkX + 1) ~/ spacing) - 1
-        : chunkX ~/ spacing;
-    int regionZ = chunkZ < 0
-        ? ((chunkZ + 1) ~/ spacing) - 1
-        : chunkZ ~/ spacing;
+    int regionX =
+        chunkX < 0 ? ((chunkX + 1) ~/ spacing) - 1 : chunkX ~/ spacing;
+    int regionZ =
+        chunkZ < 0 ? ((chunkZ + 1) ~/ spacing) - 1 : chunkZ ~/ spacing;
 
     // Pick the one candidate chunk inside this region using Java-compatible RNG.
     // Mix is identical to Minecraft's StructureStart seed construction.
@@ -340,7 +338,8 @@ class StructureFinder {
       // This chunk is in the distance band for this ring.
       // Check if angle matches one of the stronghold positions.
       JavaRandom ringRandom = JavaRandom(worldSeed + ringIndex * 9999991);
-      double startAngle = ringRandom.nextDouble() * 2 * pi; // Random offset for ring
+      double startAngle =
+          ringRandom.nextDouble() * 2 * pi; // Random offset for ring
 
       for (int i = 0; i < count; i++) {
         double strongholdAngle = startAngle + (2 * pi * i / count);
@@ -359,8 +358,10 @@ class StructureFinder {
 
         if (angleDiff < pi / 16) {
           // Additional distance check within the ring band
-          double targetDist = minDist + ringRandom.nextDouble() * (maxDist - minDist);
-          if ((distance - targetDist).abs() < 256) { // Within ~16 chunks of target
+          double targetDist =
+              minDist + ringRandom.nextDouble() * (maxDist - minDist);
+          if ((distance - targetDist).abs() < 256) {
+            // Within ~16 chunks of target
             return true;
           }
         }
@@ -379,7 +380,9 @@ class StructureFinder {
   bool _checkBuriedTreasurePlacement(int chunkX, int chunkZ, int worldSeed) {
     // Seed for this specific chunk
     int chunkSeed = worldSeed ^
-        (chunkX * 341873128 + chunkZ * 132897987 + 10387320); // Salt for buried treasure
+        (chunkX * 341873128 +
+            chunkZ * 132897987 +
+            10387320); // Salt for buried treasure
     JavaRandom chunkRandom = JavaRandom(chunkSeed);
 
     // ~4% chance per beach chunk (roughly matching Minecraft's frequency)
@@ -389,22 +392,38 @@ class StructureFinder {
   /// Spawn-chance for the second RNG roll (independent of base probability).
   double _getStructureSpawnChance(StructureType structureType) {
     switch (structureType) {
-      case StructureType.village:         return 0.7;
-      case StructureType.stronghold:      return 1.0; // always if candidate
-      case StructureType.endCity:         return 0.5;
-      case StructureType.netherFortress:  return 0.8;
-      case StructureType.bastionRemnant:  return 0.8;
-      case StructureType.ancientCity:     return 0.6;
-      case StructureType.oceanMonument:   return 0.6;
-      case StructureType.woodlandMansion: return 1.0; // extremely rare via spacing
-      case StructureType.pillagerOutpost: return 0.6;
-      case StructureType.ruinedPortal:    return 0.9;
-      case StructureType.shipwreck:       return 0.85;
-      case StructureType.buriedTreasure:  return 0.7;
-      case StructureType.desertTemple:    return 0.75;
-      case StructureType.jungleTemple:    return 0.7;
-      case StructureType.witchHut:        return 0.65;
-      case StructureType.abandonedCamp:   return 0.6;
+      case StructureType.village:
+        return 0.7;
+      case StructureType.stronghold:
+        return 1.0; // always if candidate
+      case StructureType.endCity:
+        return 0.5;
+      case StructureType.netherFortress:
+        return 0.8;
+      case StructureType.bastionRemnant:
+        return 0.8;
+      case StructureType.ancientCity:
+        return 0.6;
+      case StructureType.oceanMonument:
+        return 0.6;
+      case StructureType.woodlandMansion:
+        return 1.0; // extremely rare via spacing
+      case StructureType.pillagerOutpost:
+        return 0.6;
+      case StructureType.ruinedPortal:
+        return 0.9;
+      case StructureType.shipwreck:
+        return 0.85;
+      case StructureType.buriedTreasure:
+        return 0.7;
+      case StructureType.desertTemple:
+        return 0.75;
+      case StructureType.jungleTemple:
+        return 0.7;
+      case StructureType.witchHut:
+        return 0.65;
+      case StructureType.abandonedCamp:
+        return 0.6;
     }
   }
 
@@ -443,11 +462,17 @@ class StructureFinder {
       case StructureType.shipwreck:
         return {'spacing': 24, 'separation': 4};
       case StructureType.buriedTreasure:
-        return {'spacing': 1,  'separation': 0}; // one per chunk — probability driven
+        return {
+          'spacing': 1,
+          'separation': 0
+        }; // one per chunk — probability driven
       case StructureType.ruinedPortal:
         return {'spacing': 40, 'separation': 15};
       case StructureType.abandonedCamp:
-        return {'spacing': 32, 'separation': 8}; // surface spacing like villages
+        return {
+          'spacing': 32,
+          'separation': 8
+        }; // surface spacing like villages
     }
   }
 
@@ -495,8 +520,8 @@ class StructureFinder {
   }) async {
     // Use Java-compatible seed conversion
     int worldSeed = MinecraftRandom.stringToSeed(seed);
-    final locations = BoundedTopResults<StructureLocation>(
-        maxResults, (s) => s.probability);
+    final locations =
+        BoundedTopResults<StructureLocation>(maxResults, (s) => s.probability);
 
     // Use chunk-aligned search for better accuracy
     int step = 32; // Check every 2 chunks for better coverage

@@ -104,8 +104,8 @@ void main() {
                 reason:
                     '${tier.label} section $j accentColor mismatch (iteration $i)');
 
-            expect(sections[j].content.length,
-                equals(expected[j].content.length),
+            expect(
+                sections[j].content.length, equals(expected[j].content.length),
                 reason:
                     '${tier.label} section $j content length mismatch (iteration $i)');
 

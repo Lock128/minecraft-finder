@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
-import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
-import '../widgets/pro_upgrade_dialog.dart';
 
 class SearchButtons extends StatefulWidget {
   final bool isLoading;
@@ -12,12 +8,17 @@ class SearchButtons extends StatefulWidget {
   final Function(bool) onFindOres;
   final bool isDarkMode;
 
+  /// Whether the whole-world Netherite scope is active. When true, the single
+  /// primary action performs the deep scan instead of a radius-bounded search.
+  final bool wholeWorldActive;
+
   const SearchButtons({
     super.key,
     required this.isLoading,
     required this.findAllNetherite,
     required this.onFindOres,
     this.isDarkMode = false,
+    this.wholeWorldActive = false,
   });
 
   @override
@@ -25,7 +26,7 @@ class SearchButtons extends StatefulWidget {
 }
 
 class _SearchButtonsState extends State<SearchButtons> {
-  // Info boxes are collapsed by default to keep the important action buttons
+  // Info boxes are collapsed by default to keep the important action button
   // and results in view without extra scrolling.
   bool _showInfo = false;
 
@@ -33,49 +34,25 @@ class _SearchButtonsState extends State<SearchButtons> {
   bool get findAllNetherite => widget.findAllNetherite;
   Function(bool) get onFindOres => widget.onFindOres;
   bool get isDarkMode => widget.isDarkMode;
+  bool get wholeWorldActive => widget.wholeWorldActive;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isPro = !FeatureFlags.enableMonetization || context.watch<ProStatusProvider>().isPro;
 
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: _GamerButton(
-                onPressed: isLoading ? null : () => onFindOres(false),
-                isLoading: isLoading && !findAllNetherite,
-                label: isLoading && !findAllNetherite ? l10n.searchingButton : l10n.findButton,
-                emoji: '⛏️',
-                gradient: const [GamerColors.neonGreen, Color(0xFF00C853)],
-                isDarkMode: isDarkMode,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: _GamerButton(
-                onPressed: isLoading
-                    ? null
-                    : () {
-                        if (isPro) {
-                          onFindOres(true);
-                        } else {
-                          ProUpgradeDialog.show(context, isDarkMode: isDarkMode);
-                        }
-                      },
-                isLoading: isLoading && findAllNetherite,
-                label: isLoading && findAllNetherite ? l10n.searchingButton : l10n.findAllNetheriteButton,
-                emoji: '🔥',
-                gradient: const [GamerColors.neonPurple, GamerColors.neonPink],
-                isDarkMode: isDarkMode,
-                showProBadge: !isPro,
-              ),
-            ),
-          ],
+        // A single primary action. Scope (radius vs. whole world) is chosen in
+        // the search inputs above, so there is no second competing button.
+        _GamerButton(
+          onPressed: isLoading ? null : () => onFindOres(wholeWorldActive),
+          isLoading: isLoading,
+          label: isLoading ? l10n.searchingButton : l10n.findButton,
+          emoji: wholeWorldActive ? '🔥' : '⛏️',
+          gradient: wholeWorldActive
+              ? const [GamerColors.neonPurple, GamerColors.neonPink]
+              : const [GamerColors.neonGreen, Color(0xFF00C853)],
+          isDarkMode: isDarkMode,
         ),
         const SizedBox(height: 10),
         // Collapsible help section: keeps the buttons prominent and the
@@ -103,17 +80,20 @@ class _SearchButtonsState extends State<SearchButtons> {
           const SizedBox(height: 6),
           _buildInfoBox(
             icon: Icons.info_outline,
-            color: GamerColors.neonPurple,
-            title: l10n.comprehensiveNetheriteSearch,
-            body: l10n.comprehensiveNetheriteBody,
-          ),
-          const SizedBox(height: 8),
-          _buildInfoBox(
-            icon: Icons.info_outline,
             color: GamerColors.neonGreen,
             title: null,
             body: l10n.regularSearchInfo,
           ),
+          // Explain the whole-world deep scan only when it's the active scope.
+          if (wholeWorldActive) ...[
+            const SizedBox(height: 8),
+            _buildInfoBox(
+              icon: Icons.info_outline,
+              color: GamerColors.neonPurple,
+              title: l10n.comprehensiveNetheriteSearch,
+              body: l10n.comprehensiveNetheriteBody,
+            ),
+          ],
         ],
       ],
     );
@@ -143,7 +123,10 @@ class _SearchButtonsState extends State<SearchButtons> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(title,
-                    style: TextStyle(color: textColor, fontWeight: FontWeight.w700, fontSize: 12)),
+                      style: TextStyle(
+                          color: textColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12)),
                 ),
               ],
             ),
@@ -158,11 +141,13 @@ class _SearchButtonsState extends State<SearchButtons> {
               ],
               Expanded(
                 child: Text(body,
-                  style: TextStyle(
-                    color: isDarkMode ? color.withValues(alpha: 0.8) : textColor.withValues(alpha: 0.8),
-                    height: 1.4,
-                    fontSize: 11,
-                  )),
+                    style: TextStyle(
+                      color: isDarkMode
+                          ? color.withValues(alpha: 0.8)
+                          : textColor.withValues(alpha: 0.8),
+                      height: 1.4,
+                      fontSize: 11,
+                    )),
               ),
             ],
           ),
@@ -187,7 +172,6 @@ class _GamerButton extends StatelessWidget {
   final String emoji;
   final List<Color> gradient;
   final bool isDarkMode;
-  final bool showProBadge;
 
   const _GamerButton({
     required this.onPressed,
@@ -196,7 +180,6 @@ class _GamerButton extends StatelessWidget {
     required this.emoji,
     required this.gradient,
     required this.isDarkMode,
-    this.showProBadge = false,
   });
 
   @override
@@ -227,8 +210,10 @@ class _GamerButton extends StatelessWidget {
               children: [
                 if (isLoading)
                   const SizedBox(
-                    width: 18, height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 else
                   Text(emoji, style: const TextStyle(fontSize: 16)),
@@ -245,24 +230,6 @@ class _GamerButton extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (showProBadge) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      'PRO',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

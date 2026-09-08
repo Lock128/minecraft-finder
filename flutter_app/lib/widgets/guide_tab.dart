@@ -180,27 +180,30 @@ class GuideTab extends StatelessWidget {
           const SizedBox(height: 16),
           ...content.map((line) {
             if (line.isEmpty) return const SizedBox(height: 8);
-            if (line.startsWith('🎯') || line.startsWith('🌍') ||
-                line.startsWith('🏜️') || line.startsWith('🔍') ||
-                line.startsWith('🏘️') || line.startsWith('🏛️')) {
+            if (line.startsWith('🎯') ||
+                line.startsWith('🌍') ||
+                line.startsWith('🏜️') ||
+                line.startsWith('🔍') ||
+                line.startsWith('🏘️') ||
+                line.startsWith('🏛️')) {
               return Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 4),
                 child: Text(line,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                    fontSize: 14,
-                  )),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                      fontSize: 14,
+                    )),
               );
             }
             return Padding(
               padding: const EdgeInsets.only(bottom: 3),
               child: Text(line,
-                style: TextStyle(
-                  height: 1.5,
-                  fontSize: 13,
-                  color: isDarkMode ? Colors.white70 : Colors.grey[700],
-                )),
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 13,
+                    color: isDarkMode ? Colors.white70 : Colors.grey[700],
+                  )),
             );
           }),
         ],
@@ -211,7 +214,8 @@ class GuideTab extends StatelessWidget {
   Color _lightVariant(Color neonColor) {
     if (neonColor == GamerColors.diamondNeon) return GamerColors.lightDiamond;
     if (neonColor == GamerColors.goldNeon) return GamerColors.lightGold;
-    if (neonColor == GamerColors.netheriteNeon) return GamerColors.lightNetherite;
+    if (neonColor == GamerColors.netheriteNeon)
+      return GamerColors.lightNetherite;
     if (neonColor == GamerColors.ironNeon) return GamerColors.lightIron;
     if (neonColor == GamerColors.redstoneNeon) return GamerColors.lightRedstone;
     if (neonColor == GamerColors.coalNeon) return GamerColors.lightCoal;
@@ -230,21 +234,28 @@ class GuideTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         gradient: LinearGradient(
           colors: isDarkMode
-              ? [GamerColors.neonCyan.withValues(alpha: 0.1), GamerColors.neonGreen.withValues(alpha: 0.05)]
-              : [GamerColors.neonCyan.withValues(alpha: 0.06), GamerColors.neonGreen.withValues(alpha: 0.03)],
+              ? [
+                  GamerColors.neonCyan.withValues(alpha: 0.1),
+                  GamerColors.neonGreen.withValues(alpha: 0.05)
+                ]
+              : [
+                  GamerColors.neonCyan.withValues(alpha: 0.06),
+                  GamerColors.neonGreen.withValues(alpha: 0.03)
+                ],
         ),
         border: Border.all(color: GamerColors.neonCyan.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
-          Icon(Icons.lightbulb, color: GamerColors.cyanText(isDarkMode), size: 28),
+          Icon(Icons.lightbulb,
+              color: GamerColors.cyanText(isDarkMode), size: 28),
           const SizedBox(height: 8),
           Text(l10n.proTipTitle,
-            style: TextStyle(
-              color: GamerColors.cyanText(isDarkMode),
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-            )),
+              style: TextStyle(
+                color: GamerColors.cyanText(isDarkMode),
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              )),
           const SizedBox(height: 8),
           Text(
             l10n.proTipBody,

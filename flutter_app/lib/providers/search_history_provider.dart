@@ -22,8 +22,7 @@ class SearchHistoryProvider extends ChangeNotifier {
       try {
         final List<dynamic> decoded = json.decode(jsonStr) as List<dynamic>;
         _entries = decoded
-            .map((e) =>
-                SearchHistoryEntry.fromJson(e as Map<String, dynamic>))
+            .map((e) => SearchHistoryEntry.fromJson(e as Map<String, dynamic>))
             .toList();
         notifyListeners();
       } catch (_) {
@@ -34,8 +33,7 @@ class SearchHistoryProvider extends ChangeNotifier {
 
   Future<void> _saveHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonStr =
-        json.encode(_entries.map((e) => e.toJson()).toList());
+    final jsonStr = json.encode(_entries.map((e) => e.toJson()).toList());
     await prefs.setString(_storageKey, jsonStr);
   }
 

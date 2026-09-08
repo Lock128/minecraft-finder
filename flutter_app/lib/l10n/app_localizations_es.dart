@@ -243,6 +243,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get hideSearchInfo => 'Ocultar info';
 
   @override
+  String get showDetails => 'Detalles';
+
+  @override
+  String get hideDetails => 'Ocultar detalles';
+
+  @override
+  String get showTips => 'Consejos';
+
+  @override
+  String get wholeWorldNetheriteTitle => 'Buscar en todo el mundo';
+
+  @override
+  String get wholeWorldNetheriteSubtitle =>
+      'Busca Netherita en todo el mundo, ignorando el radio. Tarda más.';
+
+  @override
+  String get wholeWorldActiveHint => 'Todo el mundo (radio ignorado)';
+
+  @override
   String get hideFilters => 'Ocultar filtros';
 
   @override
@@ -324,6 +343,79 @@ class AppLocalizationsEs extends AppLocalizations {
   String biomeLabel(String biome) {
     return 'Bioma: $biome';
   }
+
+  @override
+  String placesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lugares encontrados',
+      one: '$count lugar encontrado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minProbabilityFilterLabel(int percent) {
+    return 'Probabilidad mínima: $percent%';
+  }
+
+  @override
+  String get biomeNamePlains => 'Llanura';
+
+  @override
+  String get biomeNameForest => 'Bosque';
+
+  @override
+  String get biomeNameDesert => 'Desierto';
+
+  @override
+  String get biomeNameJungle => 'Jungla';
+
+  @override
+  String get biomeNameSwamp => 'Pantano';
+
+  @override
+  String get biomeNameTaiga => 'Taiga';
+
+  @override
+  String get biomeNameMountains => 'Montañas';
+
+  @override
+  String get biomeNameDappledForest => 'Bosque otoñal';
+
+  @override
+  String get biomeNameCherryGrove => 'Arboleda de cerezos';
+
+  @override
+  String get biomeNameSavanna => 'Sabana';
+
+  @override
+  String get biomeNameBadlands => 'Tierras baldías';
+
+  @override
+  String get biomeNameOcean => 'Océano';
+
+  @override
+  String get biomeNameDeepOcean => 'Océano profundo';
+
+  @override
+  String get biomeNameBeach => 'Playa';
+
+  @override
+  String get biomeNameNether => 'Nether';
+
+  @override
+  String get biomeNameEnd => 'El End';
+
+  @override
+  String get biomeNameDeepDark => 'Oscuridad profunda';
+
+  @override
+  String get biomeNameOverworld => 'Superficie';
+
+  @override
+  String get biomeNameUnknown => 'Desconocido';
 
   @override
   String get guideDiamondTitle => 'Generación de Diamantes';

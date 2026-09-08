@@ -72,8 +72,7 @@ void main() {
           StatefulBuilder(
             builder: (context, setState) {
               return MaterialApp(
-                localizationsDelegates:
-                    AppLocalizations.localizationsDelegates,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
                 locale: currentLocale,
                 home: OreFinderScreen(

@@ -86,7 +86,6 @@ class TierSelector extends StatelessWidget {
   }
 }
 
-
 /// A single localized guide section with a title, emoji, accent color, and content lines.
 class _LocalizedGuideSection {
   final String title;
@@ -368,27 +367,31 @@ class _BedwarsGuideTabState extends State<BedwarsGuideTab> {
           const SizedBox(height: 16),
           ...section.content.map((line) {
             if (line.isEmpty) return const SizedBox(height: 8);
-            if (line.startsWith('🎯') || line.startsWith('🌍') ||
-                line.startsWith('🏜️') || line.startsWith('🔍') ||
-                line.startsWith('🏘️') || line.startsWith('🏛️')) {
+            if (line.startsWith('🎯') ||
+                line.startsWith('🌍') ||
+                line.startsWith('🏜️') ||
+                line.startsWith('🔍') ||
+                line.startsWith('🏘️') ||
+                line.startsWith('🏛️')) {
               return Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 4),
                 child: Text(line,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: section.accentColor,
-                    fontSize: 14,
-                  )),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: section.accentColor,
+                      fontSize: 14,
+                    )),
               );
             }
             return Padding(
               padding: const EdgeInsets.only(bottom: 3),
               child: Text(line,
-                style: TextStyle(
-                  height: 1.5,
-                  fontSize: 13,
-                  color: widget.isDarkMode ? Colors.white70 : Colors.grey[700],
-                )),
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 13,
+                    color:
+                        widget.isDarkMode ? Colors.white70 : Colors.grey[700],
+                  )),
             );
           }),
         ],

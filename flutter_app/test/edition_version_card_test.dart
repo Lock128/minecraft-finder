@@ -11,8 +11,7 @@ import 'package:gem_ore_struct_finder_mc/models/game_random.dart';
 import 'package:gem_ore_struct_finder_mc/widgets/edition_version_card.dart';
 
 /// English localizations used to assert on the localized labels.
-final AppLocalizations enL10n =
-    lookupAppLocalizations(const Locale('en'));
+final AppLocalizations enL10n = lookupAppLocalizations(const Locale('en'));
 
 /// Helper to wrap EditionVersionCard in a MaterialApp for testing.
 Widget buildTestWidget({
@@ -158,15 +157,26 @@ void main() {
   });
 
   group('EditionVersionCard - info box visibility', () {
+    // The edition/version info boxes are collapsed by default behind a
+    // "Details" toggle. Expanding it reveals the boxes relevant to the current
+    // selection. This helper opens that panel.
+    Future<void> openDetails(WidgetTester tester) async {
+      await tester.tap(find.text(enL10n.showDetails));
+      await tester.pumpAndSettle();
+    }
+
     // Validates: Requirement 7.4
-    testWidgets('Java + Modern shows no info boxes',
+    testWidgets('Java + Modern shows no edition/version info boxes',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildTestWidget(
         edition: MinecraftEdition.java,
         versionEra: VersionEra.modern,
       ));
       await tester.pumpAndSettle();
+      await openDetails(tester);
 
+      // Only the always-present latest-update box shows; no edition/version
+      // caveat boxes (which use info_outline) for Java + Modern.
       expect(find.byIcon(Icons.info_outline), findsNothing);
     });
 
@@ -178,6 +188,7 @@ void main() {
         versionEra: VersionEra.modern,
       ));
       await tester.pumpAndSettle();
+      await openDetails(tester);
 
       expect(
         find.text(enL10n.editionBedrockInfo),
@@ -198,6 +209,7 @@ void main() {
         versionEra: VersionEra.legacy,
       ));
       await tester.pumpAndSettle();
+      await openDetails(tester);
 
       expect(
         find.text(enL10n.versionLegacyInfo),
@@ -218,6 +230,7 @@ void main() {
         versionEra: VersionEra.legacy,
       ));
       await tester.pumpAndSettle();
+      await openDetails(tester);
 
       expect(
         find.text(enL10n.editionBedrockInfo),
@@ -237,8 +250,10 @@ void main() {
         versionEra: VersionEra.legacy,
       ));
       await tester.pumpAndSettle();
+      await openDetails(tester);
 
-      // Two info boxes → two info_outline icons
+      // Two edition/version info boxes → two info_outline icons. The toggle
+      // switches to expand_less once opened, so it no longer contributes one.
       expect(find.byIcon(Icons.info_outline), findsNWidgets(2));
     });
   });
@@ -260,6 +275,10 @@ void main() {
       expect(find.text(enL10n.versionEraLegacy), findsOneWidget);
       expect(find.text(enL10n.versionEraModern), findsOneWidget);
       expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
+
+      // Info boxes live behind the collapsible Details panel.
+      await tester.tap(find.text(enL10n.showDetails));
+      await tester.pumpAndSettle();
       expect(
         find.text(enL10n.editionBedrockInfo),
         findsOneWidget,
@@ -290,7 +309,7 @@ void main() {
   });
 
   group('EditionVersionCard - latest update info box', () {
-    testWidgets('always renders the latest-update title and body',
+    testWidgets('renders the latest-update title and body when details open',
         (WidgetTester tester) async {
       await tester.pumpWidget(buildTestWidget(
         edition: MinecraftEdition.java,
@@ -298,8 +317,11 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // The Third Drop 2026 update affordance is shown regardless of
-      // the edition/version selection.
+      // The Third Drop 2026 update affordance lives inside the collapsible
+      // Details panel and is shown regardless of the edition/version selection.
+      await tester.tap(find.text(enL10n.showDetails));
+      await tester.pumpAndSettle();
+
       expect(find.text(enL10n.latestUpdateTitle), findsOneWidget);
       expect(find.text(enL10n.latestUpdateInfo), findsOneWidget);
       expect(find.byIcon(Icons.new_releases_outlined), findsOneWidget);

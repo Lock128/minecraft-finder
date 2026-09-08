@@ -82,8 +82,7 @@ void main() {
       }
     });
 
-    test(
-        'Divergence holds across 100 additional large-magnitude seeds', () {
+    test('Divergence holds across 100 additional large-magnitude seeds', () {
       for (int i = 0; i < 100; i++) {
         // Generate seeds with large magnitude to cover wider range
         final seed = (inputRng.nextInt(1 << 32) - (1 << 31)) *

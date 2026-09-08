@@ -6,7 +6,8 @@ import 'java_random.dart';
 class PerlinNoise {
   final List<int> _permutation;
 
-  PerlinNoise(int seed, {GameRandom? rng}) : _permutation = _generatePermutation(seed, rng: rng);
+  PerlinNoise(int seed, {GameRandom? rng})
+      : _permutation = _generatePermutation(seed, rng: rng);
 
   static List<int> _generatePermutation(int seed, {GameRandom? rng}) {
     // Use provided GameRandom or fall back to JavaRandom for backward compatibility
@@ -86,8 +87,7 @@ class PerlinNoise {
     double maxValue = 0;
 
     for (int i = 0; i < octaves; i++) {
-      value +=
-          noise3D(x * frequency, y * frequency, z * frequency) * amplitude;
+      value += noise3D(x * frequency, y * frequency, z * frequency) * amplitude;
       maxValue += amplitude;
       amplitude *= persistence;
       frequency *= 2;
@@ -98,7 +98,8 @@ class PerlinNoise {
 }
 
 /// Triangular distribution with an explicit peak (not necessarily centered).
-double _triangularFactorWithPeak(double y, double minY, double maxY, double peak) {
+double _triangularFactorWithPeak(
+    double y, double minY, double maxY, double peak) {
   if (y < minY || y > maxY) return 0.0;
   if (y <= peak) {
     double range = peak - minY;
@@ -121,13 +122,15 @@ double _uniformFactor(double y, double minY, double maxY) {
 class DensityFunction {
   final PerlinNoise _noise;
 
-  DensityFunction(int seed, {GameRandom? rng}) : _noise = PerlinNoise(seed, rng: rng);
+  DensityFunction(int seed, {GameRandom? rng})
+      : _noise = PerlinNoise(seed, rng: rng);
 
   /// Calculate ore density at given coordinates.
-  /// 
+  ///
   /// [isNether] should be true when calculating for nether dimension ores
   /// (affects gold distribution).
-  double getOreDensity(double x, double y, double z, String oreType, {bool isNether = false}) {
+  double getOreDensity(double x, double y, double z, String oreType,
+      {bool isNether = false}) {
     switch (oreType) {
       case 'diamond':
         return _getDiamondDensity(x, y, z);
@@ -176,7 +179,8 @@ class DensityFunction {
     // Negative noise values at this scale hint at open spaces (caves).
     double caveNoise =
         _noise.octaveNoise3D(x * 0.04, y * 0.04, z * 0.04, 2, 0.5, 1.0);
-    double airReduction = caveNoise < -0.4 ? 0.5 : 1.0; // 50% reduction near caves
+    double airReduction =
+        caveNoise < -0.4 ? 0.5 : 1.0; // 50% reduction near caves
 
     double noise =
         _noise.octaveNoise3D(x * 0.01, y * 0.02, z * 0.01, 3, 0.5, 1.0);
@@ -188,14 +192,16 @@ class DensityFunction {
   // Badlands adds a uniform distribution from Y=32 to Y=256.
   // Nether gold ore has a completely different distribution — uniform Y=10-117.
   // ---------------------------------------------------------------------------
-  double _getGoldDensity(double x, double y, double z, {bool isNether = false}) {
+  double _getGoldDensity(double x, double y, double z,
+      {bool isNether = false}) {
     if (isNether) {
       // Nether gold ore: uniform distribution from Y=10 to Y=117
       if (y < 10 || y > 117) return 0.0;
       double yFactor = 1.0; // Uniform within range
       double noise =
           _noise.octaveNoise3D(x * 0.012, y * 0.01, z * 0.012, 3, 0.5, 1.0);
-      return max(0.0, (noise + 0.3) * yFactor * 0.8); // Slightly lower than overworld
+      return max(
+          0.0, (noise + 0.3) * yFactor * 0.8); // Slightly lower than overworld
     }
 
     // Overworld gold

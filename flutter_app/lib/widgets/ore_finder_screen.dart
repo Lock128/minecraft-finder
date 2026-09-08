@@ -49,7 +49,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     super.dispose();
   }
 
-  Future<void> _findOres(bool comprehensiveNetherite, BuildContext providerContext) async {
+  Future<void> _findOres(
+      bool comprehensiveNetherite, BuildContext providerContext) async {
     final searchState = providerContext.read<SearchState>();
     final proStatus = providerContext.read<ProStatusProvider>();
     final l10n = AppLocalizations.of(providerContext);
@@ -102,6 +103,23 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     }
   }
 
+  /// Handles toggling the whole-world Netherite scope. This is a Pro feature:
+  /// free users get the upgrade dialog instead of enabling it.
+  void _onWholeWorldChanged(bool value, BuildContext providerContext) {
+    final searchState = providerContext.read<SearchState>();
+    if (!value) {
+      searchState.setWholeWorldNetherite(false);
+      return;
+    }
+    final isPro = !FeatureFlags.enableMonetization ||
+        providerContext.read<ProStatusProvider>().isPro;
+    if (isPro) {
+      searchState.setWholeWorldNetherite(true);
+    } else {
+      ProUpgradeDialog.show(providerContext, isDarkMode: widget.isDarkMode);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SearchState>(
@@ -143,6 +161,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         isDarkMode: isDark,
                         selectedEdition: searchState.selectedEdition,
                         selectedVersionEra: searchState.selectedVersionEra,
+                        wholeWorldNetherite: searchState.wholeWorldNetherite,
+                        onWholeWorldChanged: (value) =>
+                            _onWholeWorldChanged(value, context),
                         onOreTypesChanged: searchState.setOreTypes,
                         onIncludeNetherChanged: searchState.setIncludeNether,
                         onIncludeOresChanged: searchState.setIncludeOres,
@@ -311,9 +332,11 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             builder: (context, pro, _) {
               if (pro.isPro) return const SizedBox.shrink();
               return IconButton(
-                onPressed: () => ProUpgradeDialog.show(context, isDarkMode: isDark),
+                onPressed: () =>
+                    ProUpgradeDialog.show(context, isDarkMode: isDark),
                 icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [GamerColors.neonPurple, GamerColors.neonCyan],
@@ -389,8 +412,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           if (isActive)
             Icon(Icons.check,
                 size: 18,
-                color:
-                    isDark ? GamerColors.neonGreen : GamerColors.lightGreen),
+                color: isDark ? GamerColors.neonGreen : GamerColors.lightGreen),
         ],
       ),
     );

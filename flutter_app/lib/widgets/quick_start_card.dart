@@ -11,7 +11,7 @@ import '../theme/gamer_theme.dart';
 /// It is purely additive: it writes into the existing controllers and calls the
 /// existing state setters owned by the parent. No control is removed and no new
 /// state-management library is introduced.
-class QuickStartCard extends StatelessWidget {
+class QuickStartCard extends StatefulWidget {
   final TextEditingController xController;
   final TextEditingController yController;
   final TextEditingController zController;
@@ -35,16 +35,26 @@ class QuickStartCard extends StatelessWidget {
     this.isDarkMode = false,
   });
 
+  @override
+  State<QuickStartCard> createState() => _QuickStartCardState();
+}
+
+class _QuickStartCardState extends State<QuickStartCard> {
+  // Tips are collapsed by default; the one-tap preset stays visible.
+  bool _showTips = false;
+
+  bool get isDarkMode => widget.isDarkMode;
+
   /// Applies the "Diamonds near spawn" preset: center the search on world
   /// spawn (0, 0), clear the optional Y coordinate, use a generous radius, and
   /// select diamonds with ore searching enabled.
   void _applyDiamondsNearSpawn() {
-    xController.text = '0';
-    zController.text = '0';
-    yController.text = '';
-    radiusController.text = '1000';
-    onIncludeOresChanged(true);
-    onOreTypesChanged({OreType.diamond});
+    widget.xController.text = '0';
+    widget.zController.text = '0';
+    widget.yController.text = '';
+    widget.radiusController.text = '1000';
+    widget.onIncludeOresChanged(true);
+    widget.onOreTypesChanged({OreType.diamond});
   }
 
   @override
@@ -61,15 +71,6 @@ class QuickStartCard extends StatelessWidget {
             title: l10n.quickStartTitle,
             isDarkMode: isDarkMode,
             accentColor: GamerColors.neonYellow,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.quickStartHint,
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.4,
-              color: isDarkMode ? Colors.white70 : Colors.grey[700],
-            ),
           ),
           const SizedBox(height: 12),
           Align(
@@ -91,10 +92,42 @@ class QuickStartCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          _buildTip(context, '\u{1F331}', l10n.quickStartSeedTip),
-          const SizedBox(height: 8),
-          _buildTip(context, '\u{1F4CD}', l10n.quickStartSpawnTip),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => setState(() => _showTips = !_showTips),
+              icon: Icon(
+                _showTips ? Icons.expand_less : Icons.lightbulb_outline,
+                size: 16,
+              ),
+              label: Text(
+                _showTips ? l10n.hideDetails : l10n.showTips,
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: GamerColors.cyanText(isDarkMode),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+          if (_showTips) ...[
+            const SizedBox(height: 4),
+            Text(
+              l10n.quickStartHint,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                color: isDarkMode ? Colors.white70 : Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildTip(context, '\u{1F331}', l10n.quickStartSeedTip),
+            const SizedBox(height: 8),
+            _buildTip(context, '\u{1F4CD}', l10n.quickStartSpawnTip),
+          ],
         ],
       ),
     );
