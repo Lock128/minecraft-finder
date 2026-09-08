@@ -353,6 +353,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String chunksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'across $count chunks',
+      one: 'across $count chunk',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String minProbabilityFilterLabel(int percent) {
     return 'Minimum probability: $percent%';
   }

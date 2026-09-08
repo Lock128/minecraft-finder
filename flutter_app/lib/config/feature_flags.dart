@@ -1,22 +1,23 @@
 /// Central feature flags for the app.
 ///
-/// Set these to `true` to activate the corresponding features.
-/// Keep them `false` in production until you're ready to launch.
+/// These are compile-time build defaults. Some flags (like monetization) can
+/// additionally be toggled at runtime — see [MonetizationConfig].
 class FeatureFlags {
   FeatureFlags._();
 
-  /// Master switch for all monetization features.
+  /// Compile-time default for monetization features.
   ///
-  /// When `false`:
-  /// - Pro tier gating is disabled (all users get full access)
-  /// - The PRO badge in the app bar is hidden
-  /// - The Pro upgrade dialog is inaccessible
-  /// - The Stripe donation/support section is hidden
-  /// - IAP initialization is skipped entirely
+  /// When `false`, monetization is off by default at build time, but can still
+  /// be enabled at runtime via the hidden developer unlock (tap the "Pro Tip"
+  /// card in the Guide tab 7 times). See [MonetizationConfig].
   ///
-  /// Set to `true` when you have:
-  /// 1. Configured your Stripe Payment Link URL
-  /// 2. Set up the 'mc_finder_pro_unlock' product in App Store Connect / Play Console
-  /// 3. Tested purchases in sandbox
-  static const bool enableMonetization = false;
+  /// When `true`, monetization is always on regardless of the runtime override.
+  ///
+  /// Effects when monetization is active:
+  /// - Pro tier gating is enabled
+  /// - The PRO badge in the app bar is shown
+  /// - The Pro upgrade dialog is accessible
+  /// - The Stripe donation/support section is shown
+  /// - IAP initialization runs
+  static const bool enableMonetizationByDefault = false;
 }

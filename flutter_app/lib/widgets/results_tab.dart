@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
 import '../providers/favorites_provider.dart';
+import '../providers/monetization_config.dart';
 import '../providers/pro_status_provider.dart';
 import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
@@ -167,6 +167,21 @@ class _ResultsTabState extends State<ResultsTab> {
     return null;
   }
 
+  /// Counts how many distinct chunks the given (already filtered) results span.
+  /// A chunk is identified by its (chunkX, chunkZ) pair, so several findings in
+  /// the same 16x16 chunk are counted once.
+  int _distinctChunkCount(List<OreLocation> ores,
+      List<StructureLocation> structures) {
+    final Set<String> chunks = {};
+    for (final ore in ores) {
+      chunks.add('${ore.chunkX},${ore.chunkZ}');
+    }
+    for (final structure in structures) {
+      chunks.add('${structure.chunkX},${structure.chunkZ}');
+    }
+    return chunks.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.isLoading) {
@@ -298,14 +313,14 @@ class _ResultsTabState extends State<ResultsTab> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.place_outlined,
-                            size: 16, color: GamerColors.neonGreen),
-                        const SizedBox(width: 4),
+                            size: 20, color: GamerColors.neonGreen),
+                        const SizedBox(width: 5),
                         Flexible(
                           child: Text(
                             l10n.placesFound(filteredResults.length +
                                 filteredStructureResults.length),
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -313,7 +328,30 @@ class _ResultsTabState extends State<ResultsTab> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.grid_on,
+                            size: 15, color: GamerColors.neonGreen),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            l10n.chunksCount(_distinctChunkCount(
+                                filteredResults, filteredStructureResults)),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.85),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
                     Text(
                       l10n.resultsCount(
                         filteredResults.length +
@@ -322,7 +360,7 @@ class _ResultsTabState extends State<ResultsTab> {
                         filteredStructureResults.length,
                       ),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context)
                             .colorScheme
@@ -336,13 +374,13 @@ class _ResultsTabState extends State<ResultsTab> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.info_outline,
-                              size: 12, color: GamerColors.neonGreen),
+                              size: 13, color: GamerColors.neonGreen),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
                               _totalFoundLabel(l10n)!,
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: GamerColors.neonGreen,
                               ),
@@ -623,7 +661,7 @@ class _ResultsTabState extends State<ResultsTab> {
 
   Widget _buildResultsList(List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
-    final isPro = !FeatureFlags.enableMonetization ||
+    final isPro = !context.watch<MonetizationConfig>().isEnabled ||
         context.watch<ProStatusProvider>().isPro;
     final totalItems = filteredResults.length + filteredStructureResults.length;
     // Add 1 extra item for the Pro upsell card if not pro and has results
@@ -759,7 +797,7 @@ class _ResultsTabState extends State<ResultsTab> {
                 '(${location.x}, ${location.y}, ${location.z})',
                 style: const TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                    fontSize: 15,
                     fontFamily: 'monospace'),
               ),
             ),
@@ -768,19 +806,19 @@ class _ResultsTabState extends State<ResultsTab> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
-                style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                style: TextStyle(fontSize: 13, color: Colors.grey[500])),
             Text(
                 l10n.probabilityLabel(
                     (location.probability * 100).toStringAsFixed(1)),
                 style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 13,
                     color: oreColor,
                     fontWeight: FontWeight.w600)),
             if (location.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, location.biome!)),
-                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[500])),
           ],
         ),
         trailing: Row(
@@ -866,7 +904,7 @@ class _ResultsTabState extends State<ResultsTab> {
               child: Text(
                 '${StructureUtils.getStructureName(structure.structureType)}: (${structure.x}, ${structure.y}, ${structure.z})',
                 style:
-                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
               ),
             ),
           ],
@@ -874,19 +912,19 @@ class _ResultsTabState extends State<ResultsTab> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(l10n.chunkLabel(structure.chunkX, structure.chunkZ),
-                style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                style: TextStyle(fontSize: 13, color: Colors.grey[500])),
             Text(
                 l10n.probabilityLabel(
                     (structure.probability * 100).toStringAsFixed(1)),
                 style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 13,
                     color: structColor,
                     fontWeight: FontWeight.w600)),
             if (structure.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, structure.biome!)),
-                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[500])),
           ],
         ),
         trailing: Row(

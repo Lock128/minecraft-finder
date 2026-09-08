@@ -120,6 +120,7 @@
   "biomeLabel": "Biome : {biome}",
 
   "placesFound": "{count, plural, =1{{count} lieu trouvé} other{{count} lieux trouvés}}",
+  "chunksCount": "{count, plural, =1{dans {count} chunk} other{dans {count} chunks}}",
   "minProbabilityFilterLabel": "Probabilité minimale : {percent}%",
 
   "biomeNamePlains": "Plaine",

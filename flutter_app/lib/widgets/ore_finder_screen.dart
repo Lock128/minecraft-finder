@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/search_history_entry.dart';
+import '../providers/monetization_config.dart';
 import '../providers/pro_status_provider.dart';
 import '../providers/search_history_provider.dart';
 import '../providers/search_state.dart';
@@ -111,7 +111,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
       searchState.setWholeWorldNetherite(false);
       return;
     }
-    final isPro = !FeatureFlags.enableMonetization ||
+    final isPro = !providerContext.read<MonetizationConfig>().isEnabled ||
         providerContext.read<ProStatusProvider>().isPro;
     if (isPro) {
       searchState.setWholeWorldNetherite(true);
@@ -327,7 +327,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         ),
       ),
       actions: [
-        if (FeatureFlags.enableMonetization)
+        if (context.watch<MonetizationConfig>().isEnabled)
           Consumer<ProStatusProvider>(
             builder: (context, pro, _) {
               if (pro.isPro) return const SizedBox.shrink();

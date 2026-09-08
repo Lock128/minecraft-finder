@@ -76,10 +76,28 @@ To set up:
 
 ## Architecture
 
+- **Compile-time flag**: `lib/config/feature_flags.dart` — `enableMonetizationByDefault`
+- **Runtime config**: `lib/providers/monetization_config.dart` — combines the compile-time default with a persisted runtime override
 - **Provider**: `lib/providers/pro_status_provider.dart` — manages IAP lifecycle
 - **Dialog**: `lib/widgets/pro_upgrade_dialog.dart` — purchase UI
 - **Gating**: `lib/providers/search_state.dart` — applies feature limits based on `isPro`
-- **Persistence**: Pro status cached in `SharedPreferences` (key: `is_pro_unlocked`)
+- **Persistence**: Pro status cached in `SharedPreferences` (key: `is_pro_unlocked`); runtime monetization override (key: `monetization_override_enabled`)
+
+## Enabling Monetization
+
+Monetization is active when EITHER condition is met:
+
+1. **Compile-time**: Set `FeatureFlags.enableMonetizationByDefault = true` in
+   `lib/config/feature_flags.dart` (always on for all users).
+2. **Hidden runtime unlock**: In the running app, open the **Guide** tab
+   (Anleitung) and tap the **Pro Tip** (Profi-Tipp) card **7 times in a row**
+   (within 2 seconds between taps). This flips monetization on and persists it
+   across restarts. Useful for testing before a full launch.
+
+   **To disable it again**, repeat the same 7-tap gesture on the Pro Tip card —
+   it toggles the runtime override off. Restarting the app does NOT disable it,
+   because the override is persisted in `SharedPreferences`. (The toggle is a
+   no-op when monetization is forced on via the compile-time default.)
 
 ## Pro Features (gated for free users)
 

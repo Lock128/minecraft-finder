@@ -13,6 +13,7 @@ class PreferencesService {
   static const String _localeKey = 'app_locale';
   static const String _editionKey = 'minecraft_edition';
   static const String _versionEraKey = 'version_era';
+  static const String _monetizationOverrideKey = 'monetization_override_enabled';
 
   // Default values
   static const String _defaultSeed = '8674308105921866736';
@@ -167,6 +168,17 @@ class PreferencesService {
       _versionEraKey,
       era == VersionEra.legacy ? 'legacy' : 'modern',
     );
+  }
+
+  // Monetization runtime override (hidden developer unlock)
+  static Future<bool> getMonetizationOverride() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_monetizationOverrideKey) ?? false;
+  }
+
+  static Future<void> setMonetizationOverride(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_monetizationOverrideKey, enabled);
   }
 
   // Convenience method to load all search parameters at once

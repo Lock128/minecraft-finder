@@ -121,6 +121,7 @@
   "biomeLabel": "バイオーム: {biome}",
 
   "placesFound": "{count, plural, other{{count}件の場所が見つかりました}}",
+  "chunksCount": "{count, plural, other{{count}個のチャンク内}}",
   "minProbabilityFilterLabel": "最小確率: {percent}%",
 
   "biomeNamePlains": "平原",

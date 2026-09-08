@@ -122,6 +122,7 @@
   "biomeLabel": "Bioma: {biome}",
 
   "placesFound": "{count, plural, =1{{count} lugar encontrado} other{{count} lugares encontrados}}",
+  "chunksCount": "{count, plural, =1{en {count} chunk} other{en {count} chunks}}",
   "minProbabilityFilterLabel": "Probabilidad mínima: {percent}%",
 
   "biomeNamePlains": "Llanura",

@@ -120,6 +120,7 @@
   "biomeLabel": "Biom: {biome}",
 
   "placesFound": "{count, plural, =1{{count} Fundort} other{{count} Fundorte}}",
+  "chunksCount": "{count, plural, =1{in {count} Chunk} other{in {count} Chunks}}",
   "minProbabilityFilterLabel": "Mindestwahrscheinlichkeit: {percent}%",
 
   "biomeNamePlains": "Ebene",

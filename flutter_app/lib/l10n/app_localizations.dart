@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{{count} place found} other{{count} places found}}'**
   String placesFound(int count);
 
+  /// Count of distinct chunks the results span, shown in the results header
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{across {count} chunk} other{across {count} chunks}}'**
+  String chunksCount(int count);
+
   /// Label for the minimum probability slider filter
   ///
   /// In en, this message translates to:

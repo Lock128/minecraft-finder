@@ -359,6 +359,14 @@
     }
   },
 
+  "chunksCount": "{count, plural, =1{across {count} chunk} other{across {count} chunks}}",
+  "@chunksCount": {
+    "description": "Count of distinct chunks the results span, shown in the results header",
+    "placeholders": {
+      "count": { "type": "int", "example": "37" }
+    }
+  },
+
   "minProbabilityFilterLabel": "Minimum probability: {percent}%",
   "@minProbabilityFilterLabel": {
     "description": "Label for the minimum probability slider filter",

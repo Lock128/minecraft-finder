@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/structure_location.dart';
+import '../providers/monetization_config.dart';
 import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
 import '../utils/structure_utils.dart';
@@ -196,7 +196,7 @@ class StructureSelectionCard extends StatelessWidget {
             ),
           ),
           if (selectedStructures.length > 1 &&
-              FeatureFlags.enableMonetization &&
+              context.watch<MonetizationConfig>().isEnabled &&
               !context.watch<ProStatusProvider>().isPro) ...[
             const SizedBox(height: 4),
             Text(

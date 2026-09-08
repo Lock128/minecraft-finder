@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/monetization_config.dart';
 import '../theme/gamer_theme.dart';
 
 class AppInfoDialog extends StatelessWidget {
@@ -111,7 +112,7 @@ class AppInfoDialog extends StatelessWidget {
                     _sectionTitle(l10n.aboutFeaturesTitle),
                     const SizedBox(height: 12),
                     _buildFeatures(l10n),
-                    if (FeatureFlags.enableMonetization) ...[
+                    if (context.watch<MonetizationConfig>().isEnabled) ...[
                       const SizedBox(height: 20),
                       _sectionTitle(l10n.aboutSupportTitle),
                       const SizedBox(height: 12),
