@@ -28,6 +28,12 @@ env:
   FLUTTER_VERSION: '3.35.5'
   NODE_VERSION: '22'
   AWS_REGION: 'eu-central-1'
+  # The web-hosting CDK stack is pinned to us-east-1 (certificateRegion in
+  # infrastructure/config/*.json) because CloudFront requires its ACM certificate
+  # in us-east-1. CDK therefore deploys the stack to us-east-1, so the CDK bootstrap
+  # must also target us-east-1 — otherwise deploy fails with
+  # "SSM parameter /cdk-bootstrap/hnb659fds/version not found in aws://.../us-east-1".
+  CDK_DEPLOY_REGION: 'us-east-1'
 
 # Security: Restrict permissions to minimum required
 permissions:
@@ -251,16 +257,21 @@ jobs:
 
       - name: CDK Bootstrap (if needed)
         run: |
-          echo "🚀 Checking CDK bootstrap status..."
+          echo "🚀 Bootstrapping CDK in ${{ env.CDK_DEPLOY_REGION }} (CloudFront ACM cert region)..."
           
           # Get AWS account ID securely
           AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           
-          # Bootstrap with security-enhanced settings
+          # Bootstrap the account in us-east-1 — the region the web-hosting stack
+          # deploys to (CloudFront requires its ACM certificate in us-east-1).
+          #
+          # NOTE: the CDK app uses the default stack synthesizer, so deploy looks up
+          # the default bootstrap qualifier (hnb659fds) and default toolkit stack
+          # (CDKToolkit). The bootstrap here must use those same defaults — a custom
+          # --qualifier/--toolkit-stack-name would create a mismatched SSM parameter
+          # (/cdk-bootstrap/<qualifier>/version) that the deploy could not find.
           npx cdk bootstrap \
-            aws://${AWS_ACCOUNT_ID}/${{ env.AWS_REGION }} \
-            --toolkit-stack-name CDKToolkit-WebHosting \
-            --qualifier webhost \
+            aws://${AWS_ACCOUNT_ID}/${{ env.CDK_DEPLOY_REGION }} \
             --trust-for-lookup ${AWS_ACCOUNT_ID} \
             --cloudformation-execution-policies arn:aws:iam::aws:policy/PowerUserAccess \
             --force || true
