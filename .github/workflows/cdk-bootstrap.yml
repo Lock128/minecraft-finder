@@ -1,0 +1,99 @@
+name: CDK Bootstrap
+
+# Dedicated, manually-triggered workflow to CDK-bootstrap this AWS account in an
+# arbitrary region. Bootstrapping is a one-time-per-account/region operation that
+# provisions the resources CDK needs to deploy (the CDKToolkit CloudFormation
+# stack, the /cdk-bootstrap/<qualifier>/version SSM parameter, deploy/publish IAM
+# roles and the staging S3 bucket).
+#
+# NOTE on the web-hosting stack: it is pinned to us-east-1 (certificateRegion in
+# infrastructure/config/*.json) because CloudFront requires its ACM certificate in
+# us-east-1, and it uses the CDK DEFAULT stack synthesizer (default qualifier
+# hnb659fds). To bootstrap a region for that stack, run this workflow with
+# region=us-east-1 and the default qualifier/toolkit-stack-name.
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS region to bootstrap (e.g. us-east-1, eu-central-1, us-west-2)'
+        required: true
+        default: 'us-east-1'
+        type: string
+      qualifier:
+        description: 'CDK bootstrap qualifier (default synthesizer uses hnb659fds; keep default unless the app sets a custom synthesizer)'
+        required: false
+        default: 'hnb659fds'
+        type: string
+      toolkit_stack_name:
+        description: 'CloudFormation toolkit stack name'
+        required: false
+        default: 'CDKToolkit'
+        type: string
+      execution_policies:
+        description: 'IAM managed policy ARN(s) for the CDK deploy role (comma-separated)'
+        required: false
+        default: 'arn:aws:iam::aws:policy/PowerUserAccess'
+        type: string
+
+env:
+  NODE_VERSION: '22'
+
+# Security: minimum required permissions
+permissions:
+  contents: read
+  id-token: write  # Required for OIDC authentication
+
+jobs:
+  bootstrap:
+    name: Bootstrap CDK
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Use OIDC for secure authentication (preferred method)
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActions-CdkBootstrap-${{ github.run_id }}
+          # Configure the SDK for the region being bootstrapped
+          aws-region: ${{ inputs.region }}
+          role-duration-seconds: 3600
+          # Mask AWS account ID in logs
+          mask-aws-account-id: true
+          # Retry configuration for transient failures
+          retry-max-attempts: 3
+          # Additional security: restrict to specific audience
+          audience: sts.amazonaws.com
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies..."
+          npm ci
+
+      - name: CDK Bootstrap
+        run: |
+          echo "🚀 Bootstrapping CDK in region: ${{ inputs.region }}"
+
+          # Get AWS account ID securely
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+          npx cdk bootstrap \
+            aws://${AWS_ACCOUNT_ID}/${{ inputs.region }} \
+            --toolkit-stack-name "${{ inputs.toolkit_stack_name }}" \
+            --qualifier "${{ inputs.qualifier }}" \
+            --trust-for-lookup ${AWS_ACCOUNT_ID} \
+            --cloudformation-execution-policies "${{ inputs.execution_policies }}"
+
+          echo "✅ Bootstrap complete for region: ${{ inputs.region }}"
