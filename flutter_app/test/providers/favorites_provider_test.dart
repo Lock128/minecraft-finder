@@ -220,16 +220,31 @@ void main() {
       final provider = FavoritesProvider();
 
       final ore1 = OreLocation(
-        x: 10, y: -59, z: 20,
-        chunkX: 0, chunkZ: 1, probability: 0.85, oreType: OreType.diamond,
+        x: 10,
+        y: -59,
+        z: 20,
+        chunkX: 0,
+        chunkZ: 1,
+        probability: 0.85,
+        oreType: OreType.diamond,
       );
       final ore2 = OreLocation(
-        x: 30, y: -59, z: 40,
-        chunkX: 1, chunkZ: 2, probability: 0.75, oreType: OreType.gold,
+        x: 30,
+        y: -59,
+        z: 40,
+        chunkX: 1,
+        chunkZ: 2,
+        probability: 0.75,
+        oreType: OreType.gold,
       );
       final ore3 = OreLocation(
-        x: 50, y: -59, z: 60,
-        chunkX: 3, chunkZ: 3, probability: 0.65, oreType: OreType.iron,
+        x: 50,
+        y: -59,
+        z: 60,
+        chunkX: 3,
+        chunkZ: 3,
+        probability: 0.65,
+        oreType: OreType.iron,
       );
 
       await provider.addOreFavorite(ore1, 'seedA');
@@ -246,8 +261,13 @@ void main() {
       // First provider adds data
       final provider1 = FavoritesProvider();
       final ore = OreLocation(
-        x: 10, y: -59, z: 20,
-        chunkX: 0, chunkZ: 1, probability: 0.85, oreType: OreType.diamond,
+        x: 10,
+        y: -59,
+        z: 20,
+        chunkX: 0,
+        chunkZ: 1,
+        probability: 0.85,
+        oreType: OreType.diamond,
       );
       await provider1.addOreFavorite(ore, 'persist_seed');
 

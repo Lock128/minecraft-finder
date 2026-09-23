@@ -31,7 +31,10 @@ class ProUpgradeDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildHeader(context),
-                if (pro.isPro) _buildAlreadyPro(context) else _buildBody(context, pro),
+                if (pro.isPro)
+                  _buildAlreadyPro(context)
+                else
+                  _buildBody(context, pro),
               ],
             ),
           ),
@@ -296,9 +299,8 @@ class ProUpgradeDialog extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
-                      color: isDarkMode
-                          ? Colors.white
-                          : const Color(0xFF1A1A2E),
+                      color:
+                          isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
                     )),
                 Text(subtitle,
                     style: TextStyle(
@@ -309,8 +311,7 @@ class ProUpgradeDialog extends StatelessWidget {
             ),
           ),
           Icon(Icons.check_circle,
-              size: 16,
-              color: GamerColors.greenText(isDarkMode)),
+              size: 16, color: GamerColors.greenText(isDarkMode)),
         ],
       ),
     );

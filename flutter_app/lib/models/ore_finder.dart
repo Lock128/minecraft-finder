@@ -1,13 +1,19 @@
 import 'dart:math';
+import 'bounded_top_results.dart';
 import 'ore_location.dart';
 import 'game_random.dart';
 import 'java_random.dart';
 import 'legacy_density_function.dart';
 import 'noise.dart';
+import 'biome_classifier.dart';
 
 class OreFinder {
   late DensityFunction _densityFunction;
   LegacyDensityFunction? _legacyDensityFunction;
+
+  /// Shared biome classifier (source of truth in biome_classifier.dart).
+  /// StructureFinder uses the same class so biome assignments stay identical.
+  final BiomeClassifier _biomeClassifier = BiomeClassifier();
 
   /// The active GameRandom instance for the current search.
   GameRandom? _gameRandom;
@@ -25,36 +31,24 @@ class OreFinder {
 
   /// Determine biome type based on coordinates.
   ///
-  /// Uses multi-noise sampling (temperature + humidity) for spatially coherent
-  /// biome regions instead of a single random value per 64-block cell.
+  /// Delegates to the shared [BiomeClassifier] (source of truth in
+  /// biome_classifier.dart) so ore and structure searches classify the same
+  /// (x, z, seed) identically. See that class for the threshold map.
   String _getBiomeType(int x, int z, int worldSeed) {
-    PerlinNoise tempNoise = _getOrCreateNoise(worldSeed + 1000, rng: _gameRandom);
-    PerlinNoise humidNoise = _getOrCreateNoise(worldSeed + 2000, rng: _gameRandom);
-
-    double scale = 0.005; // ~200 block biome regions
-    double temperature =
-        tempNoise.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
-    double humidity =
-        humidNoise.octaveNoise3D(x * scale, 0, z * scale, 3, 0.5, 1.0);
-
-    if (temperature < -0.5) {
-      return humidity < 0 ? 'taiga' : 'swamp';
-    } else if (temperature < -0.1) {
-      if (humidity < -0.3) return 'mountains';
-      return humidity < 0.3 ? 'forest' : 'jungle';
-    } else if (temperature < 0.3) {
-      if (humidity < -0.3) return 'plains';
-      return humidity < 0.3 ? 'savanna' : 'ocean';
-    } else {
-      return humidity < 0 ? 'desert' : 'badlands';
-    }
+    return _biomeClassifier.classify(x, z, worldSeed);
   }
+
+  /// Test hook: expose the biome classification for a coordinate/seed so tests
+  /// can assert OreFinder and StructureFinder stay in lockstep. Not used by
+  /// production code.
+  String biomeAt(int x, int z, int worldSeed) => _getBiomeType(x, z, worldSeed);
 
   /// Check if ore can spawn at given coordinates.
   ///
   /// When [legacy] is true, uses the pre-1.18 Y ranges from
   /// [LegacyDensityFunction.oreYRanges] and world height 0–256.
-  bool _isValidOreLayer(int y, OreType oreType, String biome, {bool legacy = false}) {
+  bool _isValidOreLayer(int y, OreType oreType, String biome,
+      {bool legacy = false}) {
     if (legacy) {
       // Legacy world height: 0–256
       if (y < 0 || y > 256) return false;
@@ -111,7 +105,8 @@ class OreFinder {
         if (rng != null) {
           int chunkX = (x / 128).floor();
           int chunkZ = (z / 128).floor();
-          int netherSeed = worldSeed ^ (chunkX * 341873128 + chunkZ * 132897987);
+          int netherSeed =
+              worldSeed ^ (chunkX * 341873128 + chunkZ * 132897987);
           rng.setSeed(netherSeed);
           netherRandom = rng;
         } else {
@@ -132,8 +127,8 @@ class OreFinder {
     // Use legacy or modern density function based on current mode
     double baseDensity;
     if (_isLegacy && _legacyDensityFunction != null) {
-      baseDensity = _legacyDensityFunction!.getOreDensity(
-          x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr);
+      baseDensity = _legacyDensityFunction!
+          .getOreDensity(x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr);
     } else {
       baseDensity = _densityFunction.getOreDensity(
           x.toDouble(), y.toDouble(), z.toDouble(), oreTypeStr,
@@ -263,7 +258,10 @@ class OreFinder {
     }
   }
 
-  /// Find ore locations in a given area
+  /// Find ore locations in a given area.
+  ///
+  /// At most [maxResults] locations (the highest-probability ones) are ever
+  /// retained in memory, so peak memory stays bounded regardless of [radius].
   Future<List<OreLocation>> findOres({
     required String seed,
     required int centerX,
@@ -275,6 +273,8 @@ class OreFinder {
     double minProbability = 0.5,
     MinecraftEdition edition = MinecraftEdition.java,
     VersionEra versionEra = VersionEra.modern,
+    int maxResults = 500,
+    void Function(int)? onTotalFound,
   }) async {
     int worldSeed = MinecraftRandom.stringToSeed(seed);
 
@@ -324,7 +324,8 @@ class OreFinder {
         break;
     }
 
-    List<OreLocation> locations = [];
+    final locations =
+        BoundedTopResults<OreLocation>(maxResults, (o) => o.probability);
     int step = _getOptimalStepSize(oreType, radius);
 
     for (int x = centerX - radius; x <= centerX + radius; x += step) {
@@ -341,8 +342,7 @@ class OreFinder {
           // instead of allocating a new one per coordinate
           double probability = _calculateOreProbability(
               x, y, z, oreType, worldSeed,
-              includeNether: includeNether,
-              rng: rng);
+              includeNether: includeNether, rng: rng);
 
           if (probability >= minProbability) {
             locations.add(OreLocation(
@@ -364,8 +364,12 @@ class OreFinder {
       }
     }
 
-    locations.sort((a, b) => b.probability.compareTo(a.probability));
-    return locations;
+    // Report the total number of qualifying candidates (before the display
+    // cap) so callers can show an accurate "top N of X" label.
+    onTotalFound?.call(locations.totalOffered);
+
+    // Already sorted descending by probability inside the bounded collector.
+    return locations.toList();
   }
 
   /// Get optimal step size based on ore type and search radius
@@ -395,7 +399,8 @@ class OreFinder {
   ///
   /// When [legacy] is true, returns the pre-1.18 Y ranges clamped to
   /// world height 0–256.
-  Map<String, int> _getYRange(OreType oreType, String biome, {bool legacy = false}) {
+  Map<String, int> _getYRange(OreType oreType, String biome,
+      {bool legacy = false}) {
     if (legacy) {
       return _getLegacyYRange(oreType, biome);
     }
@@ -447,7 +452,10 @@ class OreFinder {
     return {'min': 0, 'max': 256, 'step': 4};
   }
 
-  /// Comprehensive search for all netherite (Ancient Debris)
+  /// Comprehensive search for all netherite (Ancient Debris).
+  ///
+  /// At most [maxResults] highest-probability locations are retained, keeping
+  /// peak memory bounded on large-radius searches.
   Future<List<OreLocation>> findAllNetherite({
     required String seed,
     required int centerX,
@@ -455,6 +463,8 @@ class OreFinder {
     int searchRadius = 1000,
     MinecraftEdition edition = MinecraftEdition.java,
     VersionEra versionEra = VersionEra.modern,
+    int maxResults = 200,
+    void Function(int)? onTotalFound,
   }) async {
     int worldSeed = MinecraftRandom.stringToSeed(seed);
 
@@ -472,7 +482,8 @@ class OreFinder {
     }
     _veinNoiseCache.clear();
 
-    List<OreLocation> locations = [];
+    final locations =
+        BoundedTopResults<OreLocation>(maxResults, (o) => o.probability);
     // Ancient Debris veins are only 1–3 blocks wide; step=16 skips most of
     // them. Use step=4 (matching _getOptimalStepSize for netherite) so that
     // every vein falls within one step of a sampled point.
@@ -489,9 +500,9 @@ class OreFinder {
         // since the range is only 15 levels (8–22) and step=1 is cheap here.
         for (int y = 8; y <= 22; y++) {
           // Reuse the RNG instance created at the start of findAllNetherite
-          double probability =
-              _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
-                  rng: rng);
+          double probability = _calculateOreProbability(
+              x, y, z, OreType.netherite, worldSeed,
+              rng: rng);
 
           if (probability >= 0.05) {
             locations.add(OreLocation(
@@ -516,8 +527,10 @@ class OreFinder {
       }
     }
 
-    locations.sort((a, b) => b.probability.compareTo(a.probability));
-    return locations.take(200).toList();
+    onTotalFound?.call(locations.totalOffered);
+
+    // Already sorted descending and capped by the bounded collector.
+    return locations.toList();
   }
 
   /// Get netherite statistics for a seed
@@ -551,9 +564,9 @@ class OreFinder {
       for (int z = -sampleRadius; z <= sampleRadius; z += 24) {
         for (int y = 8; y <= 22; y++) {
           // Reuse the RNG instance created at the start of getNetheriteStats
-          double probability =
-              _calculateOreProbability(x, y, z, OreType.netherite, worldSeed,
-                  rng: rng);
+          double probability = _calculateOreProbability(
+              x, y, z, OreType.netherite, worldSeed,
+              rng: rng);
           if (probability >= 0.05) {
             totalLocations++;
             probabilities.add(probability);

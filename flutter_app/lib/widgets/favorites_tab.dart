@@ -204,6 +204,10 @@ class FavoritesTab extends StatelessWidget {
         return isDarkMode ? GamerColors.coalNeon : GamerColors.lightCoal;
       case OreType.lapis:
         return isDarkMode ? GamerColors.lapisNeon : GamerColors.lightLapis;
+      case OreType.copper:
+        return isDarkMode ? GamerColors.neonOrange : GamerColors.lightOrange;
+      case OreType.emerald:
+        return isDarkMode ? GamerColors.neonGreen : GamerColors.lightGreen;
     }
   }
 

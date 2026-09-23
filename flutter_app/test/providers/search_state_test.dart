@@ -80,7 +80,8 @@ void main() {
     test('setSelectedStructures updates selected structures', () {
       final state = SearchState();
 
-      state.setSelectedStructures({StructureType.village, StructureType.stronghold});
+      state.setSelectedStructures(
+          {StructureType.village, StructureType.stronghold});
 
       expect(state.selectedStructures,
           {StructureType.village, StructureType.stronghold});

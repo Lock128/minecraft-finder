@@ -53,14 +53,17 @@ class GamerColors {
   static Color yellowText(bool isDark) => isDark ? neonYellow : lightYellow;
   static Color diamondText(bool isDark) => isDark ? diamondNeon : lightDiamond;
   static Color goldText(bool isDark) => isDark ? goldNeon : lightGold;
-  static Color netheriteText(bool isDark) => isDark ? netheriteNeon : lightNetherite;
+  static Color netheriteText(bool isDark) =>
+      isDark ? netheriteNeon : lightNetherite;
   static Color ironText(bool isDark) => isDark ? ironNeon : lightIron;
-  static Color redstoneText(bool isDark) => isDark ? redstoneNeon : lightRedstone;
+  static Color redstoneText(bool isDark) =>
+      isDark ? redstoneNeon : lightRedstone;
   static Color coalText(bool isDark) => isDark ? coalNeon : lightCoal;
   static Color lapisText(bool isDark) => isDark ? lapisNeon : lightLapis;
 
   // Glow shadow helper
-  static List<BoxShadow> neonGlow(Color color, {double blur = 12, double spread = 0}) {
+  static List<BoxShadow> neonGlow(Color color,
+      {double blur = 12, double spread = 0}) {
     return [
       BoxShadow(
         color: color.withValues(alpha: 0.4),
@@ -107,7 +110,8 @@ class GamerTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
       ),
@@ -122,7 +126,8 @@ class GamerTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF00873E), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -156,7 +161,8 @@ class GamerTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
       ),
@@ -171,7 +177,8 @@ class GamerTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: GamerColors.neonGreen, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,

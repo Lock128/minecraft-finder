@@ -69,6 +69,24 @@ class AppLocalizationsDe extends AppLocalizations {
   String get worldSeedHint => 'Gib deinen Welt-Seed ein';
 
   @override
+  String get quickStartTitle => 'Schnellstart';
+
+  @override
+  String get quickStartHint =>
+      'Neu hier? Tippe auf eine Vorlage, um sinnvolle Standardwerte einzutragen, und starte dann die Suche.';
+
+  @override
+  String get quickStartDiamondsNearSpawn => 'Diamanten beim Spawn';
+
+  @override
+  String get quickStartSeedTip =>
+      'Tipp: Füge oben deinen Welt-Seed ein. Du kannst ihn aus den Welteinstellungen von Minecraft kopieren.';
+
+  @override
+  String get quickStartSpawnTip =>
+      'Die Koordinaten stehen standardmäßig auf dem Welt-Spawn (0, 0). Ändere sie, um woanders zu suchen.';
+
+  @override
   String get errorEmptySeed => 'Bitte gib einen Welt-Seed ein';
 
   @override
@@ -212,6 +230,36 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String showingTopOf(int shown, int found) {
+    return 'Zeigt die besten $shown von $found möglichen Fundorten';
+  }
+
+  @override
+  String get showSearchInfo => 'So funktioniert die Suche';
+
+  @override
+  String get hideSearchInfo => 'Info ausblenden';
+
+  @override
+  String get showDetails => 'Details';
+
+  @override
+  String get hideDetails => 'Details ausblenden';
+
+  @override
+  String get showTips => 'Tipps';
+
+  @override
+  String get wholeWorldNetheriteTitle => 'Ganze Welt durchsuchen';
+
+  @override
+  String get wholeWorldNetheriteSubtitle =>
+      'Durchsucht die gesamte Welt nach Netherit und ignoriert den Radius. Dauert länger.';
+
+  @override
+  String get wholeWorldActiveHint => 'Ganze Welt (Radius ignoriert)';
+
+  @override
   String get hideFilters => 'Filter ausblenden';
 
   @override
@@ -293,6 +341,90 @@ class AppLocalizationsDe extends AppLocalizations {
   String biomeLabel(String biome) {
     return 'Biom: $biome';
   }
+
+  @override
+  String placesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Fundorte',
+      one: '$count Fundort',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chunksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'in $count Chunks',
+      one: 'in $count Chunk',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minProbabilityFilterLabel(int percent) {
+    return 'Mindestwahrscheinlichkeit: $percent%';
+  }
+
+  @override
+  String get biomeNamePlains => 'Ebene';
+
+  @override
+  String get biomeNameForest => 'Wald';
+
+  @override
+  String get biomeNameDesert => 'Wüste';
+
+  @override
+  String get biomeNameJungle => 'Dschungel';
+
+  @override
+  String get biomeNameSwamp => 'Sumpf';
+
+  @override
+  String get biomeNameTaiga => 'Taiga';
+
+  @override
+  String get biomeNameMountains => 'Berge';
+
+  @override
+  String get biomeNameDappledForest => 'Herbstwald';
+
+  @override
+  String get biomeNameCherryGrove => 'Kirschhain';
+
+  @override
+  String get biomeNameSavanna => 'Savanne';
+
+  @override
+  String get biomeNameBadlands => 'Ödland';
+
+  @override
+  String get biomeNameOcean => 'Ozean';
+
+  @override
+  String get biomeNameDeepOcean => 'Tiefer Ozean';
+
+  @override
+  String get biomeNameBeach => 'Strand';
+
+  @override
+  String get biomeNameNether => 'Nether';
+
+  @override
+  String get biomeNameEnd => 'Das Ende';
+
+  @override
+  String get biomeNameDeepDark => 'Tiefes Dunkel';
+
+  @override
+  String get biomeNameOverworld => 'Oberwelt';
+
+  @override
+  String get biomeNameUnknown => 'Unbekannt';
 
   @override
   String get guideDiamondTitle => 'Diamant-Generierung';
@@ -513,6 +645,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get guideStructureAncientCities =>
       '• Antike Städte: Tiefes Dunkelbiom (Y -52)';
+
+  @override
+  String get guideStructureAbandonedCamp =>
+      '• Abandoned Camp: Biome „Dappled Forest“ und Kirschhaine';
+
+  @override
+  String get guideBiomeDappledForest =>
+      '• Neu in Third Drop 2026: der „Dappled Forest“, ein Herbstwald, der neben kalten Biomen entsteht. Er ist die Heimat der neuen Struktur „Abandoned Camp“.';
 
   @override
   String get proTipTitle => 'Profi-Tipp';
@@ -1365,6 +1505,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein dedizierter Mersenne-Twister-RNG repliziert die C++-Engine der Bedrock-Edition. Kontextuelle Infoboxen zeigen an, wenn Vorhersagen approximativ sind.';
 
   @override
+  String get releaseNotesThirdDrop2026Title =>
+      'Unterstützung für Third Drop 2026';
+
+  @override
+  String get releaseNotesThirdDrop2026Body =>
+      'Aktualisiert für Third Drop 2026 (Java 26.3 / Bedrock 26.50). Finde die neue Struktur „Abandoned Camp“, die im neuen Biom „Dappled Forest“ und in Kirschhainen entsteht, plus aktualisierte Editions- und Versionsinfos in der ganzen App.';
+
+  @override
   String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
 
   @override
@@ -1404,4 +1552,34 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get mapLegendStructures => 'Structures';
+
+  @override
+  String get editionVersionTitle => 'Edition & Version';
+
+  @override
+  String get editionJava => 'Java Edition';
+
+  @override
+  String get editionBedrock => 'Bedrock Edition';
+
+  @override
+  String get versionEraLegacy => 'Vor 1.18 (Klassisch)';
+
+  @override
+  String get versionEraModern => '1.18+ (Modern)';
+
+  @override
+  String get editionBedrockInfo =>
+      'Die Genauigkeit der Erzvorhersage für Bedrock ist ungefähr, da die RNG-Interna der Bedrock-Edition nur unvollständig dokumentiert sind.';
+
+  @override
+  String get versionLegacyInfo =>
+      'Die klassische Erzverteilung nutzt eine gleichmäßige Verteilung mit bewährten Y-Ebenen (z. B. Y=12 für Diamanten).';
+
+  @override
+  String get latestUpdateTitle => 'Neuestes Update';
+
+  @override
+  String get latestUpdateInfo =>
+      'Aktualisiert für Third Drop 2026 (Java 26.3 / Bedrock 26.50): neue Struktur „Abandoned Camp“ und Biom „Dappled Forest“.';
 }

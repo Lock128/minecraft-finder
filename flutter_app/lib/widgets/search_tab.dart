@@ -4,6 +4,7 @@ import '../models/ore_location.dart';
 import '../models/structure_location.dart';
 import '../theme/gamer_theme.dart';
 import 'edition_version_card.dart';
+import 'quick_start_card.dart';
 import 'world_settings_card.dart';
 import 'search_center_card.dart';
 import 'ore_selection_card.dart';
@@ -28,6 +29,7 @@ class SearchTab extends StatelessWidget {
   final bool isDarkMode;
   final MinecraftEdition selectedEdition;
   final VersionEra selectedVersionEra;
+  final bool wholeWorldNetherite;
   final Function(Set<OreType>) onOreTypesChanged;
   final Function(bool) onIncludeNetherChanged;
   final Function(bool) onIncludeOresChanged;
@@ -36,6 +38,7 @@ class SearchTab extends StatelessWidget {
   final Function(bool) onFindOres;
   final ValueChanged<MinecraftEdition> onEditionChanged;
   final ValueChanged<VersionEra> onVersionEraChanged;
+  final ValueChanged<bool> onWholeWorldChanged;
 
   const SearchTab({
     super.key,
@@ -55,6 +58,7 @@ class SearchTab extends StatelessWidget {
     required this.isDarkMode,
     required this.selectedEdition,
     required this.selectedVersionEra,
+    required this.wholeWorldNetherite,
     required this.onOreTypesChanged,
     required this.onIncludeNetherChanged,
     required this.onIncludeOresChanged,
@@ -63,6 +67,7 @@ class SearchTab extends StatelessWidget {
     required this.onFindOres,
     required this.onEditionChanged,
     required this.onVersionEraChanged,
+    required this.onWholeWorldChanged,
   });
 
   @override
@@ -76,14 +81,7 @@ class SearchTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              EditionVersionCard(
-                selectedEdition: selectedEdition,
-                selectedVersionEra: selectedVersionEra,
-                onEditionChanged: onEditionChanged,
-                onVersionEraChanged: onVersionEraChanged,
-                isDarkMode: isDarkMode,
-              ),
-              const SizedBox(height: 12),
+              // --- Primary inputs first: seed and search center ---
               WorldSettingsCard(
                 seedController: seedController,
                 isDarkMode: isDarkMode,
@@ -97,8 +95,12 @@ class SearchTab extends StatelessWidget {
                 zController: zController,
                 radiusController: radiusController,
                 isDarkMode: isDarkMode,
+                netheriteSelected: selectedOreTypes.contains(OreType.netherite),
+                wholeWorldNetherite: wholeWorldNetherite,
+                onWholeWorldChanged: onWholeWorldChanged,
               ),
               const SizedBox(height: 12),
+              // --- What to search for ---
               OreSelectionCard(
                 selectedOreTypes: selectedOreTypes,
                 includeNether: includeNether,
@@ -118,11 +120,33 @@ class SearchTab extends StatelessWidget {
                 onIncludeStructuresChanged: onIncludeStructuresChanged,
                 onStructuresChanged: onStructuresChanged,
               ),
+              const SizedBox(height: 12),
+              // --- Edition/version: rarely changed, kept below inputs ---
+              EditionVersionCard(
+                selectedEdition: selectedEdition,
+                selectedVersionEra: selectedVersionEra,
+                onEditionChanged: onEditionChanged,
+                onVersionEraChanged: onVersionEraChanged,
+                isDarkMode: isDarkMode,
+              ),
               const SizedBox(height: 20),
               SearchButtons(
                 isLoading: isLoading,
                 findAllNetherite: findAllNetherite,
                 onFindOres: onFindOres,
+                isDarkMode: isDarkMode,
+                wholeWorldActive: wholeWorldNetherite &&
+                    selectedOreTypes.contains(OreType.netherite),
+              ),
+              const SizedBox(height: 12),
+              // --- Onboarding help moved to the bottom ---
+              QuickStartCard(
+                xController: xController,
+                yController: yController,
+                zController: zController,
+                radiusController: radiusController,
+                onIncludeOresChanged: onIncludeOresChanged,
+                onOreTypesChanged: onOreTypesChanged,
                 isDarkMode: isDarkMode,
               ),
             ],

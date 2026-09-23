@@ -56,8 +56,7 @@ class _ResultsMapViewState extends State<ResultsMapView> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return GestureDetector(
-                onTapDown: (details) =>
-                    _handleTap(details, constraints),
+                onTapDown: (details) => _handleTap(details, constraints),
                 child: Stack(
                   children: [
                     InteractiveViewer(
@@ -80,10 +79,10 @@ class _ResultsMapViewState extends State<ResultsMapView> {
                     ),
                     if (_tooltipText != null && _tooltipPosition != null)
                       Positioned(
-                        left: _tooltipPosition!.dx.clamp(
-                            0.0, constraints.maxWidth - 180),
-                        top: _tooltipPosition!.dy.clamp(
-                            0.0, constraints.maxHeight - 60),
+                        left: _tooltipPosition!.dx
+                            .clamp(0.0, constraints.maxWidth - 180),
+                        top: _tooltipPosition!.dy
+                            .clamp(0.0, constraints.maxHeight - 60),
                         child: _buildTooltip(),
                       ),
                   ],
@@ -96,7 +95,8 @@ class _ResultsMapViewState extends State<ResultsMapView> {
     );
   }
 
-  Widget _buildLegend(BuildContext context, bool isDark, AppLocalizations l10n) {
+  Widget _buildLegend(
+      BuildContext context, bool isDark, AppLocalizations l10n) {
     final oreTypes = widget.results.map((r) => r.oreType).toSet();
     final hasStructures = widget.structureResults.isNotEmpty;
 
@@ -269,6 +269,10 @@ class _ResultsMapViewState extends State<ResultsMapView> {
         return isDark ? GamerColors.coalNeon : GamerColors.lightCoal;
       case OreType.lapis:
         return isDark ? GamerColors.lapisNeon : GamerColors.lightLapis;
+      case OreType.copper:
+        return isDark ? GamerColors.neonOrange : GamerColors.lightOrange;
+      case OreType.emerald:
+        return isDark ? GamerColors.neonGreen : GamerColors.lightGreen;
     }
   }
 }
@@ -345,13 +349,15 @@ class _MapPainter extends CustomPainter {
       const half = 5.0;
 
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(px, py), width: half * 2, height: half * 2),
+        Rect.fromCenter(
+            center: Offset(px, py), width: half * 2, height: half * 2),
         Paint()
           ..color = color.withValues(alpha: 0.8)
           ..style = PaintingStyle.fill,
       );
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(px, py), width: half * 2, height: half * 2),
+        Rect.fromCenter(
+            center: Offset(px, py), width: half * 2, height: half * 2),
         Paint()
           ..color = color
           ..style = PaintingStyle.stroke
@@ -366,7 +372,8 @@ class _MapPainter extends CustomPainter {
   void _drawGrid(Canvas canvas, Size size, double padding, double minX,
       double maxX, double minZ, double maxZ) {
     final gridPaint = Paint()
-      ..color = (isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.08)
+      ..color =
+          (isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.08)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
@@ -377,8 +384,10 @@ class _MapPainter extends CustomPainter {
     for (int i = 0; i <= 4; i++) {
       final x = padding + (i / 4) * drawW;
       final y = padding + (i / 4) * drawH;
-      canvas.drawLine(Offset(x, padding), Offset(x, padding + drawH), gridPaint);
-      canvas.drawLine(Offset(padding, y), Offset(padding + drawW, y), gridPaint);
+      canvas.drawLine(
+          Offset(x, padding), Offset(x, padding + drawH), gridPaint);
+      canvas.drawLine(
+          Offset(padding, y), Offset(padding + drawW, y), gridPaint);
     }
   }
 
@@ -401,7 +410,8 @@ class _MapPainter extends CustomPainter {
       )..layout();
       tp.paint(
         canvas,
-        Offset(padding + (i / 4) * drawW - tp.width / 2, size.height - padding + 4),
+        Offset(padding + (i / 4) * drawW - tp.width / 2,
+            size.height - padding + 4),
       );
     }
 
@@ -414,19 +424,23 @@ class _MapPainter extends CustomPainter {
       )..layout();
       tp.paint(
         canvas,
-        Offset(padding - tp.width - 4, padding + (i / 4) * drawH - tp.height / 2),
+        Offset(
+            padding - tp.width - 4, padding + (i / 4) * drawH - tp.height / 2),
       );
     }
 
     // Axis titles
     final xTitle = TextPainter(
-      text: TextSpan(text: 'X', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+      text: TextSpan(
+          text: 'X', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
       textDirection: TextDirection.ltr,
     )..layout();
-    xTitle.paint(canvas, Offset(size.width / 2 - xTitle.width / 2, size.height - 14));
+    xTitle.paint(
+        canvas, Offset(size.width / 2 - xTitle.width / 2, size.height - 14));
 
     final zTitle = TextPainter(
-      text: TextSpan(text: 'Z', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+      text: TextSpan(
+          text: 'Z', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
       textDirection: TextDirection.ltr,
     )..layout();
     zTitle.paint(canvas, Offset(4, size.height / 2 - zTitle.height / 2));
@@ -448,6 +462,10 @@ class _MapPainter extends CustomPainter {
         return GamerColors.coalNeon;
       case OreType.lapis:
         return GamerColors.lapisNeon;
+      case OreType.copper:
+        return GamerColors.neonOrange;
+      case OreType.emerald:
+        return GamerColors.neonGreen;
     }
   }
 

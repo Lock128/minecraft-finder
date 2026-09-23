@@ -9,7 +9,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
 import 'package:gem_ore_struct_finder_mc/main.dart';
+import 'package:gem_ore_struct_finder_mc/providers/favorites_provider.dart';
+import 'package:gem_ore_struct_finder_mc/providers/monetization_config.dart';
+import 'package:gem_ore_struct_finder_mc/providers/pro_status_provider.dart';
+import 'package:gem_ore_struct_finder_mc/providers/search_history_provider.dart';
+import 'package:provider/single_child_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// The same set of providers the app supplies in main.dart, needed so
+/// OreFinderScreen (and its children) can read MonetizationConfig /
+/// ProStatusProvider without throwing ProviderNotFoundException.
+List<SingleChildWidget> _appProviders() {
+  return [
+    ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+    ChangeNotifierProvider(create: (_) => SearchHistoryProvider()),
+    ChangeNotifierProvider(create: (_) => MonetizationConfig()),
+    ChangeNotifierProxyProvider<MonetizationConfig, ProStatusProvider>(
+      create: (context) => ProStatusProvider(
+        monetizationEnabled: context.read<MonetizationConfig>().isEnabled,
+      ),
+      update: (_, monetization, proStatus) {
+        proStatus!.updateMonetization(monetization.isEnabled);
+        return proStatus;
+      },
+    ),
+  ];
+}
 
 void main() {
   group('Property 3: UI locale reactivity', () {
@@ -27,15 +53,18 @@ void main() {
         'setting locale to "$localeCode" updates tab labels correctly',
         (WidgetTester tester) async {
           await tester.pumpWidget(
-            MaterialApp(
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              locale: Locale(localeCode),
-              home: OreFinderScreen(
-                onThemeToggle: () {},
-                isDarkMode: false,
-                onLocaleChanged: (_) {},
-                currentLocale: Locale(localeCode),
+            MultiProvider(
+              providers: _appProviders(),
+              child: MaterialApp(
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                locale: Locale(localeCode),
+                home: OreFinderScreen(
+                  onThemeToggle: () {},
+                  isDarkMode: false,
+                  onLocaleChanged: (_) {},
+                  currentLocale: Locale(localeCode),
+                ),
               ),
             ),
           );
@@ -69,23 +98,26 @@ void main() {
         Locale currentLocale = const Locale('en');
 
         await tester.pumpWidget(
-          StatefulBuilder(
-            builder: (context, setState) {
-              return MaterialApp(
-                localizationsDelegates:
-                    AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                locale: currentLocale,
-                home: OreFinderScreen(
-                  onThemeToggle: () {},
-                  isDarkMode: false,
-                  onLocaleChanged: (locale) {
-                    setState(() => currentLocale = locale);
-                  },
-                  currentLocale: currentLocale,
-                ),
-              );
-            },
+          MultiProvider(
+            providers: _appProviders(),
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return MaterialApp(
+                  localizationsDelegates:
+                      AppLocalizations.localizationsDelegates,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  locale: currentLocale,
+                  home: OreFinderScreen(
+                    onThemeToggle: () {},
+                    isDarkMode: false,
+                    onLocaleChanged: (locale) {
+                      setState(() => currentLocale = locale);
+                    },
+                    currentLocale: currentLocale,
+                  ),
+                );
+              },
+            ),
           ),
         );
         await tester.pumpAndSettle();

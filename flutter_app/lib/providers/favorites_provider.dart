@@ -25,8 +25,7 @@ class FavoritesProvider extends ChangeNotifier {
       try {
         final List<dynamic> decoded = json.decode(jsonStr) as List<dynamic>;
         _favorites = decoded
-            .map((e) =>
-                FavoriteLocation.fromJson(e as Map<String, dynamic>))
+            .map((e) => FavoriteLocation.fromJson(e as Map<String, dynamic>))
             .toList();
         notifyListeners();
       } catch (_) {
@@ -38,8 +37,7 @@ class FavoritesProvider extends ChangeNotifier {
 
   Future<void> _saveFavorites() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonStr =
-        json.encode(_favorites.map((f) => f.toJson()).toList());
+    final jsonStr = json.encode(_favorites.map((f) => f.toJson()).toList());
     await prefs.setString(_storageKey, jsonStr);
   }
 

@@ -56,8 +56,9 @@ class SearchHistoryEntry {
       edition: json['edition'] == 'bedrock'
           ? MinecraftEdition.bedrock
           : MinecraftEdition.java,
-      versionEra:
-          json['versionEra'] == 'legacy' ? VersionEra.legacy : VersionEra.modern,
+      versionEra: json['versionEra'] == 'legacy'
+          ? VersionEra.legacy
+          : VersionEra.modern,
       timestamp: DateTime.parse(json['timestamp'] as String),
       resultCount: json['resultCount'] as int,
       includeOres: json['includeOres'] as bool? ?? true,

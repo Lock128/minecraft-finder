@@ -69,6 +69,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get worldSeedHint => 'Enter your world seed';
 
   @override
+  String get quickStartTitle => 'Quick Start';
+
+  @override
+  String get quickStartHint =>
+      'New here? Tap a preset to fill in sensible defaults, then hit search.';
+
+  @override
+  String get quickStartDiamondsNearSpawn => 'Diamonds near spawn';
+
+  @override
+  String get quickStartSeedTip =>
+      'Tip: paste your world seed above. You can copy it from your Minecraft world settings.';
+
+  @override
+  String get quickStartSpawnTip =>
+      'Coordinates default to world spawn (0, 0). Change them to search elsewhere.';
+
+  @override
   String get errorEmptySeed => 'Please enter a world seed';
 
   @override
@@ -211,6 +229,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String showingTopOf(int shown, int found) {
+    return 'Showing top $shown of $found potential findings';
+  }
+
+  @override
+  String get showSearchInfo => 'How search works';
+
+  @override
+  String get hideSearchInfo => 'Hide info';
+
+  @override
+  String get showDetails => 'Details';
+
+  @override
+  String get hideDetails => 'Hide details';
+
+  @override
+  String get showTips => 'Tips';
+
+  @override
+  String get wholeWorldNetheriteTitle => 'Scan whole world';
+
+  @override
+  String get wholeWorldNetheriteSubtitle =>
+      'Searches the entire world for Netherite, ignoring the radius. Takes longer.';
+
+  @override
+  String get wholeWorldActiveHint => 'Whole world (radius ignored)';
+
+  @override
   String get hideFilters => 'Hide filters';
 
   @override
@@ -292,6 +340,90 @@ class AppLocalizationsEn extends AppLocalizations {
   String biomeLabel(String biome) {
     return 'Biome: $biome';
   }
+
+  @override
+  String placesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count places found',
+      one: '$count place found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chunksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'across $count chunks',
+      one: 'across $count chunk',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minProbabilityFilterLabel(int percent) {
+    return 'Minimum probability: $percent%';
+  }
+
+  @override
+  String get biomeNamePlains => 'Plains';
+
+  @override
+  String get biomeNameForest => 'Forest';
+
+  @override
+  String get biomeNameDesert => 'Desert';
+
+  @override
+  String get biomeNameJungle => 'Jungle';
+
+  @override
+  String get biomeNameSwamp => 'Swamp';
+
+  @override
+  String get biomeNameTaiga => 'Taiga';
+
+  @override
+  String get biomeNameMountains => 'Mountains';
+
+  @override
+  String get biomeNameDappledForest => 'Autumn Forest';
+
+  @override
+  String get biomeNameCherryGrove => 'Cherry Grove';
+
+  @override
+  String get biomeNameSavanna => 'Savanna';
+
+  @override
+  String get biomeNameBadlands => 'Badlands';
+
+  @override
+  String get biomeNameOcean => 'Ocean';
+
+  @override
+  String get biomeNameDeepOcean => 'Deep Ocean';
+
+  @override
+  String get biomeNameBeach => 'Beach';
+
+  @override
+  String get biomeNameNether => 'Nether';
+
+  @override
+  String get biomeNameEnd => 'The End';
+
+  @override
+  String get biomeNameDeepDark => 'Deep Dark';
+
+  @override
+  String get biomeNameOverworld => 'Overworld';
+
+  @override
+  String get biomeNameUnknown => 'Unknown';
 
   @override
   String get guideDiamondTitle => 'Diamond Generation';
@@ -511,6 +643,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideStructureAncientCities =>
       '• Ancient Cities: Deep dark biome (Y -52)';
+
+  @override
+  String get guideStructureAbandonedCamp =>
+      '• Abandoned Camp: Dappled Forest and Cherry Grove biomes';
+
+  @override
+  String get guideBiomeDappledForest =>
+      '• New in Third Drop 2026: the Dappled Forest, an autumn forest that generates next to cold biomes. It is the home of the new Abandoned Camp structure.';
 
   @override
   String get proTipTitle => 'Pro Tip';
@@ -1356,6 +1496,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'A dedicated Mersenne Twister RNG replicates Bedrock Edition\'s C++ engine. Contextual info boxes let you know when predictions are approximate.';
 
   @override
+  String get releaseNotesThirdDrop2026Title => 'Third Drop 2026 Support';
+
+  @override
+  String get releaseNotesThirdDrop2026Body =>
+      'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50). Find the new Abandoned Camp structure, which generates in the new Dappled Forest biome and in Cherry Groves, plus refreshed edition and version info throughout the app.';
+
+  @override
   String get releaseNotesV1050Title => 'v1.0.50 — Bedwars + UI';
 
   @override
@@ -1395,4 +1542,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapLegendStructures => 'Structures';
+
+  @override
+  String get editionVersionTitle => 'Edition & Version';
+
+  @override
+  String get editionJava => 'Java Edition';
+
+  @override
+  String get editionBedrock => 'Bedrock Edition';
+
+  @override
+  String get versionEraLegacy => 'Pre-1.18 (Legacy)';
+
+  @override
+  String get versionEraModern => '1.18+ (Modern)';
+
+  @override
+  String get editionBedrockInfo =>
+      'Bedrock ore prediction accuracy is approximate due to incomplete documentation of Bedrock\'s RNG internals.';
+
+  @override
+  String get versionLegacyInfo =>
+      'Legacy ore placement uses uniform distribution with classic Y-level sweet spots (e.g., Y=12 for diamonds).';
+
+  @override
+  String get latestUpdateTitle => 'Latest update';
+
+  @override
+  String get latestUpdateInfo =>
+      'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50): new Abandoned Camp structure and Dappled Forest biome.';
 }

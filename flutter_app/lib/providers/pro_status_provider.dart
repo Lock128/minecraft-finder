@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../config/feature_flags.dart';
-
 /// Product ID for the one-time Pro unlock.
 /// Must match the product ID configured in App Store Connect and Google Play Console.
 const String kProProductId = 'mc_finder_pro_unlock';
@@ -39,20 +37,34 @@ class ProStatusProvider extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  ProStatusProvider() {
+  /// Whether monetization is currently active. Updated by [updateMonetization].
+  bool _monetizationEnabled = false;
+
+  /// Guards against initializing the IAP layer more than once.
+  bool _iapInitialized = false;
+
+  ProStatusProvider({bool monetizationEnabled = false}) {
+    _monetizationEnabled = monetizationEnabled;
+    _init();
+  }
+
+  /// Called by the proxy provider when the monetization flag changes at runtime.
+  void updateMonetization(bool enabled) {
+    if (_monetizationEnabled == enabled) return;
+    _monetizationEnabled = enabled;
     _init();
   }
 
   Future<void> _init() async {
     // When monetization is disabled, grant full access to everyone
-    if (!FeatureFlags.enableMonetization) {
+    if (!_monetizationEnabled) {
       _isPro = true;
       _isAvailable = false;
       notifyListeners();
       return;
     }
 
-    // Load cached pro status immediately so the UI can render
+    // Monetization just became active: load the real purchase state
     final prefs = await SharedPreferences.getInstance();
     _isPro = prefs.getBool(_proKey) ?? false;
     notifyListeners();
@@ -62,6 +74,10 @@ class ProStatusProvider extends ChangeNotifier {
       _isAvailable = false;
       return;
     }
+
+    // Only wire up the store listener once
+    if (_iapInitialized) return;
+    _iapInitialized = true;
 
     _isAvailable = await _iap.isAvailable();
     if (!_isAvailable) return;

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/app_settings.dart';
 import 'providers/favorites_provider.dart';
+import 'providers/monetization_config.dart';
 import 'providers/pro_status_provider.dart';
 import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
@@ -24,12 +25,23 @@ class GemOreStructFinderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppSettings()),
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
         ChangeNotifierProvider(create: (_) => SearchHistoryProvider()),
-        ChangeNotifierProvider(create: (_) => ProStatusProvider()),
+        ChangeNotifierProvider(create: (_) => MonetizationConfig()),
+        ChangeNotifierProxyProvider<MonetizationConfig, ProStatusProvider>(
+          create: (context) => ProStatusProvider(
+            monetizationEnabled:
+                context.read<MonetizationConfig>().isEnabled,
+          ),
+          update: (_, monetization, proStatus) {
+            proStatus!.updateMonetization(monetization.isEnabled);
+            return proStatus;
+          },
+        ),
       ],
       child: Consumer<AppSettings>(
         builder: (context, settings, _) {
           return MaterialApp(
-            title: 'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
+            title:
+                'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
             debugShowCheckedModeBanner: false,
             themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             theme: GamerTheme.buildLight(),

@@ -34,6 +34,8 @@ void main() {
       OreType.iron: [-64, 320],
       OreType.coal: [0, 192],
       OreType.lapis: [-64, 64],
+      OreType.copper: [-16, 112],
+      OreType.emerald: [-16, 320], // valid anywhere; emerald only in mountains
     };
 
     for (final edition in editions) {

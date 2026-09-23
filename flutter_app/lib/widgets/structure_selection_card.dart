@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/structure_location.dart';
+import '../providers/monetization_config.dart';
 import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
 import '../utils/structure_utils.dart';
@@ -68,9 +68,12 @@ class StructureSelectionCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: includeStructures
-              ? const LinearGradient(colors: [GamerColors.neonOrange, Color(0xFFFF8F00)])
+              ? const LinearGradient(
+                  colors: [GamerColors.neonOrange, Color(0xFFFF8F00)])
               : null,
-          color: includeStructures ? null : (isDarkMode ? GamerColors.darkSurface : Colors.grey.shade100),
+          color: includeStructures
+              ? null
+              : (isDarkMode ? GamerColors.darkSurface : Colors.grey.shade100),
           border: Border.all(
             color: includeStructures
                 ? GamerColors.neonOrange.withValues(alpha: 0.6)
@@ -89,7 +92,9 @@ class StructureSelectionCard extends StatelessWidget {
             Text(
               l10n.includeStructuresInSearch,
               style: TextStyle(
-                color: includeStructures ? Colors.white : (isDarkMode ? Colors.white70 : Colors.grey[700]),
+                color: includeStructures
+                    ? Colors.white
+                    : (isDarkMode ? Colors.white70 : Colors.grey[700]),
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
               ),
@@ -139,13 +144,15 @@ class StructureSelectionCard extends StatelessWidget {
                     children: [
                       Text(
                         structure['name'] as String,
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 12),
                       ),
                       Text(
                         structure['rarity'] as String,
                         style: TextStyle(
                           fontSize: 10,
-                          color: StructureUtils.getRarityColor(structure['rarity'] as String),
+                          color: StructureUtils.getRarityColor(
+                              structure['rarity'] as String),
                         ),
                       ),
                     ],
@@ -160,15 +167,19 @@ class StructureSelectionCard extends StatelessWidget {
                     }
                     onStructuresChanged(updated);
                   },
-                  selectedColor: GamerColors.neonOrange.withValues(alpha: isDarkMode ? 0.25 : 0.12),
+                  selectedColor: GamerColors.neonOrange
+                      .withValues(alpha: isDarkMode ? 0.25 : 0.12),
                   checkmarkColor: GamerColors.neonOrange,
-                  backgroundColor: isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+                  backgroundColor: isDarkMode
+                      ? GamerColors.darkSurface
+                      : Colors.grey.shade50,
                   side: BorderSide(
                     color: isSelected
                         ? GamerColors.neonOrange.withValues(alpha: 0.5)
                         : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
                   ),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 );
               }).toList(),
             ),
@@ -185,13 +196,15 @@ class StructureSelectionCard extends StatelessWidget {
             ),
           ),
           if (selectedStructures.length > 1 &&
-              FeatureFlags.enableMonetization &&
+              context.watch<MonetizationConfig>().isEnabled &&
               !context.watch<ProStatusProvider>().isPro) ...[
             const SizedBox(height: 4),
             Text(
               'Free tier searches 1 structure at a time. Upgrade to Pro for all at once.',
               style: TextStyle(
-                color: isDarkMode ? GamerColors.neonPurple.withValues(alpha: 0.7) : GamerColors.lightPurple.withValues(alpha: 0.8),
+                color: isDarkMode
+                    ? GamerColors.neonPurple.withValues(alpha: 0.7)
+                    : GamerColors.lightPurple.withValues(alpha: 0.8),
                 fontSize: 11,
                 fontStyle: FontStyle.italic,
               ),
@@ -214,7 +227,8 @@ class StructureSelectionCard extends StatelessWidget {
         ),
         child: Center(
           child: Text(label,
-            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13)),
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.w700, fontSize: 13)),
         ),
       ),
     );

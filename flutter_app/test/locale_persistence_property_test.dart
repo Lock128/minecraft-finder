@@ -35,7 +35,8 @@ void main() {
         // Reset preferences each iteration
         SharedPreferences.setMockInitialValues({});
 
-        final locale = supportedLocales[random.nextInt(supportedLocales.length)];
+        final locale =
+            supportedLocales[random.nextInt(supportedLocales.length)];
         await PreferencesService.saveLocale(locale);
         final loaded = await PreferencesService.getLocale();
         expect(loaded, equals(locale),
@@ -48,14 +49,14 @@ void main() {
       final random = Random(99);
       for (int i = 0; i < 50; i++) {
         final first = supportedLocales[random.nextInt(supportedLocales.length)];
-        final second = supportedLocales[random.nextInt(supportedLocales.length)];
+        final second =
+            supportedLocales[random.nextInt(supportedLocales.length)];
 
         await PreferencesService.saveLocale(first);
         await PreferencesService.saveLocale(second);
         final loaded = await PreferencesService.getLocale();
         expect(loaded, equals(second),
-            reason:
-                'Iteration $i: saved "$first" then "$second", '
+            reason: 'Iteration $i: saved "$first" then "$second", '
                 'but loaded "$loaded"');
       }
     });

@@ -10,6 +10,16 @@ class SearchCenterCard extends StatelessWidget {
   final TextEditingController radiusController;
   final bool isDarkMode;
 
+  /// Whether Netherite is currently selected. The whole-world scope option is
+  /// Netherite-specific, so it only appears when this is true.
+  final bool netheriteSelected;
+
+  /// Whether the whole-world Netherite scope is currently active.
+  final bool wholeWorldNetherite;
+
+  /// Toggles the whole-world scope. The parent applies Pro gating.
+  final ValueChanged<bool>? onWholeWorldChanged;
+
   const SearchCenterCard({
     super.key,
     required this.xController,
@@ -17,6 +27,9 @@ class SearchCenterCard extends StatelessWidget {
     required this.zController,
     required this.radiusController,
     this.isDarkMode = false,
+    this.netheriteSelected = false,
+    this.wholeWorldNetherite = false,
+    this.onWholeWorldChanged,
   });
 
   @override
@@ -37,18 +50,27 @@ class SearchCenterCard extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _buildCoordField(context, xController, l10n.coordinateX, l10n)),
+              Expanded(
+                  child: _buildCoordField(
+                      context, xController, l10n.coordinateX, l10n)),
               const SizedBox(width: 8),
-              Expanded(child: _buildCoordField(context, yController, l10n.coordinateY, l10n, hint: '-59')),
+              Expanded(
+                  child: _buildCoordField(
+                      context, yController, l10n.coordinateY, l10n,
+                      hint: '-59')),
               const SizedBox(width: 8),
-              Expanded(child: _buildCoordField(context, zController, l10n.coordinateZ, l10n)),
+              Expanded(
+                  child: _buildCoordField(
+                      context, zController, l10n.coordinateZ, l10n)),
             ],
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: radiusController,
+            enabled: !wholeWorld,
             decoration: InputDecoration(
               labelText: l10n.searchRadiusLabel,
+              hintText: wholeWorld ? l10n.wholeWorldActiveHint : null,
               prefixIcon: const Padding(
                 padding: EdgeInsets.all(12),
                 child: Text('🔍', style: TextStyle(fontSize: 16)),
@@ -63,20 +85,114 @@ class SearchCenterCard extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: GamerColors.neonCyan, width: 2),
+                borderSide:
+                    const BorderSide(color: GamerColors.neonCyan, width: 2),
               ),
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             validator: (value) {
+              // Radius is ignored when scanning the whole world.
+              if (wholeWorld) return null;
               if (value == null || value.isEmpty) return l10n.errorEmptyRadius;
               final radius = int.tryParse(value);
-              if (radius == null || radius <= 0) return l10n.errorRadiusPositive;
+              if (radius == null || radius <= 0) {
+                return l10n.errorRadiusPositive;
+              }
               if (radius > 2000) return l10n.errorRadiusMax;
               return null;
             },
           ),
+          // Whole-world scope option: only relevant for Netherite. Replaces the
+          // former separate "Find all Netherite" button by making scope an
+          // input rather than a second command.
+          if (netheriteSelected) ...[
+            const SizedBox(height: 10),
+            _buildWholeWorldToggle(context, l10n),
+          ],
         ],
+      ),
+    );
+  }
+
+  bool get wholeWorld => netheriteSelected && wholeWorldNetherite;
+
+  Widget _buildWholeWorldToggle(BuildContext context, AppLocalizations l10n) {
+    final accent =
+        isDarkMode ? GamerColors.neonPurple : GamerColors.lightPurple;
+    return InkWell(
+      onTap: () => onWholeWorldChanged?.call(!wholeWorldNetherite),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: wholeWorldNetherite
+              ? accent.withValues(alpha: isDarkMode ? 0.15 : 0.08)
+              : (isDarkMode ? GamerColors.darkSurface : Colors.white),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: wholeWorldNetherite
+                ? accent.withValues(alpha: 0.6)
+                : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Text('🌍', style: TextStyle(fontSize: 16)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        l10n.wholeWorldNetheriteTitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: wholeWorldNetherite
+                              ? accent
+                              : (isDarkMode ? Colors.white : Colors.grey[800]),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'PRO',
+                          style: TextStyle(
+                            color: accent,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.wholeWorldNetheriteSubtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: wholeWorldNetherite,
+              activeTrackColor: accent,
+              onChanged: (v) => onWholeWorldChanged?.call(v),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -97,15 +213,17 @@ class SearchCenterCard extends StatelessWidget {
         fillColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDarkMode ? Colors.white12 : Colors.grey.shade300),
+          borderSide: BorderSide(
+              color: isDarkMode ? Colors.white12 : Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: GamerColors.neonCyan, width: 2),
         ),
         suffixIcon: IconButton(
-          icon: Icon(Icons.swap_horiz, size: 16,
-            color: isDarkMode ? GamerColors.neonCyan : Colors.grey[600]),
+          icon: Icon(Icons.swap_horiz,
+              size: 16,
+              color: isDarkMode ? GamerColors.neonCyan : Colors.grey[600]),
           onPressed: () {
             final t = controller.text;
             if (t.isEmpty) return;
@@ -114,13 +232,16 @@ class SearchCenterCard extends StatelessWidget {
           tooltip: l10n.togglePlusMinus,
         ),
       ),
-      keyboardType: TextInputType.numberWithOptions(signed: true, decimal: false),
+      keyboardType:
+          TextInputType.numberWithOptions(signed: true, decimal: false),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*'))],
       validator: (value) {
         if (value == null || value.isEmpty) return l10n.errorFieldRequired;
         final v = int.tryParse(value);
         if (v == null) return l10n.errorFieldInvalid;
-        if (label == l10n.coordinateY && (v < -64 || v > 320)) return l10n.errorYRange;
+        if (label == l10n.coordinateY && (v < -64 || v > 320)) {
+          return l10n.errorYRange;
+        }
         return null;
       },
     );

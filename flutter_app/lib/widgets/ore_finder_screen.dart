@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../config/feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../models/search_history_entry.dart';
+import '../providers/monetization_config.dart';
 import '../providers/pro_status_provider.dart';
 import '../providers/search_history_provider.dart';
 import '../providers/search_state.dart';
@@ -49,7 +49,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     super.dispose();
   }
 
-  Future<void> _findOres(bool comprehensiveNetherite, BuildContext providerContext) async {
+  Future<void> _findOres(
+      bool comprehensiveNetherite, BuildContext providerContext) async {
     final searchState = providerContext.read<SearchState>();
     final proStatus = providerContext.read<ProStatusProvider>();
     final l10n = AppLocalizations.of(providerContext);
@@ -102,6 +103,23 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     }
   }
 
+  /// Handles toggling the whole-world Netherite scope. This is a Pro feature:
+  /// free users get the upgrade dialog instead of enabling it.
+  void _onWholeWorldChanged(bool value, BuildContext providerContext) {
+    final searchState = providerContext.read<SearchState>();
+    if (!value) {
+      searchState.setWholeWorldNetherite(false);
+      return;
+    }
+    final isPro = !providerContext.read<MonetizationConfig>().isEnabled ||
+        providerContext.read<ProStatusProvider>().isPro;
+    if (isPro) {
+      searchState.setWholeWorldNetherite(true);
+    } else {
+      ProUpgradeDialog.show(providerContext, isDarkMode: widget.isDarkMode);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SearchState>(
@@ -117,7 +135,11 @@ class _OreFinderScreenState extends State<OreFinderScreen>
             appBar: _buildAppBar(isDark),
             body: Column(
               children: [
-                _buildTabBar(isDark),
+                _buildTabBar(
+                  isDark,
+                  resultCount: searchState.results.length +
+                      searchState.structureResults.length,
+                ),
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
@@ -139,6 +161,9 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         isDarkMode: isDark,
                         selectedEdition: searchState.selectedEdition,
                         selectedVersionEra: searchState.selectedVersionEra,
+                        wholeWorldNetherite: searchState.wholeWorldNetherite,
+                        onWholeWorldChanged: (value) =>
+                            _onWholeWorldChanged(value, context),
                         onOreTypesChanged: searchState.setOreTypes,
                         onIncludeNetherChanged: searchState.setIncludeNether,
                         onIncludeOresChanged: searchState.setIncludeOres,
@@ -155,6 +180,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         isLoading: searchState.isLoading,
                         findAllNetherite: searchState.findAllNetherite,
                         selectedOreTypes: searchState.selectedOreTypes,
+                        totalFound: searchState.totalFound,
                       ),
                       FavoritesTab(isDarkMode: isDark),
                       GuideTab(isDarkMode: isDark),
@@ -170,7 +196,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
     );
   }
 
-  Widget _buildTabBar(bool isDark) {
+  Widget _buildTabBar(bool isDark, {int resultCount = 0}) {
     return Container(
       color: isDark ? GamerColors.darkSurface : Colors.white,
       child: TabBar(
@@ -190,7 +216,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               text: AppLocalizations.of(context).searchTab,
               height: 48),
           Tab(
-              icon: const Icon(Icons.inventory_2_outlined, size: 18),
+              icon: _resultsTabIcon(isDark, resultCount),
               text: AppLocalizations.of(context).resultsTab,
               height: 48),
           Tab(
@@ -207,6 +233,42 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               height: 48),
         ],
       ),
+    );
+  }
+
+  /// Builds the Results tab icon, overlaying a small count badge when there
+  /// are results, so the number of findings is visible from any tab.
+  Widget _resultsTabIcon(bool isDark, int resultCount) {
+    const icon = Icon(Icons.inventory_2_outlined, size: 18);
+    if (resultCount <= 0) return icon;
+    final label = resultCount > 999 ? '999+' : '$resultCount';
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        icon,
+        Positioned(
+          right: -10,
+          top: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            constraints: const BoxConstraints(minWidth: 16),
+            decoration: BoxDecoration(
+              color: GamerColors.neonGreen,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+                height: 1.1,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -265,14 +327,16 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         ),
       ),
       actions: [
-        if (FeatureFlags.enableMonetization)
+        if (context.watch<MonetizationConfig>().isEnabled)
           Consumer<ProStatusProvider>(
             builder: (context, pro, _) {
               if (pro.isPro) return const SizedBox.shrink();
               return IconButton(
-                onPressed: () => ProUpgradeDialog.show(context, isDarkMode: isDark),
+                onPressed: () =>
+                    ProUpgradeDialog.show(context, isDarkMode: isDark),
                 icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [GamerColors.neonPurple, GamerColors.neonCyan],
@@ -348,8 +412,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           if (isActive)
             Icon(Icons.check,
                 size: 18,
-                color:
-                    isDark ? GamerColors.neonGreen : GamerColors.lightGreen),
+                color: isDark ? GamerColors.neonGreen : GamerColors.lightGreen),
         ],
       ),
     );

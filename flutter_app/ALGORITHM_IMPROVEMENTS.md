@@ -219,6 +219,44 @@ Within each ring, strongholds are evenly spaced angularly with a random start of
 
 **Overall accuracy: ~9.5/10** (up from 9/10 in v3.0)
 
+---
+
+# Algorithm Improvements — Version 3.2
+
+## Overview
+
+Version 3.2 adds vein size estimation to ore results, giving users an idea of how many ore blocks they can expect to find at each location.
+
+## New Features
+
+### Estimated Vein Size (`ore_location.dart`)
+
+Each `OreLocation` now includes:
+- **`estimatedVeinSize`**: Expected number of ore blocks in the vein (calculated from ore type + probability)
+- **`minVeinSize`**: Minimum possible vein size for this ore type
+- **`maxVeinSize`**: Maximum possible vein size for this ore type
+
+**Vein size data per ore type** (based on Minecraft Java Edition 1.18+):
+
+| Ore Type | Min | Max | Average |
+|----------|-----|-----|---------|
+| Diamond | 1 | 10 | 4 |
+| Gold | 1 | 9 | 5 |
+| Netherite | 1 | 3 | 2 |
+| Redstone | 1 | 10 | 6 |
+| Iron | 1 | 13 | 7 |
+| Coal | 1 | 17 | 10 |
+| Lapis | 1 | 7 | 4 |
+| Copper | 1 | 20 | 10 |
+| Emerald | 1 | 1 | 1 |
+
+**Calculation method**: The estimated vein size scales with probability:
+- Low probability (0.0–0.3): Closer to minimum size
+- Medium probability (0.3–0.6): Around average
+- High probability (0.6–1.0): Closer to maximum size
+
+This gives users practical information like "this diamond vein is likely to have ~6 blocks" rather than just a probability percentage.
+
 ## Testing Recommendations
 
 1. Compare results with known Minecraft seeds

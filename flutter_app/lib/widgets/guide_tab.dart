@@ -1,11 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/monetization_config.dart';
 import '../theme/gamer_theme.dart';
 
-class GuideTab extends StatelessWidget {
+class GuideTab extends StatefulWidget {
   final bool isDarkMode;
 
   const GuideTab({super.key, this.isDarkMode = false});
+
+  @override
+  State<GuideTab> createState() => _GuideTabState();
+}
+
+class _GuideTabState extends State<GuideTab> {
+  bool get isDarkMode => widget.isDarkMode;
+
+  // Hidden developer unlock: tapping the Pro Tip card
+  // [MonetizationConfig.unlockTapCount] times in a row activates monetization.
+  int _proTipTapCount = 0;
+  DateTime? _lastTapTime;
+
+  void _onProTipTap() {
+    final now = DateTime.now();
+    // Reset the streak if too much time passed between taps.
+    if (_lastTapTime != null &&
+        now.difference(_lastTapTime!) > const Duration(seconds: 2)) {
+      _proTipTapCount = 0;
+    }
+    _lastTapTime = now;
+    _proTipTapCount++;
+
+    final monetization = context.read<MonetizationConfig>();
+
+    // If monetization is forced on at compile time, the runtime toggle can't
+    // change anything — bail out.
+    if (!monetization.canToggleAtRuntime) {
+      _proTipTapCount = 0;
+      return;
+    }
+
+    if (_proTipTapCount >= MonetizationConfig.unlockTapCount) {
+      _proTipTapCount = 0;
+      final wasEnabled = monetization.isRuntimeOverrideEnabled;
+      if (wasEnabled) {
+        monetization.disableOverride();
+      } else {
+        monetization.enableViaOverride();
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(wasEnabled
+              ? '🔒 Monetization mode disabled'
+              : '🔓 Monetization mode enabled'),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      // Give subtle feedback once the user is getting close (last 3 taps).
+      final remaining =
+          MonetizationConfig.unlockTapCount - _proTipTapCount;
+      if (remaining <= 3 && remaining > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$remaining more...'),
+            duration: const Duration(milliseconds: 600),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +209,17 @@ class GuideTab extends StatelessWidget {
                 l10n.guideStructureEndCities,
                 l10n.guideStructureMonuments,
                 l10n.guideStructureAncientCities,
+                l10n.guideStructureAbandonedCamp,
+                '',
+                l10n.guideBiomeDappledForest,
               ],
             ),
             const SizedBox(height: 24),
-            _buildProTip(l10n),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _onProTipTap,
+              child: _buildProTip(l10n),
+            ),
           ],
         ),
       ),
@@ -177,27 +251,30 @@ class GuideTab extends StatelessWidget {
           const SizedBox(height: 16),
           ...content.map((line) {
             if (line.isEmpty) return const SizedBox(height: 8);
-            if (line.startsWith('🎯') || line.startsWith('🌍') ||
-                line.startsWith('🏜️') || line.startsWith('🔍') ||
-                line.startsWith('🏘️') || line.startsWith('🏛️')) {
+            if (line.startsWith('🎯') ||
+                line.startsWith('🌍') ||
+                line.startsWith('🏜️') ||
+                line.startsWith('🔍') ||
+                line.startsWith('🏘️') ||
+                line.startsWith('🏛️')) {
               return Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 4),
                 child: Text(line,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
-                    fontSize: 14,
-                  )),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                      fontSize: 14,
+                    )),
               );
             }
             return Padding(
               padding: const EdgeInsets.only(bottom: 3),
               child: Text(line,
-                style: TextStyle(
-                  height: 1.5,
-                  fontSize: 13,
-                  color: isDarkMode ? Colors.white70 : Colors.grey[700],
-                )),
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 13,
+                    color: isDarkMode ? Colors.white70 : Colors.grey[700],
+                  )),
             );
           }),
         ],
@@ -208,7 +285,9 @@ class GuideTab extends StatelessWidget {
   Color _lightVariant(Color neonColor) {
     if (neonColor == GamerColors.diamondNeon) return GamerColors.lightDiamond;
     if (neonColor == GamerColors.goldNeon) return GamerColors.lightGold;
-    if (neonColor == GamerColors.netheriteNeon) return GamerColors.lightNetherite;
+    if (neonColor == GamerColors.netheriteNeon) {
+      return GamerColors.lightNetherite;
+    }
     if (neonColor == GamerColors.ironNeon) return GamerColors.lightIron;
     if (neonColor == GamerColors.redstoneNeon) return GamerColors.lightRedstone;
     if (neonColor == GamerColors.coalNeon) return GamerColors.lightCoal;
@@ -227,21 +306,28 @@ class GuideTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         gradient: LinearGradient(
           colors: isDarkMode
-              ? [GamerColors.neonCyan.withValues(alpha: 0.1), GamerColors.neonGreen.withValues(alpha: 0.05)]
-              : [GamerColors.neonCyan.withValues(alpha: 0.06), GamerColors.neonGreen.withValues(alpha: 0.03)],
+              ? [
+                  GamerColors.neonCyan.withValues(alpha: 0.1),
+                  GamerColors.neonGreen.withValues(alpha: 0.05)
+                ]
+              : [
+                  GamerColors.neonCyan.withValues(alpha: 0.06),
+                  GamerColors.neonGreen.withValues(alpha: 0.03)
+                ],
         ),
         border: Border.all(color: GamerColors.neonCyan.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
-          Icon(Icons.lightbulb, color: GamerColors.cyanText(isDarkMode), size: 28),
+          Icon(Icons.lightbulb,
+              color: GamerColors.cyanText(isDarkMode), size: 28),
           const SizedBox(height: 8),
           Text(l10n.proTipTitle,
-            style: TextStyle(
-              color: GamerColors.cyanText(isDarkMode),
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-            )),
+              style: TextStyle(
+                color: GamerColors.cyanText(isDarkMode),
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              )),
           const SizedBox(height: 8),
           Text(
             l10n.proTipBody,

@@ -13,9 +13,16 @@ void main() {
 
   group('LegacyDensityFunction - oreYRanges static map', () {
     test('contains all expected ore types', () {
-      expect(LegacyDensityFunction.oreYRanges.keys.toSet(), equals({
-        'diamond', 'gold', 'iron', 'coal', 'redstone', 'lapis',
-      }));
+      expect(
+          LegacyDensityFunction.oreYRanges.keys.toSet(),
+          equals({
+            'diamond',
+            'gold',
+            'iron',
+            'coal',
+            'redstone',
+            'lapis',
+          }));
     });
 
     test('ranges match legacy specification', () {
@@ -43,7 +50,8 @@ void main() {
       final maxY = entry.value[1];
       final midY = ((minY + maxY) / 2).toDouble();
 
-      test('$oreType returns non-zero density for at least some coordinates '
+      test(
+          '$oreType returns non-zero density for at least some coordinates '
           'within Y range ($minY–$maxY)', () {
         bool foundNonZero = false;
         // Sample a grid of x,z values
@@ -75,14 +83,14 @@ void main() {
       final maxY = entry.value[1];
 
       test('$oreType returns 0.0 below Y range (Y=${minY - 1})', () {
-        final result = density.getOreDensity(
-            100.0, (minY - 1).toDouble(), 100.0, oreType);
+        final result =
+            density.getOreDensity(100.0, (minY - 1).toDouble(), 100.0, oreType);
         expect(result, equals(0.0));
       });
 
       test('$oreType returns 0.0 above Y range (Y=${maxY + 1})', () {
-        final result = density.getOreDensity(
-            100.0, (maxY + 1).toDouble(), 100.0, oreType);
+        final result =
+            density.getOreDensity(100.0, (maxY + 1).toDouble(), 100.0, oreType);
         expect(result, equals(0.0));
       });
 
@@ -159,7 +167,8 @@ void main() {
       final density = LegacyDensityFunction(testSeed);
       expect(density.getOreDensity(100.0, 10.0, 100.0, 'emerald'), equals(0.0));
       expect(density.getOreDensity(100.0, 10.0, 100.0, ''), equals(0.0));
-      expect(density.getOreDensity(100.0, 10.0, 100.0, 'netherite'), equals(0.0));
+      expect(
+          density.getOreDensity(100.0, 10.0, 100.0, 'netherite'), equals(0.0));
     });
   });
 

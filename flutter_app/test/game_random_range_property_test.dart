@@ -160,9 +160,11 @@ void main() {
 
           final doubleVal = rng.nextDouble();
           expect(doubleVal, greaterThanOrEqualTo(0.0),
-              reason: 'Iteration $i: $edition seed=$seed nextDouble=$doubleVal');
+              reason:
+                  'Iteration $i: $edition seed=$seed nextDouble=$doubleVal');
           expect(doubleVal, lessThan(1.0),
-              reason: 'Iteration $i: $edition seed=$seed nextDouble=$doubleVal');
+              reason:
+                  'Iteration $i: $edition seed=$seed nextDouble=$doubleVal');
 
           final floatVal = rng.nextFloat();
           expect(floatVal, greaterThanOrEqualTo(0.0),

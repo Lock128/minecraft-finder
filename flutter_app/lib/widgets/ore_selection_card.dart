@@ -86,7 +86,9 @@ class OreSelectionCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: active ? LinearGradient(colors: activeGradient) : null,
-          color: active ? null : (isDarkMode ? GamerColors.darkSurface : Colors.grey.shade100),
+          color: active
+              ? null
+              : (isDarkMode ? GamerColors.darkSurface : Colors.grey.shade100),
           border: Border.all(
             color: active
                 ? activeGradient.first.withValues(alpha: 0.6)
@@ -105,7 +107,9 @@ class OreSelectionCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: active ? Colors.white : (isDarkMode ? Colors.white70 : Colors.grey[700]),
+                color: active
+                    ? Colors.white
+                    : (isDarkMode ? Colors.white70 : Colors.grey[700]),
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
               ),
@@ -127,8 +131,10 @@ class OreSelectionCard extends StatelessWidget {
         ),
       ),
       child: CheckboxListTile(
-        title: Text(l10n.includeNetherGold, style: const TextStyle(fontSize: 14)),
-        subtitle: Text(l10n.searchForNetherGold, style: const TextStyle(fontSize: 12)),
+        title:
+            Text(l10n.includeNetherGold, style: const TextStyle(fontSize: 14)),
+        subtitle: Text(l10n.searchForNetherGold,
+            style: const TextStyle(fontSize: 12)),
         value: includeNether,
         activeColor: GamerColors.goldNeon,
         onChanged: (bool? value) => onIncludeNetherChanged(value ?? false),
@@ -160,24 +166,30 @@ class OreSelectionCard extends StatelessWidget {
               ),
             ],
             selected: selectedOreTypes
-                .where((type) => [OreType.diamond, OreType.gold, OreType.iron].contains(type))
+                .where((type) => [OreType.diamond, OreType.gold, OreType.iron]
+                    .contains(type))
                 .toSet(),
             multiSelectionEnabled: true,
             emptySelectionAllowed: true,
             onSelectionChanged: (Set<OreType> newSelection) {
               Set<OreType> updated = Set.from(selectedOreTypes);
-              updated.removeWhere((t) => [OreType.diamond, OreType.gold, OreType.iron].contains(t));
+              updated.removeWhere((t) =>
+                  [OreType.diamond, OreType.gold, OreType.iron].contains(t));
               updated.addAll(newSelection);
               if (updated.isEmpty) updated.add(OreType.diamond);
               onOreTypesChanged(updated);
             },
             style: SegmentedButton.styleFrom(
               minimumSize: const Size(60, 44),
-              backgroundColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
-              selectedBackgroundColor: GamerColors.neonGreen.withValues(alpha: isDarkMode ? 0.3 : 0.15),
+              backgroundColor:
+                  isDarkMode ? GamerColors.darkSurface : Colors.white,
+              selectedBackgroundColor: GamerColors.neonGreen
+                  .withValues(alpha: isDarkMode ? 0.3 : 0.15),
               selectedForegroundColor: GamerColors.greenText(isDarkMode),
               side: BorderSide(
-                color: isDarkMode ? GamerColors.neonGreen.withValues(alpha: 0.3) : GamerColors.lightGreen.withValues(alpha: 0.3),
+                color: isDarkMode
+                    ? GamerColors.neonGreen.withValues(alpha: 0.3)
+                    : GamerColors.lightGreen.withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -202,24 +214,30 @@ class OreSelectionCard extends StatelessWidget {
               ),
             ],
             selected: selectedOreTypes
-                .where((type) => [OreType.redstone, OreType.coal, OreType.lapis].contains(type))
+                .where((type) => [OreType.redstone, OreType.coal, OreType.lapis]
+                    .contains(type))
                 .toSet(),
             multiSelectionEnabled: true,
             emptySelectionAllowed: true,
             onSelectionChanged: (Set<OreType> newSelection) {
               Set<OreType> updated = Set.from(selectedOreTypes);
-              updated.removeWhere((t) => [OreType.redstone, OreType.coal, OreType.lapis].contains(t));
+              updated.removeWhere((t) =>
+                  [OreType.redstone, OreType.coal, OreType.lapis].contains(t));
               updated.addAll(newSelection);
               if (updated.isEmpty) updated.add(OreType.diamond);
               onOreTypesChanged(updated);
             },
             style: SegmentedButton.styleFrom(
               minimumSize: const Size(60, 44),
-              backgroundColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
-              selectedBackgroundColor: GamerColors.neonGreen.withValues(alpha: isDarkMode ? 0.3 : 0.15),
+              backgroundColor:
+                  isDarkMode ? GamerColors.darkSurface : Colors.white,
+              selectedBackgroundColor: GamerColors.neonGreen
+                  .withValues(alpha: isDarkMode ? 0.3 : 0.15),
               selectedForegroundColor: GamerColors.greenText(isDarkMode),
               side: BorderSide(
-                color: isDarkMode ? GamerColors.neonGreen.withValues(alpha: 0.3) : GamerColors.lightGreen.withValues(alpha: 0.3),
+                color: isDarkMode
+                    ? GamerColors.neonGreen.withValues(alpha: 0.3)
+                    : GamerColors.lightGreen.withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -246,7 +264,9 @@ class OreSelectionCard extends StatelessWidget {
 
   Widget _legendItem(String text) {
     return Text(text,
-      style: TextStyle(fontSize: 11, color: isDarkMode ? Colors.white54 : Colors.grey[500]));
+        style: TextStyle(
+            fontSize: 11,
+            color: isDarkMode ? Colors.white54 : Colors.grey[500]));
   }
 
   Widget _buildNetheriteButton(BuildContext context) {
