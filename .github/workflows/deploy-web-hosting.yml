@@ -25,7 +25,7 @@ on:
         type: boolean
 
 env:
-  FLUTTER_VERSION: '3.35.5'
+  FLUTTER_VERSION: '3.47.5'
   NODE_VERSION: '22'
   AWS_REGION: 'eu-central-1'
 
