@@ -8,7 +8,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
 import 'package:gem_ore_struct_finder_mc/main.dart';
+import 'package:gem_ore_struct_finder_mc/providers/favorites_provider.dart';
+import 'package:gem_ore_struct_finder_mc/providers/monetization_config.dart';
+import 'package:gem_ore_struct_finder_mc/providers/pro_status_provider.dart';
+import 'package:gem_ore_struct_finder_mc/providers/search_history_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Wraps [OreFinderScreen] in the same providers the app supplies in main.dart
+/// so that widgets depending on MonetizationConfig / ProStatusProvider build
+/// without throwing ProviderNotFoundException.
+Widget _wrapOreFinderScreen({
+  required ValueChanged<Locale> onLocaleChanged,
+}) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+      ChangeNotifierProvider(create: (_) => SearchHistoryProvider()),
+      ChangeNotifierProvider(create: (_) => MonetizationConfig()),
+      ChangeNotifierProxyProvider<MonetizationConfig, ProStatusProvider>(
+        create: (context) => ProStatusProvider(
+          monetizationEnabled: context.read<MonetizationConfig>().isEnabled,
+        ),
+        update: (_, monetization, proStatus) {
+          proStatus!.updateMonetization(monetization.isEnabled);
+          return proStatus;
+        },
+      ),
+    ],
+    child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: OreFinderScreen(
+        onThemeToggle: () {},
+        isDarkMode: false,
+        onLocaleChanged: onLocaleChanged,
+        currentLocale: const Locale('en'),
+      ),
+    ),
+  );
+}
 
 void main() {
   group('Language switcher widget tests', () {
@@ -19,17 +59,7 @@ void main() {
     testWidgets('language switcher icon is present in AppBar',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: OreFinderScreen(
-            onThemeToggle: () {},
-            isDarkMode: false,
-            onLocaleChanged: (_) {},
-            currentLocale: const Locale('en'),
-          ),
-        ),
+        _wrapOreFinderScreen(onLocaleChanged: (_) {}),
       );
       await tester.pumpAndSettle();
 
@@ -39,17 +69,7 @@ void main() {
     testWidgets('tapping language icon shows popup menu with all 5 languages',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: OreFinderScreen(
-            onThemeToggle: () {},
-            isDarkMode: false,
-            onLocaleChanged: (_) {},
-            currentLocale: const Locale('en'),
-          ),
-        ),
+        _wrapOreFinderScreen(onLocaleChanged: (_) {}),
       );
       await tester.pumpAndSettle();
 
@@ -68,17 +88,7 @@ void main() {
     testWidgets('current locale shows check mark in menu',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: OreFinderScreen(
-            onThemeToggle: () {},
-            isDarkMode: false,
-            onLocaleChanged: (_) {},
-            currentLocale: const Locale('en'),
-          ),
-        ),
+        _wrapOreFinderScreen(onLocaleChanged: (_) {}),
       );
       await tester.pumpAndSettle();
 
@@ -95,18 +105,10 @@ void main() {
       Locale? changedLocale;
 
       await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: OreFinderScreen(
-            onThemeToggle: () {},
-            isDarkMode: false,
-            onLocaleChanged: (locale) {
-              changedLocale = locale;
-            },
-            currentLocale: const Locale('en'),
-          ),
+        _wrapOreFinderScreen(
+          onLocaleChanged: (locale) {
+            changedLocale = locale;
+          },
         ),
       );
       await tester.pumpAndSettle();
