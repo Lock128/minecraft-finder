@@ -7,6 +7,7 @@ import 'structure_finder.dart';
 import 'structure_location.dart';
 import 'worldgen/accurate_engine.dart';
 import 'worldgen/engine_selector.dart';
+import 'worldgen/java_version_strategy.dart';
 import 'worldgen/minecraft_version.dart';
 import 'worldgen/native_ffi_backend.dart';
 import 'worldgen/simulated_engine.dart';
@@ -202,6 +203,13 @@ EngineSelectionContext _contextFor({
   required MinecraftEdition edition,
 }) {
   final registry = VersionStrategyRegistry();
+  // Register the Java 1.18-1.20 strategies as Supported. They are NOT marked
+  // Verified: their golden fixtures are algorithm-derived pending authoritative
+  // native cross-checking, so Accurate requests still degrade to the Simulated
+  // path (Req 5.2) until a live native run verifies the fixtures.
+  registry.register(JavaVersionStrategy.java118());
+  registry.register(JavaVersionStrategy.java119());
+  registry.register(JavaVersionStrategy.java120());
   const simulated = SimulatedEngine();
   final accurate = AccurateEngine(
     registry: registry,

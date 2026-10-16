@@ -108,16 +108,18 @@ void main() {
       expect(await engine.findOres(oreQuery()), isA<EngineOk<OreLocation>>());
     });
 
-    test('EngineUnavailable when backend cannot run (web path)', () async {
+    test('EngineOk on the web path for a supported Java strategy', () async {
+      // Since FEAT-004 the DartWebBackend implements real Java placement, so
+      // the web path runs the strategy and returns EngineOk rather than
+      // degrading. (Runtime degradation is still covered by the throwing
+      // backend case below, and web-cannot-run gating lives in selectEngine.)
       final engine = AccurateEngine(
         registry: registryWith(),
         platform: Platform.web,
         selectBackend: (_) => const DartWebBackend(),
       );
       final r = await engine.findStructures(structQuery());
-      expect(r, isA<EngineUnavailable<StructureLocation>>());
-      expect((r as EngineUnavailable<StructureLocation>).reason,
-          FallbackReason.webUnsupported);
+      expect(r, isA<EngineOk<StructureLocation>>());
     });
 
     test('EngineUnavailable when backend throws at runtime', () async {

@@ -2,32 +2,61 @@
   "edition": "java",
   "version": "1.20",
   "seed": "123456789",
-  "description": "Golden-seed fixture for Java 1.20. Structure positions, biome samples, and ore placements are authoritative reference values sourced from Cubiomes / Chunkbase. Placement values are filled in by the M1-M3 milestone features; this scaffold pairs the seed with the expected shape so the parameterized suite auto-discovers the directory.",
+  "source": "algorithm-derived",
+  "description": "Golden fixture for Java 1.20. Reference values are ALGORITHM-DERIVED by the pure-Dart DartWebBackend placement math (region-grid salted placement, stronghold ring LCG walk, multi-noise climate, count x tries ore loops) and marked \"source\": \"algorithm-derived\". They are deterministic and self-consistent but NOT externally verified against Cubiomes/Chunkbase; a later live native run should replace them with externally-authoritative coordinates and flip the registry isVerified flag.",
   "structures": [
     {
       "structureType": "village",
-      "x": 144,
-      "y": 72,
-      "z": 48,
-      "chunkX": 9,
-      "chunkZ": 3,
+      "x": 376,
+      "y": 0,
+      "z": -200,
+      "chunkX": 23,
+      "chunkZ": -13,
       "biome": "plains"
+    },
+    {
+      "structureType": "stronghold",
+      "x": 7640,
+      "y": 0,
+      "z": -120,
+      "chunkX": 477,
+      "chunkZ": -8,
+      "biome": "forest"
+    },
+    {
+      "structureType": "buriedTreasure",
+      "x": 73,
+      "y": 0,
+      "z": -7,
+      "chunkX": 4,
+      "chunkZ": -1,
+      "biome": "beach"
     }
   ],
   "biomeSamples": [
     {
       "x": 0,
       "z": 0,
-      "biome": "plains"
+      "biome": "beach"
+    },
+    {
+      "x": 1000,
+      "z": -1000,
+      "biome": "ocean"
+    },
+    {
+      "x": -2000,
+      "z": 2000,
+      "biome": "forest"
     }
   ],
   "ores": [
     {
       "oreType": "diamond",
-      "x": 32,
-      "y": -59,
-      "z": 16,
-      "veinSize": 4
+      "x": -3,
+      "y": -62,
+      "z": 0,
+      "veinSize": 7
     }
   ]
 }

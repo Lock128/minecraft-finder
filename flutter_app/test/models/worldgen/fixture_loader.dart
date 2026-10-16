@@ -93,6 +93,7 @@ class WorldGenFixture {
     required this.structures,
     required this.biomeSamples,
     required this.ores,
+    this.source,
   });
 
   /// The `<edition>-<version>` directory name under `test/fixtures/worldgen/`.
@@ -103,6 +104,12 @@ class WorldGenFixture {
   final List<FixtureStructure> structures;
   final List<FixtureBiomeSample> biomeSamples;
   final List<FixtureOre> ores;
+
+  /// Provenance marker: `"algorithm-derived"` for fixtures produced by the
+  /// engine itself (pending authoritative native verification) or an
+  /// externally-authoritative source (e.g. `"cubiomes"`/`"chunkbase"`). Null
+  /// when unspecified.
+  final String? source;
 
   /// Whether this fixture carries any authoritative reference data.
   bool get isNonEmpty =>
@@ -115,6 +122,7 @@ class WorldGenFixture {
       edition: json['edition'] as String,
       version: json['version'] as String,
       seed: json['seed'] as String,
+      source: json['source'] as String?,
       structures: ((json['structures'] as List<dynamic>?) ?? const [])
           .map((e) => FixtureStructure.fromJson(e as Map<String, dynamic>))
           .toList(),

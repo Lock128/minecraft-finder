@@ -61,7 +61,18 @@ class AccurateEngine implements WorldGenEngine {
     }
     try {
       final results = await b.computeOres(q, strategy);
-      return EngineOk<OreLocation>(results);
+      // Req 9.3: surface real vein-size metadata. Every accurate vein carries
+      // its own size on OreLocation.estimatedVeinSize; ResultMeta mirrors the
+      // nearest vein's size (present and >= 1) so the single-meta consumers in
+      // the UI have a real value to show instead of the fabricated probability.
+      final meta = results.isEmpty
+          ? const ResultMeta.empty()
+          : ResultMeta(
+              veinSize: results.first.estimatedVeinSize < 1
+                  ? 1
+                  : results.first.estimatedVeinSize,
+            );
+      return EngineOk<OreLocation>(results, meta: meta);
     } on Object {
       return EngineUnavailable<OreLocation>(_unavailableReason());
     }
