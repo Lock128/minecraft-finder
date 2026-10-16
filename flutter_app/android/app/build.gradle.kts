@@ -38,6 +38,26 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Build the vendored Cubiomes + FFI shim (native/cubiomes/CMakeLists.txt)
+        // into one libmc_finder_ffi.so per ABI. NativeFfiBackend resolves it via
+        // DynamicLibrary.open('libmc_finder_ffi.so').
+        externalNativeBuild {
+            cmake {
+                arguments += "-DANDROID_STL=none"
+            }
+        }
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
+        }
+    }
+
+    // Wire the shared CMake project used by all platforms.
+    externalNativeBuild {
+        cmake {
+            path = file("../../native/cubiomes/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     signingConfigs {

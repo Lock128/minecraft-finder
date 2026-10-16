@@ -1,0 +1,62 @@
+{
+  "edition": "bedrock",
+  "version": "1.21",
+  "seed": "1785852800490497",
+  "source": "algorithm-derived",
+  "description": "Golden fixture for Bedrock Edition 1.21 (M5 Bedrock track). Reference values are ALGORITHM-DERIVED by the pure-Dart BedrockBackend placement math driven by the Bedrock VersionStrategy, which seeds the web-safe MT19937 BedrockRandom (32-bit masked) rather than the Java 48-bit LCG. The Bedrock placement constants (region seed mixing, per-structure salts, ore loops) are NOT published the way Java's data-driven StructureSets are, so these values are deterministic and self-consistent but NOT externally verified; the Bedrock version is registered Supported-but-NOT-Verified so Accurate still degrades to Simulated per Req 5.2 until an authoritative Bedrock reference confirms the constants. An unregistered Bedrock version (any id other than bedrock-1.21) has no strategy and degrades with FallbackReason.bedrockNoStrategy (Req 11.3).",
+  "structures": [
+    {
+      "structureType": "village",
+      "x": 120,
+      "y": 0,
+      "z": 216,
+      "chunkX": 7,
+      "chunkZ": 13,
+      "biome": "plains"
+    },
+    {
+      "structureType": "shipwreck",
+      "x": -136,
+      "y": 0,
+      "z": -184,
+      "chunkX": -9,
+      "chunkZ": -12,
+      "biome": "plains"
+    },
+    {
+      "structureType": "buriedTreasure",
+      "x": 73,
+      "y": 0,
+      "z": -7,
+      "chunkX": 4,
+      "chunkZ": -1,
+      "biome": "snowy_plains"
+    }
+  ],
+  "biomeSamples": [
+    {
+      "x": 0,
+      "z": 0,
+      "biome": "taiga"
+    },
+    {
+      "x": 1000,
+      "z": -1000,
+      "biome": "plains"
+    },
+    {
+      "x": -2000,
+      "z": 2000,
+      "biome": "jungle"
+    }
+  ],
+  "ores": [
+    {
+      "oreType": "diamond",
+      "x": -2,
+      "y": -41,
+      "z": -1,
+      "veinSize": 5
+    }
+  ]
+}

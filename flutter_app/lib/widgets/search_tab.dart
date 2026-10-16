@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/game_random.dart';
 import '../models/ore_location.dart';
 import '../models/structure_location.dart';
+import '../models/worldgen/engine_selector.dart';
+import '../models/worldgen/minecraft_version.dart';
 import '../theme/gamer_theme.dart';
 import 'edition_version_card.dart';
 import 'quick_start_card.dart';
@@ -41,6 +43,11 @@ class SearchTab extends StatelessWidget {
   final ValueChanged<MinecraftEdition> onEditionChanged;
   final ValueChanged<VersionEra> onVersionEraChanged;
   final ValueChanged<bool> onWholeWorldChanged;
+  final List<MinecraftVersion> availableVersions;
+  final MinecraftVersion? selectedVersion;
+  final ValueChanged<MinecraftVersion?> onVersionChanged;
+  final SearchMode searchMode;
+  final ValueChanged<SearchMode> onSearchModeChanged;
 
   const SearchTab({
     super.key,
@@ -72,6 +79,11 @@ class SearchTab extends StatelessWidget {
     required this.onEditionChanged,
     required this.onVersionEraChanged,
     required this.onWholeWorldChanged,
+    this.availableVersions = const [],
+    this.selectedVersion,
+    required this.onVersionChanged,
+    this.searchMode = SearchMode.estimate,
+    required this.onSearchModeChanged,
   });
 
   @override
@@ -117,6 +129,11 @@ class SearchTab extends StatelessWidget {
                 onEditionChanged: onEditionChanged,
                 onVersionEraChanged: onVersionEraChanged,
                 isDarkMode: isDarkMode,
+                availableVersions: availableVersions,
+                selectedVersion: selectedVersion,
+                onVersionChanged: onVersionChanged,
+                searchMode: searchMode,
+                onSearchModeChanged: onSearchModeChanged,
               ),
               const SizedBox(height: 12),
               // --- Where to search ---

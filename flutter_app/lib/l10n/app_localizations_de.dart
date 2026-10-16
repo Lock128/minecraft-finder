@@ -1657,4 +1657,38 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get showQuickStartAction => 'Anzeigen';
+
+  @override
+  String get minecraftVersionLabel => 'Minecraft-Version';
+
+  @override
+  String get searchModeTitle => 'Suchmodus';
+
+  @override
+  String get searchModeAccurate => 'Genau';
+
+  @override
+  String get searchModeEstimate => 'Schätzung';
+
+  @override
+  String get searchModeAccurateInfo =>
+      'Der genaue Modus reproduziert die echte Weltgenerierung für unterstützte, verifizierte Versionen und zeigt exakte Positionen statt geschätzter Wahrscheinlichkeiten.';
+
+  @override
+  String get estimateDisclaimer =>
+      'Dies sind statistische Schätzungen, keine exakten Positionen im Spiel. Die Wahrscheinlichkeit ist ein Ranking-Wert, keine echte Wahrscheinlichkeit.';
+
+  @override
+  String get accurateResultsNotice =>
+      'Seed-genaue Ergebnisse: exakte Positionen für diese verifizierte Version.';
+
+  @override
+  String veinSizeLabel(int count) {
+    return 'Adergröße: $count';
+  }
+
+  @override
+  String structureVariantLabel(String variant) {
+    return 'Variante: $variant';
+  }
 }

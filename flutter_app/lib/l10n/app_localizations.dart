@@ -2875,6 +2875,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show'**
   String get showQuickStartAction;
+
+  /// Label for the Minecraft version picker
+  ///
+  /// In en, this message translates to:
+  /// **'Minecraft version'**
+  String get minecraftVersionLabel;
+
+  /// Title for the Accurate/Estimate search mode toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Search mode'**
+  String get searchModeTitle;
+
+  /// Label for the Accurate search mode option
+  ///
+  /// In en, this message translates to:
+  /// **'Accurate'**
+  String get searchModeAccurate;
+
+  /// Label for the Estimate search mode option
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate'**
+  String get searchModeEstimate;
+
+  /// Info box explaining what Accurate search mode does
+  ///
+  /// In en, this message translates to:
+  /// **'Accurate mode reproduces the real world generation for supported, verified versions and shows exact positions instead of estimated probabilities.'**
+  String get searchModeAccurateInfo;
+
+  /// Disclaimer shown for Estimate-mode results
+  ///
+  /// In en, this message translates to:
+  /// **'These are statistical estimates, not exact in-game positions. The probability is a ranking score, not a real likelihood.'**
+  String get estimateDisclaimer;
+
+  /// Notice shown above verified Accurate-mode results
+  ///
+  /// In en, this message translates to:
+  /// **'Seed-accurate results: exact positions for this verified version.'**
+  String get accurateResultsNotice;
+
+  /// Label showing the real vein size for an accurate ore result
+  ///
+  /// In en, this message translates to:
+  /// **'Vein size: {count}'**
+  String veinSizeLabel(int count);
+
+  /// Label showing the real structure variant for an accurate structure result
+  ///
+  /// In en, this message translates to:
+  /// **'Variant: {variant}'**
+  String structureVariantLabel(String variant);
 }
 
 class _AppLocalizationsDelegate

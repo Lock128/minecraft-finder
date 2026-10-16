@@ -520,5 +520,14 @@
   "settingsTitle": "Paramètres",
   "showQuickStartTitle": "Démarrage rapide",
   "showQuickStartSubtitle": "Réafficher la carte d''accueil en un clic sur l''écran de recherche.",
-  "showQuickStartAction": "Afficher"
+  "showQuickStartAction": "Afficher",
+  "minecraftVersionLabel": "Version de Minecraft",
+  "searchModeTitle": "Mode de recherche",
+  "searchModeAccurate": "Précis",
+  "searchModeEstimate": "Estimation",
+  "searchModeAccurateInfo": "Le mode précis reproduit la génération réelle du monde pour les versions prises en charge et vérifiées, et affiche les positions exactes au lieu de probabilités estimées.",
+  "estimateDisclaimer": "Ce sont des estimations statistiques, pas des positions exactes dans le jeu. La probabilité est un score de classement, pas une probabilité réelle.",
+  "accurateResultsNotice": "Résultats fidèles à la seed : positions exactes pour cette version vérifiée.",
+  "veinSizeLabel": "Taille du filon : {count}",
+  "structureVariantLabel": "Variante : {variant}"
 }

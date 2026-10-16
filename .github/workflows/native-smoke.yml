@@ -1,0 +1,108 @@
+name: Native FFI smoke
+
+# Compiles the vendored Cubiomes core + flat FFI shim
+# (flutter_app/native/cubiomes) per platform and smoke-loads the resulting
+# library to confirm the shim symbols resolve. This guards the native build
+# pipeline that NativeFfiBackend binds to at runtime (Req 2.4).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'flutter_app/native/**'
+      - '.github/workflows/native-smoke.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'flutter_app/native/**'
+      - '.github/workflows/native-smoke.yml'
+
+jobs:
+  smoke:
+    name: Build & smoke-load (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    defaults:
+      run:
+        working-directory: flutter_app/native/cubiomes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure (CMake)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build shared + static libraries
+        run: cmake --build build --config Release
+
+      - name: Smoke-load (POSIX — dlopen)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Locate the built shared library (.so on Linux, .dylib on macOS).
+          LIB=$(find build -name 'libmc_finder_ffi.*' \
+            \( -name '*.so' -o -name '*.dylib' \) | head -n1)
+          echo "Loading: $LIB"
+          cat > smoke.c <<'EOF'
+          #include <dlfcn.h>
+          #include <stdio.h>
+          #include <stdint.h>
+          int main(int argc, char **argv) {
+            void *h = dlopen(argv[1], RTLD_NOW);
+            if (!h) { fprintf(stderr, "dlopen: %s\n", dlerror()); return 1; }
+            const char *syms[] = {"mcf_find_structures", "mcf_find_ores",
+                                  "mcf_get_biome", "mcf_abi_version"};
+            for (int i = 0; i < 4; i++) {
+              if (!dlsym(h, syms[i])) {
+                fprintf(stderr, "missing symbol: %s\n", syms[i]);
+                return 2;
+              }
+              printf("resolved %s\n", syms[i]);
+            }
+            int32_t (*abi)(void) = (int32_t(*)(void))dlsym(h, "mcf_abi_version");
+            printf("abi_version = %d\nSMOKE OK\n", abi());
+            return 0;
+          }
+          EOF
+          cc -o smoke smoke.c -ldl 2>/dev/null || cc -o smoke smoke.c
+          ./smoke "$LIB"
+
+      - name: Smoke-load (Windows — LoadLibrary)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem -Recurse -Path build -Filter 'mc_finder_ffi.dll' |
+            Select-Object -First 1
+          if (-not $dll) { throw 'mc_finder_ffi.dll not found' }
+          Write-Host "Loading: $($dll.FullName)"
+          $src = @'
+          using System;
+          using System.Runtime.InteropServices;
+          class Smoke {
+            [DllImport("kernel32", SetLastError=true, CharSet=CharSet.Unicode)]
+            static extern IntPtr LoadLibrary(string p);
+            [DllImport("kernel32", SetLastError=true)]
+            static extern IntPtr GetProcAddress(IntPtr h, string n);
+            static int Main(string[] a) {
+              var h = LoadLibrary(a[0]);
+              if (h == IntPtr.Zero) { Console.Error.WriteLine("load failed"); return 1; }
+              foreach (var s in new[]{"mcf_find_structures","mcf_find_ores","mcf_get_biome","mcf_abi_version"}) {
+                if (GetProcAddress(h, s) == IntPtr.Zero) {
+                  Console.Error.WriteLine("missing symbol: " + s); return 2;
+                }
+                Console.WriteLine("resolved " + s);
+              }
+              Console.WriteLine("SMOKE OK");
+              return 0;
+            }
+          }
+          '@
+          Add-Type -TypeDefinition $src -OutputAssembly smoke.exe -OutputType ConsoleApplication
+          ./smoke.exe $dll.FullName

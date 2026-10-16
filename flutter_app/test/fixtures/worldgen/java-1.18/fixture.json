@@ -1,0 +1,62 @@
+{
+  "edition": "java",
+  "version": "1.18",
+  "seed": "3257840388504953787",
+  "source": "algorithm-derived",
+  "description": "Golden fixture for Java 1.18. Reference values are ALGORITHM-DERIVED by the pure-Dart DartWebBackend placement math (region-grid salted placement, stronghold ring LCG walk, multi-noise climate, count x tries ore loops) and marked \"source\": \"algorithm-derived\". They are deterministic and self-consistent but NOT externally verified against Cubiomes/Chunkbase; a later live native run should replace them with externally-authoritative coordinates and flip the registry isVerified flag.",
+  "structures": [
+    {
+      "structureType": "village",
+      "x": -216,
+      "y": 0,
+      "z": -280,
+      "chunkX": -14,
+      "chunkZ": -18,
+      "biome": "plains"
+    },
+    {
+      "structureType": "stronghold",
+      "x": 3992,
+      "y": 0,
+      "z": 6760,
+      "chunkX": 249,
+      "chunkZ": 422,
+      "biome": "dark_forest"
+    },
+    {
+      "structureType": "buriedTreasure",
+      "x": -23,
+      "y": 0,
+      "z": -87,
+      "chunkX": -2,
+      "chunkZ": -6,
+      "biome": "taiga"
+    }
+  ],
+  "biomeSamples": [
+    {
+      "x": 0,
+      "z": 0,
+      "biome": "taiga"
+    },
+    {
+      "x": 1000,
+      "z": -1000,
+      "biome": "forest"
+    },
+    {
+      "x": -2000,
+      "z": 2000,
+      "biome": "snowy_plains"
+    }
+  ],
+  "ores": [
+    {
+      "oreType": "diamond",
+      "x": -2,
+      "y": 10,
+      "z": 1,
+      "veinSize": 8
+    }
+  ]
+}

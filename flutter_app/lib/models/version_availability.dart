@@ -1,6 +1,8 @@
 import 'game_random.dart';
 import 'ore_location.dart';
 import 'structure_location.dart';
+import 'worldgen/minecraft_version.dart';
+import 'worldgen/version_strategy_registry.dart';
 
 /// Single source of truth for *what content exists* in a given Minecraft
 /// [VersionEra] and [MinecraftEdition].
@@ -112,6 +114,36 @@ class VersionAvailability {
   }) {
     return StructureType.values
         .where((s) => isStructureAvailable(s, era: era, edition: edition))
+        .toList();
+  }
+
+  // -------------------------------------------------------------------------
+  // Explicit version-list API (seed-accurate worldgen).
+  //
+  // The era-based methods above remain the single source of truth for the
+  // Simulated path and the retained gating test. These additions expose the
+  // explicit per-version list sourced from the [VersionStrategyRegistry] so
+  // the Accurate-mode UI version picker and content gating stay consistent.
+  // -------------------------------------------------------------------------
+
+  /// All explicit versions the [registry] supports (a strategy is registered),
+  /// optionally filtered by [edition].
+  static List<MinecraftVersion> supportedVersions(
+    VersionStrategyRegistry registry, {
+    MinecraftEdition? edition,
+  }) {
+    if (edition == null) return registry.supportedVersions;
+    return registry.supportedVersionsFor(edition);
+  }
+
+  /// The subset of [supportedVersions] whose golden fixtures have been
+  /// verified.
+  static List<MinecraftVersion> verifiedVersions(
+    VersionStrategyRegistry registry, {
+    MinecraftEdition? edition,
+  }) {
+    return supportedVersions(registry, edition: edition)
+        .where(registry.isVerified)
         .toList();
   }
 }

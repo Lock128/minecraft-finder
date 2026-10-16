@@ -1426,6 +1426,39 @@
   "@showQuickStartSubtitle": { "description": "Explanation of the Show Quick Start setting" },
 
   "showQuickStartAction": "Show",
-  "@showQuickStartAction": { "description": "Button label that restores the Quick Start card" }
+  "@showQuickStartAction": { "description": "Button label that restores the Quick Start card" },
+
+  "minecraftVersionLabel": "Minecraft version",
+  "@minecraftVersionLabel": { "description": "Label for the Minecraft version picker" },
+
+  "searchModeTitle": "Search mode",
+  "@searchModeTitle": { "description": "Title for the Accurate/Estimate search mode toggle" },
+
+  "searchModeAccurate": "Accurate",
+  "@searchModeAccurate": { "description": "Label for the Accurate search mode option" },
+
+  "searchModeEstimate": "Estimate",
+  "@searchModeEstimate": { "description": "Label for the Estimate search mode option" },
+
+  "searchModeAccurateInfo": "Accurate mode reproduces the real world generation for supported, verified versions and shows exact positions instead of estimated probabilities.",
+  "@searchModeAccurateInfo": { "description": "Info box explaining what Accurate search mode does" },
+
+  "estimateDisclaimer": "These are statistical estimates, not exact in-game positions. The probability is a ranking score, not a real likelihood.",
+  "@estimateDisclaimer": { "description": "Disclaimer shown for Estimate-mode results" },
+
+  "accurateResultsNotice": "Seed-accurate results: exact positions for this verified version.",
+  "@accurateResultsNotice": { "description": "Notice shown above verified Accurate-mode results" },
+
+  "veinSizeLabel": "Vein size: {count}",
+  "@veinSizeLabel": {
+    "description": "Label showing the real vein size for an accurate ore result",
+    "placeholders": { "count": { "type": "int", "example": "8" } }
+  },
+
+  "structureVariantLabel": "Variant: {variant}",
+  "@structureVariantLabel": {
+    "description": "Label showing the real structure variant for an accurate structure result",
+    "placeholders": { "variant": { "type": "String", "example": "plains" } }
+  }
 }
 
