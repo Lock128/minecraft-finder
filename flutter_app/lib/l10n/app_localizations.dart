@@ -2851,6 +2851,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide Quick Start'**
   String get quickStartDismissTooltip;
+
+  /// Section title for settings/preferences
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Title of the setting to restore the Quick Start card
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Start'**
+  String get showQuickStartTitle;
+
+  /// Explanation of the Show Quick Start setting
+  ///
+  /// In en, this message translates to:
+  /// **'Show the one-tap onboarding card on the search screen again.'**
+  String get showQuickStartSubtitle;
+
+  /// Button label that restores the Quick Start card
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get showQuickStartAction;
 }
 
 class _AppLocalizationsDelegate

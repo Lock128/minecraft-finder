@@ -1481,4 +1481,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get quickStartDismissTooltip => 'クイックスタートを非表示';
+
+  @override
+  String get settingsTitle => '設定';
+
+  @override
+  String get showQuickStartTitle => 'クイックスタート';
+
+  @override
+  String get showQuickStartSubtitle => '検索画面のワンタップ・オンボーディングカードを再表示します。';
+
+  @override
+  String get showQuickStartAction => '表示';
 }

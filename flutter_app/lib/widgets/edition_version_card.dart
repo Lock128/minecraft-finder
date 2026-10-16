@@ -24,12 +24,24 @@ class EditionVersionCard extends StatefulWidget {
 }
 
 class _EditionVersionCardState extends State<EditionVersionCard> {
-  // Info boxes are collapsed by default so the selectors stay compact.
-  bool _showInfo = false;
+  // The whole card is collapsed by default — most users never change edition
+  // or version era, so we show a compact one-line summary and only reveal the
+  // selectors (and caveats) when the user taps to expand.
+  bool _expanded = false;
 
   bool get isDarkMode => widget.isDarkMode;
   MinecraftEdition get selectedEdition => widget.selectedEdition;
   VersionEra get selectedVersionEra => widget.selectedVersionEra;
+
+  String _editionLabel(AppLocalizations l10n) =>
+      selectedEdition == MinecraftEdition.java
+          ? l10n.editionJava
+          : l10n.editionBedrock;
+
+  String _versionLabel(AppLocalizations l10n) =>
+      selectedVersionEra == VersionEra.legacy
+          ? l10n.versionEraLegacy
+          : l10n.versionEraModern;
 
   @override
   Widget build(BuildContext context) {
@@ -40,80 +52,86 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GamerSectionHeader(
-            emoji: '🎮',
-            title: l10n.editionVersionTitle,
-            isDarkMode: isDarkMode,
-            accentColor: GamerColors.neonOrange,
-          ),
-          const SizedBox(height: 16),
-          // Edition selector
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<MinecraftEdition>(
-              segments: [
-                ButtonSegment(
-                  value: MinecraftEdition.java,
-                  label: Text(l10n.editionJava),
+          // Compact, tappable summary header: "🎮 Edition & Version  Java · 1.18+ ⌄"
+          InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            borderRadius: BorderRadius.circular(8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GamerSectionHeader(
+                    emoji: '🎮',
+                    title: l10n.editionVersionTitle,
+                    isDarkMode: isDarkMode,
+                    accentColor: GamerColors.neonOrange,
+                  ),
                 ),
-                ButtonSegment(
-                  value: MinecraftEdition.bedrock,
-                  label: Text(l10n.editionBedrock),
-                ),
-              ],
-              selected: {selectedEdition},
-              onSelectionChanged: (selected) {
-                widget.onEditionChanged(selected.first);
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Version era selector
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<VersionEra>(
-              segments: [
-                ButtonSegment(
-                  value: VersionEra.legacy,
-                  label: Text(l10n.versionEraLegacy),
-                ),
-                ButtonSegment(
-                  value: VersionEra.modern,
-                  label: Text(l10n.versionEraModern),
+                if (!_expanded)
+                  Flexible(
+                    child: Text(
+                      '${_editionLabel(l10n)} · ${_versionLabel(l10n)}',
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: GamerColors.orangeText(isDarkMode),
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 4),
+                Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                  size: 20,
+                  color: isDarkMode ? Colors.white54 : Colors.grey[600],
                 ),
               ],
-              selected: {selectedVersionEra},
-              onSelectionChanged: (selected) {
-                widget.onVersionEraChanged(selected.first);
-              },
             ),
           ),
-          const SizedBox(height: 8),
-          // Collapsible details: latest update + edition/version caveats.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => setState(() => _showInfo = !_showInfo),
-              icon: Icon(
-                _showInfo ? Icons.expand_less : Icons.info_outline,
-                size: 16,
-              ),
-              label: Text(
-                _showInfo ? l10n.hideDetails : l10n.showDetails,
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: isDarkMode
-                    ? GamerColors.neonOrange
-                    : GamerColors.lightOrange,
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
+          if (_expanded) ...[
+            const SizedBox(height: 16),
+            // Edition selector
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<MinecraftEdition>(
+                segments: [
+                  ButtonSegment(
+                    value: MinecraftEdition.java,
+                    label: Text(l10n.editionJava),
+                  ),
+                  ButtonSegment(
+                    value: MinecraftEdition.bedrock,
+                    label: Text(l10n.editionBedrock),
+                  ),
+                ],
+                selected: {selectedEdition},
+                onSelectionChanged: (selected) {
+                  widget.onEditionChanged(selected.first);
+                },
               ),
             ),
-          ),
-          if (_showInfo) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 12),
+            // Version era selector
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<VersionEra>(
+                segments: [
+                  ButtonSegment(
+                    value: VersionEra.legacy,
+                    label: Text(l10n.versionEraLegacy),
+                  ),
+                  ButtonSegment(
+                    value: VersionEra.modern,
+                    label: Text(l10n.versionEraModern),
+                  ),
+                ],
+                selected: {selectedVersionEra},
+                onSelectionChanged: (selected) {
+                  widget.onVersionEraChanged(selected.first);
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
             _buildInfoBox(
               icon: Icons.new_releases_outlined,
               color: GamerColors.neonGreen,

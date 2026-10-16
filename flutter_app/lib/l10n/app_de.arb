@@ -516,5 +516,9 @@
   "freeRadiusCappedNotice": "In der Gratisversion ist der Radius auf {max} Blöcke begrenzt. Upgrade auf Pro für größere Suchen.",
   "resultsHiddenByFilter": "{count, plural, =1{1 Ergebnis durch den Wahrscheinlichkeitsfilter ausgeblendet} other{{count} Ergebnisse durch den Wahrscheinlichkeitsfilter ausgeblendet}}",
   "showAll": "Alle anzeigen",
-  "quickStartDismissTooltip": "Schnellstart ausblenden"
+  "quickStartDismissTooltip": "Schnellstart ausblenden",
+  "settingsTitle": "Einstellungen",
+  "showQuickStartTitle": "Schnellstart",
+  "showQuickStartSubtitle": "Die Onboarding-Karte mit einem Tipp auf dem Suchbildschirm wieder anzeigen.",
+  "showQuickStartAction": "Anzeigen"
 }

@@ -1414,6 +1414,18 @@
   "@showAll": { "description": "Button that clears the probability filter to reveal all findings" },
 
   "quickStartDismissTooltip": "Hide Quick Start",
-  "@quickStartDismissTooltip": { "description": "Tooltip for the button that hides the Quick Start onboarding card" }
+  "@quickStartDismissTooltip": { "description": "Tooltip for the button that hides the Quick Start onboarding card" },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": { "description": "Section title for settings/preferences" },
+
+  "showQuickStartTitle": "Quick Start",
+  "@showQuickStartTitle": { "description": "Title of the setting to restore the Quick Start card" },
+
+  "showQuickStartSubtitle": "Show the one-tap onboarding card on the search screen again.",
+  "@showQuickStartSubtitle": { "description": "Explanation of the Show Quick Start setting" },
+
+  "showQuickStartAction": "Show",
+  "@showQuickStartAction": { "description": "Button label that restores the Quick Start card" }
 }
 

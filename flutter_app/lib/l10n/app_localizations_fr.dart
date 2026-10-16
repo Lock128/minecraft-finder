@@ -1663,4 +1663,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quickStartDismissTooltip => 'Masquer le démarrage rapide';
+
+  @override
+  String get settingsTitle => 'Paramètres';
+
+  @override
+  String get showQuickStartTitle => 'Démarrage rapide';
+
+  @override
+  String get showQuickStartSubtitle =>
+      'Réafficher la carte d\'\'accueil en un clic sur l\'\'écran de recherche.';
+
+  @override
+  String get showQuickStartAction => 'Afficher';
 }

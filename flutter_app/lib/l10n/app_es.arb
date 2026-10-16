@@ -518,5 +518,9 @@
   "freeRadiusCappedNotice": "La versión gratuita limita el radio a {max} bloques. Mejora a Pro para búsquedas más grandes.",
   "resultsHiddenByFilter": "{count, plural, =1{1 resultado oculto por el filtro de probabilidad} other{{count} resultados ocultos por el filtro de probabilidad}}",
   "showAll": "Mostrar todo",
-  "quickStartDismissTooltip": "Ocultar inicio rápido"
+  "quickStartDismissTooltip": "Ocultar inicio rápido",
+  "settingsTitle": "Ajustes",
+  "showQuickStartTitle": "Inicio rápido",
+  "showQuickStartSubtitle": "Vuelve a mostrar la tarjeta de inicio con un toque en la pantalla de búsqueda.",
+  "showQuickStartAction": "Mostrar"
 }

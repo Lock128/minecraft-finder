@@ -1631,4 +1631,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickStartDismissTooltip => 'Hide Quick Start';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get showQuickStartTitle => 'Quick Start';
+
+  @override
+  String get showQuickStartSubtitle =>
+      'Show the one-tap onboarding card on the search screen again.';
+
+  @override
+  String get showQuickStartAction => 'Show';
 }

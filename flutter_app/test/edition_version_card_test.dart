@@ -13,6 +13,14 @@ import 'package:gem_ore_struct_finder_mc/widgets/edition_version_card.dart';
 /// English localizations used to assert on the localized labels.
 final AppLocalizations enL10n = lookupAppLocalizations(const Locale('en'));
 
+/// The card is collapsed by default (compact summary row). Expanding it reveals
+/// the edition/version selectors and the info boxes. Tap the header title to
+/// expand.
+Future<void> expandCard(WidgetTester tester) async {
+  await tester.tap(find.text(enL10n.editionVersionTitle));
+  await tester.pumpAndSettle();
+}
+
 /// Helper to wrap EditionVersionCard in a MaterialApp for testing.
 Widget buildTestWidget({
   MinecraftEdition edition = MinecraftEdition.java,
@@ -46,6 +54,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
+      await expandCard(tester);
 
       // Both segment labels should be present
       expect(find.text(enL10n.editionJava), findsOneWidget);
@@ -71,6 +80,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
+      await expandCard(tester);
 
       // Two SegmentedButton widgets: one for edition, one for version
       expect(find.byType(SegmentedButton<MinecraftEdition>), findsOneWidget);
@@ -91,6 +101,7 @@ void main() {
         },
       ));
       await tester.pumpAndSettle();
+      await expandCard(tester);
 
       await tester.tap(find.text(enL10n.editionBedrock));
       await tester.pumpAndSettle();
@@ -109,6 +120,7 @@ void main() {
         },
       ));
       await tester.pumpAndSettle();
+      await expandCard(tester);
 
       await tester.tap(find.text(enL10n.editionJava));
       await tester.pumpAndSettle();
@@ -130,6 +142,7 @@ void main() {
         },
       ));
       await tester.pumpAndSettle();
+      await expandCard(tester);
 
       await tester.tap(find.text(enL10n.versionEraLegacy));
       await tester.pumpAndSettle();
@@ -148,6 +161,7 @@ void main() {
         },
       ));
       await tester.pumpAndSettle();
+      await expandCard(tester);
 
       await tester.tap(find.text(enL10n.versionEraModern));
       await tester.pumpAndSettle();
@@ -157,12 +171,11 @@ void main() {
   });
 
   group('EditionVersionCard - info box visibility', () {
-    // The edition/version info boxes are collapsed by default behind a
-    // "Details" toggle. Expanding it reveals the boxes relevant to the current
-    // selection. This helper opens that panel.
+    // The whole card is collapsed by default. Expanding it (via the header)
+    // reveals the selectors and the info boxes relevant to the current
+    // selection.
     Future<void> openDetails(WidgetTester tester) async {
-      await tester.tap(find.text(enL10n.showDetails));
-      await tester.pumpAndSettle();
+      await expandCard(tester);
     }
 
     // Validates: Requirement 7.4
@@ -269,16 +282,15 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // Widget should render all elements in dark mode
+      // The title is always visible; selectors appear once expanded.
+      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
+
+      // Selectors and info boxes live behind the collapsible card.
+      await expandCard(tester);
       expect(find.text(enL10n.editionJava), findsOneWidget);
       expect(find.text(enL10n.editionBedrock), findsOneWidget);
       expect(find.text(enL10n.versionEraLegacy), findsOneWidget);
       expect(find.text(enL10n.versionEraModern), findsOneWidget);
-      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
-
-      // Info boxes live behind the collapsible Details panel.
-      await tester.tap(find.text(enL10n.showDetails));
-      await tester.pumpAndSettle();
       expect(
         find.text(enL10n.editionBedrockInfo),
         findsOneWidget,
@@ -299,12 +311,13 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // Widget should render all elements in light mode
+      // The title is always visible; selectors appear once expanded.
+      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
+      await expandCard(tester);
       expect(find.text(enL10n.editionJava), findsOneWidget);
       expect(find.text(enL10n.editionBedrock), findsOneWidget);
       expect(find.text(enL10n.versionEraLegacy), findsOneWidget);
       expect(find.text(enL10n.versionEraModern), findsOneWidget);
-      expect(find.text(enL10n.editionVersionTitle), findsOneWidget);
     });
   });
 
@@ -318,9 +331,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // The Third Drop 2026 update affordance lives inside the collapsible
-      // Details panel and is shown regardless of the edition/version selection.
-      await tester.tap(find.text(enL10n.showDetails));
-      await tester.pumpAndSettle();
+      // card and is shown regardless of the edition/version selection.
+      await expandCard(tester);
 
       expect(find.text(enL10n.latestUpdateTitle), findsOneWidget);
       expect(find.text(enL10n.latestUpdateInfo), findsOneWidget);

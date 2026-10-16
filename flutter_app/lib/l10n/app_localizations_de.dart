@@ -1644,4 +1644,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get quickStartDismissTooltip => 'Schnellstart ausblenden';
+
+  @override
+  String get settingsTitle => 'Einstellungen';
+
+  @override
+  String get showQuickStartTitle => 'Schnellstart';
+
+  @override
+  String get showQuickStartSubtitle =>
+      'Die Onboarding-Karte mit einem Tipp auf dem Suchbildschirm wieder anzeigen.';
+
+  @override
+  String get showQuickStartAction => 'Anzeigen';
 }

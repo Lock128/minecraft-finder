@@ -101,6 +101,13 @@ class SearchState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Restore the Quick Start card (e.g. from settings). Persists the choice.
+  void showQuickStart() {
+    _quickStartHidden = false;
+    PreferencesService.setQuickStartHidden(false);
+    notifyListeners();
+  }
+
   // Tab controller for auto-switching to results
   TabController? tabController;
 

@@ -516,5 +516,9 @@
   "freeRadiusCappedNotice": "La version gratuite limite le rayon à {max} blocs. Passez à Pro pour des recherches plus larges.",
   "resultsHiddenByFilter": "{count, plural, =1{1 résultat masqué par le filtre de probabilité} other{{count} résultats masqués par le filtre de probabilité}}",
   "showAll": "Tout afficher",
-  "quickStartDismissTooltip": "Masquer le démarrage rapide"
+  "quickStartDismissTooltip": "Masquer le démarrage rapide",
+  "settingsTitle": "Paramètres",
+  "showQuickStartTitle": "Démarrage rapide",
+  "showQuickStartSubtitle": "Réafficher la carte d''accueil en un clic sur l''écran de recherche.",
+  "showQuickStartAction": "Afficher"
 }

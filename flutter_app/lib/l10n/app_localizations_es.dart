@@ -1659,4 +1659,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get quickStartDismissTooltip => 'Ocultar inicio rápido';
+
+  @override
+  String get settingsTitle => 'Ajustes';
+
+  @override
+  String get showQuickStartTitle => 'Inicio rápido';
+
+  @override
+  String get showQuickStartSubtitle =>
+      'Vuelve a mostrar la tarjeta de inicio con un toque en la pantalla de búsqueda.';
+
+  @override
+  String get showQuickStartAction => 'Mostrar';
 }

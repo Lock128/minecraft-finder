@@ -8,7 +8,19 @@ import '../theme/gamer_theme.dart';
 class AppInfoDialog extends StatelessWidget {
   final bool isDarkMode;
 
-  const AppInfoDialog({super.key, this.isDarkMode = false});
+  /// Whether the Quick Start card is currently hidden. When true, the dialog
+  /// offers a "Show Quick Start" action in its Settings section.
+  final bool quickStartHidden;
+
+  /// Restores the Quick Start card. When null, the Settings section is hidden.
+  final VoidCallback? onShowQuickStart;
+
+  const AppInfoDialog({
+    super.key,
+    this.isDarkMode = false,
+    this.quickStartHidden = false,
+    this.onShowQuickStart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +102,13 @@ class AppInfoDialog extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Settings: only shown when there's something to restore.
+                    if (onShowQuickStart != null && quickStartHidden) ...[
+                      _sectionTitle(l10n.settingsTitle),
+                      const SizedBox(height: 12),
+                      _buildShowQuickStartTile(context, l10n),
+                      const SizedBox(height: 20),
+                    ],
                     _sectionTitle(l10n.aboutWhatTitle),
                     const SizedBox(height: 12),
                     _descCard(
@@ -166,6 +185,50 @@ class AppInfoDialog extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildShowQuickStartTile(
+      BuildContext context, AppLocalizations l10n) {
+    final accent =
+        isDarkMode ? GamerColors.neonYellow : GamerColors.lightYellow;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode
+            ? GamerColors.darkSurface
+            : accent.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accent.withValues(alpha: 0.3)),
+      ),
+      child: ListTile(
+        leading: Text('\u26A1', style: TextStyle(fontSize: 20)),
+        title: Text(
+          l10n.showQuickStartTitle,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+            color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
+          ),
+        ),
+        subtitle: Text(
+          l10n.showQuickStartSubtitle,
+          style: TextStyle(
+            fontSize: 12,
+            color: isDarkMode ? Colors.white60 : Colors.grey[600],
+          ),
+        ),
+        trailing: TextButton(
+          onPressed: () {
+            onShowQuickStart?.call();
+            Navigator.of(context).pop();
+          },
+          style: TextButton.styleFrom(foregroundColor: accent),
+          child: Text(l10n.showQuickStartAction,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+        ),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
@@ -468,10 +531,19 @@ class AppInfoDialog extends StatelessWidget {
     } catch (_) {}
   }
 
-  static void show(BuildContext context, {bool isDarkMode = false}) {
+  static void show(
+    BuildContext context, {
+    bool isDarkMode = false,
+    bool quickStartHidden = false,
+    VoidCallback? onShowQuickStart,
+  }) {
     showDialog(
       context: context,
-      builder: (context) => AppInfoDialog(isDarkMode: isDarkMode),
+      builder: (context) => AppInfoDialog(
+        isDarkMode: isDarkMode,
+        quickStartHidden: quickStartHidden,
+        onShowQuickStart: onShowQuickStart,
+      ),
     );
   }
 }

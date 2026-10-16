@@ -373,12 +373,21 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               );
             },
           ),
-        IconButton(
-          onPressed: () =>
-              AppInfoDialog.show(context, isDarkMode: widget.isDarkMode),
-          icon: Icon(Icons.info_outline,
-              color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
-          tooltip: AppLocalizations.of(context).appInfoTooltip,
+        Builder(
+          builder: (iconContext) => IconButton(
+            onPressed: () {
+              final searchState = iconContext.read<SearchState>();
+              AppInfoDialog.show(
+                iconContext,
+                isDarkMode: widget.isDarkMode,
+                quickStartHidden: searchState.quickStartHidden,
+                onShowQuickStart: searchState.showQuickStart,
+              );
+            },
+            icon: Icon(Icons.info_outline,
+                color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+            tooltip: AppLocalizations.of(iconContext).appInfoTooltip,
+          ),
         ),
         PopupMenuButton<Locale>(
           icon: Icon(Icons.language,

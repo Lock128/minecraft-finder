@@ -516,5 +516,9 @@
   "freeRadiusCappedNotice": "無料版では検索範囲は{max}ブロックまでです。より広い検索にはProにアップグレードしてください。",
   "resultsHiddenByFilter": "{count, plural, other{確率フィルターにより{count}件の結果を非表示にしました}}",
   "showAll": "すべて表示",
-  "quickStartDismissTooltip": "クイックスタートを非表示"
+  "quickStartDismissTooltip": "クイックスタートを非表示",
+  "settingsTitle": "設定",
+  "showQuickStartTitle": "クイックスタート",
+  "showQuickStartSubtitle": "検索画面のワンタップ・オンボーディングカードを再表示します。",
+  "showQuickStartAction": "表示"
 }
