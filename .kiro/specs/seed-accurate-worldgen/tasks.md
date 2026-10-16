@@ -10,74 +10,74 @@ Property tests reference the 20 correctness properties from the design and run �
 
 ## Tasks
 
-- [ ] 1. Foundation: engine contracts, queries, and result types
-  - [ ] 1.1 Define the WorldGenEngine interface and query/result types
+- [x] 1. Foundation: engine contracts, queries, and result types
+  - [x] 1.1 Define the WorldGenEngine interface and query/result types
     - Create `flutter_app/lib/models/worldgen/worldgen_engine.dart` with the `WorldGenEngine` interface (`findStructures`, `findOres`)
     - Define `StructureQuery`/`OreQuery` mirroring today's `StructureSearchParams`/`OreSearchParams` plus a `MinecraftVersion version` field
     - Define the sealed `EngineResult<T>` hierarchy (`EngineOk`, `EngineUnavailable`, `EngineUnsupportedVersion`), plus `ResultMeta` (veinSize, structureVariant, biome) and `FallbackReason` enum with human-readable text
     - Keep the file pure Dart (no Flutter imports) so it runs inside the `compute` isolate
     - _Requirements: 1.1, 1.4_
 
-  - [ ]* 1.2 Write interface-conformance unit tests
+  - [x]* 1.2 Write interface-conformance unit tests
     - Assert both engine types satisfy `WorldGenEngine`; assert `EngineResult` values are isolate-serializable primitives/enums/model objects
     - _Requirements: 1.1, 1.4_
 
-  - [ ] 1.3 Add MinecraftVersion and MinecraftEdition value types
+  - [x] 1.3 Add MinecraftVersion and MinecraftEdition value types
     - Create `flutter_app/lib/models/worldgen/minecraft_version.dart` with `MinecraftVersion` (`id` e.g. "java-1.20") and reuse/extend the edition enum
     - Provide mapping from `MinecraftVersion` down to the legacy `VersionEra` for the Simulated path
     - _Requirements: 1.3, 4.1_
 
-- [ ] 2. SimulatedEngine adapter over existing finders
-  - [ ] 2.1 Implement SimulatedEngine
+- [x] 2. SimulatedEngine adapter over existing finders
+  - [x] 2.1 Implement SimulatedEngine
     - Create `flutter_app/lib/models/worldgen/simulated_engine.dart` delegating `findStructures`/`findOres` to `StructureFinder`/`OreFinder`
     - Map `MinecraftVersion` → `VersionEra` and always return `EngineOk` (supports any version)
     - _Requirements: 1.3_
 
-  - [ ]* 2.2 Write property test for faithful delegation
+  - [x]* 2.2 Write property test for faithful delegation
     - **Property 2: Simulated engine delegates faithfully**
     - **Validates: Requirements 1.3**
     - For random ore/structure queries, assert `SimulatedEngine` output equals the direct legacy `OreFinder`/`StructureFinder` call
 
-- [ ] 3. Version strategy abstraction and registry
-  - [ ] 3.1 Define VersionStrategy and supporting config types
+- [x] 3. Version strategy abstraction and registry
+  - [x] 3.1 Define VersionStrategy and supporting config types
     - Create `flutter_app/lib/models/worldgen/version_strategy.dart` with the `VersionStrategy` interface (`placementFor`, `strongholdRings`, `biomeParams`, `oreFeatureFor`, `rngParams`) and the config types (`StructurePlacement`, `StrongholdRingConfig`, `BiomeParams`, `OreFeature`, `RngParams`)
     - _Requirements: 4.2, 4.3_
 
-  - [ ] 3.2 Implement VersionStrategyRegistry
+  - [x] 3.2 Implement VersionStrategyRegistry
     - Create `flutter_app/lib/models/worldgen/version_strategy_registry.dart` mapping `(version, edition) → VersionStrategy`, answering `isSupported` and `isVerified` (verification driven by golden-fixture status)
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-  - [ ]* 3.3 Write property tests for strategy resolution and completeness
+  - [x]* 3.3 Write property tests for strategy resolution and completeness
     - **Property 7: Version strategy resolution is complete for supported versions**
     - **Validates: Requirements 4.2, 4.3**
     - **Property 8: Unsupported versions report, not crash** (assert `EngineUnsupportedVersion` for unregistered versions)
     - **Validates: Requirements 4.4**
 
-  - [ ] 3.4 Expand VersionAvailability with an explicit version-list API
+  - [x] 3.4 Expand VersionAvailability with an explicit version-list API
     - Extend `version_availability.dart` with a version-list API sourced from the registry while keeping existing era-based methods for the Simulated path and the retained gating test
     - _Requirements: 4.1, 13.7_
 
-- [ ] 4. Int64 web RNG (64-bit math foundation)
-  - [ ] 4.1 Implement JavaRandomInt64
+- [x] 4. Int64 web RNG (64-bit math foundation)
+  - [x] 4.1 Implement JavaRandomInt64
     - Create `flutter_app/lib/models/worldgen/java_random_int64.dart` using `package:fixnum` `Int64` for all seed-mixing and RNG state arithmetic; mirror `nextInt/nextLong/nextFloat/nextDouble` from `java.util.Random`; convert only reduced results that fit in 2^53 to Dart `int`
     - Confirm `BedrockRandom` (MT19937) is web-safe as-is and reuse it for the web Bedrock path
     - _Requirements: 3.2, 3.5_
 
-  - [ ]* 4.2 Write RNG conformance property test on the web/JS target
+  - [x]* 4.2 Write RNG conformance property test on the web/JS target
     - **Property 4: Web RNG reproduces java.util.Random**
     - **Validates: Requirements 3.5, 13.5**
     - Compare the Int64 web RNG stream against a stored reference `java.util.Random` sequence for random 64-bit seeds; MUST run on the web/JS target (`flutter test --platform chrome`) in addition to the VM; assert no divergence above 2^53
 
-- [ ] 5. Accurate engine core and backend selection
-  - [ ] 5.1 Define the WorldGenBackend contract and BackendSelector
+- [x] 5. Accurate engine core and backend selection
+  - [x] 5.1 Define the WorldGenBackend contract and BackendSelector
     - Create `flutter_app/lib/models/worldgen/worldgen_backend.dart` with the internal `WorldGenBackend` contract (`computeStructures`, `computeOres`, `computeBiome`) and a pure `selectBackend(Platform)` function (web → DartWebBackend, else → NativeFfiBackend) with injected platform detection
     - _Requirements: 2.1, 3.1_
 
-  - [ ] 5.2 Implement AccurateEngine
+  - [x] 5.2 Implement AccurateEngine
     - Create `flutter_app/lib/models/worldgen/accurate_engine.dart` owning a `BackendSelector` and the `VersionStrategyRegistry`; return `EngineUnsupportedVersion` when no strategy exists and `EngineUnavailable` when the backend cannot run
     - _Requirements: 1.4, 2.1, 3.1, 4.4_
 
-  - [ ]* 5.3 Write property test for backend selection
+  - [x]* 5.3 Write property test for backend selection
     - **Property 3: Backend selection matches platform**
     - **Validates: Requirements 2.1, 3.1**
 
@@ -129,16 +129,16 @@ Property tests reference the 20 correctness properties from the design and run �
     - Add a GitHub Actions job (alongside `flutter-ci.yml`) per platform that compiles Cubiomes + shim and smoke-loads the library to confirm symbols resolve
     - _Requirements: 2.4_
 
-- [ ] 8. Golden-seed fixtures scaffolding
-  - [ ] 8.1 Create the fixture layout and loader
+- [x] 8. Golden-seed fixtures scaffolding
+  - [x] 8.1 Create the fixture layout and loader
     - Create `test/fixtures/worldgen/<edition>-<version>/` JSON structure pairing a seed with authoritative structure positions, biome samples, and ore placements; add a loader and a parameterized suite that auto-discovers every directory
     - _Requirements: 13.1, 13.6, 10.3_
 
-  - [ ]* 8.2 Write property test for fixture-set existence
+  - [x]* 8.2 Write property test for fixture-set existence
     - **Property 19: Supported versions always have a golden fixture set**
     - **Validates: Requirements 10.3, 13.1**
 
-- [ ] 9. Checkpoint - foundation complete
+- [x] 9. Checkpoint - foundation complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Spike: prove Int64 web RNG + one village on both backends (Java 1.20)

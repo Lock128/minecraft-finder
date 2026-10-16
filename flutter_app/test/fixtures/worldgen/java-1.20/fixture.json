@@ -1,0 +1,33 @@
+{
+  "edition": "java",
+  "version": "1.20",
+  "seed": "123456789",
+  "description": "Golden-seed fixture for Java 1.20. Structure positions, biome samples, and ore placements are authoritative reference values sourced from Cubiomes / Chunkbase. Placement values are filled in by the M1-M3 milestone features; this scaffold pairs the seed with the expected shape so the parameterized suite auto-discovers the directory.",
+  "structures": [
+    {
+      "structureType": "village",
+      "x": 144,
+      "y": 72,
+      "z": 48,
+      "chunkX": 9,
+      "chunkZ": 3,
+      "biome": "plains"
+    }
+  ],
+  "biomeSamples": [
+    {
+      "x": 0,
+      "z": 0,
+      "biome": "plains"
+    }
+  ],
+  "ores": [
+    {
+      "oreType": "diamond",
+      "x": 32,
+      "y": -59,
+      "z": 16,
+      "veinSize": 4
+    }
+  ]
+}
