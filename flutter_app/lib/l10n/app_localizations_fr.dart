@@ -1676,4 +1676,38 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get showQuickStartAction => 'Afficher';
+
+  @override
+  String get minecraftVersionLabel => 'Version de Minecraft';
+
+  @override
+  String get searchModeTitle => 'Mode de recherche';
+
+  @override
+  String get searchModeAccurate => 'Précis';
+
+  @override
+  String get searchModeEstimate => 'Estimation';
+
+  @override
+  String get searchModeAccurateInfo =>
+      'Le mode précis reproduit la génération réelle du monde pour les versions prises en charge et vérifiées, et affiche les positions exactes au lieu de probabilités estimées.';
+
+  @override
+  String get estimateDisclaimer =>
+      'Ce sont des estimations statistiques, pas des positions exactes dans le jeu. La probabilité est un score de classement, pas une probabilité réelle.';
+
+  @override
+  String get accurateResultsNotice =>
+      'Résultats fidèles à la seed : positions exactes pour cette version vérifiée.';
+
+  @override
+  String veinSizeLabel(int count) {
+    return 'Taille du filon : $count';
+  }
+
+  @override
+  String structureVariantLabel(String variant) {
+    return 'Variante : $variant';
+  }
 }

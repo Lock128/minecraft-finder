@@ -1644,4 +1644,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showQuickStartAction => 'Show';
+
+  @override
+  String get minecraftVersionLabel => 'Minecraft version';
+
+  @override
+  String get searchModeTitle => 'Search mode';
+
+  @override
+  String get searchModeAccurate => 'Accurate';
+
+  @override
+  String get searchModeEstimate => 'Estimate';
+
+  @override
+  String get searchModeAccurateInfo =>
+      'Accurate mode reproduces the real world generation for supported, verified versions and shows exact positions instead of estimated probabilities.';
+
+  @override
+  String get estimateDisclaimer =>
+      'These are statistical estimates, not exact in-game positions. The probability is a ranking score, not a real likelihood.';
+
+  @override
+  String get accurateResultsNotice =>
+      'Seed-accurate results: exact positions for this verified version.';
+
+  @override
+  String veinSizeLabel(int count) {
+    return 'Vein size: $count';
+  }
+
+  @override
+  String structureVariantLabel(String variant) {
+    return 'Variant: $variant';
+  }
 }

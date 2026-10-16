@@ -1493,4 +1493,37 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get showQuickStartAction => '表示';
+
+  @override
+  String get minecraftVersionLabel => 'Minecraftバージョン';
+
+  @override
+  String get searchModeTitle => '検索モード';
+
+  @override
+  String get searchModeAccurate => '正確';
+
+  @override
+  String get searchModeEstimate => '推定';
+
+  @override
+  String get searchModeAccurateInfo =>
+      '正確モードは、対応済みで検証済みのバージョンについて実際のワールド生成を再現し、推定確率ではなく正確な位置を表示します。';
+
+  @override
+  String get estimateDisclaimer =>
+      'これらは統計的な推定であり、ゲーム内の正確な位置ではありません。確率は順位付けのスコアであり、実際の可能性ではありません。';
+
+  @override
+  String get accurateResultsNotice => 'シード正確な結果：この検証済みバージョンの正確な位置です。';
+
+  @override
+  String veinSizeLabel(int count) {
+    return '鉱脈サイズ: $count';
+  }
+
+  @override
+  String structureVariantLabel(String variant) {
+    return 'バリアント: $variant';
+  }
 }

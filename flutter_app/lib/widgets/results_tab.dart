@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
+import '../models/search_runner.dart';
 import '../models/structure_location.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/monetization_config.dart';
@@ -12,6 +13,7 @@ import '../theme/gamer_theme.dart';
 import '../utils/ore_utils.dart';
 import '../utils/structure_utils.dart';
 import 'pro_upgrade_dialog.dart';
+import 'result_presentation.dart';
 import 'results_map_view.dart';
 
 class ResultsTab extends StatefulWidget {
@@ -22,6 +24,12 @@ class ResultsTab extends StatefulWidget {
   final Set<OreType> selectedOreTypes;
   final int totalFound;
 
+  /// Metadata for the last search. Drives honest-metadata rendering (Req 12.3,
+  /// 12.4, 12.5, 5.4): in Accurate mode the fabricated probability % is
+  /// omitted, real metadata is shown, and the Estimate-mode fallback notice is
+  /// rendered when a fallback occurred. Null means plain Estimate behavior.
+  final SearchMeta? searchMeta;
+
   const ResultsTab({
     super.key,
     required this.results,
@@ -30,7 +38,12 @@ class ResultsTab extends StatefulWidget {
     required this.findAllNetherite,
     required this.selectedOreTypes,
     this.totalFound = 0,
+    this.searchMeta,
   });
+
+  /// Pure presentation model derived from [searchMeta].
+  ResultPresentation get presentation =>
+      ResultPresentation.fromMeta(searchMeta);
 
   @override
   State<ResultsTab> createState() => _ResultsTabState();
@@ -265,6 +278,7 @@ class _ResultsTabState extends State<ResultsTab> {
 
     return Column(
       children: [
+        _buildModeNotice(context),
         _buildFilterHeader(context, filteredResults, filteredStructureResults),
         Expanded(
           child: _showMap
@@ -349,6 +363,83 @@ class _ResultsTabState extends State<ResultsTab> {
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(l10n.tryAdjustingFilters),
+        ],
+      ),
+    );
+  }
+
+  /// Renders the mode-dependent notice above the results:
+  ///   - the Estimate-mode fallback notice (with its reason) when a fallback
+  ///     occurred (Req 5.4);
+  ///   - a seed-accurate notice for Verified Accurate results;
+  ///   - the estimate disclaimer for every other (Estimate) result.
+  /// Returns an empty box when nothing applies.
+  Widget _buildModeNotice(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final presentation = widget.presentation;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (presentation.showFallbackNotice) {
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.info_outline,
+        color: GamerColors.neonOrange,
+        isDark: isDark,
+        text: presentation.fallbackText!,
+      );
+    }
+    if (presentation.showRealMetadata) {
+      // Verified Accurate: no disclaimer; surface a positive notice instead.
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.verified_outlined,
+        color: GamerColors.neonGreen,
+        isDark: isDark,
+        text: l10n.accurateResultsNotice,
+      );
+    }
+    if (presentation.showDisclaimer) {
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.info_outline,
+        color: GamerColors.neonOrange,
+        isDark: isDark,
+        text: l10n.estimateDisclaimer,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildNoticeBanner(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required bool isDark,
+    required String text,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      color: color.withValues(alpha: isDark ? 0.12 : 0.08),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.85),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -882,13 +973,22 @@ class _ResultsTabState extends State<ResultsTab> {
             const SizedBox(height: 3),
             Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
                 style: TextStyle(fontSize: 13, color: Colors.grey[500])),
-            Text(
-                l10n.probabilityLabel(
-                    (location.probability * 100).toStringAsFixed(1)),
-                style: TextStyle(
-                    fontSize: 13,
-                    color: oreColor,
-                    fontWeight: FontWeight.w600)),
+            // In Accurate mode the fabricated probability % is omitted
+            // (Req 12.3); instead the real vein size is surfaced (Req 12.4).
+            if (widget.presentation.showProbability)
+              Text(
+                  l10n.probabilityLabel(
+                      (location.probability * 100).toStringAsFixed(1)),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: oreColor,
+                      fontWeight: FontWeight.w600)),
+            if (widget.presentation.showRealMetadata)
+              Text(l10n.veinSizeLabel(location.estimatedVeinSize),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: oreColor,
+                      fontWeight: FontWeight.w600)),
             if (location.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, location.biome!)),
                   style: TextStyle(fontSize: 13, color: Colors.grey[500])),
@@ -988,13 +1088,24 @@ class _ResultsTabState extends State<ResultsTab> {
             const SizedBox(height: 3),
             Text(l10n.chunkLabel(structure.chunkX, structure.chunkZ),
                 style: TextStyle(fontSize: 13, color: Colors.grey[500])),
-            Text(
-                l10n.probabilityLabel(
-                    (structure.probability * 100).toStringAsFixed(1)),
-                style: TextStyle(
-                    fontSize: 13,
-                    color: structColor,
-                    fontWeight: FontWeight.w600)),
+            // In Accurate mode omit the fabricated probability % (Req 12.3);
+            // surface the real structure variant where available (Req 12.4).
+            if (widget.presentation.showProbability)
+              Text(
+                  l10n.probabilityLabel(
+                      (structure.probability * 100).toStringAsFixed(1)),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: structColor,
+                      fontWeight: FontWeight.w600)),
+            if (widget.presentation.showRealMetadata && structure.biome != null)
+              Text(
+                  l10n.structureVariantLabel(
+                      _getBiomeName(context, structure.biome!)),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: structColor,
+                      fontWeight: FontWeight.w600)),
             if (structure.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, structure.biome!)),
                   style: TextStyle(fontSize: 13, color: Colors.grey[500])),

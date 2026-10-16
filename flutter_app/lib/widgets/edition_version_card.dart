@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/game_random.dart';
+import '../models/worldgen/engine_selector.dart';
+import '../models/worldgen/minecraft_version.dart';
 import '../theme/gamer_theme.dart';
 
 class EditionVersionCard extends StatefulWidget {
@@ -10,6 +12,22 @@ class EditionVersionCard extends StatefulWidget {
   final ValueChanged<VersionEra> onVersionEraChanged;
   final bool isDarkMode;
 
+  /// Seed-accurate version picker (Req 12.1). The list is sourced from the
+  /// VersionAvailability/registry version list by the caller.
+  final List<MinecraftVersion> availableVersions;
+
+  /// The explicitly selected version, or null when none is chosen.
+  final MinecraftVersion? selectedVersion;
+
+  /// Called when the user picks a version (or clears it with null).
+  final ValueChanged<MinecraftVersion?> onVersionChanged;
+
+  /// The Accurate/Estimate search mode (Req 12.2).
+  final SearchMode searchMode;
+
+  /// Called when the user flips the Accurate/Estimate toggle.
+  final ValueChanged<SearchMode> onSearchModeChanged;
+
   const EditionVersionCard({
     super.key,
     required this.selectedEdition,
@@ -17,7 +35,15 @@ class EditionVersionCard extends StatefulWidget {
     required this.onEditionChanged,
     required this.onVersionEraChanged,
     this.isDarkMode = false,
+    this.availableVersions = const [],
+    this.selectedVersion,
+    this.onVersionChanged = _noopVersion,
+    this.searchMode = SearchMode.estimate,
+    this.onSearchModeChanged = _noopMode,
   });
+
+  static void _noopVersion(MinecraftVersion? _) {}
+  static void _noopMode(SearchMode _) {}
 
   @override
   State<EditionVersionCard> createState() => _EditionVersionCardState();
@@ -32,6 +58,9 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
   bool get isDarkMode => widget.isDarkMode;
   MinecraftEdition get selectedEdition => widget.selectedEdition;
   VersionEra get selectedVersionEra => widget.selectedVersionEra;
+  SearchMode get searchMode => widget.searchMode;
+  List<MinecraftVersion> get availableVersions => widget.availableVersions;
+  MinecraftVersion? get selectedVersion => widget.selectedVersion;
 
   String _editionLabel(AppLocalizations l10n) =>
       selectedEdition == MinecraftEdition.java
@@ -131,6 +160,15 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
                 },
               ),
             ),
+            // Seed-accurate version picker (Req 12.1). Only shown when the
+            // registry supplies versions for the selected edition.
+            if (availableVersions.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _buildVersionPicker(l10n),
+            ],
+            const SizedBox(height: 12),
+            // Accurate/Estimate search mode toggle (Req 12.2).
+            _buildModeToggle(l10n),
             const SizedBox(height: 12),
             _buildInfoBox(
               icon: Icons.new_releases_outlined,
@@ -138,6 +176,14 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
               title: l10n.latestUpdateTitle,
               body: l10n.latestUpdateInfo,
             ),
+            if (searchMode == SearchMode.accurate) ...[
+              const SizedBox(height: 12),
+              _buildInfoBox(
+                icon: Icons.verified_outlined,
+                color: GamerColors.neonGreen,
+                body: l10n.searchModeAccurateInfo,
+              ),
+            ],
             if (selectedEdition == MinecraftEdition.bedrock) ...[
               const SizedBox(height: 12),
               _buildInfoBox(
@@ -157,6 +203,90 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
           ],
         ],
       ),
+    );
+  }
+
+  /// Dropdown version picker populated from [availableVersions] (Req 12.1).
+  Widget _buildVersionPicker(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.minecraftVersionLabel,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: GamerColors.orangeText(isDarkMode),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: (isDarkMode ? Colors.white54 : Colors.grey).withValues(
+                alpha: 0.5,
+              ),
+            ),
+          ),
+          child: DropdownButton<MinecraftVersion>(
+            // Only use the current value when it is in the list, else null.
+            value: availableVersions.contains(selectedVersion)
+                ? selectedVersion
+                : null,
+            isExpanded: true,
+            underline: const SizedBox.shrink(),
+            hint: Text(l10n.minecraftVersionLabel),
+            items: [
+              for (final version in availableVersions)
+                DropdownMenuItem<MinecraftVersion>(
+                  value: version,
+                  child: Text(version.release),
+                ),
+            ],
+            onChanged: widget.onVersionChanged,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Accurate/Estimate mode toggle (Req 12.2).
+  Widget _buildModeToggle(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.searchModeTitle,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: GamerColors.orangeText(isDarkMode),
+          ),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<SearchMode>(
+            segments: [
+              ButtonSegment(
+                value: SearchMode.estimate,
+                label: Text(l10n.searchModeEstimate),
+              ),
+              ButtonSegment(
+                value: SearchMode.accurate,
+                label: Text(l10n.searchModeAccurate),
+              ),
+            ],
+            selected: {searchMode},
+            onSelectionChanged: (selected) {
+              widget.onSearchModeChanged(selected.first);
+            },
+          ),
+        ),
+      ],
     );
   }
 

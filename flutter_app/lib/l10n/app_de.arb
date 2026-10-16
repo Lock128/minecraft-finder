@@ -520,5 +520,14 @@
   "settingsTitle": "Einstellungen",
   "showQuickStartTitle": "Schnellstart",
   "showQuickStartSubtitle": "Die Onboarding-Karte mit einem Tipp auf dem Suchbildschirm wieder anzeigen.",
-  "showQuickStartAction": "Anzeigen"
+  "showQuickStartAction": "Anzeigen",
+  "minecraftVersionLabel": "Minecraft-Version",
+  "searchModeTitle": "Suchmodus",
+  "searchModeAccurate": "Genau",
+  "searchModeEstimate": "Schätzung",
+  "searchModeAccurateInfo": "Der genaue Modus reproduziert die echte Weltgenerierung für unterstützte, verifizierte Versionen und zeigt exakte Positionen statt geschätzter Wahrscheinlichkeiten.",
+  "estimateDisclaimer": "Dies sind statistische Schätzungen, keine exakten Positionen im Spiel. Die Wahrscheinlichkeit ist ein Ranking-Wert, keine echte Wahrscheinlichkeit.",
+  "accurateResultsNotice": "Seed-genaue Ergebnisse: exakte Positionen für diese verifizierte Version.",
+  "veinSizeLabel": "Adergröße: {count}",
+  "structureVariantLabel": "Variante: {variant}"
 }

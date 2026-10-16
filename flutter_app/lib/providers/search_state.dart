@@ -5,6 +5,10 @@ import '../models/search_runner.dart';
 import '../models/structure_location.dart';
 import '../models/search_result.dart';
 import '../models/version_availability.dart';
+import '../models/worldgen/default_registry.dart';
+import '../models/worldgen/engine_selector.dart';
+import '../models/worldgen/minecraft_version.dart';
+import '../models/worldgen/version_strategy_registry.dart';
 import '../utils/preferences_service.dart';
 
 /// Holds all search form state and orchestrates the search logic.
@@ -23,6 +27,40 @@ class SearchState extends ChangeNotifier {
 
   VersionEra _selectedVersionEra = VersionEra.modern;
   VersionEra get selectedVersionEra => _selectedVersionEra;
+
+  // Registry of seed-accurate version strategies. Single source of truth for
+  // which versions are Supported / Verified — the UI reads it so the version
+  // picker and the result cards never hard-code verification state.
+  final VersionStrategyRegistry _registry = buildDefaultRegistry();
+
+  /// Supported versions for the current edition, sourced from the registry,
+  /// for the version picker (Req 12.1). Empty when the edition has no
+  /// seed-accurate strategies yet (e.g. Bedrock today).
+  List<MinecraftVersion> get availableVersions =>
+      VersionAvailability.supportedVersions(_registry,
+          edition: _selectedEdition);
+
+  /// The explicitly selected Minecraft version, or null when the user has not
+  /// picked one (the search then derives a version from the era). Only versions
+  /// in [availableVersions] are ever stored here.
+  MinecraftVersion? _selectedVersion;
+  MinecraftVersion? get selectedVersion => _selectedVersion;
+
+  /// Whether [version] is a Verified_Version per the registry.
+  bool isVersionVerified(MinecraftVersion version) =>
+      _registry.isVerified(version);
+
+  /// The requested search mode (Req 12.2). Defaults to [SearchMode.estimate]
+  /// so existing users keep the current behavior exactly.
+  SearchMode _searchMode = SearchMode.estimate;
+  SearchMode get searchMode => _searchMode;
+
+  /// Metadata describing how the most recent search output was produced
+  /// (mode / version / verified / fallbackReason). Null until a search runs.
+  /// The results UI reads it to omit the fabricated probability % in Accurate
+  /// mode and to render the Estimate-mode fallback notice (Req 12.3-12.5, 5.4).
+  SearchMeta? _lastSearchMeta;
+  SearchMeta? get lastSearchMeta => _lastSearchMeta;
 
   // Search options
   Set<OreType> _selectedOreTypes = {OreType.diamond};
@@ -210,6 +248,25 @@ class SearchState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Select an explicit [MinecraftVersion] from the picker, or clear the
+  /// selection with null. Keeps [selectedVersionEra] in sync so the Simulated
+  /// path and content gating still work from the chosen version's era.
+  void setSelectedVersion(MinecraftVersion? version) {
+    _selectedVersion = version;
+    if (version != null) {
+      _selectedVersionEra = version.era;
+      PreferencesService.saveVersionEra(_selectedVersionEra);
+      _pruneUnavailableSelections();
+    }
+    notifyListeners();
+  }
+
+  /// Switch the Accurate/Estimate [SearchMode] (Req 12.2).
+  void setSearchMode(SearchMode mode) {
+    _searchMode = mode;
+    notifyListeners();
+  }
+
   /// Drop any selected ore/structure that does not exist in the currently
   /// selected edition/version era. Called when the edition or era changes so
   /// the selection never silently holds content that the search would reject
@@ -327,12 +384,22 @@ class SearchState extends ChangeNotifier {
     final int centerZ = int.parse(zController.text);
     final String seed = seedController.text;
 
+    // The mode + explicit version id to send with each search request. These
+    // flow into the WorldGenEngine selection inside the isolate.
+    final SearchMode mode = _searchMode;
+    final String? versionId = _selectedVersion?.id;
+
     try {
       List<OreLocation> allResults = [];
 
       // Total qualifying candidates across all finders, before the display cap.
       // Drives the "showing top N of X found" label in the results tab.
       int totalCandidates = 0;
+
+      // The SearchMeta from the produced output(s). All sub-searches in a run
+      // share the same mode/version, so the first non-null meta describes the
+      // whole result set and drives the results-tab presentation.
+      SearchMeta? meta;
 
       // Search for ores if enabled. Each search runs on a background isolate
       // (via compute) so the heavy loops never block the UI thread — the app
@@ -352,6 +419,7 @@ class SearchState extends ChangeNotifier {
           );
           allResults.addAll(output.results);
           totalCandidates += output.totalFound;
+          meta ??= output.meta;
         } else {
           for (OreType oreType in _selectedOreTypes) {
             final output = await SearchRunner.findOres(
@@ -366,10 +434,13 @@ class SearchState extends ChangeNotifier {
                 edition: _selectedEdition,
                 versionEra: _selectedVersionEra,
                 maxResults: maxResults,
+                mode: mode,
+                versionId: versionId,
               ),
             );
             allResults.addAll(output.results);
             totalCandidates += output.totalFound;
+            meta ??= output.meta;
           }
         }
       }
@@ -387,10 +458,13 @@ class SearchState extends ChangeNotifier {
             maxResults: maxResults,
             edition: _selectedEdition,
             versionEra: _selectedVersionEra,
+            mode: mode,
+            versionId: versionId,
           ),
         );
         structureResults = output.results;
         totalCandidates += output.totalFound;
+        meta ??= output.meta;
       }
 
       // A newer search started (or the provider was disposed) while this one
@@ -433,6 +507,7 @@ class SearchState extends ChangeNotifier {
 
       _results = topOreResults;
       _structureResults = topStructureResults;
+      _lastSearchMeta = meta;
       _isLoading = false;
       notifyListeners();
 

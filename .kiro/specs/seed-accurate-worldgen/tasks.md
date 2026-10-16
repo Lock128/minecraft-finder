@@ -241,28 +241,28 @@ Property tests reference the 20 correctness properties from the design and run â
 - [x] 15. Checkpoint - Java track (M1â€“M3) complete and verified
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. M6: UX for version selection and accurate results
-  - [ ] 16.1 Add the version picker from the registry list
+- [x] 16. M6: UX for version selection and accurate results
+  - [x] 16.1 Add the version picker from the registry list
     - Add a version picker populated from the `VersionAvailability` version list
     - _Requirements: 12.1_
 
-  - [ ] 16.2 Add the Accurate/Estimate mode toggle
+  - [x] 16.2 Add the Accurate/Estimate mode toggle
     - Add a mode toggle wired to the search request mode
     - _Requirements: 12.2_
 
-  - [ ] 16.3 Render accurate result cards and fallback notice
+  - [x] 16.3 Render accurate result cards and fallback notice
     - Read `SearchMeta`: omit the fabricated probability % in Accurate mode; show real metadata (vein size, structure variant) where available; render the Estimate-mode notice stating the reason when `fallbackReason` is set; omit the estimate disclaimer only for Verified_Version Accurate results
     - _Requirements: 12.3, 12.4, 12.5, 5.4_
 
-  - [ ]* 16.4 Write property test for disclaimer/probability visibility
+  - [x]* 16.4 Write property test for disclaimer/probability visibility
     - **Property 20: Disclaimer visibility follows mode and verification**
     - **Validates: Requirements 12.3, 12.5**
 
-  - [ ]* 16.5 Write UI widget tests
+  - [x]* 16.5 Write UI widget tests
     - Version picker populated from the registry list; mode toggle present and functional; accurate cards render real metadata
     - _Requirements: 12.1, 12.2, 12.4_
 
-- [ ] 17. Checkpoint - required deliverable (foundation + spike + M1â€“M3 + UX) complete
+- [x] 17. Checkpoint - required deliverable (foundation + spike + M1â€“M3 + UX) complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ]* 18. M4: version expansion (1.16/1.17, then 1.21+)
@@ -287,8 +287,8 @@ Property tests reference the 20 correctness properties from the design and run â
     - **Property 18: Bedrock uses MT19937 and matches the reference**
     - **Validates: Requirements 11.1**
 
-- [ ] 20. Retain existing characterization tests
-  - [ ] 20.1 Verify search_version_gating_test.dart still passes unchanged
+- [x] 20. Retain existing characterization tests
+  - [x] 20.1 Verify search_version_gating_test.dart still passes unchanged
     - Confirm `test/models/search_version_gating_test.dart` is retained unchanged and passes against the Simulated engine (determinism, version gating, edition divergence)
     - _Requirements: 13.7_
 
