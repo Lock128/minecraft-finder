@@ -75,10 +75,24 @@ void main() {
 
     test('supported Java versions are discoverable via VersionAvailability',
         () {
-      // Sanity: the registry lists the same versions the UI picker would read.
+      // Sanity: the registry lists the same Java versions the UI picker would
+      // read. Bedrock fixtures are filtered out and asserted separately below.
       final javaVersions = registry.supportedVersionsFor(MinecraftEdition.java);
-      expect(javaVersions.map((v) => v.id),
-          containsAll(fixtures.map((f) => f.directoryName)));
+      final javaFixtureDirs = fixtures
+          .where((f) => f.edition == 'java')
+          .map((f) => f.directoryName);
+      expect(javaVersions.map((v) => v.id), containsAll(javaFixtureDirs));
+    });
+
+    test('supported Bedrock versions are discoverable via VersionAvailability',
+        () {
+      final bedrockVersions =
+          registry.supportedVersionsFor(MinecraftEdition.bedrock);
+      final bedrockFixtureDirs = fixtures
+          .where((f) => f.edition == 'bedrock')
+          .map((f) => f.directoryName);
+      expect(bedrockVersions.map((v) => v.id),
+          containsAll(bedrockFixtureDirs));
     });
   });
 }

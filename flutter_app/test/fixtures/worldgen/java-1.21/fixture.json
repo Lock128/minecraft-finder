@@ -1,0 +1,62 @@
+{
+  "edition": "java",
+  "version": "1.21",
+  "seed": "987654321",
+  "source": "algorithm-derived",
+  "description": "Golden fixture for Java 1.21 (M4 version expansion). Reference values are ALGORITHM-DERIVED by the pure-Dart DartWebBackend placement math driven by the Java 1.21 VersionStrategy (shares the 1.18+ cave-and-cliffs ore distribution and multi-noise climate model, region-grid salted structure placement, stronghold ring LCG walk). They are deterministic and self-consistent but NOT externally verified against Cubiomes/Chunkbase; a later live native run should replace them with externally-authoritative coordinates and flip the registry isVerified flag.",
+  "structures": [
+    {
+      "structureType": "village",
+      "x": 232,
+      "y": 0,
+      "z": -440,
+      "chunkX": 14,
+      "chunkZ": -28,
+      "biome": "plains"
+    },
+    {
+      "structureType": "stronghold",
+      "x": -3752,
+      "y": 0,
+      "z": -4488,
+      "chunkX": -235,
+      "chunkZ": -281,
+      "biome": "beach"
+    },
+    {
+      "structureType": "buriedTreasure",
+      "x": 9,
+      "y": 0,
+      "z": 25,
+      "chunkX": 0,
+      "chunkZ": 1,
+      "biome": "plains"
+    }
+  ],
+  "biomeSamples": [
+    {
+      "x": 0,
+      "z": 0,
+      "biome": "plains"
+    },
+    {
+      "x": 1000,
+      "z": -1000,
+      "biome": "taiga"
+    },
+    {
+      "x": -2000,
+      "z": 2000,
+      "biome": "snowy_beach"
+    }
+  ],
+  "ores": [
+    {
+      "oreType": "diamond",
+      "x": 1,
+      "y": -46,
+      "z": 1,
+      "veinSize": 3
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import 'ore_location.dart';
 import 'structure_finder.dart';
 import 'structure_location.dart';
 import 'worldgen/accurate_engine.dart';
+import 'worldgen/bedrock_backend.dart';
 import 'worldgen/default_registry.dart';
 import 'worldgen/engine_selector.dart';
 import 'worldgen/minecraft_version.dart';
@@ -215,6 +216,9 @@ EngineSelectionContext _contextFor({
       // dependency reaches the web bundle. On web selectBackend routes to the
       // DartWebBackend and never touches this instance.
       nativeFfiBackend: NativeFfiBackend(),
+      // The Bedrock backend reuses the web-safe MT19937 BedrockRandom on every
+      // platform, so the same instance serves both web and native.
+      bedrockBackend: const BedrockBackend(),
     ),
   );
   return EngineSelectionContext(
@@ -277,11 +281,18 @@ Future<SearchOutput<OreLocation>> dispatchOreSearch(
       );
     case EngineUnavailable<OreLocation> u:
       return _oreFallback(query, era, reason: u.reason);
-    case EngineUnsupportedVersion<OreLocation> _:
+    case EngineUnsupportedVersion<OreLocation> unsupported:
       return _oreFallback(query, era,
-          reason: FallbackReason.unsupportedVersion);
+          reason: _unsupportedReason(unsupported.edition));
   }
 }
+
+/// An unregistered Bedrock version degrades with the Bedrock-specific reason
+/// (Req 11.3); any other unregistered version uses the generic reason.
+FallbackReason _unsupportedReason(MinecraftEdition edition) =>
+    edition == MinecraftEdition.bedrock
+        ? FallbackReason.bedrockNoStrategy
+        : FallbackReason.unsupportedVersion;
 
 Future<SearchOutput<OreLocation>> _oreFallback(
   OreQuery query,
@@ -371,9 +382,9 @@ Future<SearchOutput<StructureLocation>> dispatchStructureSearch(
       );
     case EngineUnavailable<StructureLocation> u:
       return _structureFallback(query, era, reason: u.reason);
-    case EngineUnsupportedVersion<StructureLocation> _:
+    case EngineUnsupportedVersion<StructureLocation> unsupported:
       return _structureFallback(query, era,
-          reason: FallbackReason.unsupportedVersion);
+          reason: _unsupportedReason(unsupported.edition));
   }
 }
 

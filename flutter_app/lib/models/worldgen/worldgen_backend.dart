@@ -54,12 +54,64 @@ abstract interface class WorldGenBackend {
 
 /// Pure selector: web -> [DartWebBackend], everything else ->
 /// [NativeFfiBackend]. Platform detection is injected via [p].
+///
+/// When a [bedrockBackend] is supplied, the chosen Java backend is wrapped in a
+/// [CompositeBackend] so a single returned [WorldGenBackend] can run both the
+/// Java and the Bedrock track (the composite dispatches by the strategy's
+/// edition). The Bedrock path reuses the web-safe MT19937 [BedrockRandom] on
+/// every platform, so the same instance serves web and native.
 WorldGenBackend selectBackend(
   Platform p, {
   required WorldGenBackend dartWebBackend,
   required WorldGenBackend nativeFfiBackend,
+  WorldGenBackend? bedrockBackend,
 }) {
-  return p == Platform.web ? dartWebBackend : nativeFfiBackend;
+  final WorldGenBackend javaBackend =
+      p == Platform.web ? dartWebBackend : nativeFfiBackend;
+  if (bedrockBackend == null) return javaBackend;
+  return CompositeBackend(
+    javaBackend: javaBackend,
+    bedrockBackend: bedrockBackend,
+  );
+}
+
+/// Routes a query to the backend that can run the request's edition. The Java
+/// backend handles [MinecraftEdition.java] strategies; the Bedrock backend
+/// handles [MinecraftEdition.bedrock] strategies. [canRun] is the union of the
+/// two so the [AccurateEngine] only degrades when neither can run.
+///
+/// Pure Dart (no Flutter imports) so it runs inside the `compute` isolate.
+class CompositeBackend implements WorldGenBackend {
+  const CompositeBackend({
+    required this.javaBackend,
+    required this.bedrockBackend,
+  });
+
+  final WorldGenBackend javaBackend;
+  final WorldGenBackend bedrockBackend;
+
+  WorldGenBackend _pick(VersionStrategy strategy) =>
+      strategy.edition == MinecraftEdition.bedrock
+          ? bedrockBackend
+          : javaBackend;
+
+  @override
+  bool canRun(VersionStrategy strategy) => _pick(strategy).canRun(strategy);
+
+  @override
+  Future<List<StructureLocation>> computeStructures(
+          StructureQuery query, VersionStrategy strategy) =>
+      _pick(strategy).computeStructures(query, strategy);
+
+  @override
+  Future<List<OreLocation>> computeOres(
+          OreQuery query, VersionStrategy strategy) =>
+      _pick(strategy).computeOres(query, strategy);
+
+  @override
+  Future<String> computeBiome(
+          int seed, int x, int z, VersionStrategy strategy) =>
+      _pick(strategy).computeBiome(seed, x, z, strategy);
 }
 
 /// Function type for the backend selector so it can be injected into the

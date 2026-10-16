@@ -265,25 +265,25 @@ Property tests reference the 20 correctness properties from the design and run â
 - [x] 17. Checkpoint - required deliverable (foundation + spike + M1â€“M3 + UX) complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ]* 18. M4: version expansion (1.16/1.17, then 1.21+)
-  - [ ]* 18.1 Add Java 1.16/1.17 strategies, fixtures, and results
+- [x]* 18. M4: version expansion (1.16/1.17, then 1.21+)
+  - [x]* 18.1 Add Java 1.16/1.17 strategies, fixtures, and results
     - Register `VersionStrategy` entries for Java 1.16 and 1.17 (research placement tables/salts/RNG params) and add their golden fixture sets; return exact structure, biome, and ore results
     - _Requirements: 10.1, 10.3_
 
-  - [ ]* 18.2 Add Java 1.21+ strategies, fixtures, and results
+  - [x]* 18.2 Add Java 1.21+ strategies, fixtures, and results
     - Register `VersionStrategy` entries for Java 1.21 and later (research) with golden fixture sets; return exact structure, biome, and ore results
     - _Requirements: 10.2, 10.3_
 
-- [ ]* 19. M5: Bedrock track (MT19937)
-  - [ ]* 19.1 Add Bedrock VersionStrategy and MT19937 seed handling
+- [x]* 19. M5: Bedrock track (MT19937)
+  - [x]* 19.1 Add Bedrock VersionStrategy and MT19937 seed handling
     - Register a Bedrock `VersionStrategy` (research), compute results using Bedrock seed handling and the existing MT19937 `BedrockRandom`
     - _Requirements: 11.1_
 
-  - [ ]* 19.2 Add Bedrock golden fixtures and verify placement
+  - [x]* 19.2 Add Bedrock golden fixtures and verify placement
     - Add Bedrock fixture sets; assert returned positions match
     - _Requirements: 11.2, 10.3_
 
-  - [ ]* 19.3 Write property test for Bedrock MT19937 placement
+  - [x]* 19.3 Write property test for Bedrock MT19937 placement
     - **Property 18: Bedrock uses MT19937 and matches the reference**
     - **Validates: Requirements 11.1**
 

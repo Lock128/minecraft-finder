@@ -11,12 +11,18 @@ import 'package:gem_ore_struct_finder_mc/models/worldgen/version_strategy.dart';
 /// such as `java-1.20`. Returns null for non-Java directories.
 VersionStrategy? strategyForDirectory(String directoryName) {
   switch (directoryName) {
+    case 'java-1.16':
+      return JavaVersionStrategy.java116();
+    case 'java-1.17':
+      return JavaVersionStrategy.java117();
     case 'java-1.18':
       return JavaVersionStrategy.java118();
     case 'java-1.19':
       return JavaVersionStrategy.java119();
     case 'java-1.20':
       return JavaVersionStrategy.java120();
+    case 'java-1.21':
+      return JavaVersionStrategy.java121();
     default:
       return null;
   }

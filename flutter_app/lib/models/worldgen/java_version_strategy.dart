@@ -214,6 +214,126 @@ class JavaVersionStrategy implements VersionStrategy {
         ),
       };
 
+  /// Region-grid placement table for Java 1.16/1.17 (the pre-cave-and-cliffs
+  /// releases). The common salted `StructureSet`s share the 1.18+ values, but
+  /// ancient cities did not exist before 1.19, so this table omits them. The
+  /// nether/end structures and the overworld spacing/separation match the
+  /// vanilla `worldgen/structure_set` definitions for 1.16/1.17.
+  static Map<StructureType, StructurePlacement> get _legacyPlacements {
+    final map = <StructureType, StructurePlacement>{
+      ..._sharedPlacements,
+    };
+    // Ancient cities are a 1.19 (deep dark) structure; remove for 1.16/1.17.
+    map.remove(StructureType.ancientCity);
+    return map;
+  }
+
+  /// Pre-1.18 biome model: biomes come from the legacy layered generator, not
+  /// the multi-noise climate stack. We still compute a deterministic biome for
+  /// gating and fixtures, flagged `hasMultiNoise: false` so the engine/strategy
+  /// records the real version behaviour. The distinct `noiseSalt` keeps the
+  /// 1.16/1.17 biome field independent from the 1.18+ field.
+  static const BiomeParams _legacyBiomes =
+      BiomeParams(hasMultiNoise: false, noiseSalt: 100);
+
+  /// Ore feature table for Java 1.16/1.17 (the pre-cave-and-cliffs
+  /// distribution). Y ranges and counts match the vanilla ore `PlacedFeature`s
+  /// for those releases: diamonds Y 1-15, gold Y 1-31, iron Y 1-63, etc. Vein
+  /// sizes match the configured-feature `size` values of that era.
+  static Map<OreType, OreFeature> get _legacyOreFeatures => const {
+        // Diamond: count 1, size 0-7, Y 1-15 (classic deepslate-free band).
+        OreType.diamond: OreFeature(
+          countPerChunk: 1,
+          tries: 4,
+          minY: 1,
+          maxY: 15,
+          minVeinSize: 1,
+          maxVeinSize: 8,
+        ),
+        // Gold: count 2, size 0-8, Y 1-31.
+        OreType.gold: OreFeature(
+          countPerChunk: 2,
+          tries: 4,
+          minY: 1,
+          maxY: 31,
+          minVeinSize: 1,
+          maxVeinSize: 9,
+        ),
+        // Netherite / ancient debris: count 1 (+1), size 0-3, Y 8-22.
+        OreType.netherite: OreFeature(
+          countPerChunk: 2,
+          tries: 2,
+          minY: 8,
+          maxY: 22,
+          minVeinSize: 1,
+          maxVeinSize: 3,
+        ),
+        // Redstone: count 8, size 0-7, Y 1-15.
+        OreType.redstone: OreFeature(
+          countPerChunk: 8,
+          tries: 4,
+          minY: 1,
+          maxY: 15,
+          minVeinSize: 1,
+          maxVeinSize: 8,
+        ),
+        // Iron: count 20, size 0-8, Y 1-63.
+        OreType.iron: OreFeature(
+          countPerChunk: 20,
+          tries: 4,
+          minY: 1,
+          maxY: 63,
+          minVeinSize: 1,
+          maxVeinSize: 9,
+        ),
+        // Coal: count 20, size 0-16, Y 1-127.
+        OreType.coal: OreFeature(
+          countPerChunk: 20,
+          tries: 4,
+          minY: 1,
+          maxY: 127,
+          minVeinSize: 1,
+          maxVeinSize: 17,
+        ),
+        // Lapis: count 1, size 0-6, Y 1-30.
+        OreType.lapis: OreFeature(
+          countPerChunk: 1,
+          tries: 4,
+          minY: 1,
+          maxY: 30,
+          minVeinSize: 1,
+          maxVeinSize: 7,
+        ),
+        // Copper: introduced in 1.17, count 6, size 0-16, Y 0-96. For 1.16 the
+        // engine still accepts the type but it never generates in that world;
+        // we keep the table entry so a 1.16 copper query degrades gracefully.
+        OreType.copper: OreFeature(
+          countPerChunk: 6,
+          tries: 4,
+          minY: 0,
+          maxY: 96,
+          minVeinSize: 1,
+          maxVeinSize: 16,
+        ),
+        // Emerald: count 11 (rare), size 1, Y 4-31 (mountain biomes only).
+        OreType.emerald: OreFeature(
+          countPerChunk: 11,
+          tries: 1,
+          minY: 4,
+          maxY: 31,
+          minVeinSize: 1,
+          maxVeinSize: 1,
+        ),
+      };
+
+  /// Region-grid placement table for Java 1.21+. Shares the 1.18+ values for
+  /// the long-standing structures; later releases add trail ruins (1.20) and
+  /// keep ancient cities, so this reuses the shared table. The per-version
+  /// factory keeps the seam open for 1.21-only divergence without touching the
+  /// engine.
+  static Map<StructureType, StructurePlacement> get _modern121Placements =>
+      _sharedPlacements;
+
   static const RngParams _javaRngParams =
       RngParams(usesMt19937: false, decorationSalt: 0);
 
@@ -241,6 +361,39 @@ class JavaVersionStrategy implements VersionStrategy {
   factory JavaVersionStrategy.java120() => JavaVersionStrategy(
         version: const MinecraftVersion('java-1.20'),
         placements: _sharedPlacements,
+        strongholdRings: _sharedStrongholdRings,
+        biomeParams: _multiNoiseBiomes,
+        oreFeatures: _sharedOreFeatures,
+        rngParams: _javaRngParams,
+      );
+
+  /// Build the Java 1.16 strategy (pre-cave-and-cliffs ore distribution and
+  /// legacy biome model).
+  factory JavaVersionStrategy.java116() => JavaVersionStrategy(
+        version: const MinecraftVersion('java-1.16'),
+        placements: _legacyPlacements,
+        strongholdRings: _sharedStrongholdRings,
+        biomeParams: _legacyBiomes,
+        oreFeatures: _legacyOreFeatures,
+        rngParams: _javaRngParams,
+      );
+
+  /// Build the Java 1.17 strategy (still the legacy ore distribution; copper
+  /// was introduced this release so it keeps the full ore table).
+  factory JavaVersionStrategy.java117() => JavaVersionStrategy(
+        version: const MinecraftVersion('java-1.17'),
+        placements: _legacyPlacements,
+        strongholdRings: _sharedStrongholdRings,
+        biomeParams: _legacyBiomes,
+        oreFeatures: _legacyOreFeatures,
+        rngParams: _javaRngParams,
+      );
+
+  /// Build the Java 1.21 strategy (shares the 1.18+ cave-and-cliffs tables and
+  /// multi-noise climate model).
+  factory JavaVersionStrategy.java121() => JavaVersionStrategy(
+        version: const MinecraftVersion('java-1.21'),
+        placements: _modern121Placements,
         strongholdRings: _sharedStrongholdRings,
         biomeParams: _multiNoiseBiomes,
         oreFeatures: _sharedOreFeatures,

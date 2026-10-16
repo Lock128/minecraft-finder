@@ -155,6 +155,51 @@ void main() {
       expect(out.meta!.fallbackReason!.text, isNotEmpty);
     });
 
+    test(
+        'unregistered Bedrock version degrades with bedrockNoStrategy '
+        '(Req 11.3)', () async {
+      final bedrockVersion =
+          MinecraftVersion.of(MinecraftEdition.bedrock, '9.99');
+      final spy = SpyEngine(
+        EngineUnsupportedVersion<OreLocation>(
+            bedrockVersion, MinecraftEdition.bedrock),
+        EngineUnsupportedVersion<StructureLocation>(
+            bedrockVersion, MinecraftEdition.bedrock),
+      );
+      final oreOut = await dispatchOreSearch(
+          spy,
+          OreQuery(
+            seed: '12345',
+            centerX: 0,
+            centerY: -59,
+            centerZ: 0,
+            radius: 48,
+            oreType: OreType.diamond,
+            includeNether: false,
+            edition: MinecraftEdition.bedrock,
+            version: bedrockVersion,
+            maxResults: 50,
+          ),
+          VersionEra.modern);
+      expect(oreOut.meta!.fallbackReason, FallbackReason.bedrockNoStrategy);
+      expect(oreOut.meta!.mode, SearchMode.estimate);
+
+      final structOut = await dispatchStructureSearch(
+          spy,
+          StructureQuery(
+            seed: '12345',
+            centerX: 0,
+            centerZ: 0,
+            radius: 512,
+            structureTypes: {StructureType.village},
+            maxResults: 50,
+            edition: MinecraftEdition.bedrock,
+            version: bedrockVersion,
+          ),
+          VersionEra.modern);
+      expect(structOut.meta!.fallbackReason, FallbackReason.bedrockNoStrategy);
+    });
+
     test('EngineOk from a non-accurate engine carries estimate meta, no reason',
         () async {
       final spy = SpyEngine(
