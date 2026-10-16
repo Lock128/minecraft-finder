@@ -81,17 +81,17 @@ Property tests reference the 20 correctness properties from the design and run �
     - **Property 3: Backend selection matches platform**
     - **Validates: Requirements 2.1, 3.1**
 
-- [ ] 6. SearchRunner selection and degradation seam
-  - [ ] 6.1 Implement EngineSelector
+- [x] 6. SearchRunner selection and degradation seam
+  - [x] 6.1 Implement EngineSelector
     - Add a pure `selectEngine(EngineSelectionContext)` to the search layer: Estimate → Simulated; Accurate → Simulated when unverified or web-cannot-run, otherwise Accurate
     - _Requirements: 1.5_
 
-  - [ ] 6.2 Wire degradation and SearchMeta into SearchRunner
+  - [x] 6.2 Wire degradation and SearchMeta into SearchRunner
     - Route ore/structure searches exclusively through `WorldGenEngine`, preserving the existing `compute()` isolate offloading; branch on `EngineOk`/`EngineUnavailable`/`EngineUnsupportedVersion`; on any fallback run Simulated and attach a non-null, non-empty `SearchMeta.fallbackReason`
     - Define `SearchMeta { mode, version, verified, fallbackReason? }`
     - _Requirements: 1.2, 1.5, 1.6, 5.1, 5.2, 5.3, 5.4, 11.3_
 
-  - [ ]* 6.3 Write property tests for selection and degradation
+  - [x]* 6.3 Write property tests for selection and degradation
     - **Property 1: Engine selection is total and singular**
     - **Validates: Requirements 1.5**
     - **Property 9: Accurate requests that cannot run degrade to Estimate**
@@ -99,33 +99,33 @@ Property tests reference the 20 correctness properties from the design and run �
     - **Property 10: Every fallback carries its reason**
     - **Validates: Requirements 5.4**
 
-  - [ ]* 6.4 Write runner-seam unit test
+  - [x]* 6.4 Write runner-seam unit test
     - Inject a spy engine; assert the runner dispatches through `WorldGenEngine` only and still offloads via `compute`
     - _Requirements: 1.2, 1.6_
 
-- [ ] 7. Native build pipeline and FFI backend
-  - [ ] 7.1 Vendor Cubiomes and add the C shim
+- [x] 7. Native build pipeline and FFI backend
+  - [x] 7.1 Vendor Cubiomes and add the C shim
     - Add Cubiomes C sources under `flutter_app/native/cubiomes/` and a thin shim `mc_finder_ffi.c` exposing a flat API (`mcf_find_structures`, `mcf_find_ores`, `mcf_get_biome`) returning plain structs/arrays
     - _Requirements: 2.2, 2.3_
 
-  - [ ] 7.2 Add per-platform CMake build wiring
+  - [x] 7.2 Add per-platform CMake build wiring
     - Add `CMakeLists.txt` compiling shim + Cubiomes; wire Android (Gradle `externalNativeBuild` → `.so` per ABI), iOS/macOS (CocoaPods/Xcode phase → `.a`/`.framework`), Windows/Linux (CMake → `.dll`/`.so`)
     - _Requirements: 2.4_
 
-  - [ ] 7.3 Generate FFI bindings with ffigen
+  - [x] 7.3 Generate FFI bindings with ffigen
     - Add `package:ffigen` config for the shim header and generate the Dart bindings
     - _Requirements: 2.1_
 
-  - [ ] 7.4 Implement NativeFfiBackend with load-failure handling
+  - [x] 7.4 Implement NativeFfiBackend with load-failure handling
     - Create `flutter_app/lib/models/worldgen/native_ffi_backend.dart` resolving the library via `DynamicLibrary.open`/`process`, marshalling queries into C structs, returning exact chunk/block coordinates (structures) and exact block coordinates (ores)
     - Wrap lookup; convert any `ArgumentError`/missing-symbol/open failure to `EngineUnavailable(FallbackReason.ffiLoadFailure)`; guard web builds so no `dart:ffi` dependency enters the web bundle (conditional import)
     - _Requirements: 2.1, 2.2, 2.3, 2.5_
 
-  - [ ]* 7.5 Write FFI load-failure unit test
+  - [x]* 7.5 Write FFI load-failure unit test
     - Inject a loader that throws; assert `EngineUnavailable(ffiLoadFailure)` and that the runner falls back
     - _Requirements: 2.5_
 
-  - [ ]* 7.6 Add CI native-build smoke-load job
+  - [x]* 7.6 Add CI native-build smoke-load job
     - Add a GitHub Actions job (alongside `flutter-ci.yml`) per platform that compiles Cubiomes + shim and smoke-loads the library to confirm symbols resolve
     - _Requirements: 2.4_
 

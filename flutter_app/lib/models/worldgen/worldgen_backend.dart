@@ -88,30 +88,6 @@ class DartWebBackend implements WorldGenBackend {
   }
 }
 
-/// Placeholder native FFI backend. The real `dart:ffi` binding to Cubiomes is
-/// filled in by a later milestone feature; here it is a wiring stub that
-/// reports it cannot run so the engine degrades cleanly.
-class NativeFfiBackend implements WorldGenBackend {
-  const NativeFfiBackend();
-
-  @override
-  bool canRun(VersionStrategy strategy) => false;
-
-  @override
-  Future<List<StructureLocation>> computeStructures(
-      StructureQuery query, VersionStrategy strategy) async {
-    throw UnsupportedError('NativeFfiBackend not yet implemented');
-  }
-
-  @override
-  Future<List<OreLocation>> computeOres(
-      OreQuery query, VersionStrategy strategy) async {
-    throw UnsupportedError('NativeFfiBackend not yet implemented');
-  }
-
-  @override
-  Future<String> computeBiome(
-      int seed, int x, int z, VersionStrategy strategy) async {
-    throw UnsupportedError('NativeFfiBackend not yet implemented');
-  }
-}
+// The native FFI backend now lives in `native_ffi_backend.dart` (with a
+// conditional import so no `dart:ffi` enters the web bundle). `selectBackend`
+// takes it as an injected argument, keeping this file free of `dart:ffi`.

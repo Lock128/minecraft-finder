@@ -9,6 +9,7 @@ import 'package:gem_ore_struct_finder_mc/models/ore_location.dart';
 import 'package:gem_ore_struct_finder_mc/models/structure_location.dart';
 import 'package:gem_ore_struct_finder_mc/models/worldgen/accurate_engine.dart';
 import 'package:gem_ore_struct_finder_mc/models/worldgen/minecraft_version.dart';
+import 'package:gem_ore_struct_finder_mc/models/worldgen/native_ffi_backend.dart';
 import 'package:gem_ore_struct_finder_mc/models/worldgen/simulated_engine.dart';
 import 'package:gem_ore_struct_finder_mc/models/worldgen/version_strategy_registry.dart';
 import 'package:gem_ore_struct_finder_mc/models/worldgen/worldgen_backend.dart';
@@ -28,7 +29,7 @@ void main() {
         selectBackend: (p) => selectBackend(
           p,
           dartWebBackend: const DartWebBackend(),
-          nativeFfiBackend: const NativeFfiBackend(),
+          nativeFfiBackend: NativeFfiBackend(),
         ),
       );
       expect(engine, isA<WorldGenEngine>());
