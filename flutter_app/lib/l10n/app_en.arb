@@ -1411,6 +1411,9 @@
   "@resultsHiddenByFilter": { "description": "Hint shown when the probability filter is hiding some findings", "placeholders": { "count": { "type": "int" } } },
 
   "showAll": "Show all",
-  "@showAll": { "description": "Button that clears the probability filter to reveal all findings" }
+  "@showAll": { "description": "Button that clears the probability filter to reveal all findings" },
+
+  "quickStartDismissTooltip": "Hide Quick Start",
+  "@quickStartDismissTooltip": { "description": "Tooltip for the button that hides the Quick Start onboarding card" }
 }
 

@@ -14,6 +14,7 @@ class PreferencesService {
   static const String _editionKey = 'minecraft_edition';
   static const String _versionEraKey = 'version_era';
   static const String _monetizationOverrideKey = 'monetization_override_enabled';
+  static const String _quickStartHiddenKey = 'quick_start_hidden';
 
   // Default values
   static const String _defaultSeed = '8674308105921866736';
@@ -179,6 +180,19 @@ class PreferencesService {
   static Future<void> setMonetizationOverride(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_monetizationOverrideKey, enabled);
+  }
+
+  // Quick Start card visibility. Defaults to visible (false == not hidden) so
+  // first-time users always see the onboarding affordance; once they dismiss
+  // it, the choice is remembered across launches.
+  static Future<bool> getQuickStartHidden() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_quickStartHiddenKey) ?? false;
+  }
+
+  static Future<void> setQuickStartHidden(bool hidden) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_quickStartHiddenKey, hidden);
   }
 
   // Convenience method to load all search parameters at once

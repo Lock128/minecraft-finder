@@ -1660,4 +1660,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get showAll => 'Tout afficher';
+
+  @override
+  String get quickStartDismissTooltip => 'Masquer le démarrage rapide';
 }

@@ -176,6 +176,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         selectedEdition: searchState.selectedEdition,
                         selectedVersionEra: searchState.selectedVersionEra,
                         wholeWorldNetherite: searchState.wholeWorldNetherite,
+                        quickStartHidden: searchState.quickStartHidden,
+                        onHideQuickStart: searchState.hideQuickStart,
                         onWholeWorldChanged: (value) =>
                             _onWholeWorldChanged(value, context),
                         onOreTypesChanged: searchState.setOreTypes,

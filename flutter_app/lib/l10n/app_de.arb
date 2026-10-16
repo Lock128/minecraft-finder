@@ -515,5 +515,6 @@
   "structuresToggleLabel": "Strukturen",
   "freeRadiusCappedNotice": "In der Gratisversion ist der Radius auf {max} Blöcke begrenzt. Upgrade auf Pro für größere Suchen.",
   "resultsHiddenByFilter": "{count, plural, =1{1 Ergebnis durch den Wahrscheinlichkeitsfilter ausgeblendet} other{{count} Ergebnisse durch den Wahrscheinlichkeitsfilter ausgeblendet}}",
-  "showAll": "Alle anzeigen"
+  "showAll": "Alle anzeigen",
+  "quickStartDismissTooltip": "Schnellstart ausblenden"
 }

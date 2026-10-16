@@ -89,6 +89,18 @@ class SearchState extends ChangeNotifier {
   // Widgets can listen to this to know when to reload.
   final ValueNotifier<int> recentSeedsRefreshNotifier = ValueNotifier<int>(0);
 
+  // Whether the Quick Start onboarding card has been dismissed by the user.
+  // Loaded from preferences on construction; hiding it persists the choice so
+  // returning users don't see it again.
+  bool _quickStartHidden = false;
+  bool get quickStartHidden => _quickStartHidden;
+
+  void hideQuickStart() {
+    _quickStartHidden = true;
+    PreferencesService.setQuickStartHidden(true);
+    notifyListeners();
+  }
+
   // Tab controller for auto-switching to results
   TabController? tabController;
 
@@ -139,8 +151,10 @@ class SearchState extends ChangeNotifier {
     final params = await PreferencesService.getAllSearchParams();
     final edition = await PreferencesService.getEdition();
     final versionEra = await PreferencesService.getVersionEra();
+    final quickStartHidden = await PreferencesService.getQuickStartHidden();
     _selectedEdition = edition;
     _selectedVersionEra = versionEra;
+    _quickStartHidden = quickStartHidden;
     if (_disposed) return;
     seedController.text = params['seed']!;
     xController.text = params['x']!;

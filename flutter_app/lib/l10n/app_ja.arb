@@ -515,5 +515,6 @@
   "structuresToggleLabel": "構造物",
   "freeRadiusCappedNotice": "無料版では検索範囲は{max}ブロックまでです。より広い検索にはProにアップグレードしてください。",
   "resultsHiddenByFilter": "{count, plural, other{確率フィルターにより{count}件の結果を非表示にしました}}",
-  "showAll": "すべて表示"
+  "showAll": "すべて表示",
+  "quickStartDismissTooltip": "クイックスタートを非表示"
 }

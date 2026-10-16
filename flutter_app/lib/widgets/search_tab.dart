@@ -30,6 +30,8 @@ class SearchTab extends StatelessWidget {
   final MinecraftEdition selectedEdition;
   final VersionEra selectedVersionEra;
   final bool wholeWorldNetherite;
+  final bool quickStartHidden;
+  final VoidCallback onHideQuickStart;
   final Function(Set<OreType>) onOreTypesChanged;
   final Function(bool) onIncludeNetherChanged;
   final Function(bool) onIncludeOresChanged;
@@ -59,6 +61,8 @@ class SearchTab extends StatelessWidget {
     required this.selectedEdition,
     required this.selectedVersionEra,
     required this.wholeWorldNetherite,
+    required this.quickStartHidden,
+    required this.onHideQuickStart,
     required this.onOreTypesChanged,
     required this.onIncludeNetherChanged,
     required this.onIncludeOresChanged,
@@ -81,17 +85,22 @@ class SearchTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // --- Onboarding first: a one-tap starting point for new users ---
-              QuickStartCard(
-                xController: xController,
-                yController: yController,
-                zController: zController,
-                radiusController: radiusController,
-                onIncludeOresChanged: onIncludeOresChanged,
-                onOreTypesChanged: onOreTypesChanged,
-                isDarkMode: isDarkMode,
-              ),
-              const SizedBox(height: 12),
+              // --- Onboarding first: a one-tap starting point for new users.
+              // Dismissible; the choice is remembered so returning users who
+              // hid it don't see it again. ---
+              if (!quickStartHidden) ...[
+                QuickStartCard(
+                  xController: xController,
+                  yController: yController,
+                  zController: zController,
+                  radiusController: radiusController,
+                  onIncludeOresChanged: onIncludeOresChanged,
+                  onOreTypesChanged: onOreTypesChanged,
+                  onDismiss: onHideQuickStart,
+                  isDarkMode: isDarkMode,
+                ),
+                const SizedBox(height: 12),
+              ],
               // --- Seed ---
               WorldSettingsCard(
                 seedController: seedController,

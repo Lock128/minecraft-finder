@@ -24,6 +24,10 @@ class QuickStartCard extends StatefulWidget {
   /// Replaces the selected ore set (wired to the existing setter).
   final Function(Set<OreType>) onOreTypesChanged;
 
+  /// Called when the user dismisses the card. When null, no dismiss button is
+  /// shown (e.g. in contexts where hiding isn't supported).
+  final VoidCallback? onDismiss;
+
   const QuickStartCard({
     super.key,
     required this.xController,
@@ -32,6 +36,7 @@ class QuickStartCard extends StatefulWidget {
     required this.radiusController,
     required this.onIncludeOresChanged,
     required this.onOreTypesChanged,
+    this.onDismiss,
     this.isDarkMode = false,
   });
 
@@ -66,11 +71,25 @@ class _QuickStartCardState extends State<QuickStartCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GamerSectionHeader(
-            emoji: '\u26A1',
-            title: l10n.quickStartTitle,
-            isDarkMode: isDarkMode,
-            accentColor: GamerColors.neonYellow,
+          Row(
+            children: [
+              Expanded(
+                child: GamerSectionHeader(
+                  emoji: '\u26A1',
+                  title: l10n.quickStartTitle,
+                  isDarkMode: isDarkMode,
+                  accentColor: GamerColors.neonYellow,
+                ),
+              ),
+              if (widget.onDismiss != null)
+                IconButton(
+                  onPressed: widget.onDismiss,
+                  icon: const Icon(Icons.close, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: l10n.quickStartDismissTooltip,
+                  color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                ),
+            ],
           ),
           const SizedBox(height: 12),
           Align(

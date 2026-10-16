@@ -2845,6 +2845,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show all'**
   String get showAll;
+
+  /// Tooltip for the button that hides the Quick Start onboarding card
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Quick Start'**
+  String get quickStartDismissTooltip;
 }
 
 class _AppLocalizationsDelegate

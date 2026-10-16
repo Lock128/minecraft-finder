@@ -517,5 +517,6 @@
   "structuresToggleLabel": "Estructuras",
   "freeRadiusCappedNotice": "La versión gratuita limita el radio a {max} bloques. Mejora a Pro para búsquedas más grandes.",
   "resultsHiddenByFilter": "{count, plural, =1{1 resultado oculto por el filtro de probabilidad} other{{count} resultados ocultos por el filtro de probabilidad}}",
-  "showAll": "Mostrar todo"
+  "showAll": "Mostrar todo",
+  "quickStartDismissTooltip": "Ocultar inicio rápido"
 }

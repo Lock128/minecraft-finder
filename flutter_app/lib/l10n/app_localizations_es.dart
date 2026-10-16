@@ -1656,4 +1656,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showAll => 'Mostrar todo';
+
+  @override
+  String get quickStartDismissTooltip => 'Ocultar inicio rápido';
 }

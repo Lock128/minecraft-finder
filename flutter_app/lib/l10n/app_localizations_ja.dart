@@ -1478,4 +1478,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get showAll => 'すべて表示';
+
+  @override
+  String get quickStartDismissTooltip => 'クイックスタートを非表示';
 }
