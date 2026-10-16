@@ -52,8 +52,11 @@ class _ResultsTabState extends State<ResultsTab> {
   bool _showMap = false;
 
   /// Minimum probability (0.0–1.0) a finding must have to be shown.
-  /// Defaults to 0.8 so users see only high-confidence results out of the box.
-  double _minProbability = 0.8;
+  /// Defaults to 0.5 so users see a useful spread of findings out of the box
+  /// rather than only the very highest-confidence ones (which made searches
+  /// look like they "missed" results). A hint below the header tells the user
+  /// how many findings the filter is currently hiding.
+  double _minProbability = 0.5;
 
   // Filter controllers
   final _minXController = TextEditingController();
@@ -93,6 +96,71 @@ class _ResultsTabState extends State<ResultsTab> {
       if (!_passesBiomeFilter(location.biome)) return false;
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
+  }
+
+  /// Number of findings that pass every active filter EXCEPT the probability
+  /// threshold — i.e. how many results the probability slider is currently
+  /// hiding. Used to surface a "N hidden" hint in the header.
+  int get _probabilityHiddenCount {
+    int hidden = 0;
+    for (final location in widget.results) {
+      if (!_visibleOreTypes.contains(location.oreType)) continue;
+      if (!_passesBiomeFilter(location.biome)) continue;
+      if (!_passesCoordinateFilters(location.x, location.y, location.z)) {
+        continue;
+      }
+      if (location.probability < _minProbability) hidden++;
+    }
+    for (final location in widget.structureResults) {
+      if (_visibleStructures.isNotEmpty &&
+          !_visibleStructures.contains(location.structureType)) {
+        continue;
+      }
+      if (!_passesBiomeFilter(location.biome)) continue;
+      if (!_passesCoordinateFilters(location.x, location.y, location.z)) {
+        continue;
+      }
+      if (location.probability < _minProbability) hidden++;
+    }
+    return hidden;
+  }
+
+  Widget _buildProbabilityHiddenHint(
+      BuildContext context, AppLocalizations l10n) {
+    final color = GamerColors.neonGreen;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          Icon(Icons.visibility_off_outlined,
+              size: 14, color: color.withValues(alpha: 0.9)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              l10n.resultsHiddenByFilter(_probabilityHiddenCount),
+              style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => setState(() => _minProbability = 0.0),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              foregroundColor: color,
+            ),
+            child: Text(l10n.showAll,
+                style: const TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
   }
 
   bool _passesCoordinateFilters(int x, int y, int z) {
@@ -407,6 +475,11 @@ class _ResultsTabState extends State<ResultsTab> {
               ),
             ],
           ),
+          // If the probability filter is hiding findings, tell the user and
+          // offer a one-tap way to reveal them — so a search never looks like
+          // it "missed" results that are actually just filtered out.
+          if (_probabilityHiddenCount > 0)
+            _buildProbabilityHiddenHint(context, l10n),
           // Filters are hidden by default so results get maximum space.
           // Tap the filter icon to reveal ore/biome/coordinate filters.
           if (_showFilters) ...[

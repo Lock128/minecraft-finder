@@ -4,6 +4,7 @@ import '../models/ore_location.dart';
 import '../models/search_runner.dart';
 import '../models/structure_location.dart';
 import '../models/search_result.dart';
+import '../models/version_availability.dart';
 import '../utils/preferences_service.dart';
 
 /// Holds all search form state and orchestrates the search logic.
@@ -72,6 +73,14 @@ class SearchState extends ChangeNotifier {
   // Whether the last search produced more results than were displayed.
   bool get wasCapped =>
       _totalFound > _results.length + _structureResults.length;
+
+  /// Radius cap applied to free-tier searches.
+  static const int freeRadiusCap = 50;
+
+  /// Whether the last search clamped a free user's requested radius down to
+  /// [freeRadiusCap]. Surfaced in the UI so the clamp is not silent.
+  bool _lastRadiusWasCapped = false;
+  bool get lastRadiusWasCapped => _lastRadiusWasCapped;
 
   bool _findAllNetherite = false;
   bool get findAllNetherite => _findAllNetherite;
@@ -169,13 +178,42 @@ class SearchState extends ChangeNotifier {
   void setEdition(MinecraftEdition edition) {
     _selectedEdition = edition;
     PreferencesService.saveEdition(edition);
+    _pruneUnavailableSelections();
     notifyListeners();
   }
 
   void setVersionEra(VersionEra era) {
     _selectedVersionEra = era;
     PreferencesService.saveVersionEra(era);
+    _pruneUnavailableSelections();
     notifyListeners();
+  }
+
+  /// Drop any selected ore/structure that does not exist in the currently
+  /// selected edition/version era. Called when the edition or era changes so
+  /// the selection never silently holds content that the search would reject
+  /// and the UI no longer shows. Keeps at least one valid ore selected.
+  void _pruneUnavailableSelections() {
+    final availableOres = VersionAvailability.availableOres(
+      era: _selectedVersionEra,
+      edition: _selectedEdition,
+    ).toSet();
+    _selectedOreTypes =
+        _selectedOreTypes.where(availableOres.contains).toSet();
+    if (_selectedOreTypes.isEmpty && availableOres.isNotEmpty) {
+      _selectedOreTypes = {availableOres.first};
+    }
+    // Nether gold only makes sense when gold is still selected.
+    if (!_selectedOreTypes.contains(OreType.gold)) {
+      _includeNether = false;
+    }
+
+    final availableStructures = VersionAvailability.availableStructures(
+      era: _selectedVersionEra,
+      edition: _selectedEdition,
+    ).toSet();
+    _selectedStructures =
+        _selectedStructures.where(availableStructures.contains).toSet();
   }
 
   /// Performs the ore/structure search. Returns an error message string
@@ -223,12 +261,19 @@ class SearchState extends ChangeNotifier {
 
     // Apply Pro tier limits
     final int effectiveRadius;
+    _lastRadiusWasCapped = false;
     if (isPro) {
       effectiveRadius = int.parse(radiusController.text);
     } else {
-      // Free users capped at 50-block radius
+      // Free users capped at [freeRadiusCap]. Record when we actually clamped
+      // so the UI can tell the user instead of silently shrinking the search.
       final requested = int.parse(radiusController.text);
-      effectiveRadius = requested > 50 ? 50 : requested;
+      if (requested > freeRadiusCap) {
+        effectiveRadius = freeRadiusCap;
+        _lastRadiusWasCapped = true;
+      } else {
+        effectiveRadius = requested;
+      }
     }
 
     // Free users cannot use comprehensive netherite search
@@ -319,6 +364,8 @@ class SearchState extends ChangeNotifier {
             radius: effectiveRadius,
             structureTypes: effectiveStructures,
             maxResults: maxResults,
+            edition: _selectedEdition,
+            versionEra: _selectedVersionEra,
           ),
         );
         structureResults = output.results;

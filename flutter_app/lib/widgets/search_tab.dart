@@ -81,7 +81,18 @@ class SearchTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // --- Primary inputs first: seed and search center ---
+              // --- Onboarding first: a one-tap starting point for new users ---
+              QuickStartCard(
+                xController: xController,
+                yController: yController,
+                zController: zController,
+                radiusController: radiusController,
+                onIncludeOresChanged: onIncludeOresChanged,
+                onOreTypesChanged: onOreTypesChanged,
+                isDarkMode: isDarkMode,
+              ),
+              const SizedBox(height: 12),
+              // --- Seed ---
               WorldSettingsCard(
                 seedController: seedController,
                 isDarkMode: isDarkMode,
@@ -89,6 +100,17 @@ class SearchTab extends StatelessWidget {
               const SizedBox(height: 4),
               SearchHistoryWidget(isDarkMode: isDarkMode),
               const SizedBox(height: 12),
+              // --- Edition/version: now drives which ores/structures are
+              // offered below, so it sits above the "what to find" section. ---
+              EditionVersionCard(
+                selectedEdition: selectedEdition,
+                selectedVersionEra: selectedVersionEra,
+                onEditionChanged: onEditionChanged,
+                onVersionEraChanged: onVersionEraChanged,
+                isDarkMode: isDarkMode,
+              ),
+              const SizedBox(height: 12),
+              // --- Where to search ---
               SearchCenterCard(
                 xController: xController,
                 yController: yController,
@@ -100,7 +122,7 @@ class SearchTab extends StatelessWidget {
                 onWholeWorldChanged: onWholeWorldChanged,
               ),
               const SizedBox(height: 12),
-              // --- What to search for ---
+              // --- What to find (ores + structures), version-aware ---
               OreSelectionCard(
                 selectedOreTypes: selectedOreTypes,
                 includeNether: includeNether,
@@ -108,6 +130,8 @@ class SearchTab extends StatelessWidget {
                 isDarkMode: isDarkMode,
                 includeStructures: includeStructures,
                 selectedStructures: selectedStructures,
+                selectedEdition: selectedEdition,
+                selectedVersionEra: selectedVersionEra,
                 onOreTypesChanged: onOreTypesChanged,
                 onIncludeNetherChanged: onIncludeNetherChanged,
                 onIncludeOresChanged: onIncludeOresChanged,
@@ -117,17 +141,10 @@ class SearchTab extends StatelessWidget {
                 includeStructures: includeStructures,
                 selectedStructures: selectedStructures,
                 isDarkMode: isDarkMode,
-                onIncludeStructuresChanged: onIncludeStructuresChanged,
-                onStructuresChanged: onStructuresChanged,
-              ),
-              const SizedBox(height: 12),
-              // --- Edition/version: rarely changed, kept below inputs ---
-              EditionVersionCard(
                 selectedEdition: selectedEdition,
                 selectedVersionEra: selectedVersionEra,
-                onEditionChanged: onEditionChanged,
-                onVersionEraChanged: onVersionEraChanged,
-                isDarkMode: isDarkMode,
+                onIncludeStructuresChanged: onIncludeStructuresChanged,
+                onStructuresChanged: onStructuresChanged,
               ),
               const SizedBox(height: 20),
               SearchButtons(
@@ -137,17 +154,6 @@ class SearchTab extends StatelessWidget {
                 isDarkMode: isDarkMode,
                 wholeWorldActive: wholeWorldNetherite &&
                     selectedOreTypes.contains(OreType.netherite),
-              ),
-              const SizedBox(height: 12),
-              // --- Onboarding help moved to the bottom ---
-              QuickStartCard(
-                xController: xController,
-                yController: yController,
-                zController: zController,
-                radiusController: radiusController,
-                onIncludeOresChanged: onIncludeOresChanged,
-                onOreTypesChanged: onOreTypesChanged,
-                isDarkMode: isDarkMode,
               ),
             ],
           ),

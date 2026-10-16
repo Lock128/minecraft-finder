@@ -82,7 +82,21 @@ class _OreFinderScreenState extends State<OreFinderScreen>
           backgroundColor: isGenericError ? Colors.red : Colors.orange,
         ),
       );
-    } else if (historyProvider != null) {
+    } else {
+      // Tell free users when their requested radius was clamped, instead of
+      // silently shrinking the search.
+      if (searchState.lastRadiusWasCapped) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                l10n.freeRadiusCappedNotice(SearchState.freeRadiusCap)),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+
+    if (errorMessage == null && historyProvider != null) {
       // Record successful search in history
       historyProvider.addEntry(SearchHistoryEntry(
         seed: searchState.seedController.text,

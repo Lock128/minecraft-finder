@@ -6,6 +6,7 @@ import 'java_random.dart';
 import 'legacy_density_function.dart';
 import 'noise.dart';
 import 'biome_classifier.dart';
+import 'version_availability.dart';
 
 class OreFinder {
   late DensityFunction _densityFunction;
@@ -278,6 +279,16 @@ class OreFinder {
   }) async {
     int worldSeed = MinecraftRandom.stringToSeed(seed);
 
+    // Skip ores that do not exist in the selected version era / edition
+    // (e.g. Netherite or Copper in a pre-1.18 "legacy" world). Returning an
+    // empty list here — rather than fabricating results for content that
+    // cannot generate — is what makes the version/edition selectors honest.
+    if (!VersionAvailability.isOreAvailable(oreType,
+        era: versionEra, edition: edition)) {
+      onTotalFound?.call(0);
+      return const [];
+    }
+
     // Create edition-aware RNG
     GameRandom rng = GameRandom.forEdition(edition, worldSeed);
     _gameRandom = rng;
@@ -468,6 +479,15 @@ class OreFinder {
   }) async {
     int worldSeed = MinecraftRandom.stringToSeed(seed);
 
+    // Ancient Debris / Netherite was introduced in 1.16 and does not exist in
+    // pre-1.18 ("legacy") worlds. Don't fabricate a whole-world scan for
+    // content that cannot generate.
+    if (!VersionAvailability.isOreAvailable(OreType.netherite,
+        era: versionEra, edition: edition)) {
+      onTotalFound?.call(0);
+      return const [];
+    }
+
     // Create edition-aware RNG
     GameRandom rng = GameRandom.forEdition(edition, worldSeed);
     _gameRandom = rng;
@@ -587,7 +607,10 @@ class OreFinder {
           ? probabilities.reduce((a, b) => a > b ? a : b)
           : 0.0,
       'searchArea': '${sampleRadius * 2}x${sampleRadius * 2} blocks',
-      'algorithmVersion': 'v3.0 - Accurate 1.18+ distributions',
+      // Honest label: this is a statistical simulation of 1.18+ ore
+      // distributions, not a seed-accurate reproduction of world generation.
+      // See SEED_ACCURATE_WORLDGEN_SPEC.md for the planned accurate rewrite.
+      'algorithmVersion': 'v3.2 - Simulated 1.18+ distributions (estimates)',
     };
   }
 }

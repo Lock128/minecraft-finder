@@ -1381,6 +1381,36 @@
   "@latestUpdateTitle": { "description": "Title of the info box highlighting the most recent supported Minecraft update" },
 
   "latestUpdateInfo": "Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50): new Abandoned Camp structure and Dappled Forest biome.",
-  "@latestUpdateInfo": { "description": "Body text of the info box describing the latest supported Minecraft update and its new content" }
+  "@latestUpdateInfo": { "description": "Body text of the info box describing the latest supported Minecraft update and its new content" },
+
+  "filterCopper": "🟠 Copper",
+  "@filterCopper": { "description": "Copper ore label with emoji" },
+
+  "filterEmerald": "💚 Emerald",
+  "@filterEmerald": { "description": "Emerald ore label with emoji" },
+
+  "oreUnavailableInVersion": "{count, plural, =1{1 ore isn''t in this version and is hidden} other{{count} ores aren''t in this version and are hidden}}",
+  "@oreUnavailableInVersion": { "description": "Notice shown when some ores are hidden because they don't exist in the selected version", "placeholders": { "count": { "type": "int" } } },
+
+  "structureUnavailableInVersion": "{count, plural, =1{1 structure isn''t in this version and is hidden} other{{count} structures aren''t in this version and are hidden}}",
+  "@structureUnavailableInVersion": { "description": "Notice shown when some structures are hidden because they don't exist in the selected version", "placeholders": { "count": { "type": "int" } } },
+
+  "whatToFindTitle": "What to find",
+  "@whatToFindTitle": { "description": "Section header grouping ore and structure selection" },
+
+  "oresToggleLabel": "Ores",
+  "@oresToggleLabel": { "description": "Short label for the ores toggle" },
+
+  "structuresToggleLabel": "Structures",
+  "@structuresToggleLabel": { "description": "Short label for the structures toggle" },
+
+  "freeRadiusCappedNotice": "Free tier caps the radius at {max} blocks. Upgrade to Pro for larger searches.",
+  "@freeRadiusCappedNotice": { "description": "Notice shown to free users when their requested radius exceeds the free cap", "placeholders": { "max": { "type": "int" } } },
+
+  "resultsHiddenByFilter": "{count, plural, =1{1 result hidden by the probability filter} other{{count} results hidden by the probability filter}}",
+  "@resultsHiddenByFilter": { "description": "Hint shown when the probability filter is hiding some findings", "placeholders": { "count": { "type": "int" } } },
+
+  "showAll": "Show all",
+  "@showAll": { "description": "Button that clears the probability filter to reveal all findings" }
 }
 

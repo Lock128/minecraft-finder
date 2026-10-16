@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'bounded_top_results.dart';
+import 'game_random.dart';
 import 'structure_location.dart';
 import 'java_random.dart';
 import 'noise.dart';
 import 'biome_classifier.dart';
+import 'version_availability.dart';
 
 class StructureFinder {
   /// Generate structure-specific random using Java-compatible RNG
@@ -516,6 +518,8 @@ class StructureFinder {
     required Set<StructureType> structureTypes,
     double minProbability = 0.3,
     int maxResults = 500,
+    MinecraftEdition edition = MinecraftEdition.java,
+    VersionEra versionEra = VersionEra.modern,
     void Function(int)? onTotalFound,
   }) async {
     // Use Java-compatible seed conversion
@@ -523,12 +527,29 @@ class StructureFinder {
     final locations =
         BoundedTopResults<StructureLocation>(maxResults, (s) => s.probability);
 
+    // Drop any requested structure that does not exist in the selected
+    // version era / edition (e.g. Ancient City in a pre-1.18 world). This is
+    // the structure-side counterpart to the ore availability gating and makes
+    // the edition/version selectors actually affect the results.
+    final Set<StructureType> eligibleTypes = structureTypes
+        .where((s) => VersionAvailability.isStructureAvailable(
+              s,
+              era: versionEra,
+              edition: edition,
+            ))
+        .toSet();
+
+    if (eligibleTypes.isEmpty) {
+      onTotalFound?.call(0);
+      return const [];
+    }
+
     // Use chunk-aligned search for better accuracy
     int step = 32; // Check every 2 chunks for better coverage
 
     for (int x = centerX - radius; x <= centerX + radius; x += step) {
       for (int z = centerZ - radius; z <= centerZ + radius; z += step) {
-        for (StructureType structureType in structureTypes) {
+        for (StructureType structureType in eligibleTypes) {
           double probability =
               _calculateStructureProbability(x, z, structureType, worldSeed);
 

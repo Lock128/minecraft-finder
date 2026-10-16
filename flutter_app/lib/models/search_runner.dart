@@ -79,6 +79,8 @@ class StructureSearchParams {
     required this.radius,
     required this.structureTypes,
     required this.maxResults,
+    required this.edition,
+    required this.versionEra,
   });
 
   final String seed;
@@ -87,6 +89,8 @@ class StructureSearchParams {
   final int radius;
   final Set<StructureType> structureTypes;
   final int maxResults;
+  final MinecraftEdition edition;
+  final VersionEra versionEra;
 }
 
 // ---------------------------------------------------------------------------
@@ -139,6 +143,8 @@ Future<SearchOutput<StructureLocation>> _runStructureSearch(
     radius: p.radius,
     structureTypes: p.structureTypes,
     maxResults: p.maxResults,
+    edition: p.edition,
+    versionEra: p.versionEra,
     onTotalFound: (n) => total += n,
   );
   return SearchOutput<StructureLocation>(results, total);

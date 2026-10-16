@@ -264,3 +264,55 @@ This gives users practical information like "this diamond vein is likely to have
 3. Verify biome-specific generation (badlands gold, etc.)
 4. Check structure spacing in generated results
 5. Performance testing with large search areas
+
+---
+
+# Algorithm Improvements — Version 3.3 (Honesty & Version Gating)
+
+## Overview
+
+Version 3.3 does not try to make the simulation more "accurate." Instead it
+makes the engine **honest about what it supports** and stops offering content
+that cannot exist in the selected Minecraft version/edition. True seed-accurate
+world generation is now specified separately in
+[`SEED_ACCURATE_WORLDGEN_SPEC.md`](SEED_ACCURATE_WORLDGEN_SPEC.md) as future
+work.
+
+## Changes
+
+### 1. Central content-availability model (`version_availability.dart`, new)
+A single source of truth for which ores/structures exist in a given
+`VersionEra` × `MinecraftEdition`. Used by both the finders and the UI so they
+can never disagree.
+
+### 2. Ore gating (`ore_finder.dart`)
+`findOres` and `findAllNetherite` now return empty for content that does not
+exist in the selected era (e.g. Netherite / Copper in a pre-1.18 "legacy"
+world) instead of fabricating results.
+
+### 3. Structure gating (`structure_finder.dart`, `search_runner.dart`)
+`findStructures` now accepts `edition` + `versionEra` and drops structures that
+don't exist in the selected version (e.g. Ancient City / Bastion / Ruined
+Portal / Abandoned Camp in a legacy world). Previously structures ignored the
+version/edition selectors entirely.
+
+### 4. Removed overclaim (`ore_finder.dart`)
+`getNetheriteStats` no longer stamps results as `"Accurate 1.18+
+distributions"`. The label now reads `"Simulated 1.18+ distributions
+(estimates)"`, matching reality.
+
+### 5. Selection pruning (`search_state.dart`)
+Changing edition/version prunes any now-unavailable ore/structure from the
+current selection (keeping at least one valid ore), so the search never carries
+hidden, invalid selections.
+
+### 6. Tests
+- `test/models/version_availability_test.dart` — unit tests for the gating rules.
+- `test/models/search_version_gating_test.dart` — characterization tests:
+  determinism, version gating (no legacy netherite/copper/modern-only
+  structures), and Java/Bedrock RNG divergence.
+
+## What this does NOT change
+The simulation is still a simulation — it does not reproduce real per-seed ore
+blocks or structure positions. See the spec document for the planned accurate
+engine.

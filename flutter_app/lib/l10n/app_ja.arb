@@ -505,5 +505,15 @@
   "editionBedrockInfo": "BedrockのRNG内部仕様のドキュメントが不完全なため、Bedrockの鉱石予測の精度はおおよそのものです。",
   "versionLegacyInfo": "レガシーの鉱石配置は、定番のYレベル（例：ダイヤモンドはY=12）を用いた一様分布を使用します。",
   "latestUpdateTitle": "最新のアップデート",
-  "latestUpdateInfo": "Third Drop 2026（Java 26.3 / Bedrock 26.50）に対応：新しい構造物「Abandoned Camp」と新バイオーム「Dappled Forest」。"
+  "latestUpdateInfo": "Third Drop 2026（Java 26.3 / Bedrock 26.50）に対応：新しい構造物「Abandoned Camp」と新バイオーム「Dappled Forest」。",
+  "filterCopper": "🟠 銅",
+  "filterEmerald": "💚 エメラルド",
+  "oreUnavailableInVersion": "{count, plural, other{このバージョンに存在しない鉱石{count}件を非表示にしました}}",
+  "structureUnavailableInVersion": "{count, plural, other{このバージョンに存在しない構造物{count}件を非表示にしました}}",
+  "whatToFindTitle": "検索対象",
+  "oresToggleLabel": "鉱石",
+  "structuresToggleLabel": "構造物",
+  "freeRadiusCappedNotice": "無料版では検索範囲は{max}ブロックまでです。より広い検索にはProにアップグレードしてください。",
+  "resultsHiddenByFilter": "{count, plural, other{確率フィルターにより{count}件の結果を非表示にしました}}",
+  "showAll": "すべて表示"
 }

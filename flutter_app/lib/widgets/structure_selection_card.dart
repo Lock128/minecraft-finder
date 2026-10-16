@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../models/game_random.dart';
 import '../models/structure_location.dart';
+import '../models/version_availability.dart';
 import '../providers/monetization_config.dart';
 import '../providers/pro_status_provider.dart';
 import '../theme/gamer_theme.dart';
@@ -11,6 +13,8 @@ class StructureSelectionCard extends StatelessWidget {
   final bool includeStructures;
   final Set<StructureType> selectedStructures;
   final bool isDarkMode;
+  final MinecraftEdition selectedEdition;
+  final VersionEra selectedVersionEra;
   final Function(bool) onIncludeStructuresChanged;
   final Function(Set<StructureType>) onStructuresChanged;
 
@@ -19,9 +23,21 @@ class StructureSelectionCard extends StatelessWidget {
     required this.includeStructures,
     required this.selectedStructures,
     required this.isDarkMode,
+    required this.selectedEdition,
+    required this.selectedVersionEra,
     required this.onIncludeStructuresChanged,
     required this.onStructuresChanged,
   });
+
+  /// Structures available in the selected era/edition.
+  List<StructureType> get _availableStructures =>
+      VersionAvailability.availableStructures(
+        era: selectedVersionEra,
+        edition: selectedEdition,
+      );
+
+  int get _hiddenStructureCount =>
+      StructureType.values.length - _availableStructures.length;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +123,11 @@ class StructureSelectionCard extends StatelessWidget {
 
   Widget _buildStructureSelection(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final structures = StructureUtils.getAllStructures();
+    // Only offer structures that exist in the selected version era / edition.
+    final available = _availableStructures.toSet();
+    final structures = StructureUtils.getAllStructures()
+        .where((s) => available.contains(s['type'] as StructureType))
+        .toList();
 
     return Column(
       children: [
@@ -185,6 +205,11 @@ class StructureSelectionCard extends StatelessWidget {
             ),
           ),
         ),
+        if (_hiddenStructureCount > 0) ...[
+          const SizedBox(height: 8),
+          _buildUnavailableNotice(
+              l10n.structureUnavailableInVersion(_hiddenStructureCount)),
+        ],
         if (selectedStructures.isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
@@ -211,6 +236,28 @@ class StructureSelectionCard extends StatelessWidget {
             ),
           ],
         ],
+      ],
+    );
+  }
+
+  Widget _buildUnavailableNotice(String text) {
+    final color =
+        isDarkMode ? GamerColors.neonOrange : GamerColors.lightOrange;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.info_outline, size: 14, color: color),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+              color: color.withValues(alpha: 0.9),
+            ),
+          ),
+        ),
       ],
     );
   }

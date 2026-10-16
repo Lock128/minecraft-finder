@@ -505,5 +505,15 @@
   "editionBedrockInfo": "Die Genauigkeit der Erzvorhersage für Bedrock ist ungefähr, da die RNG-Interna der Bedrock-Edition nur unvollständig dokumentiert sind.",
   "versionLegacyInfo": "Die klassische Erzverteilung nutzt eine gleichmäßige Verteilung mit bewährten Y-Ebenen (z. B. Y=12 für Diamanten).",
   "latestUpdateTitle": "Neuestes Update",
-  "latestUpdateInfo": "Aktualisiert für Third Drop 2026 (Java 26.3 / Bedrock 26.50): neue Struktur „Abandoned Camp“ und Biom „Dappled Forest“."
+  "latestUpdateInfo": "Aktualisiert für Third Drop 2026 (Java 26.3 / Bedrock 26.50): neue Struktur „Abandoned Camp“ und Biom „Dappled Forest“.",
+  "filterCopper": "🟠 Kupfer",
+  "filterEmerald": "💚 Smaragd",
+  "oreUnavailableInVersion": "{count, plural, =1{1 Erz gibt es in dieser Version nicht und wird ausgeblendet} other{{count} Erze gibt es in dieser Version nicht und werden ausgeblendet}}",
+  "structureUnavailableInVersion": "{count, plural, =1{1 Struktur gibt es in dieser Version nicht und wird ausgeblendet} other{{count} Strukturen gibt es in dieser Version nicht und werden ausgeblendet}}",
+  "whatToFindTitle": "Was suchen",
+  "oresToggleLabel": "Erze",
+  "structuresToggleLabel": "Strukturen",
+  "freeRadiusCappedNotice": "In der Gratisversion ist der Radius auf {max} Blöcke begrenzt. Upgrade auf Pro für größere Suchen.",
+  "resultsHiddenByFilter": "{count, plural, =1{1 Ergebnis durch den Wahrscheinlichkeitsfilter ausgeblendet} other{{count} Ergebnisse durch den Wahrscheinlichkeitsfilter ausgeblendet}}",
+  "showAll": "Alle anzeigen"
 }

@@ -66,7 +66,7 @@ import 'app_localizations_ja.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -101,7 +101,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('fr'),
-    Locale('ja')
+    Locale('ja'),
   ];
 
   /// Main app title displayed in the AppBar
@@ -2785,6 +2785,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Updated for Third Drop 2026 (Java 26.3 / Bedrock 26.50): new Abandoned Camp structure and Dappled Forest biome.'**
   String get latestUpdateInfo;
+
+  /// Copper ore label with emoji
+  ///
+  /// In en, this message translates to:
+  /// **'🟠 Copper'**
+  String get filterCopper;
+
+  /// Emerald ore label with emoji
+  ///
+  /// In en, this message translates to:
+  /// **'💚 Emerald'**
+  String get filterEmerald;
+
+  /// Notice shown when some ores are hidden because they don't exist in the selected version
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 ore isn\'\'t in this version and is hidden} other{{count} ores aren\'\'t in this version and are hidden}}'**
+  String oreUnavailableInVersion(int count);
+
+  /// Notice shown when some structures are hidden because they don't exist in the selected version
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 structure isn\'\'t in this version and is hidden} other{{count} structures aren\'\'t in this version and are hidden}}'**
+  String structureUnavailableInVersion(int count);
+
+  /// Section header grouping ore and structure selection
+  ///
+  /// In en, this message translates to:
+  /// **'What to find'**
+  String get whatToFindTitle;
+
+  /// Short label for the ores toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Ores'**
+  String get oresToggleLabel;
+
+  /// Short label for the structures toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Structures'**
+  String get structuresToggleLabel;
+
+  /// Notice shown to free users when their requested radius exceeds the free cap
+  ///
+  /// In en, this message translates to:
+  /// **'Free tier caps the radius at {max} blocks. Upgrade to Pro for larger searches.'**
+  String freeRadiusCappedNotice(int max);
+
+  /// Hint shown when the probability filter is hiding some findings
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result hidden by the probability filter} other{{count} results hidden by the probability filter}}'**
+  String resultsHiddenByFilter(int count);
+
+  /// Button that clears the probability filter to reveal all findings
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get showAll;
 }
 
 class _AppLocalizationsDelegate
@@ -2820,8 +2880,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

@@ -505,5 +505,15 @@
   "editionBedrockInfo": "La précision des prédictions de minerais sur Bedrock est approximative en raison d'une documentation incomplète du fonctionnement interne du RNG de Bedrock.",
   "versionLegacyInfo": "Le placement classique des minerais utilise une distribution uniforme avec les niveaux Y de référence (par exemple, Y=12 pour les diamants).",
   "latestUpdateTitle": "Dernière mise à jour",
-  "latestUpdateInfo": "Mis à jour pour Third Drop 2026 (Java 26.3 / Bedrock 26.50) : nouvelle structure Abandoned Camp et biome Dappled Forest."
+  "latestUpdateInfo": "Mis à jour pour Third Drop 2026 (Java 26.3 / Bedrock 26.50) : nouvelle structure Abandoned Camp et biome Dappled Forest.",
+  "filterCopper": "🟠 Cuivre",
+  "filterEmerald": "💚 Émeraude",
+  "oreUnavailableInVersion": "{count, plural, =1{1 minerai n''existe pas dans cette version et est masqué} other{{count} minerais n''existent pas dans cette version et sont masqués}}",
+  "structureUnavailableInVersion": "{count, plural, =1{1 structure n''existe pas dans cette version et est masquée} other{{count} structures n''existent pas dans cette version et sont masquées}}",
+  "whatToFindTitle": "Que chercher",
+  "oresToggleLabel": "Minerais",
+  "structuresToggleLabel": "Structures",
+  "freeRadiusCappedNotice": "La version gratuite limite le rayon à {max} blocs. Passez à Pro pour des recherches plus larges.",
+  "resultsHiddenByFilter": "{count, plural, =1{1 résultat masqué par le filtre de probabilité} other{{count} résultats masqués par le filtre de probabilité}}",
+  "showAll": "Tout afficher"
 }

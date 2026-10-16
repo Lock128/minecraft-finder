@@ -1425,4 +1425,57 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get latestUpdateInfo =>
       'Third Drop 2026（Java 26.3 / Bedrock 26.50）に対応：新しい構造物「Abandoned Camp」と新バイオーム「Dappled Forest」。';
+
+  @override
+  String get filterCopper => '🟠 銅';
+
+  @override
+  String get filterEmerald => '💚 エメラルド';
+
+  @override
+  String oreUnavailableInVersion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'このバージョンに存在しない鉱石$count件を非表示にしました',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String structureUnavailableInVersion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'このバージョンに存在しない構造物$count件を非表示にしました',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get whatToFindTitle => '検索対象';
+
+  @override
+  String get oresToggleLabel => '鉱石';
+
+  @override
+  String get structuresToggleLabel => '構造物';
+
+  @override
+  String freeRadiusCappedNotice(int max) {
+    return '無料版では検索範囲は$maxブロックまでです。より広い検索にはProにアップグレードしてください。';
+  }
+
+  @override
+  String resultsHiddenByFilter(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '確率フィルターにより$count件の結果を非表示にしました',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get showAll => 'すべて表示';
 }

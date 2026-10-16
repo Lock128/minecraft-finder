@@ -1600,4 +1600,60 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get latestUpdateInfo =>
       'Actualizado para Third Drop 2026 (Java 26.3 / Bedrock 26.50): nueva estructura Abandoned Camp y bioma Dappled Forest.';
+
+  @override
+  String get filterCopper => '🟠 Cobre';
+
+  @override
+  String get filterEmerald => '💚 Esmeralda';
+
+  @override
+  String oreUnavailableInVersion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minerales no existen en esta versión y están ocultos',
+      one: '1 mineral no existe en esta versión y está oculto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String structureUnavailableInVersion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count estructuras no existen en esta versión y están ocultas',
+      one: '1 estructura no existe en esta versión y está oculta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get whatToFindTitle => 'Qué buscar';
+
+  @override
+  String get oresToggleLabel => 'Minerales';
+
+  @override
+  String get structuresToggleLabel => 'Estructuras';
+
+  @override
+  String freeRadiusCappedNotice(int max) {
+    return 'La versión gratuita limita el radio a $max bloques. Mejora a Pro para búsquedas más grandes.';
+  }
+
+  @override
+  String resultsHiddenByFilter(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count resultados ocultos por el filtro de probabilidad',
+      one: '1 resultado oculto por el filtro de probabilidad',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get showAll => 'Mostrar todo';
 }
