@@ -210,4 +210,132 @@ void main() {
       }
     });
   });
+
+  group('Property 10: selection-time degrade carries its reason (Req 5.4)', () {
+    // selectionFallbackReason must mirror selectEngine: whenever Accurate is
+    // downgraded to Simulated at selection time, it reports a non-null,
+    // non-empty reason; an explicit Estimate request reports null so no notice
+    // is shown; a truly-selected Accurate run reports null too.
+    test('Estimate request never produces a selection-time reason', () {
+      final registry = buildRegistry();
+      for (final p in Platform.values) {
+        final accurate = buildAccurate(registry, p);
+        final reason = selectionFallbackReason(ctx(
+          mode: SearchMode.estimate,
+          version: verifiedVersion,
+          platform: p,
+          registry: registry,
+          accurate: accurate,
+        ));
+        expect(reason, isNull, reason: 'explicit Estimate has no fallback');
+      }
+    });
+
+    test('Accurate + unverified version -> unverifiedVersion reason (live path)',
+        () {
+      final registry = buildRegistry();
+      final accurate = buildAccurate(registry, Platform.linux);
+      final reason = selectionFallbackReason(ctx(
+        mode: SearchMode.accurate,
+        version: unverifiedVersion,
+        platform: Platform.linux,
+        registry: registry,
+        accurate: accurate,
+      ));
+      expect(reason, FallbackReason.unverifiedVersion);
+      expect(reason!.text, isNotEmpty);
+      // The engine selected is Simulated for the same inputs.
+      final engine = selectEngine(ctx(
+        mode: SearchMode.accurate,
+        version: unverifiedVersion,
+        platform: Platform.linux,
+        registry: registry,
+        accurate: accurate,
+      ));
+      expect(identical(engine, simulated), isTrue);
+    });
+
+    test('Accurate + unsupported version -> unverifiedVersion reason', () {
+      final registry = buildRegistry();
+      final accurate = buildAccurate(registry, Platform.linux);
+      final reason = selectionFallbackReason(ctx(
+        mode: SearchMode.accurate,
+        version: unsupportedVersion,
+        platform: Platform.linux,
+        registry: registry,
+        accurate: accurate,
+      ));
+      expect(reason, FallbackReason.unverifiedVersion);
+    });
+
+    test('Accurate + web-cannot-run -> webUnsupported reason', () {
+      final registry = buildRegistry();
+      final accurate = buildAccurate(registry, Platform.web);
+      final reason = selectionFallbackReason(ctx(
+        mode: SearchMode.accurate,
+        version: verifiedVersion,
+        platform: Platform.web,
+        registry: registry,
+        accurate: accurate,
+        webCanRun: (v, e) => false,
+      ));
+      expect(reason, FallbackReason.webUnsupported);
+      expect(reason!.text, isNotEmpty);
+    });
+
+    test('Accurate + verified + runnable -> no selection-time reason', () {
+      final registry = buildRegistry();
+      final accurate = buildAccurate(registry, Platform.android);
+      final reason = selectionFallbackReason(ctx(
+        mode: SearchMode.accurate,
+        version: verifiedVersion,
+        platform: Platform.android,
+        registry: registry,
+        accurate: accurate,
+      ));
+      expect(reason, isNull, reason: 'Accurate was actually selected');
+      final engine = selectEngine(ctx(
+        mode: SearchMode.accurate,
+        version: verifiedVersion,
+        platform: Platform.android,
+        registry: registry,
+        accurate: accurate,
+      ));
+      expect(identical(engine, accurate), isTrue);
+    });
+
+    test(
+        'selectionFallbackReason is non-null exactly when Accurate degrades '
+        'to Simulated', () {
+      final registry = buildRegistry();
+      final rng = Random(7);
+      final versions = [verifiedVersion, unverifiedVersion, unsupportedVersion];
+      for (int i = 0; i < 200; i++) {
+        final mode = SearchMode.values[rng.nextInt(SearchMode.values.length)];
+        final version = versions[rng.nextInt(versions.length)];
+        final platform = Platform.values[rng.nextInt(Platform.values.length)];
+        final accurate = buildAccurate(registry, platform);
+        final selectionCtx = ctx(
+          mode: mode,
+          version: version,
+          platform: platform,
+          registry: registry,
+          accurate: accurate,
+          webCanRun: (v, e) => v == verifiedVersion,
+        );
+        final engine = selectEngine(selectionCtx);
+        final reason = selectionFallbackReason(selectionCtx);
+        final degradedAccurate =
+            mode == SearchMode.accurate && identical(engine, simulated);
+        if (degradedAccurate) {
+          expect(reason, isNotNull,
+              reason: 'degraded Accurate must explain itself');
+          expect(reason!.text, isNotEmpty);
+        } else {
+          expect(reason, isNull,
+              reason: 'no reason unless Accurate degraded at selection');
+        }
+      }
+    });
+  });
 }

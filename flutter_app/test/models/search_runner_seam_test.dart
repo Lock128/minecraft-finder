@@ -210,6 +210,39 @@ void main() {
       expect(out.meta!.fallbackReason, isNull);
       expect(out.meta!.mode, SearchMode.estimate);
     });
+
+    test(
+        'selection-time degrade tags a non-accurate EngineOk with its reason '
+        '(Req 5.4)', () async {
+      // An Accurate request that was downgraded to the Simulated engine at
+      // selection time (unverified version / web-can't-run) still runs the
+      // Simulated engine and returns EngineOk, but the result must explain the
+      // degrade rather than look like a plain Estimate.
+      final spy = SpyEngine(
+        const EngineOk<OreLocation>([]),
+        const EngineOk<StructureLocation>([]),
+      );
+      final out = await dispatchOreSearch(
+        spy,
+        oreQuery(),
+        VersionEra.modern,
+        selectionFallback: FallbackReason.unverifiedVersion,
+      );
+      expect(out.meta, isNotNull);
+      expect(out.meta!.fallbackReason, FallbackReason.unverifiedVersion);
+      expect(out.meta!.fallbackReason!.text, isNotEmpty);
+      expect(out.meta!.didFallback, isTrue);
+      expect(out.meta!.mode, SearchMode.estimate);
+
+      final structOut = await dispatchStructureSearch(
+        spy,
+        structQuery(),
+        VersionEra.modern,
+        selectionFallback: FallbackReason.webUnsupported,
+      );
+      expect(structOut.meta!.fallbackReason, FallbackReason.webUnsupported);
+      expect(structOut.meta!.fallbackReason!.text, isNotEmpty);
+    });
   });
 
   group('SearchRunner still offloads via compute', () {
@@ -245,6 +278,57 @@ void main() {
       expect(out.meta, isNotNull);
       expect(out.meta!.mode, SearchMode.estimate,
           reason: 'default callers stay on the Estimate path');
+    });
+
+    test(
+        'Accurate request on an unverified version surfaces a fallback reason '
+        '(live path, Req 5.4)', () async {
+      // The default registry marks nothing Verified, so an Accurate request is
+      // degraded to Simulated at selection time. The end-to-end runner must
+      // still surface a non-null reason so the UI renders the Estimate notice.
+      final out = await SearchRunner.findOres(OreSearchParams(
+        seed: 'kiro-accurate-live',
+        centerX: 0,
+        centerY: -59,
+        centerZ: 0,
+        radius: 32,
+        oreType: OreType.diamond,
+        includeNether: false,
+        edition: MinecraftEdition.java,
+        versionEra: VersionEra.modern,
+        maxResults: 50,
+        mode: SearchMode.accurate,
+        versionId: 'java-1.20',
+      ));
+      expect(out.meta, isNotNull);
+      expect(out.meta!.mode, SearchMode.estimate,
+          reason: 'degraded Accurate runs the Simulated path');
+      expect(out.meta!.fallbackReason, isNotNull,
+          reason: 'degraded Accurate must explain itself (Req 5.4)');
+      expect(out.meta!.fallbackReason, FallbackReason.unverifiedVersion);
+      expect(out.meta!.fallbackReason!.text, isNotEmpty);
+    });
+
+    test('explicit Estimate request shows no fallback notice (no regression)',
+        () async {
+      final out = await SearchRunner.findOres(OreSearchParams(
+        seed: 'kiro-estimate-live',
+        centerX: 0,
+        centerY: -59,
+        centerZ: 0,
+        radius: 32,
+        oreType: OreType.diamond,
+        includeNether: false,
+        edition: MinecraftEdition.java,
+        versionEra: VersionEra.modern,
+        maxResults: 50,
+        mode: SearchMode.estimate,
+      ));
+      expect(out.meta, isNotNull);
+      expect(out.meta!.mode, SearchMode.estimate);
+      expect(out.meta!.fallbackReason, isNull,
+          reason: 'user chose Estimate; no fallback notice');
+      expect(out.meta!.didFallback, isFalse);
     });
 
     test('findStructures dispatches through computeImpl', () async {

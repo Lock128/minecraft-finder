@@ -54,7 +54,10 @@ class SearchMeta {
   /// Non-null and non-empty whenever Accurate degraded to Estimate (Req 5.4).
   final FallbackReason? fallbackReason;
 
-  /// Metadata for a plain Estimate-mode result (no fallback occurred).
+  /// Metadata for a plain Estimate-mode result: the caller explicitly chose
+  /// Estimate mode, so no fallback notice is shown. An Accurate request that
+  /// degrades to Estimate (at selection time or runtime) uses
+  /// [SearchMeta.fallback] instead so the reason is surfaced (Req 5.4).
   const SearchMeta.estimate(this.version)
       : mode = SearchMode.estimate,
         verified = false,
@@ -256,7 +259,12 @@ Future<SearchOutput<OreLocation>> _runOreSearch(OreSearchParams p) async {
     version: p.version,
     maxResults: p.maxResults,
   );
-  return dispatchOreSearch(engine, query, p.versionEra);
+  return dispatchOreSearch(
+    engine,
+    query,
+    p.versionEra,
+    selectionFallback: selectionFallbackReason(ctx),
+  );
 }
 
 /// Dispatch an ore search through the chosen [engine], branching on the sealed
@@ -267,17 +275,24 @@ Future<SearchOutput<OreLocation>> _runOreSearch(OreSearchParams p) async {
 /// Routes every search exclusively through [WorldGenEngine]: Accurate output is
 /// consumed via its [EngineResult]; otherwise the engine is itself a
 /// [WorldGenEngine] (Simulated) whose [EngineOk] is used directly.
+///
+/// [selectionFallback] carries the reason an Accurate request was degraded to
+/// the Simulated engine *at selection time* (unverified version, or web path
+/// cannot run it). When non-null and the engine returns [EngineOk] from a
+/// non-accurate engine, the output is tagged [SearchMeta.fallback] so the UI
+/// renders the Estimate-mode notice with its reason (Req 5.4). It is null for
+/// an explicit Estimate request, which keeps producing a plain
+/// [SearchMeta.estimate] with no notice.
 Future<SearchOutput<OreLocation>> dispatchOreSearch(
-    WorldGenEngine engine, OreQuery query, VersionEra era) async {
+    WorldGenEngine engine, OreQuery query, VersionEra era,
+    {FallbackReason? selectionFallback}) async {
   final result = await engine.findOres(query);
   switch (result) {
     case EngineOk<OreLocation> ok:
       return SearchOutput<OreLocation>(
         ok.results,
         ok.results.length,
-        meta: engine is AccurateEngine
-            ? SearchMeta.accurate(query.version.id)
-            : SearchMeta.estimate(query.version.id),
+        meta: _okMeta(engine, query.version.id, selectionFallback),
       );
     case EngineUnavailable<OreLocation> u:
       return _oreFallback(query, era, reason: u.reason);
@@ -285,6 +300,22 @@ Future<SearchOutput<OreLocation>> dispatchOreSearch(
       return _oreFallback(query, era,
           reason: _unsupportedReason(unsupported.edition));
   }
+}
+
+/// Build the [SearchMeta] for an [EngineOk] outcome. An Accurate engine yields
+/// verified Accurate metadata. A non-accurate engine yields plain Estimate
+/// metadata, unless [selectionFallback] is set (an Accurate request that was
+/// degraded to Simulated at selection time), in which case it carries the
+/// fallback reason so the UI explains the degrade (Req 5.4).
+SearchMeta _okMeta(
+    WorldGenEngine engine, String versionId, FallbackReason? selectionFallback) {
+  if (engine is AccurateEngine) {
+    return SearchMeta.accurate(versionId);
+  }
+  if (selectionFallback != null) {
+    return SearchMeta.fallback(versionId, selectionFallback);
+  }
+  return SearchMeta.estimate(versionId);
 }
 
 /// An unregistered Bedrock version degrades with the Bedrock-specific reason
@@ -362,23 +393,30 @@ Future<SearchOutput<StructureLocation>> _runStructureSearch(
     edition: p.edition,
     version: p.version,
   );
-  return dispatchStructureSearch(engine, query, p.versionEra);
+  return dispatchStructureSearch(
+    engine,
+    query,
+    p.versionEra,
+    selectionFallback: selectionFallbackReason(ctx),
+  );
 }
 
 /// Dispatch a structure search through the chosen [engine], branching on the
 /// sealed [EngineResult] and falling back to the Simulated finder on any
 /// unavailable/unsupported outcome. Exposed for the runner-seam test.
+///
+/// [selectionFallback] mirrors [dispatchOreSearch]: a non-null reason tags a
+/// non-accurate [EngineOk] as a degraded Accurate request (Req 5.4).
 Future<SearchOutput<StructureLocation>> dispatchStructureSearch(
-    WorldGenEngine engine, StructureQuery query, VersionEra era) async {
+    WorldGenEngine engine, StructureQuery query, VersionEra era,
+    {FallbackReason? selectionFallback}) async {
   final result = await engine.findStructures(query);
   switch (result) {
     case EngineOk<StructureLocation> ok:
       return SearchOutput<StructureLocation>(
         ok.results,
         ok.results.length,
-        meta: engine is AccurateEngine
-            ? SearchMeta.accurate(query.version.id)
-            : SearchMeta.estimate(query.version.id),
+        meta: _okMeta(engine, query.version.id, selectionFallback),
       );
     case EngineUnavailable<StructureLocation> u:
       return _structureFallback(query, era, reason: u.reason);

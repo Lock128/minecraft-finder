@@ -69,6 +69,40 @@ WorldGenEngine selectEngine(EngineSelectionContext ctx) {
   return ctx.accurate;
 }
 
+/// The reason an Accurate request is degraded to the Simulated engine **at
+/// selection time** (i.e. before any engine runs), or null when no selection-
+/// time degrade applies.
+///
+/// This complements [selectEngine] without changing its single-engine
+/// selection behavior: `selectEngine` answers *which* engine runs, this
+/// answers *why* Accurate was downgraded so the runner can attach a non-null
+/// [SearchMeta.fallbackReason] and the UI can render the Estimate-mode notice
+/// (Req 5.4). The two stay in lock-step:
+///
+/// - Estimate mode: null (the user explicitly chose Estimate; no notice).
+/// - Accurate + unverified/unsupported version: [FallbackReason.unverifiedVersion].
+/// - Accurate + web path cannot run it: [FallbackReason.webUnsupported].
+/// - Accurate + verified + runnable: null (Accurate is actually selected).
+///
+/// The branch order mirrors [selectEngine] exactly, so a non-null result here
+/// is returned for precisely the `(mode, version, edition, platform)` inputs
+/// for which `selectEngine` returns `ctx.simulated` despite Accurate being
+/// requested.
+FallbackReason? selectionFallbackReason(EngineSelectionContext ctx) {
+  if (ctx.mode == SearchMode.estimate) {
+    return null; // User asked for Estimate; not a fallback.
+  }
+  // Accurate requested. Mirror selectEngine's degrade conditions.
+  if (!ctx.registry.isVerified(ctx.version)) {
+    return FallbackReason.unverifiedVersion; // Req 5.2 / 5.4
+  }
+  if (ctx.platform == Platform.web &&
+      !ctx.webCanRun(ctx.version, ctx.edition)) {
+    return FallbackReason.webUnsupported; // Req 5.1 / 5.4
+  }
+  return null; // Accurate was actually selected.
+}
+
 /// Convenience: true when [engine] is the accurate path. Used by the runner to
 /// decide whether to branch on the sealed [EngineResult] or treat output as a
 /// plain simulated success.
