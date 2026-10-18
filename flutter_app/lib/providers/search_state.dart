@@ -401,13 +401,26 @@ class SearchState extends ChangeNotifier {
       // whole result set and drives the results-tab presentation.
       SearchMeta? meta;
 
-      // Search for ores if enabled. Each search runs on a background isolate
-      // (via compute) so the heavy loops never block the UI thread — the app
-      // stays responsive and the spinner keeps animating. Each finder also
-      // retains at most [maxResults] locations, keeping memory bounded.
+      // Search for ores and structures if enabled. Each search runs on its own
+      // background isolate (via compute) so the heavy loops never block the UI
+      // thread. The per-ore searches and the structure search are mutually
+      // independent, so we dispatch them all up front and await them together
+      // with Future.wait — on a multi-core device this runs them concurrently
+      // instead of one-at-a-time, cutting a multi-ore search toward the cost of
+      // the single slowest ore. Each finder still retains at most [maxResults]
+      // locations, keeping memory bounded.
+      //
+      // Determinism of the combined output is preserved because results are
+      // gathered in a fixed order (ores in _selectedOreTypes order, then
+      // structures) regardless of which isolate finishes first, and the final
+      // sort is stable.
+
+      // Dispatch ore searches (futures started eagerly, awaited below).
+      Future<SearchOutput<OreLocation>>? netheriteFuture;
+      final List<Future<SearchOutput<OreLocation>>> oreFutures = [];
       if (_includeOres) {
         if (effectiveComprehensiveNetherite) {
-          final output = await SearchRunner.findAllNetherite(
+          netheriteFuture = SearchRunner.findAllNetherite(
             NetheriteSearchParams(
               seed: seed,
               centerX: centerX,
@@ -417,38 +430,34 @@ class SearchState extends ChangeNotifier {
               maxResults: maxResults,
             ),
           );
-          allResults.addAll(output.results);
-          totalCandidates += output.totalFound;
-          meta ??= output.meta;
         } else {
-          for (OreType oreType in _selectedOreTypes) {
-            final output = await SearchRunner.findOres(
-              OreSearchParams(
-                seed: seed,
-                centerX: centerX,
-                centerY: centerY,
-                centerZ: centerZ,
-                radius: effectiveRadius,
-                oreType: oreType,
-                includeNether: _includeNether && oreType == OreType.gold,
-                edition: _selectedEdition,
-                versionEra: _selectedVersionEra,
-                maxResults: maxResults,
-                mode: mode,
-                versionId: versionId,
+          for (final OreType oreType in _selectedOreTypes) {
+            oreFutures.add(
+              SearchRunner.findOres(
+                OreSearchParams(
+                  seed: seed,
+                  centerX: centerX,
+                  centerY: centerY,
+                  centerZ: centerZ,
+                  radius: effectiveRadius,
+                  oreType: oreType,
+                  includeNether: _includeNether && oreType == OreType.gold,
+                  edition: _selectedEdition,
+                  versionEra: _selectedVersionEra,
+                  maxResults: maxResults,
+                  mode: mode,
+                  versionId: versionId,
+                ),
               ),
             );
-            allResults.addAll(output.results);
-            totalCandidates += output.totalFound;
-            meta ??= output.meta;
           }
         }
       }
 
-      // Search for structures if enabled (also on a background isolate).
-      List<StructureLocation> structureResults = [];
+      // Dispatch the structure search concurrently with the ore searches.
+      Future<SearchOutput<StructureLocation>>? structureFuture;
       if (_includeStructures && effectiveStructures.isNotEmpty) {
-        final output = await SearchRunner.findStructures(
+        structureFuture = SearchRunner.findStructures(
           StructureSearchParams(
             seed: seed,
             centerX: centerX,
@@ -462,9 +471,36 @@ class SearchState extends ChangeNotifier {
             versionId: versionId,
           ),
         );
-        structureResults = output.results;
+      }
+
+      // Await everything together. Collect ore outputs in a fixed order so the
+      // combined result and the chosen [meta] are independent of completion
+      // order.
+      final List<SearchOutput<OreLocation>> oreOutputs =
+          await Future.wait(oreFutures);
+      final SearchOutput<OreLocation>? netheriteOutput =
+          netheriteFuture == null ? null : await netheriteFuture;
+      final SearchOutput<StructureLocation>? structureOutput =
+          structureFuture == null ? null : await structureFuture;
+
+      // Gather ore results (ore precedence first, mirroring the previous
+      // sequential order), then structures.
+      if (netheriteOutput != null) {
+        allResults.addAll(netheriteOutput.results);
+        totalCandidates += netheriteOutput.totalFound;
+        meta ??= netheriteOutput.meta;
+      }
+      for (final output in oreOutputs) {
+        allResults.addAll(output.results);
         totalCandidates += output.totalFound;
         meta ??= output.meta;
+      }
+
+      List<StructureLocation> structureResults = [];
+      if (structureOutput != null) {
+        structureResults = structureOutput.results;
+        totalCandidates += structureOutput.totalFound;
+        meta ??= structureOutput.meta;
       }
 
       // A newer search started (or the provider was disposed) while this one
