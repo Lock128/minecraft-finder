@@ -1,0 +1,12 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "severity": "non-blocking",
+      "label": "Residual grey[600] light-mode secondary text",
+      "detail": "Pre-existing Colors.grey[600] (#757575) is still used for light-mode secondary text in search_center_card.dart (:183), pro_upgrade_dialog.dart (:114/:152/:255), quick_start_card.dart (:92/:169), edition_version_card.dart (:117), app_info_dialog.dart (:220/:271/:500), release_notes_tab.dart (:240), and guide_tab.dart (:321). It measures 4.38:1 on lightCard (#F8F9FC) and 4.11:1 on lightBg (#F0F2F5), below the 4.5:1 AA bar for normal text, and is not covered by the verification note. It is unchanged by this commit (not a regression) and borderline, so it does not block. Follow-up: route these through GamerColors.mutedText for full light-mode consistency.",
+      "confidence": "confirmed"
+    }
+  ],
+  "reviewDoc": "/Users/johanneskoch/git-private/minecraft-finder/.worktrees/theme-rework/flutter_app/.agents/tasks/theme-rework/review.md"
+}
