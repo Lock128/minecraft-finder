@@ -372,6 +372,14 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return 'Tamaño mínimo de veta: $count+ bloques';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => 'Tamaño mínimo de veta: cualquiera';
+
+  @override
   String get biomeNamePlains => 'Llanura';
 
   @override
@@ -1672,4 +1680,50 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showQuickStartAction => 'Mostrar';
+
+  @override
+  String get minecraftVersionLabel => 'Versión de Minecraft';
+
+  @override
+  String get searchModeTitle => 'Modo de búsqueda';
+
+  @override
+  String get searchModeAccurate => 'Preciso';
+
+  @override
+  String get searchModeEstimate => 'Estimación';
+
+  @override
+  String get searchModeAccurateInfo =>
+      'El modo preciso reproduce la generación real del mundo para versiones compatibles y verificadas, y muestra posiciones exactas en lugar de probabilidades estimadas.';
+
+  @override
+  String get estimateDisclaimer =>
+      'Estas son estimaciones estadísticas, no posiciones exactas del juego. La probabilidad es una puntuación de clasificación, no una probabilidad real.';
+
+  @override
+  String get accurateResultsNotice =>
+      'Resultados precisos para la semilla: posiciones exactas para esta versión verificada.';
+
+  @override
+  String get experimentalAccurateNotice =>
+      'Resultados precisos experimentales: son posiciones reales basadas en la semilla, pero esta versión aún no se ha verificado. Tómalas como punto de partida y compruébalas en el juego.';
+
+  @override
+  String get webExperimentalToggle =>
+      'Probar el modo preciso experimental en la web';
+
+  @override
+  String get webExperimentalInfo =>
+      'En la web, el modo preciso normalmente recurre a estimaciones. Activa esto para ejecutar el motor real basado en la semilla en tu navegador. Los resultados son experimentales y no verificados, y las búsquedas grandes pueden ser lentas.';
+
+  @override
+  String veinSizeLabel(int count) {
+    return '~$count bloques en esta veta';
+  }
+
+  @override
+  String structureVariantLabel(String variant) {
+    return 'Variante: $variant';
+  }
 }

@@ -370,6 +370,14 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return 'Mindest-Adergröße: $count+ Blöcke';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => 'Mindest-Adergröße: beliebig';
+
+  @override
   String get biomeNamePlains => 'Ebene';
 
   @override
@@ -1657,4 +1665,50 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get showQuickStartAction => 'Anzeigen';
+
+  @override
+  String get minecraftVersionLabel => 'Minecraft-Version';
+
+  @override
+  String get searchModeTitle => 'Suchmodus';
+
+  @override
+  String get searchModeAccurate => 'Genau';
+
+  @override
+  String get searchModeEstimate => 'Schätzung';
+
+  @override
+  String get searchModeAccurateInfo =>
+      'Der genaue Modus reproduziert die echte Weltgenerierung für unterstützte, verifizierte Versionen und zeigt exakte Positionen statt geschätzter Wahrscheinlichkeiten.';
+
+  @override
+  String get estimateDisclaimer =>
+      'Dies sind statistische Schätzungen, keine exakten Positionen im Spiel. Die Wahrscheinlichkeit ist ein Ranking-Wert, keine echte Wahrscheinlichkeit.';
+
+  @override
+  String get accurateResultsNotice =>
+      'Seed-genaue Ergebnisse: exakte Positionen für diese verifizierte Version.';
+
+  @override
+  String get experimentalAccurateNotice =>
+      'Experimentelle genaue Ergebnisse: Dies sind echte seed-basierte Positionen, aber diese Version wurde noch nicht verifiziert. Nutze sie als Ausgangspunkt und prüfe sie im Spiel nach.';
+
+  @override
+  String get webExperimentalToggle =>
+      'Experimentellen genauen Modus im Web testen';
+
+  @override
+  String get webExperimentalInfo =>
+      'Im Web wechselt der genaue Modus normalerweise zu Schätzungen. Aktiviere dies, um die echte seed-basierte Engine in deinem Browser auszuführen. Die Ergebnisse sind experimentell und nicht verifiziert, und große Suchen können langsam sein.';
+
+  @override
+  String veinSizeLabel(int count) {
+    return '~$count Blöcke in dieser Ader';
+  }
+
+  @override
+  String structureVariantLabel(String variant) {
+    return 'Variante: $variant';
+  }
 }

@@ -15,6 +15,8 @@ class PreferencesService {
   static const String _versionEraKey = 'version_era';
   static const String _monetizationOverrideKey = 'monetization_override_enabled';
   static const String _quickStartHiddenKey = 'quick_start_hidden';
+  static const String _webExperimentalAccurateKey =
+      'web_experimental_accurate_enabled';
 
   // Default values
   static const String _defaultSeed = '8674308105921866736';
@@ -193,6 +195,19 @@ class PreferencesService {
   static Future<void> setQuickStartHidden(bool hidden) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_quickStartHiddenKey, hidden);
+  }
+
+  // "Accurate on web" setting. Defaults to true (on) so picking Accurate on
+  // web actually runs the real seed-based engine instead of silently falling
+  // back to Estimate. Users can turn it off to force the fast Estimate path.
+  static Future<bool> getWebExperimentalAccurate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_webExperimentalAccurateKey) ?? true;
+  }
+
+  static Future<void> setWebExperimentalAccurate(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_webExperimentalAccurateKey, enabled);
   }
 
   // Convenience method to load all search parameters at once

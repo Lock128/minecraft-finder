@@ -1,0 +1,11 @@
+# Native build outputs (produced by CMake / Gradle / Xcode; never committed).
+build/
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+*.exp
+*.pdb

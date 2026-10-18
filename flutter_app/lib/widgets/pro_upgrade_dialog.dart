@@ -98,7 +98,9 @@ class ProUpgradeDialog extends StatelessWidget {
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
                 icon: Icon(Icons.close,
-                    color: isDarkMode ? Colors.white54 : Colors.grey[500]),
+                    color: isDarkMode
+                        ? Colors.white54
+                        : GamerColors.mutedIcon(context)),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -109,7 +111,7 @@ class ProUpgradeDialog extends StatelessWidget {
             'Unlock the full power of the finder',
             style: TextStyle(
               fontSize: 13,
-              color: isDarkMode ? Colors.white60 : Colors.grey[600],
+              color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
             ),
           ),
         ],
@@ -147,7 +149,7 @@ class ProUpgradeDialog extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: isDarkMode ? Colors.white60 : Colors.grey[600],
+              color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
             ),
           ),
           const SizedBox(height: 20),
@@ -250,7 +252,7 @@ class ProUpgradeDialog extends StatelessWidget {
             child: Text(
               'Restore Purchase',
               style: TextStyle(
-                color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
                 fontSize: 13,
               ),
             ),
@@ -261,7 +263,7 @@ class ProUpgradeDialog extends StatelessWidget {
             'One-time purchase. No subscription.',
             style: TextStyle(
               fontSize: 11,
-              color: isDarkMode ? Colors.white38 : Colors.grey[500],
+              color: isDarkMode ? Colors.white38 : const Color(0xFF616161),
             ),
           ),
         ],
@@ -305,7 +307,8 @@ class ProUpgradeDialog extends StatelessWidget {
                 Text(subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                      color:
+                          isDarkMode ? Colors.white38 : const Color(0xFF616161),
                     )),
               ],
             ),

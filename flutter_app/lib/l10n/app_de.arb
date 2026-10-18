@@ -122,6 +122,8 @@
   "placesFound": "{count, plural, =1{{count} Fundort} other{{count} Fundorte}}",
   "chunksCount": "{count, plural, =1{in {count} Chunk} other{in {count} Chunks}}",
   "minProbabilityFilterLabel": "Mindestwahrscheinlichkeit: {percent}%",
+  "minVeinSizeFilterLabel": "Mindest-Adergröße: {count}+ Blöcke",
+  "minVeinSizeFilterAll": "Mindest-Adergröße: beliebig",
 
   "biomeNamePlains": "Ebene",
   "biomeNameForest": "Wald",
@@ -520,5 +522,17 @@
   "settingsTitle": "Einstellungen",
   "showQuickStartTitle": "Schnellstart",
   "showQuickStartSubtitle": "Die Onboarding-Karte mit einem Tipp auf dem Suchbildschirm wieder anzeigen.",
-  "showQuickStartAction": "Anzeigen"
+  "showQuickStartAction": "Anzeigen",
+  "minecraftVersionLabel": "Minecraft-Version",
+  "searchModeTitle": "Suchmodus",
+  "searchModeAccurate": "Genau",
+  "searchModeEstimate": "Schätzung",
+  "searchModeAccurateInfo": "Der genaue Modus reproduziert die echte Weltgenerierung für unterstützte, verifizierte Versionen und zeigt exakte Positionen statt geschätzter Wahrscheinlichkeiten.",
+  "estimateDisclaimer": "Dies sind statistische Schätzungen, keine exakten Positionen im Spiel. Die Wahrscheinlichkeit ist ein Ranking-Wert, keine echte Wahrscheinlichkeit.",
+  "accurateResultsNotice": "Seed-genaue Ergebnisse: exakte Positionen für diese verifizierte Version.",
+  "experimentalAccurateNotice": "Experimentelle genaue Ergebnisse: Dies sind echte seed-basierte Positionen, aber diese Version wurde noch nicht verifiziert. Nutze sie als Ausgangspunkt und prüfe sie im Spiel nach.",
+  "webExperimentalToggle": "Experimentellen genauen Modus im Web testen",
+  "webExperimentalInfo": "Im Web wechselt der genaue Modus normalerweise zu Schätzungen. Aktiviere dies, um die echte seed-basierte Engine in deinem Browser auszuführen. Die Ergebnisse sind experimentell und nicht verifiziert, und große Suchen können langsam sein.",
+  "veinSizeLabel": "~{count} Blöcke in dieser Ader",
+  "structureVariantLabel": "Variante: {variant}"
 }

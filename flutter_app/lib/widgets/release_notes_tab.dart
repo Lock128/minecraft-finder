@@ -237,7 +237,7 @@ class ReleaseNotesTab extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 height: 1.4,
-                color: isDarkMode ? Colors.white60 : Colors.grey[600],
+                color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
               )),
         ],
       ),
@@ -392,7 +392,8 @@ class ReleaseNotesTab extends StatelessWidget {
                   Text(highlight,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                        color:
+                            isDarkMode ? Colors.white38 : const Color(0xFF616161),
                       )),
                 ],
               ),

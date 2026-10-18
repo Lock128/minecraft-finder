@@ -18,6 +18,8 @@ class GamerColors {
   static const darkCardAlt = Color(0xFF0F3460);
 
   // Surface colors (light mode)
+  // Intentional elevation hierarchy (lightest sits on top):
+  //   lightBg (scaffold) < lightCard (cards) < lightSurface (inputs/headers).
   static const lightBg = Color(0xFFF0F2F5);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightCard = Color(0xFFF8F9FC);
@@ -31,16 +33,23 @@ class GamerColors {
   static const coalNeon = Color(0xFF90A4AE);
   static const lapisNeon = Color(0xFF448AFF);
 
-  // Light-mode-safe accent colors (darker variants for readable text on white)
-  static const lightGreen = Color(0xFF00873E);
-  static const lightCyan = Color(0xFF0088A3);
+  // Light-mode-safe accent colors (darker variants for readable text on white).
+  // Every value below is tuned to meet WCAG AA (>=4.5:1 for normal text)
+  // against the worst-case light surface (lightBg #F0F2F5), so they stay
+  // readable on cards (#F8F9FC) and inputs (#FFFFFF) too. Hues match their
+  // neon counterparts so the palette stays cohesive across themes.
+  // lightDiamond and lightCyan are kept as distinct teals: diamond ore skews
+  // bluer (#00698C) while the generic cyan accent is greener (#00727F),
+  // mirroring diamondNeon vs neonCyan in dark mode.
+  static const lightGreen = Color(0xFF007A37);
+  static const lightCyan = Color(0xFF00727F);
   static const lightPurple = Color(0xFF7B2FA0);
-  static const lightOrange = Color(0xFFD45A00);
-  static const lightYellow = Color(0xFF8A7600);
-  static const lightDiamond = Color(0xFF007A8C);
-  static const lightGold = Color(0xFF9E8500);
+  static const lightOrange = Color(0xFFB84A00);
+  static const lightYellow = Color(0xFF7A6600);
+  static const lightDiamond = Color(0xFF00698C);
+  static const lightGold = Color(0xFF7E6A00);
   static const lightNetherite = Color(0xFF9C27B0);
-  static const lightIron = Color(0xFF546E7A);
+  static const lightIron = Color(0xFF4B636E);
   static const lightRedstone = Color(0xFFC62828);
   static const lightCoal = Color(0xFF455A64);
   static const lightLapis = Color(0xFF1565C0);
@@ -60,6 +69,37 @@ class GamerColors {
       isDark ? redstoneNeon : lightRedstone;
   static Color coalText(bool isDark) => isDark ? coalNeon : lightCoal;
   static Color lapisText(bool isDark) => isDark ? lapisNeon : lightLapis;
+
+  /// Maps a dark-mode neon accent to its readable light-mode variant.
+  /// Use this anywhere a neon constant is applied to light-mode text, icons,
+  /// card borders, or section bars so accents stay consistent and legible.
+  /// In dark mode the original neon is returned unchanged.
+  static Color adaptiveAccent(Color neon, bool isDark) {
+    if (isDark) return neon;
+    if (neon == neonGreen) return lightGreen;
+    if (neon == neonCyan) return lightCyan;
+    if (neon == neonPurple) return lightPurple;
+    if (neon == neonOrange) return lightOrange;
+    if (neon == neonYellow) return lightYellow;
+    if (neon == goldNeon) return lightGold;
+    if (neon == diamondNeon) return lightDiamond;
+    if (neon == netheriteNeon) return lightNetherite;
+    if (neon == ironNeon) return lightIron;
+    if (neon == redstoneNeon) return lightRedstone;
+    if (neon == coalNeon) return lightCoal;
+    if (neon == lapisNeon) return lightLapis;
+    return neon;
+  }
+
+  /// Muted/secondary foreground text that routes through the theme's
+  /// onSurface color so it stays legible in both light and dark mode.
+  /// Prefer this over hardcoded `Colors.grey[*]` for light-mode labels.
+  static Color mutedText(BuildContext context, {double alpha = 0.70}) =>
+      Theme.of(context).colorScheme.onSurface.withValues(alpha: alpha);
+
+  /// De-emphasized icon color. Same theme-driven basis as [mutedText].
+  static Color mutedIcon(BuildContext context, {double alpha = 0.70}) =>
+      Theme.of(context).colorScheme.onSurface.withValues(alpha: alpha);
 
   // Glow shadow helper
   static List<BoxShadow> neonGlow(Color color,
@@ -94,8 +134,8 @@ class GamerTheme {
         seedColor: GamerColors.neonGreen,
         brightness: Brightness.light,
       ).copyWith(
-        primary: const Color(0xFF00873E),
-        secondary: GamerColors.neonCyan,
+        primary: GamerColors.lightGreen,
+        secondary: GamerColors.lightCyan,
         surface: GamerColors.lightSurface,
         onSurface: const Color(0xFF1A1A2E),
       ),
@@ -124,7 +164,8 @@ class GamerTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF00873E), width: 2),
+          borderSide:
+              const BorderSide(color: GamerColors.lightGreen, width: 2),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

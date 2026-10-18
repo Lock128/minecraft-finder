@@ -5,6 +5,10 @@ import '../models/search_runner.dart';
 import '../models/structure_location.dart';
 import '../models/search_result.dart';
 import '../models/version_availability.dart';
+import '../models/worldgen/default_registry.dart';
+import '../models/worldgen/engine_selector.dart';
+import '../models/worldgen/minecraft_version.dart';
+import '../models/worldgen/version_strategy_registry.dart';
 import '../utils/preferences_service.dart';
 
 /// Holds all search form state and orchestrates the search logic.
@@ -23,6 +27,51 @@ class SearchState extends ChangeNotifier {
 
   VersionEra _selectedVersionEra = VersionEra.modern;
   VersionEra get selectedVersionEra => _selectedVersionEra;
+
+  // Registry of seed-accurate version strategies. Single source of truth for
+  // which versions are Supported / Verified — the UI reads it so the version
+  // picker and the result cards never hard-code verification state.
+  final VersionStrategyRegistry _registry = buildDefaultRegistry();
+
+  /// Supported versions for the current edition, sourced from the registry,
+  /// for the version picker (Req 12.1). Empty when the edition has no
+  /// seed-accurate strategies yet (e.g. Bedrock today).
+  List<MinecraftVersion> get availableVersions =>
+      VersionAvailability.supportedVersions(_registry,
+          edition: _selectedEdition);
+
+  /// The explicitly selected Minecraft version, or null when the user has not
+  /// picked one (the search then derives a version from the era). Only versions
+  /// in [availableVersions] are ever stored here.
+  MinecraftVersion? _selectedVersion;
+  MinecraftVersion? get selectedVersion => _selectedVersion;
+
+  /// Whether [version] is a Verified_Version per the registry.
+  bool isVersionVerified(MinecraftVersion version) =>
+      _registry.isVerified(version);
+
+  /// The requested search mode (Req 12.2). Defaults to [SearchMode.accurate]
+  /// so the seed-accurate engine is the out-of-the-box experience; users can
+  /// still switch to Estimate for the fast statistical ranking.
+  SearchMode _searchMode = SearchMode.accurate;
+  SearchMode get searchMode => _searchMode;
+
+  /// Whether the accurate engine is allowed to run on the web (pure-Dart
+  /// backend). Defaults to **on** so that picking Accurate on web actually
+  /// computes real seed-based positions instead of silently falling back to the
+  /// fast Estimate path. Persisted. When on (and running on web in Accurate
+  /// mode), the search lifts the web/verification gates; results are flagged as
+  /// experimental, not verified. On native this has no effect (native already
+  /// runs the accurate path).
+  bool _webExperimentalAccurate = true;
+  bool get webExperimentalAccurate => _webExperimentalAccurate;
+
+  /// Metadata describing how the most recent search output was produced
+  /// (mode / version / verified / fallbackReason). Null until a search runs.
+  /// The results UI reads it to omit the fabricated probability % in Accurate
+  /// mode and to render the Estimate-mode fallback notice (Req 12.3-12.5, 5.4).
+  SearchMeta? _lastSearchMeta;
+  SearchMeta? get lastSearchMeta => _lastSearchMeta;
 
   // Search options
   Set<OreType> _selectedOreTypes = {OreType.diamond};
@@ -159,9 +208,12 @@ class SearchState extends ChangeNotifier {
     final edition = await PreferencesService.getEdition();
     final versionEra = await PreferencesService.getVersionEra();
     final quickStartHidden = await PreferencesService.getQuickStartHidden();
+    final webExperimental =
+        await PreferencesService.getWebExperimentalAccurate();
     _selectedEdition = edition;
     _selectedVersionEra = versionEra;
     _quickStartHidden = quickStartHidden;
+    _webExperimentalAccurate = webExperimental;
     if (_disposed) return;
     seedController.text = params['seed']!;
     xController.text = params['x']!;
@@ -207,6 +259,33 @@ class SearchState extends ChangeNotifier {
     _selectedVersionEra = era;
     PreferencesService.saveVersionEra(era);
     _pruneUnavailableSelections();
+    notifyListeners();
+  }
+
+  /// Select an explicit [MinecraftVersion] from the picker, or clear the
+  /// selection with null. Keeps [selectedVersionEra] in sync so the Simulated
+  /// path and content gating still work from the chosen version's era.
+  void setSelectedVersion(MinecraftVersion? version) {
+    _selectedVersion = version;
+    if (version != null) {
+      _selectedVersionEra = version.era;
+      PreferencesService.saveVersionEra(_selectedVersionEra);
+      _pruneUnavailableSelections();
+    }
+    notifyListeners();
+  }
+
+  /// Switch the Accurate/Estimate [SearchMode] (Req 12.2).
+  void setSearchMode(SearchMode mode) {
+    _searchMode = mode;
+    notifyListeners();
+  }
+
+  /// Toggle the experimental "accurate on web" opt-in. Persisted so the choice
+  /// survives app restarts.
+  void setWebExperimentalAccurate(bool enabled) {
+    _webExperimentalAccurate = enabled;
+    PreferencesService.setWebExperimentalAccurate(enabled);
     notifyListeners();
   }
 
@@ -327,6 +406,14 @@ class SearchState extends ChangeNotifier {
     final int centerZ = int.parse(zController.text);
     final String seed = seedController.text;
 
+    // The mode + explicit version id to send with each search request. These
+    // flow into the WorldGenEngine selection inside the isolate.
+    final SearchMode mode = _searchMode;
+    final String? versionId = _selectedVersion?.id;
+    // Experimental accurate-on-web opt-in only matters for Accurate requests.
+    final bool allowWebExperimental =
+        _webExperimentalAccurate && mode == SearchMode.accurate;
+
     try {
       List<OreLocation> allResults = [];
 
@@ -334,13 +421,31 @@ class SearchState extends ChangeNotifier {
       // Drives the "showing top N of X found" label in the results tab.
       int totalCandidates = 0;
 
-      // Search for ores if enabled. Each search runs on a background isolate
-      // (via compute) so the heavy loops never block the UI thread — the app
-      // stays responsive and the spinner keeps animating. Each finder also
-      // retains at most [maxResults] locations, keeping memory bounded.
+      // The SearchMeta from the produced output(s). All sub-searches in a run
+      // share the same mode/version, so the first non-null meta describes the
+      // whole result set and drives the results-tab presentation.
+      SearchMeta? meta;
+
+      // Search for ores and structures if enabled. Each search runs on its own
+      // background isolate (via compute) so the heavy loops never block the UI
+      // thread. The per-ore searches and the structure search are mutually
+      // independent, so we dispatch them all up front and await them together
+      // with Future.wait — on a multi-core device this runs them concurrently
+      // instead of one-at-a-time, cutting a multi-ore search toward the cost of
+      // the single slowest ore. Each finder still retains at most [maxResults]
+      // locations, keeping memory bounded.
+      //
+      // Determinism of the combined output is preserved because results are
+      // gathered in a fixed order (ores in _selectedOreTypes order, then
+      // structures) regardless of which isolate finishes first, and the final
+      // sort is stable.
+
+      // Dispatch ore searches (futures started eagerly, awaited below).
+      Future<SearchOutput<OreLocation>>? netheriteFuture;
+      final List<Future<SearchOutput<OreLocation>>> oreFutures = [];
       if (_includeOres) {
         if (effectiveComprehensiveNetherite) {
-          final output = await SearchRunner.findAllNetherite(
+          netheriteFuture = SearchRunner.findAllNetherite(
             NetheriteSearchParams(
               seed: seed,
               centerX: centerX,
@@ -350,34 +455,35 @@ class SearchState extends ChangeNotifier {
               maxResults: maxResults,
             ),
           );
-          allResults.addAll(output.results);
-          totalCandidates += output.totalFound;
         } else {
-          for (OreType oreType in _selectedOreTypes) {
-            final output = await SearchRunner.findOres(
-              OreSearchParams(
-                seed: seed,
-                centerX: centerX,
-                centerY: centerY,
-                centerZ: centerZ,
-                radius: effectiveRadius,
-                oreType: oreType,
-                includeNether: _includeNether && oreType == OreType.gold,
-                edition: _selectedEdition,
-                versionEra: _selectedVersionEra,
-                maxResults: maxResults,
+          for (final OreType oreType in _selectedOreTypes) {
+            oreFutures.add(
+              SearchRunner.findOres(
+                OreSearchParams(
+                  seed: seed,
+                  centerX: centerX,
+                  centerY: centerY,
+                  centerZ: centerZ,
+                  radius: effectiveRadius,
+                  oreType: oreType,
+                  includeNether: _includeNether && oreType == OreType.gold,
+                  edition: _selectedEdition,
+                  versionEra: _selectedVersionEra,
+                  maxResults: maxResults,
+                  mode: mode,
+                  versionId: versionId,
+                  allowWebExperimental: allowWebExperimental,
+                ),
               ),
             );
-            allResults.addAll(output.results);
-            totalCandidates += output.totalFound;
           }
         }
       }
 
-      // Search for structures if enabled (also on a background isolate).
-      List<StructureLocation> structureResults = [];
+      // Dispatch the structure search concurrently with the ore searches.
+      Future<SearchOutput<StructureLocation>>? structureFuture;
       if (_includeStructures && effectiveStructures.isNotEmpty) {
-        final output = await SearchRunner.findStructures(
+        structureFuture = SearchRunner.findStructures(
           StructureSearchParams(
             seed: seed,
             centerX: centerX,
@@ -387,10 +493,41 @@ class SearchState extends ChangeNotifier {
             maxResults: maxResults,
             edition: _selectedEdition,
             versionEra: _selectedVersionEra,
+            mode: mode,
+            versionId: versionId,
+            allowWebExperimental: allowWebExperimental,
           ),
         );
-        structureResults = output.results;
+      }
+
+      // Await everything together. Collect ore outputs in a fixed order so the
+      // combined result and the chosen [meta] are independent of completion
+      // order.
+      final List<SearchOutput<OreLocation>> oreOutputs =
+          await Future.wait(oreFutures);
+      final SearchOutput<OreLocation>? netheriteOutput =
+          netheriteFuture == null ? null : await netheriteFuture;
+      final SearchOutput<StructureLocation>? structureOutput =
+          structureFuture == null ? null : await structureFuture;
+
+      // Gather ore results (ore precedence first, mirroring the previous
+      // sequential order), then structures.
+      if (netheriteOutput != null) {
+        allResults.addAll(netheriteOutput.results);
+        totalCandidates += netheriteOutput.totalFound;
+        meta ??= netheriteOutput.meta;
+      }
+      for (final output in oreOutputs) {
+        allResults.addAll(output.results);
         totalCandidates += output.totalFound;
+        meta ??= output.meta;
+      }
+
+      List<StructureLocation> structureResults = [];
+      if (structureOutput != null) {
+        structureResults = structureOutput.results;
+        totalCandidates += structureOutput.totalFound;
+        meta ??= structureOutput.meta;
       }
 
       // A newer search started (or the provider was disposed) while this one
@@ -433,6 +570,7 @@ class SearchState extends ChangeNotifier {
 
       _results = topOreResults;
       _structureResults = topStructureResults;
+      _lastSearchMeta = meta;
       _isLoading = false;
       notifyListeners();
 

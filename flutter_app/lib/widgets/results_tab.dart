@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ore_location.dart';
+import '../models/search_runner.dart';
 import '../models/structure_location.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/monetization_config.dart';
@@ -12,6 +13,7 @@ import '../theme/gamer_theme.dart';
 import '../utils/ore_utils.dart';
 import '../utils/structure_utils.dart';
 import 'pro_upgrade_dialog.dart';
+import 'result_presentation.dart';
 import 'results_map_view.dart';
 
 class ResultsTab extends StatefulWidget {
@@ -22,6 +24,12 @@ class ResultsTab extends StatefulWidget {
   final Set<OreType> selectedOreTypes;
   final int totalFound;
 
+  /// Metadata for the last search. Drives honest-metadata rendering (Req 12.3,
+  /// 12.4, 12.5, 5.4): in Accurate mode the fabricated probability % is
+  /// omitted, real metadata is shown, and the Estimate-mode fallback notice is
+  /// rendered when a fallback occurred. Null means plain Estimate behavior.
+  final SearchMeta? searchMeta;
+
   const ResultsTab({
     super.key,
     required this.results,
@@ -30,7 +38,12 @@ class ResultsTab extends StatefulWidget {
     required this.findAllNetherite,
     required this.selectedOreTypes,
     this.totalFound = 0,
+    this.searchMeta,
   });
+
+  /// Pure presentation model derived from [searchMeta].
+  ResultPresentation get presentation =>
+      ResultPresentation.fromMeta(searchMeta);
 
   @override
   State<ResultsTab> createState() => _ResultsTabState();
@@ -58,6 +71,11 @@ class _ResultsTabState extends State<ResultsTab> {
   /// how many findings the filter is currently hiding.
   double _minProbability = 0.5;
 
+  /// Minimum vein size (ore blocks) a finding must have to be shown. 0 means
+  /// "show all". Lets users keep only the bigger veins (e.g. "5+ diamonds").
+  /// Only applies to ore results (structures have no vein size).
+  int _minVeinSize = 0;
+
   // Filter controllers
   final _minXController = TextEditingController();
   final _maxXController = TextEditingController();
@@ -81,6 +99,7 @@ class _ResultsTabState extends State<ResultsTab> {
     return widget.results.where((location) {
       if (!_visibleOreTypes.contains(location.oreType)) return false;
       if (location.probability < _minProbability) return false;
+      if (location.estimatedVeinSize < _minVeinSize) return false;
       if (!_passesBiomeFilter(location.biome)) return false;
       return _passesCoordinateFilters(location.x, location.y, location.z);
     }).toList();
@@ -265,6 +284,7 @@ class _ResultsTabState extends State<ResultsTab> {
 
     return Column(
       children: [
+        _buildModeNotice(context),
         _buildFilterHeader(context, filteredResults, filteredStructureResults),
         Expanded(
           child: _showMap
@@ -312,7 +332,7 @@ class _ResultsTabState extends State<ResultsTab> {
               style: TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
-                  color: Colors.grey[500]),
+                  color: GamerColors.mutedText(context)),
             ),
           ],
         ],
@@ -326,7 +346,8 @@ class _ResultsTabState extends State<ResultsTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+          Icon(Icons.search_off,
+              size: 64, color: GamerColors.mutedIcon(context, alpha: 0.55)),
           const SizedBox(height: 16),
           Text(l10n.noResultsYet,
               style: Theme.of(context).textTheme.headlineSmall),
@@ -343,7 +364,8 @@ class _ResultsTabState extends State<ResultsTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.filter_alt_off, size: 64, color: Colors.grey[400]),
+          Icon(Icons.filter_alt_off,
+              size: 64, color: GamerColors.mutedIcon(context, alpha: 0.55)),
           const SizedBox(height: 16),
           Text(l10n.noResultsMatchFilters,
               style: Theme.of(context).textTheme.headlineSmall),
@@ -354,11 +376,102 @@ class _ResultsTabState extends State<ResultsTab> {
     );
   }
 
+  /// Renders the mode-dependent notice above the results:
+  ///   - the Estimate-mode fallback notice (with its reason) when a fallback
+  ///     occurred (Req 5.4);
+  ///   - a seed-accurate notice for Verified Accurate results;
+  ///   - the estimate disclaimer for every other (Estimate) result.
+  /// Returns an empty box when nothing applies.
+  Widget _buildModeNotice(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final presentation = widget.presentation;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (presentation.showFallbackNotice) {
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.info_outline,
+        color: GamerColors.neonOrange,
+        isDark: isDark,
+        text: presentation.fallbackText!,
+      );
+    }
+    if (presentation.showExperimentalNotice) {
+      // Experimental Accurate (user opt-in on web, unverified version): real
+      // positions, but flagged as experimental rather than verified-accurate.
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.science_outlined,
+        color: GamerColors.neonOrange,
+        isDark: isDark,
+        text: l10n.experimentalAccurateNotice,
+      );
+    }
+    if (presentation.showRealMetadata) {
+      // Verified Accurate: no disclaimer; surface a positive notice instead.
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.verified_outlined,
+        color: GamerColors.neonGreen,
+        isDark: isDark,
+        text: l10n.accurateResultsNotice,
+      );
+    }
+    if (presentation.showDisclaimer) {
+      return _buildNoticeBanner(
+        context,
+        icon: Icons.info_outline,
+        color: GamerColors.neonOrange,
+        isDark: isDark,
+        text: l10n.estimateDisclaimer,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildNoticeBanner(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required bool isDark,
+    required String text,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      color: color.withValues(alpha: isDark ? 0.12 : 0.08),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon,
+              size: 16, color: GamerColors.adaptiveAccent(color, isDark)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.85),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFilterHeader(
       BuildContext context,
       List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
     final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = GamerColors.greenText(isDark);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -380,8 +493,7 @@ class _ResultsTabState extends State<ResultsTab> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.place_outlined,
-                            size: 20, color: GamerColors.neonGreen),
+                        Icon(Icons.place_outlined, size: 20, color: accent),
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(
@@ -400,8 +512,7 @@ class _ResultsTabState extends State<ResultsTab> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.grid_on,
-                            size: 15, color: GamerColors.neonGreen),
+                        Icon(Icons.grid_on, size: 15, color: accent),
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(
@@ -441,8 +552,7 @@ class _ResultsTabState extends State<ResultsTab> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.info_outline,
-                              size: 13, color: GamerColors.neonGreen),
+                          Icon(Icons.info_outline, size: 13, color: accent),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
@@ -450,7 +560,7 @@ class _ResultsTabState extends State<ResultsTab> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: GamerColors.neonGreen,
+                                color: accent,
                               ),
                             ),
                           ),
@@ -484,6 +594,7 @@ class _ResultsTabState extends State<ResultsTab> {
           // Tap the filter icon to reveal ore/biome/coordinate filters.
           if (_showFilters) ...[
             _buildProbabilityFilter(context),
+            if (widget.results.isNotEmpty) _buildVeinSizeFilter(context),
             if (widget.results.isNotEmpty) _buildOreFilters(context),
             if (widget.structureResults.isNotEmpty)
               _buildStructureFilters(context),
@@ -514,6 +625,52 @@ class _ResultsTabState extends State<ResultsTab> {
           label: '$percent%',
           activeColor: GamerColors.neonGreen,
           onChanged: (value) => setState(() => _minProbability = value),
+        ),
+      ],
+    );
+  }
+
+  /// Largest vein size across the current ore results, used as the slider's
+  /// upper bound. Falls back to a small default when there are no results.
+  int get _maxVeinSizeInResults {
+    int max = 0;
+    for (final ore in widget.results) {
+      if (ore.estimatedVeinSize > max) max = ore.estimatedVeinSize;
+    }
+    return max;
+  }
+
+  /// "Minimum vein size" slider — keep only veins with at least N blocks. Only
+  /// meaningful for ore results, so the caller renders it only when ores exist.
+  Widget _buildVeinSizeFilter(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final int maxVein = _maxVeinSizeInResults;
+    // Nothing to filter when every vein is the same minimal size.
+    if (maxVein <= 1) return const SizedBox.shrink();
+    // Clamp the current value in case a new search shrank the range.
+    if (_minVeinSize > maxVein) {
+      _minVeinSize = maxVein;
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        Text(
+          _minVeinSize <= 0
+              ? l10n.minVeinSizeFilterAll
+              : l10n.minVeinSizeFilterLabel(_minVeinSize),
+          style:
+              Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 12),
+        ),
+        Slider(
+          value: _minVeinSize.toDouble().clamp(0, maxVein.toDouble()),
+          min: 0,
+          max: maxVein.toDouble(),
+          divisions: maxVein,
+          label: _minVeinSize <= 0 ? l10n.showAll : '$_minVeinSize+',
+          activeColor: GamerColors.neonGreen,
+          onChanged: (value) =>
+              setState(() => _minVeinSize = value.round()),
         ),
       ],
     );
@@ -742,6 +899,9 @@ class _ResultsTabState extends State<ResultsTab> {
 
     return ListView.builder(
       padding: const EdgeInsets.all(8),
+      // Dismiss the keyboard (from the coordinate filter fields) when the
+      // user scrolls the results list.
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       itemCount: totalItems + (showProUpsell ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < filteredResults.length) {
@@ -812,7 +972,9 @@ class _ResultsTabState extends State<ResultsTab> {
                       'Upgrade to Pro for up to 500 results, unlimited radius, and more.',
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? Colors.white54 : Colors.grey[600],
+                        color: isDark
+                            ? Colors.white54
+                            : GamerColors.mutedText(context),
                       ),
                     ),
                   ],
@@ -880,18 +1042,32 @@ class _ResultsTabState extends State<ResultsTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 3),
-            Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
-                style: TextStyle(fontSize: 13, color: Colors.grey[500])),
-            Text(
-                l10n.probabilityLabel(
-                    (location.probability * 100).toStringAsFixed(1)),
+            // The thing users care about most: roughly how many ore blocks are
+            // in this vein. Always shown (the vein size is populated in every
+            // mode), so the result reads "~5 blocks" rather than just a chunk.
+            Text(l10n.veinSizeLabel(location.estimatedVeinSize),
                 style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: oreColor,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: FontWeight.w700)),
+            const SizedBox(height: 2),
+            Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
+                style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
+            // In Accurate mode the fabricated probability % is omitted
+            // (Req 12.3); it only adds noise alongside the vein size.
+            if (widget.presentation.showProbability)
+              Text(
+                  l10n.probabilityLabel(
+                      (location.probability * 100).toStringAsFixed(1)),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: GamerColors.mutedText(context),
+                      fontWeight: FontWeight.w500)),
             if (location.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, location.biome!)),
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                  style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
           ],
         ),
         trailing: Row(
@@ -899,7 +1075,8 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             _buildOreBookmarkButton(context, location),
             IconButton(
-              icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+              icon: Icon(Icons.copy,
+                  size: 18, color: GamerColors.mutedIcon(context)),
               onPressed: () =>
                   _copyCoordinates(context, location.x, location.y, location.z),
               tooltip: l10n.copyCoordinates,
@@ -926,7 +1103,10 @@ class _ResultsTabState extends State<ResultsTab> {
       icon: Icon(
         isFav ? Icons.bookmark : Icons.bookmark_border,
         size: 18,
-        color: isFav ? GamerColors.neonPurple : Colors.grey[400],
+        color: isFav
+            ? GamerColors.purpleText(
+                Theme.of(context).brightness == Brightness.dark)
+            : GamerColors.mutedIcon(context),
       ),
       onPressed: () {
         if (isFav) {
@@ -987,17 +1167,30 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             const SizedBox(height: 3),
             Text(l10n.chunkLabel(structure.chunkX, structure.chunkZ),
-                style: TextStyle(fontSize: 13, color: Colors.grey[500])),
-            Text(
-                l10n.probabilityLabel(
-                    (structure.probability * 100).toStringAsFixed(1)),
                 style: TextStyle(
-                    fontSize: 13,
-                    color: structColor,
-                    fontWeight: FontWeight.w600)),
+                    fontSize: 13, color: GamerColors.mutedText(context))),
+            // In Accurate mode omit the fabricated probability % (Req 12.3);
+            // surface the real structure variant where available (Req 12.4).
+            if (widget.presentation.showProbability)
+              Text(
+                  l10n.probabilityLabel(
+                      (structure.probability * 100).toStringAsFixed(1)),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: structColor,
+                      fontWeight: FontWeight.w600)),
+            if (widget.presentation.showRealMetadata && structure.biome != null)
+              Text(
+                  l10n.structureVariantLabel(
+                      _getBiomeName(context, structure.biome!)),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: structColor,
+                      fontWeight: FontWeight.w600)),
             if (structure.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, structure.biome!)),
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                  style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
           ],
         ),
         trailing: Row(
@@ -1005,7 +1198,8 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             _buildStructureBookmarkButton(context, structure),
             IconButton(
-              icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+              icon: Icon(Icons.copy,
+                  size: 18, color: GamerColors.mutedIcon(context)),
               onPressed: () => _copyCoordinates(
                   context, structure.x, structure.y, structure.z),
               tooltip: l10n.copyCoordinates,
@@ -1033,7 +1227,10 @@ class _ResultsTabState extends State<ResultsTab> {
       icon: Icon(
         isFav ? Icons.bookmark : Icons.bookmark_border,
         size: 18,
-        color: isFav ? GamerColors.neonPurple : Colors.grey[400],
+        color: isFav
+            ? GamerColors.purpleText(
+                Theme.of(context).brightness == Brightness.dark)
+            : GamerColors.mutedIcon(context),
       ),
       onPressed: () {
         if (isFav) {
@@ -1098,6 +1295,7 @@ class _ResultsTabState extends State<ResultsTab> {
       _maxZController.clear();
       _visibleBiomes.clear(); // Also clear biome filters
       _minProbability = 0.8; // Reset probability threshold to default
+      _minVeinSize = 0; // Reset vein-size filter to "show all"
     });
   }
 

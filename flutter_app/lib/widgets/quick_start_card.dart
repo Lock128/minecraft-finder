@@ -65,9 +65,11 @@ class _QuickStartCardState extends State<QuickStartCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final cardAccent =
+        GamerColors.adaptiveAccent(GamerColors.neonYellow, isDarkMode);
     return GamerCard(
       isDarkMode: isDarkMode,
-      accentColor: GamerColors.neonYellow,
+      accentColor: cardAccent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -78,7 +80,7 @@ class _QuickStartCardState extends State<QuickStartCard> {
                   emoji: '\u26A1',
                   title: l10n.quickStartTitle,
                   isDarkMode: isDarkMode,
-                  accentColor: GamerColors.neonYellow,
+                  accentColor: cardAccent,
                 ),
               ),
               if (widget.onDismiss != null)
@@ -87,7 +89,7 @@ class _QuickStartCardState extends State<QuickStartCard> {
                   icon: const Icon(Icons.close, size: 18),
                   visualDensity: VisualDensity.compact,
                   tooltip: l10n.quickStartDismissTooltip,
-                  color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                  color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
                 ),
             ],
           ),
@@ -164,7 +166,7 @@ class _QuickStartCardState extends State<QuickStartCard> {
             style: TextStyle(
               fontSize: 11,
               height: 1.4,
-              color: isDarkMode ? Colors.white54 : Colors.grey[600],
+              color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
             ),
           ),
         ),

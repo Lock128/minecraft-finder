@@ -1,0 +1,62 @@
+{
+  "edition": "java",
+  "version": "1.16",
+  "seed": "3257840388504953787",
+  "source": "algorithm-derived",
+  "description": "Golden fixture for Java 1.16 (M4 version expansion). Reference values are ALGORITHM-DERIVED by the pure-Dart DartWebBackend placement math driven by the Java 1.16 VersionStrategy (legacy pre-cave-and-cliffs ore distribution, region-grid salted structure placement, stronghold ring LCG walk, deterministic climate biomes). They are deterministic and self-consistent but NOT externally verified against Cubiomes/Chunkbase; the 1.16 placement tables (especially the legacy ore Y ranges/counts and the pre-1.18 biome layering) still need an authoritative native cross-check before the registry isVerified flag is flipped.",
+  "structures": [
+    {
+      "structureType": "village",
+      "x": -216,
+      "y": 0,
+      "z": -280,
+      "chunkX": -14,
+      "chunkZ": -18,
+      "biome": "plains"
+    },
+    {
+      "structureType": "stronghold",
+      "x": 3992,
+      "y": 0,
+      "z": 6760,
+      "chunkX": 249,
+      "chunkZ": 422,
+      "biome": "jungle"
+    },
+    {
+      "structureType": "buriedTreasure",
+      "x": -23,
+      "y": 0,
+      "z": -87,
+      "chunkX": -2,
+      "chunkZ": -6,
+      "biome": "beach"
+    }
+  ],
+  "biomeSamples": [
+    {
+      "x": 0,
+      "z": 0,
+      "biome": "snowy_beach"
+    },
+    {
+      "x": 1000,
+      "z": -1000,
+      "biome": "snowy_plains"
+    },
+    {
+      "x": -2000,
+      "z": 2000,
+      "biome": "beach"
+    }
+  ],
+  "ores": [
+    {
+      "oreType": "diamond",
+      "x": 7,
+      "y": 2,
+      "z": 1,
+      "veinSize": 7
+    }
+  ]
+}

@@ -42,9 +42,11 @@ class StructureSelectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final cardAccent =
+        GamerColors.adaptiveAccent(GamerColors.neonOrange, isDarkMode);
     return GamerCard(
       isDarkMode: isDarkMode,
-      accentColor: GamerColors.neonOrange,
+      accentColor: cardAccent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -52,7 +54,7 @@ class StructureSelectionCard extends StatelessWidget {
             emoji: '🏰',
             title: l10n.structureSearchTitle,
             isDarkMode: isDarkMode,
-            accentColor: GamerColors.neonOrange,
+            accentColor: cardAccent,
           ),
           const SizedBox(height: 16),
           _buildToggleButton(context),
@@ -141,69 +143,69 @@ class StructureSelectionCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _actionButton(l10n.clearAll, Colors.grey, () {
+              child: _actionButton(
+                  l10n.clearAll, GamerColors.mutedText(context, alpha: 0.75),
+                  () {
                 onStructuresChanged({});
               }),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Container(
-          constraints: const BoxConstraints(maxHeight: 200),
-          child: SingleChildScrollView(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: structures.map((structure) {
-                final structureType = structure['type'] as StructureType;
-                final isSelected = selectedStructures.contains(structureType);
+        // Let the chips flow naturally in the parent scroll view. A nested,
+        // height-capped SingleChildScrollView here fought the outer form
+        // scroll and made scrolling janky on touch devices.
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: structures.map((structure) {
+            final structureType = structure['type'] as StructureType;
+            final isSelected = selectedStructures.contains(structureType);
 
-                return FilterChip(
-                  label: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        structure['name'] as String,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 12),
-                      ),
-                      Text(
-                        structure['rarity'] as String,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: StructureUtils.getRarityColor(
-                              structure['rarity'] as String),
-                        ),
-                      ),
-                    ],
+            return FilterChip(
+              label: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    structure['name'] as String,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 12),
                   ),
-                  selected: isSelected,
-                  onSelected: (bool selected) {
-                    Set<StructureType> updated = Set.from(selectedStructures);
-                    if (selected) {
-                      updated.add(structureType);
-                    } else {
-                      updated.remove(structureType);
-                    }
-                    onStructuresChanged(updated);
-                  },
-                  selectedColor: GamerColors.neonOrange
-                      .withValues(alpha: isDarkMode ? 0.25 : 0.12),
-                  checkmarkColor: GamerColors.neonOrange,
-                  backgroundColor: isDarkMode
-                      ? GamerColors.darkSurface
-                      : Colors.grey.shade50,
-                  side: BorderSide(
-                    color: isSelected
-                        ? GamerColors.neonOrange.withValues(alpha: 0.5)
-                        : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
+                  Text(
+                    structure['rarity'] as String,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: StructureUtils.getRarityColor(
+                          structure['rarity'] as String,
+                          isDark: isDarkMode),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                );
-              }).toList(),
-            ),
-          ),
+                ],
+              ),
+              selected: isSelected,
+              onSelected: (bool selected) {
+                Set<StructureType> updated = Set.from(selectedStructures);
+                if (selected) {
+                  updated.add(structureType);
+                } else {
+                  updated.remove(structureType);
+                }
+                onStructuresChanged(updated);
+              },
+              selectedColor: GamerColors.neonOrange
+                  .withValues(alpha: isDarkMode ? 0.25 : 0.12),
+              checkmarkColor: GamerColors.neonOrange,
+              backgroundColor:
+                  isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+              side: BorderSide(
+                color: isSelected
+                    ? GamerColors.neonOrange.withValues(alpha: 0.5)
+                    : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
+              ),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            );
+          }).toList(),
         ),
         if (_hiddenStructureCount > 0) ...[
           const SizedBox(height: 8),
@@ -263,6 +265,9 @@ class StructureSelectionCard extends StatelessWidget {
   }
 
   Widget _actionButton(String label, Color color, VoidCallback onTap) {
+    // Keep the tinted fill/border from the source accent, but render the label
+    // in the readable light-mode variant so it stays legible on white.
+    final labelColor = GamerColors.adaptiveAccent(color, isDarkMode);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -275,7 +280,9 @@ class StructureSelectionCard extends StatelessWidget {
         child: Center(
           child: Text(label,
               style: TextStyle(
-                  color: color, fontWeight: FontWeight.w700, fontSize: 13)),
+                  color: labelColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13)),
         ),
       ),
     );

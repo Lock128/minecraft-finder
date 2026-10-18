@@ -232,12 +232,14 @@ class _GuideTabState extends State<GuideTab> {
     required Color accentColor,
     required List<String> content,
   }) {
-    // Use darker variant for text in light mode
-    final textColor = isDarkMode ? accentColor : _lightVariant(accentColor);
+    // Route the neon accent through the readable light-mode variant so the
+    // card border, section bar and text all stay legible on white surfaces.
+    final adaptiveAccent =
+        GamerColors.adaptiveAccent(accentColor, isDarkMode);
 
     return GamerCard(
       isDarkMode: isDarkMode,
-      accentColor: accentColor,
+      accentColor: adaptiveAccent,
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +248,7 @@ class _GuideTabState extends State<GuideTab> {
             emoji: emoji,
             title: title,
             isDarkMode: isDarkMode,
-            accentColor: accentColor,
+            accentColor: adaptiveAccent,
           ),
           const SizedBox(height: 16),
           ...content.map((line) {
@@ -262,7 +264,7 @@ class _GuideTabState extends State<GuideTab> {
                 child: Text(line,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: textColor,
+                      color: adaptiveAccent,
                       fontSize: 14,
                     )),
               );
@@ -280,23 +282,6 @@ class _GuideTabState extends State<GuideTab> {
         ],
       ),
     );
-  }
-
-  Color _lightVariant(Color neonColor) {
-    if (neonColor == GamerColors.diamondNeon) return GamerColors.lightDiamond;
-    if (neonColor == GamerColors.goldNeon) return GamerColors.lightGold;
-    if (neonColor == GamerColors.netheriteNeon) {
-      return GamerColors.lightNetherite;
-    }
-    if (neonColor == GamerColors.ironNeon) return GamerColors.lightIron;
-    if (neonColor == GamerColors.redstoneNeon) return GamerColors.lightRedstone;
-    if (neonColor == GamerColors.coalNeon) return GamerColors.lightCoal;
-    if (neonColor == GamerColors.lapisNeon) return GamerColors.lightLapis;
-    if (neonColor == GamerColors.neonOrange) return GamerColors.lightOrange;
-    if (neonColor == GamerColors.neonGreen) return GamerColors.lightGreen;
-    if (neonColor == GamerColors.neonCyan) return GamerColors.lightCyan;
-    if (neonColor == GamerColors.neonPurple) return GamerColors.lightPurple;
-    return neonColor;
   }
 
   Widget _buildProTip(AppLocalizations l10n) {
@@ -333,7 +318,7 @@ class _GuideTabState extends State<GuideTab> {
             l10n.proTipBody,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isDarkMode ? Colors.white70 : Colors.grey[600],
+              color: isDarkMode ? Colors.white70 : const Color(0xFF616161),
               fontSize: 13,
               height: 1.5,
             ),

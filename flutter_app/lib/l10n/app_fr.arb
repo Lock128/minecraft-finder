@@ -122,6 +122,8 @@
   "placesFound": "{count, plural, =1{{count} lieu trouvé} other{{count} lieux trouvés}}",
   "chunksCount": "{count, plural, =1{dans {count} chunk} other{dans {count} chunks}}",
   "minProbabilityFilterLabel": "Probabilité minimale : {percent}%",
+  "minVeinSizeFilterLabel": "Taille minimale du filon : {count}+ blocs",
+  "minVeinSizeFilterAll": "Taille minimale du filon : toutes",
 
   "biomeNamePlains": "Plaine",
   "biomeNameForest": "Forêt",
@@ -520,5 +522,17 @@
   "settingsTitle": "Paramètres",
   "showQuickStartTitle": "Démarrage rapide",
   "showQuickStartSubtitle": "Réafficher la carte d''accueil en un clic sur l''écran de recherche.",
-  "showQuickStartAction": "Afficher"
+  "showQuickStartAction": "Afficher",
+  "minecraftVersionLabel": "Version de Minecraft",
+  "searchModeTitle": "Mode de recherche",
+  "searchModeAccurate": "Précis",
+  "searchModeEstimate": "Estimation",
+  "searchModeAccurateInfo": "Le mode précis reproduit la génération réelle du monde pour les versions prises en charge et vérifiées, et affiche les positions exactes au lieu de probabilités estimées.",
+  "estimateDisclaimer": "Ce sont des estimations statistiques, pas des positions exactes dans le jeu. La probabilité est un score de classement, pas une probabilité réelle.",
+  "accurateResultsNotice": "Résultats fidèles à la seed : positions exactes pour cette version vérifiée.",
+  "experimentalAccurateNotice": "Résultats précis expérimentaux : ce sont de vraies positions basées sur la seed, mais cette version n'a pas encore été vérifiée. Utilisez-les comme point de départ et vérifiez dans le jeu.",
+  "webExperimentalToggle": "Essayer le mode précis expérimental sur le web",
+  "webExperimentalInfo": "Sur le web, le mode précis bascule normalement vers des estimations. Activez ceci pour exécuter le vrai moteur basé sur la seed dans votre navigateur. Les résultats sont expérimentaux et non vérifiés, et les grandes recherches peuvent être lentes.",
+  "veinSizeLabel": "~{count} blocs dans ce filon",
+  "structureVariantLabel": "Variante : {variant}"
 }

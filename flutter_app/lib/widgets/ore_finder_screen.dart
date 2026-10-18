@@ -189,6 +189,15 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         onFindOres: (b) => _findOres(b, context),
                         onEditionChanged: searchState.setEdition,
                         onVersionEraChanged: searchState.setVersionEra,
+                        availableVersions: searchState.availableVersions,
+                        selectedVersion: searchState.selectedVersion,
+                        onVersionChanged: searchState.setSelectedVersion,
+                        searchMode: searchState.searchMode,
+                        onSearchModeChanged: searchState.setSearchMode,
+                        webExperimentalAccurate:
+                            searchState.webExperimentalAccurate,
+                        onWebExperimentalChanged:
+                            searchState.setWebExperimentalAccurate,
                       ),
                       ResultsTab(
                         results: searchState.results,
@@ -197,6 +206,7 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         findAllNetherite: searchState.findAllNetherite,
                         selectedOreTypes: searchState.selectedOreTypes,
                         totalFound: searchState.totalFound,
+                        searchMeta: searchState.lastSearchMeta,
                       ),
                       FavoritesTab(isDarkMode: isDark),
                       GuideTab(isDarkMode: isDark),
@@ -220,7 +230,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         indicatorColor: GamerColors.neonGreen,
         indicatorWeight: 3,
         labelColor: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
-        unselectedLabelColor: isDark ? Colors.white54 : Colors.grey[500],
+        unselectedLabelColor:
+            isDark ? Colors.white54 : const Color(0xFF616161),
         labelStyle: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5),
         unselectedLabelStyle:
@@ -385,13 +396,15 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               );
             },
             icon: Icon(Icons.info_outline,
-                color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+                color: isDark ? Colors.white70 : const Color(0xFF616161),
+                size: 20),
             tooltip: AppLocalizations.of(iconContext).appInfoTooltip,
           ),
         ),
         PopupMenuButton<Locale>(
           icon: Icon(Icons.language,
-              color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+              color: isDark ? Colors.white70 : const Color(0xFF616161),
+              size: 20),
           tooltip: AppLocalizations.of(context).languageTooltip,
           onSelected: (locale) => widget.onLocaleChanged(locale),
           itemBuilder: (context) => [
