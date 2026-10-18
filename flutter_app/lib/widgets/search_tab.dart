@@ -48,6 +48,8 @@ class SearchTab extends StatelessWidget {
   final ValueChanged<MinecraftVersion?> onVersionChanged;
   final SearchMode searchMode;
   final ValueChanged<SearchMode> onSearchModeChanged;
+  final bool webExperimentalAccurate;
+  final ValueChanged<bool> onWebExperimentalChanged;
 
   const SearchTab({
     super.key,
@@ -82,21 +84,34 @@ class SearchTab extends StatelessWidget {
     this.availableVersions = const [],
     this.selectedVersion,
     required this.onVersionChanged,
-    this.searchMode = SearchMode.estimate,
+    this.searchMode = SearchMode.accurate,
     required this.onSearchModeChanged,
+    this.webExperimentalAccurate = true,
+    required this.onWebExperimentalChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: isDarkMode ? GamerColors.darkBg : GamerColors.lightBg,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+    // Extra bottom padding equal to the keyboard inset keeps the Find button
+    // and lower cards reachable (and not hidden behind the keyboard) while a
+    // numeric field is focused.
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return GestureDetector(
+      // Tap anywhere outside a text field to dismiss the keyboard.
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Container(
+        color: isDarkMode ? GamerColors.darkBg : GamerColors.lightBg,
+        child: SingleChildScrollView(
+          // Also dismiss the keyboard as soon as the user starts scrolling.
+          keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               // --- Onboarding first: a one-tap starting point for new users.
               // Dismissible; the choice is remembered so returning users who
               // hid it don't see it again. ---
@@ -134,6 +149,8 @@ class SearchTab extends StatelessWidget {
                 onVersionChanged: onVersionChanged,
                 searchMode: searchMode,
                 onSearchModeChanged: onSearchModeChanged,
+                webExperimentalAccurate: webExperimentalAccurate,
+                onWebExperimentalChanged: onWebExperimentalChanged,
               ),
               const SizedBox(height: 12),
               // --- Where to search ---
@@ -181,7 +198,8 @@ class SearchTab extends StatelessWidget {
                 wholeWorldActive: wholeWorldNetherite &&
                     selectedOreTypes.contains(OreType.netherite),
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

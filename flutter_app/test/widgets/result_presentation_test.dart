@@ -90,6 +90,29 @@ void main() {
       expect(estimate.showProbability, isTrue);
     });
 
+    test(
+        'Experimental Accurate shows real positions but an experimental notice',
+        () {
+      final p = ResultPresentation.fromMeta(
+        const SearchMeta.experimental('java-1.20'),
+      );
+      // Real seed-accurate positions: probability omitted, metadata shown.
+      expect(p.showProbability, isFalse);
+      expect(p.showRealMetadata, isTrue);
+      // The experimental notice replaces both the estimate disclaimer and the
+      // verified-accurate notice.
+      expect(p.showDisclaimer, isFalse);
+      expect(p.showExperimentalNotice, isTrue);
+      expect(p.showFallbackNotice, isFalse);
+    });
+
+    test('Verified Accurate does NOT show the experimental notice', () {
+      final p = ResultPresentation.fromMeta(
+        const SearchMeta.accurate('java-1.20'),
+      );
+      expect(p.showExperimentalNotice, isFalse);
+    });
+
     test('an Accurate-mode meta always omits the probability', () {
       // Construct an (unusual) Accurate-mode meta that is not verified; the
       // mode alone must drive probability omission.

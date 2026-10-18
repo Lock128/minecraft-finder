@@ -22,7 +22,7 @@ class EngineSelectionContext {
     required this.registry,
     required this.simulated,
     required this.accurate,
-    this.webCanRun = _defaultWebCanRun,
+    this.webCanRun = defaultWebCanRun,
   });
 
   final SearchMode mode;
@@ -42,7 +42,11 @@ class EngineSelectionContext {
   final bool Function(MinecraftVersion version, MinecraftEdition edition)
       webCanRun;
 
-  static bool _defaultWebCanRun(
+  /// Default: the web path cannot run Accurate for any version, so Accurate
+  /// requests on web degrade to Estimate before any work is attempted (Req
+  /// 5.1). Exposed so callers (e.g. the search runner's experimental opt-in)
+  /// can reference it when conditionally overriding [webCanRun].
+  static bool defaultWebCanRun(
           MinecraftVersion version, MinecraftEdition edition) =>
       false;
 }

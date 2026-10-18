@@ -148,62 +148,59 @@ class StructureSelectionCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Container(
-          constraints: const BoxConstraints(maxHeight: 200),
-          child: SingleChildScrollView(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: structures.map((structure) {
-                final structureType = structure['type'] as StructureType;
-                final isSelected = selectedStructures.contains(structureType);
+        // Let the chips flow naturally in the parent scroll view. A nested,
+        // height-capped SingleChildScrollView here fought the outer form
+        // scroll and made scrolling janky on touch devices.
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: structures.map((structure) {
+            final structureType = structure['type'] as StructureType;
+            final isSelected = selectedStructures.contains(structureType);
 
-                return FilterChip(
-                  label: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        structure['name'] as String,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 12),
-                      ),
-                      Text(
-                        structure['rarity'] as String,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: StructureUtils.getRarityColor(
-                              structure['rarity'] as String),
-                        ),
-                      ),
-                    ],
+            return FilterChip(
+              label: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    structure['name'] as String,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 12),
                   ),
-                  selected: isSelected,
-                  onSelected: (bool selected) {
-                    Set<StructureType> updated = Set.from(selectedStructures);
-                    if (selected) {
-                      updated.add(structureType);
-                    } else {
-                      updated.remove(structureType);
-                    }
-                    onStructuresChanged(updated);
-                  },
-                  selectedColor: GamerColors.neonOrange
-                      .withValues(alpha: isDarkMode ? 0.25 : 0.12),
-                  checkmarkColor: GamerColors.neonOrange,
-                  backgroundColor: isDarkMode
-                      ? GamerColors.darkSurface
-                      : Colors.grey.shade50,
-                  side: BorderSide(
-                    color: isSelected
-                        ? GamerColors.neonOrange.withValues(alpha: 0.5)
-                        : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
+                  Text(
+                    structure['rarity'] as String,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: StructureUtils.getRarityColor(
+                          structure['rarity'] as String),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                );
-              }).toList(),
-            ),
-          ),
+                ],
+              ),
+              selected: isSelected,
+              onSelected: (bool selected) {
+                Set<StructureType> updated = Set.from(selectedStructures);
+                if (selected) {
+                  updated.add(structureType);
+                } else {
+                  updated.remove(structureType);
+                }
+                onStructuresChanged(updated);
+              },
+              selectedColor: GamerColors.neonOrange
+                  .withValues(alpha: isDarkMode ? 0.25 : 0.12),
+              checkmarkColor: GamerColors.neonOrange,
+              backgroundColor:
+                  isDarkMode ? GamerColors.darkSurface : Colors.grey.shade50,
+              side: BorderSide(
+                color: isSelected
+                    ? GamerColors.neonOrange.withValues(alpha: 0.5)
+                    : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
+              ),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            );
+          }).toList(),
         ),
         if (_hiddenStructureCount > 0) ...[
           const SizedBox(height: 8),

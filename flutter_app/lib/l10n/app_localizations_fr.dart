@@ -373,6 +373,14 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return 'Taille minimale du filon : $count+ blocs';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => 'Taille minimale du filon : toutes';
+
+  @override
   String get biomeNamePlains => 'Plaine';
 
   @override
@@ -1702,8 +1710,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Résultats fidèles à la seed : positions exactes pour cette version vérifiée.';
 
   @override
+  String get experimentalAccurateNotice =>
+      'Résultats précis expérimentaux : ce sont de vraies positions basées sur la seed, mais cette version n\'a pas encore été vérifiée. Utilisez-les comme point de départ et vérifiez dans le jeu.';
+
+  @override
+  String get webExperimentalToggle =>
+      'Essayer le mode précis expérimental sur le web';
+
+  @override
+  String get webExperimentalInfo =>
+      'Sur le web, le mode précis bascule normalement vers des estimations. Activez ceci pour exécuter le vrai moteur basé sur la seed dans votre navigateur. Les résultats sont expérimentaux et non vérifiés, et les grandes recherches peuvent être lentes.';
+
+  @override
   String veinSizeLabel(int count) {
-    return 'Taille du filon : $count';
+    return '~$count blocs dans ce filon';
   }
 
   @override

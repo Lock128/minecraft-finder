@@ -372,6 +372,14 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return 'Tamaño mínimo de veta: $count+ bloques';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => 'Tamaño mínimo de veta: cualquiera';
+
+  @override
   String get biomeNamePlains => 'Llanura';
 
   @override
@@ -1698,8 +1706,20 @@ class AppLocalizationsEs extends AppLocalizations {
       'Resultados precisos para la semilla: posiciones exactas para esta versión verificada.';
 
   @override
+  String get experimentalAccurateNotice =>
+      'Resultados precisos experimentales: son posiciones reales basadas en la semilla, pero esta versión aún no se ha verificado. Tómalas como punto de partida y compruébalas en el juego.';
+
+  @override
+  String get webExperimentalToggle =>
+      'Probar el modo preciso experimental en la web';
+
+  @override
+  String get webExperimentalInfo =>
+      'En la web, el modo preciso normalmente recurre a estimaciones. Activa esto para ejecutar el motor real basado en la semilla en tu navegador. Los resultados son experimentales y no verificados, y las búsquedas grandes pueden ser lentas.';
+
+  @override
   String veinSizeLabel(int count) {
-    return 'Tamaño de la veta: $count';
+    return '~$count bloques en esta veta';
   }
 
   @override

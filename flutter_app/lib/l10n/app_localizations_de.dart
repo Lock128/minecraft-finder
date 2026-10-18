@@ -370,6 +370,14 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return 'Mindest-Adergröße: $count+ Blöcke';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => 'Mindest-Adergröße: beliebig';
+
+  @override
   String get biomeNamePlains => 'Ebene';
 
   @override
@@ -1683,8 +1691,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Seed-genaue Ergebnisse: exakte Positionen für diese verifizierte Version.';
 
   @override
+  String get experimentalAccurateNotice =>
+      'Experimentelle genaue Ergebnisse: Dies sind echte seed-basierte Positionen, aber diese Version wurde noch nicht verifiziert. Nutze sie als Ausgangspunkt und prüfe sie im Spiel nach.';
+
+  @override
+  String get webExperimentalToggle =>
+      'Experimentellen genauen Modus im Web testen';
+
+  @override
+  String get webExperimentalInfo =>
+      'Im Web wechselt der genaue Modus normalerweise zu Schätzungen. Aktiviere dies, um die echte seed-basierte Engine in deinem Browser auszuführen. Die Ergebnisse sind experimentell und nicht verifiziert, und große Suchen können langsam sein.';
+
+  @override
   String veinSizeLabel(int count) {
-    return 'Adergröße: $count';
+    return '~$count Blöcke in dieser Ader';
   }
 
   @override

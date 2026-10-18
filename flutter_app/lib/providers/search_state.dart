@@ -50,10 +50,21 @@ class SearchState extends ChangeNotifier {
   bool isVersionVerified(MinecraftVersion version) =>
       _registry.isVerified(version);
 
-  /// The requested search mode (Req 12.2). Defaults to [SearchMode.estimate]
-  /// so existing users keep the current behavior exactly.
-  SearchMode _searchMode = SearchMode.estimate;
+  /// The requested search mode (Req 12.2). Defaults to [SearchMode.accurate]
+  /// so the seed-accurate engine is the out-of-the-box experience; users can
+  /// still switch to Estimate for the fast statistical ranking.
+  SearchMode _searchMode = SearchMode.accurate;
   SearchMode get searchMode => _searchMode;
+
+  /// Whether the accurate engine is allowed to run on the web (pure-Dart
+  /// backend). Defaults to **on** so that picking Accurate on web actually
+  /// computes real seed-based positions instead of silently falling back to the
+  /// fast Estimate path. Persisted. When on (and running on web in Accurate
+  /// mode), the search lifts the web/verification gates; results are flagged as
+  /// experimental, not verified. On native this has no effect (native already
+  /// runs the accurate path).
+  bool _webExperimentalAccurate = true;
+  bool get webExperimentalAccurate => _webExperimentalAccurate;
 
   /// Metadata describing how the most recent search output was produced
   /// (mode / version / verified / fallbackReason). Null until a search runs.
@@ -197,9 +208,12 @@ class SearchState extends ChangeNotifier {
     final edition = await PreferencesService.getEdition();
     final versionEra = await PreferencesService.getVersionEra();
     final quickStartHidden = await PreferencesService.getQuickStartHidden();
+    final webExperimental =
+        await PreferencesService.getWebExperimentalAccurate();
     _selectedEdition = edition;
     _selectedVersionEra = versionEra;
     _quickStartHidden = quickStartHidden;
+    _webExperimentalAccurate = webExperimental;
     if (_disposed) return;
     seedController.text = params['seed']!;
     xController.text = params['x']!;
@@ -264,6 +278,14 @@ class SearchState extends ChangeNotifier {
   /// Switch the Accurate/Estimate [SearchMode] (Req 12.2).
   void setSearchMode(SearchMode mode) {
     _searchMode = mode;
+    notifyListeners();
+  }
+
+  /// Toggle the experimental "accurate on web" opt-in. Persisted so the choice
+  /// survives app restarts.
+  void setWebExperimentalAccurate(bool enabled) {
+    _webExperimentalAccurate = enabled;
+    PreferencesService.setWebExperimentalAccurate(enabled);
     notifyListeners();
   }
 
@@ -388,6 +410,9 @@ class SearchState extends ChangeNotifier {
     // flow into the WorldGenEngine selection inside the isolate.
     final SearchMode mode = _searchMode;
     final String? versionId = _selectedVersion?.id;
+    // Experimental accurate-on-web opt-in only matters for Accurate requests.
+    final bool allowWebExperimental =
+        _webExperimentalAccurate && mode == SearchMode.accurate;
 
     try {
       List<OreLocation> allResults = [];
@@ -447,6 +472,7 @@ class SearchState extends ChangeNotifier {
                   maxResults: maxResults,
                   mode: mode,
                   versionId: versionId,
+                  allowWebExperimental: allowWebExperimental,
                 ),
               ),
             );
@@ -469,6 +495,7 @@ class SearchState extends ChangeNotifier {
             versionEra: _selectedVersionEra,
             mode: mode,
             versionId: versionId,
+            allowWebExperimental: allowWebExperimental,
           ),
         );
       }

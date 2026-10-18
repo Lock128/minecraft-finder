@@ -194,6 +194,10 @@ class _OreFinderScreenState extends State<OreFinderScreen>
                         onVersionChanged: searchState.setSelectedVersion,
                         searchMode: searchState.searchMode,
                         onSearchModeChanged: searchState.setSearchMode,
+                        webExperimentalAccurate:
+                            searchState.webExperimentalAccurate,
+                        onWebExperimentalChanged:
+                            searchState.setWebExperimentalAccurate,
                       ),
                       ResultsTab(
                         results: searchState.results,

@@ -124,6 +124,8 @@
   "placesFound": "{count, plural, =1{{count} lugar encontrado} other{{count} lugares encontrados}}",
   "chunksCount": "{count, plural, =1{en {count} chunk} other{en {count} chunks}}",
   "minProbabilityFilterLabel": "Probabilidad mínima: {percent}%",
+  "minVeinSizeFilterLabel": "Tamaño mínimo de veta: {count}+ bloques",
+  "minVeinSizeFilterAll": "Tamaño mínimo de veta: cualquiera",
 
   "biomeNamePlains": "Llanura",
   "biomeNameForest": "Bosque",
@@ -530,6 +532,9 @@
   "searchModeAccurateInfo": "El modo preciso reproduce la generación real del mundo para versiones compatibles y verificadas, y muestra posiciones exactas en lugar de probabilidades estimadas.",
   "estimateDisclaimer": "Estas son estimaciones estadísticas, no posiciones exactas del juego. La probabilidad es una puntuación de clasificación, no una probabilidad real.",
   "accurateResultsNotice": "Resultados precisos para la semilla: posiciones exactas para esta versión verificada.",
-  "veinSizeLabel": "Tamaño de la veta: {count}",
+  "experimentalAccurateNotice": "Resultados precisos experimentales: son posiciones reales basadas en la semilla, pero esta versión aún no se ha verificado. Tómalas como punto de partida y compruébalas en el juego.",
+  "webExperimentalToggle": "Probar el modo preciso experimental en la web",
+  "webExperimentalInfo": "En la web, el modo preciso normalmente recurre a estimaciones. Activa esto para ejecutar el motor real basado en la semilla en tu navegador. Los resultados son experimentales y no verificados, y las búsquedas grandes pueden ser lentas.",
+  "veinSizeLabel": "~{count} bloques en esta veta",
   "structureVariantLabel": "Variante: {variant}"
 }

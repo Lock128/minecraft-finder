@@ -20,6 +20,7 @@ class ResultPresentation {
     required this.showDisclaimer,
     required this.showRealMetadata,
     required this.fallbackText,
+    this.showExperimentalNotice = false,
   });
 
   /// Whether to render the fabricated probability %. False in Accurate mode.
@@ -39,6 +40,12 @@ class ResultPresentation {
   /// Whether a fallback notice should be shown at all.
   bool get showFallbackNotice => fallbackText != null;
 
+  /// Whether to show the "experimental accurate" notice: the results are real
+  /// seed-accurate positions produced via the user-opted-in web path on an
+  /// unverified version, so we surface an experimental caveat instead of the
+  /// verified-accurate notice.
+  final bool showExperimentalNotice;
+
   /// Derive the presentation from a [meta]. A null [meta] (no search has run,
   /// or a legacy code path produced no meta) is treated as plain Estimate: the
   /// probability and disclaimer both show, matching the pre-existing behavior.
@@ -55,14 +62,23 @@ class ResultPresentation {
     final bool verifiedAccurate = meta.mode == SearchMode.accurate &&
         meta.verified &&
         meta.fallbackReason == null;
+    // An experimental Accurate result: Accurate mode, real positions, but the
+    // version is not verified (user opted in on web). Real metadata is shown,
+    // but an "experimental" notice replaces the verified-accurate notice.
+    final bool experimentalAccurate = meta.mode == SearchMode.accurate &&
+        meta.experimental &&
+        meta.fallbackReason == null;
     final bool accurate = meta.mode == SearchMode.accurate;
     return ResultPresentation(
       // Probability is a fabricated score; omit it whenever Accurate.
       showProbability: !accurate,
-      // Disclaimer hidden only for a Verified Accurate result.
-      showDisclaimer: !verifiedAccurate,
-      // Real metadata only makes sense for a successful Accurate result.
-      showRealMetadata: verifiedAccurate,
+      // Disclaimer hidden for Verified Accurate and for Experimental Accurate
+      // (the latter shows its own experimental notice instead).
+      showDisclaimer: !verifiedAccurate && !experimentalAccurate,
+      // Real metadata makes sense for any successful Accurate result, verified
+      // or experimental (positions are real in both).
+      showRealMetadata: verifiedAccurate || experimentalAccurate,
+      showExperimentalNotice: experimentalAccurate,
       fallbackText: meta.fallbackReason?.text,
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import '../l10n/app_localizations.dart';
 import '../models/game_random.dart';
 import '../models/worldgen/engine_selector.dart';
@@ -28,6 +30,12 @@ class EditionVersionCard extends StatefulWidget {
   /// Called when the user flips the Accurate/Estimate toggle.
   final ValueChanged<SearchMode> onSearchModeChanged;
 
+  /// Whether the experimental "accurate on web" opt-in is enabled.
+  final bool webExperimentalAccurate;
+
+  /// Called when the user toggles the experimental "accurate on web" switch.
+  final ValueChanged<bool> onWebExperimentalChanged;
+
   const EditionVersionCard({
     super.key,
     required this.selectedEdition,
@@ -38,12 +46,15 @@ class EditionVersionCard extends StatefulWidget {
     this.availableVersions = const [],
     this.selectedVersion,
     this.onVersionChanged = _noopVersion,
-    this.searchMode = SearchMode.estimate,
+    this.searchMode = SearchMode.accurate,
     this.onSearchModeChanged = _noopMode,
+    this.webExperimentalAccurate = true,
+    this.onWebExperimentalChanged = _noopBool,
   });
 
   static void _noopVersion(MinecraftVersion? _) {}
   static void _noopMode(SearchMode _) {}
+  static void _noopBool(bool _) {}
 
   @override
   State<EditionVersionCard> createState() => _EditionVersionCardState();
@@ -184,6 +195,13 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
                 body: l10n.searchModeAccurateInfo,
               ),
             ],
+            // Experimental accurate-on-web opt-in. Only meaningful on the web
+            // (native already runs the accurate path) and only relevant when
+            // Accurate mode is selected.
+            if (kIsWeb && searchMode == SearchMode.accurate) ...[
+              const SizedBox(height: 12),
+              _buildWebExperimentalToggle(l10n),
+            ],
             if (selectedEdition == MinecraftEdition.bedrock) ...[
               const SizedBox(height: 12),
               _buildInfoBox(
@@ -287,6 +305,59 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Experimental "accurate on web" opt-in: a labelled switch plus an
+  /// explanation of the experimental/unverified caveat.
+  Widget _buildWebExperimentalToggle(AppLocalizations l10n) {
+    final color = GamerColors.neonOrange;
+    final textColor = isDarkMode ? color : _lightVariant(color);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        color: color.withValues(alpha: isDarkMode ? 0.10 : 0.06),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.science_outlined, size: 16, color: textColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.webExperimentalToggle,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+              ),
+              Switch(
+                value: widget.webExperimentalAccurate,
+                activeThumbColor: GamerColors.neonGreen,
+                onChanged: widget.onWebExperimentalChanged,
+              ),
+            ],
+          ),
+          Text(
+            l10n.webExperimentalInfo,
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.35,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

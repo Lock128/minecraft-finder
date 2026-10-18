@@ -40,6 +40,7 @@ class SearchMeta {
     required this.version,
     required this.verified,
     this.fallbackReason,
+    this.experimental = false,
   });
 
   /// The mode the output was actually produced in (Estimate after a fallback).
@@ -54,6 +55,13 @@ class SearchMeta {
   /// Non-null and non-empty whenever Accurate degraded to Estimate (Req 5.4).
   final FallbackReason? fallbackReason;
 
+  /// True when the output came from the user-opted-in *experimental* accurate
+  /// path (e.g. the pure-Dart web backend run against an unverified version).
+  /// The positions are real seed-accurate placements, but the version has not
+  /// been cross-checked against the real game, so the UI shows an
+  /// "experimental / unverified" notice rather than the verified-accurate one.
+  final bool experimental;
+
   /// Metadata for a plain Estimate-mode result: the caller explicitly chose
   /// Estimate mode, so no fallback notice is shown. An Accurate request that
   /// degrades to Estimate (at selection time or runtime) uses
@@ -61,18 +69,30 @@ class SearchMeta {
   const SearchMeta.estimate(this.version)
       : mode = SearchMode.estimate,
         verified = false,
+        experimental = false,
         fallbackReason = null;
 
   /// Metadata for a successful Accurate-mode result.
   const SearchMeta.accurate(this.version)
       : mode = SearchMode.accurate,
         verified = true,
+        experimental = false,
+        fallbackReason = null;
+
+  /// Metadata for a successful *experimental* Accurate-mode result produced via
+  /// the user-opted-in path on an unverified version. Positions are real, but
+  /// [verified] is false so the UI keeps an "experimental" notice.
+  const SearchMeta.experimental(this.version)
+      : mode = SearchMode.accurate,
+        verified = false,
+        experimental = true,
         fallbackReason = null;
 
   /// Metadata for an Accurate request that fell back to Estimate.
   const SearchMeta.fallback(this.version, this.fallbackReason)
       : mode = SearchMode.estimate,
-        verified = false;
+        verified = false,
+        experimental = false;
 
   bool get didFallback => fallbackReason != null;
 }
@@ -105,6 +125,7 @@ class OreSearchParams {
     required this.maxResults,
     this.mode = SearchMode.estimate,
     this.versionId,
+    this.allowWebExperimental = false,
   });
 
   final String seed;
@@ -125,6 +146,12 @@ class OreSearchParams {
   /// Explicit version id for Accurate mode (e.g. "java-1.20"). When null, a
   /// version is derived from [edition]/[versionEra] for the Simulated path.
   final String? versionId;
+
+  /// User opt-in to the experimental accurate path on web. When true, Accurate
+  /// requests are allowed to run on the web (pure-Dart) backend even for
+  /// unverified versions (Gate 1 + Gate 2 bypass). Output is tagged
+  /// [SearchMeta.experimental], not verified-accurate. Defaults to false.
+  final bool allowWebExperimental;
 
   MinecraftVersion get version => _versionOf(edition, versionEra, versionId);
 }
@@ -159,6 +186,7 @@ class StructureSearchParams {
     required this.versionEra,
     this.mode = SearchMode.estimate,
     this.versionId,
+    this.allowWebExperimental = false,
   });
 
   final String seed;
@@ -176,6 +204,10 @@ class StructureSearchParams {
   /// Explicit version id for Accurate mode. When null, derived from
   /// [edition]/[versionEra].
   final String? versionId;
+
+  /// User opt-in to the experimental accurate path on web. See
+  /// [OreSearchParams.allowWebExperimental]. Defaults to false.
+  final bool allowWebExperimental;
 
   MinecraftVersion get version => _versionOf(edition, versionEra, versionId);
 }
@@ -200,14 +232,32 @@ MinecraftVersion _versionOf(
 /// Builds the engine pair + selection context for a request. The platform is
 /// fixed to a native-like value inside the isolate so Estimate requests behave
 /// exactly as before; Accurate selection honours verification/web-can-run.
+///
+/// When [allowWebExperimental] is true, the user has explicitly opted in to the
+/// experimental accurate path on web. In that case the two gates that normally
+/// force Estimate on web are lifted *for the requested version only*:
+///   - Gate 1 (verification): the requested supported version is marked
+///     verified in this request-scoped registry so [selectEngine] does not
+///     degrade on `!isVerified`.
+///   - Gate 2 (web-can-run): [webCanRun] returns true for Java versions the
+///     pure-Dart [DartWebBackend] can run, so the web path actually executes
+///     the accurate engine.
+/// The result is tagged [SearchMeta.experimental] (not verified-accurate) by
+/// the dispatch layer, so the UI still shows an "experimental" notice.
 EngineSelectionContext _contextFor({
   required SearchMode mode,
   required MinecraftVersion version,
   required MinecraftEdition edition,
+  bool allowWebExperimental = false,
 }) {
   // Register the Java 1.18-1.20 strategies as Supported (NOT Verified). See
   // buildDefaultRegistry for why they still degrade to the Simulated path.
   final registry = buildDefaultRegistry();
+  // Experimental opt-in: treat the requested supported version as verified for
+  // this request only, so selection does not degrade on the verification gate.
+  if (allowWebExperimental && registry.isSupported(version)) {
+    registry.markVerified(version);
+  }
   const simulated = SimulatedEngine();
   final accurate = AccurateEngine(
     registry: registry,
@@ -232,6 +282,11 @@ EngineSelectionContext _contextFor({
     registry: registry,
     simulated: simulated,
     accurate: accurate,
+    // Only lift the web-can-run gate when the user opted in. The DartWebBackend
+    // runs any Java strategy; Bedrock on web is not enabled here.
+    webCanRun: allowWebExperimental
+        ? (v, e) => e == MinecraftEdition.java
+        : EngineSelectionContext.defaultWebCanRun,
   );
 }
 
@@ -245,6 +300,7 @@ Future<SearchOutput<OreLocation>> _runOreSearch(OreSearchParams p) async {
     mode: p.mode,
     version: p.version,
     edition: p.edition,
+    allowWebExperimental: p.allowWebExperimental,
   );
   final engine = selectEngine(ctx);
   final query = OreQuery(
@@ -264,6 +320,7 @@ Future<SearchOutput<OreLocation>> _runOreSearch(OreSearchParams p) async {
     query,
     p.versionEra,
     selectionFallback: selectionFallbackReason(ctx),
+    experimental: p.allowWebExperimental,
   );
 }
 
@@ -285,14 +342,15 @@ Future<SearchOutput<OreLocation>> _runOreSearch(OreSearchParams p) async {
 /// [SearchMeta.estimate] with no notice.
 Future<SearchOutput<OreLocation>> dispatchOreSearch(
     WorldGenEngine engine, OreQuery query, VersionEra era,
-    {FallbackReason? selectionFallback}) async {
+    {FallbackReason? selectionFallback, bool experimental = false}) async {
   final result = await engine.findOres(query);
   switch (result) {
     case EngineOk<OreLocation> ok:
       return SearchOutput<OreLocation>(
         ok.results,
         ok.results.length,
-        meta: _okMeta(engine, query.version.id, selectionFallback),
+        meta: _okMeta(engine, query.version.id, selectionFallback,
+            experimental: experimental),
       );
     case EngineUnavailable<OreLocation> u:
       return _oreFallback(query, era, reason: u.reason);
@@ -303,14 +361,19 @@ Future<SearchOutput<OreLocation>> dispatchOreSearch(
 }
 
 /// Build the [SearchMeta] for an [EngineOk] outcome. An Accurate engine yields
-/// verified Accurate metadata. A non-accurate engine yields plain Estimate
-/// metadata, unless [selectionFallback] is set (an Accurate request that was
-/// degraded to Simulated at selection time), in which case it carries the
-/// fallback reason so the UI explains the degrade (Req 5.4).
+/// Accurate metadata — verified-accurate normally, or [SearchMeta.experimental]
+/// when [experimental] is set (the user-opted-in web path on an unverified
+/// version). A non-accurate engine yields plain Estimate metadata, unless
+/// [selectionFallback] is set (an Accurate request that was degraded to
+/// Simulated at selection time), in which case it carries the fallback reason
+/// so the UI explains the degrade (Req 5.4).
 SearchMeta _okMeta(
-    WorldGenEngine engine, String versionId, FallbackReason? selectionFallback) {
+    WorldGenEngine engine, String versionId, FallbackReason? selectionFallback,
+    {bool experimental = false}) {
   if (engine is AccurateEngine) {
-    return SearchMeta.accurate(versionId);
+    return experimental
+        ? SearchMeta.experimental(versionId)
+        : SearchMeta.accurate(versionId);
   }
   if (selectionFallback != null) {
     return SearchMeta.fallback(versionId, selectionFallback);
@@ -381,6 +444,7 @@ Future<SearchOutput<StructureLocation>> _runStructureSearch(
     mode: p.mode,
     version: p.version,
     edition: p.edition,
+    allowWebExperimental: p.allowWebExperimental,
   );
   final engine = selectEngine(ctx);
   final query = StructureQuery(
@@ -398,6 +462,7 @@ Future<SearchOutput<StructureLocation>> _runStructureSearch(
     query,
     p.versionEra,
     selectionFallback: selectionFallbackReason(ctx),
+    experimental: p.allowWebExperimental,
   );
 }
 
@@ -409,14 +474,15 @@ Future<SearchOutput<StructureLocation>> _runStructureSearch(
 /// non-accurate [EngineOk] as a degraded Accurate request (Req 5.4).
 Future<SearchOutput<StructureLocation>> dispatchStructureSearch(
     WorldGenEngine engine, StructureQuery query, VersionEra era,
-    {FallbackReason? selectionFallback}) async {
+    {FallbackReason? selectionFallback, bool experimental = false}) async {
   final result = await engine.findStructures(query);
   switch (result) {
     case EngineOk<StructureLocation> ok:
       return SearchOutput<StructureLocation>(
         ok.results,
         ok.results.length,
-        meta: _okMeta(engine, query.version.id, selectionFallback),
+        meta: _okMeta(engine, query.version.id, selectionFallback,
+            experimental: experimental),
       );
     case EngineUnavailable<StructureLocation> u:
       return _structureFallback(query, era, reason: u.reason);

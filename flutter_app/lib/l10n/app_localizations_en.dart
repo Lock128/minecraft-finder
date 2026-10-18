@@ -369,6 +369,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return 'Minimum vein size: $count+ blocks';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => 'Minimum vein size: any';
+
+  @override
   String get biomeNamePlains => 'Plains';
 
   @override
@@ -1670,8 +1678,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Seed-accurate results: exact positions for this verified version.';
 
   @override
+  String get experimentalAccurateNotice =>
+      'Experimental accurate results: these are real seed-based positions, but this version hasn\'t been verified yet. Treat them as a starting point and double-check in-game.';
+
+  @override
+  String get webExperimentalToggle => 'Try experimental accurate on web';
+
+  @override
+  String get webExperimentalInfo =>
+      'On the web, Accurate mode normally falls back to estimates. Turn this on to run the real seed-based engine in your browser. Results are experimental and unverified, and large searches may be slow.';
+
+  @override
   String veinSizeLabel(int count) {
-    return 'Vein size: $count';
+    return '~$count blocks in this vein';
   }
 
   @override

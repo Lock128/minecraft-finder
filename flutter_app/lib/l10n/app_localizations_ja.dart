@@ -361,6 +361,14 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String minVeinSizeFilterLabel(int count) {
+    return '最小鉱脈サイズ: $countブロック以上';
+  }
+
+  @override
+  String get minVeinSizeFilterAll => '最小鉱脈サイズ: すべて';
+
+  @override
   String get biomeNamePlains => '平原';
 
   @override
@@ -1518,8 +1526,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get accurateResultsNotice => 'シード正確な結果：この検証済みバージョンの正確な位置です。';
 
   @override
+  String get experimentalAccurateNotice =>
+      '実験的な正確結果：これらは実際のシードに基づく位置ですが、このバージョンはまだ検証されていません。出発点として扱い、ゲーム内で再確認してください。';
+
+  @override
+  String get webExperimentalToggle => 'ウェブで実験的な正確モードを試す';
+
+  @override
+  String get webExperimentalInfo =>
+      'ウェブでは正確モードは通常、推定にフォールバックします。これをオンにすると、ブラウザで実際のシードベースのエンジンを実行します。結果は実験的で未検証であり、大規模な検索は遅くなる場合があります。';
+
+  @override
   String veinSizeLabel(int count) {
-    return '鉱脈サイズ: $count';
+    return 'この鉱脈に約$countブロック';
   }
 
   @override

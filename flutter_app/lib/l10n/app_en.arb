@@ -375,6 +375,17 @@
     }
   },
 
+  "minVeinSizeFilterLabel": "Minimum vein size: {count}+ blocks",
+  "@minVeinSizeFilterLabel": {
+    "description": "Label for the minimum vein size slider filter when a threshold is set",
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+
+  "minVeinSizeFilterAll": "Minimum vein size: any",
+  "@minVeinSizeFilterAll": { "description": "Label for the minimum vein size slider filter when showing all sizes" },
+
   "biomeNamePlains": "Plains",
   "@biomeNamePlains": { "description": "Friendly biome name: plains" },
   "biomeNameForest": "Forest",
@@ -1449,7 +1460,16 @@
   "accurateResultsNotice": "Seed-accurate results: exact positions for this verified version.",
   "@accurateResultsNotice": { "description": "Notice shown above verified Accurate-mode results" },
 
-  "veinSizeLabel": "Vein size: {count}",
+  "experimentalAccurateNotice": "Experimental accurate results: these are real seed-based positions, but this version hasn't been verified yet. Treat them as a starting point and double-check in-game.",
+  "@experimentalAccurateNotice": { "description": "Notice shown above experimental (opted-in, unverified) Accurate-mode results" },
+
+  "webExperimentalToggle": "Try experimental accurate on web",
+  "@webExperimentalToggle": { "description": "Label for the opt-in switch that enables the experimental accurate engine on the web" },
+
+  "webExperimentalInfo": "On the web, Accurate mode normally falls back to estimates. Turn this on to run the real seed-based engine in your browser. Results are experimental and unverified, and large searches may be slow.",
+  "@webExperimentalInfo": { "description": "Info text explaining the experimental accurate on web opt-in" },
+
+  "veinSizeLabel": "~{count} blocks in this vein",
   "@veinSizeLabel": {
     "description": "Label showing the real vein size for an accurate ore result",
     "placeholders": { "count": { "type": "int", "example": "8" } }
