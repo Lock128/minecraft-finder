@@ -1,3 +1,9 @@
+// ignore_for_file: avoid_print
+//
+// This is a developer benchmark, not production code or a pass/fail test. It
+// intentionally prints its timing tables to stdout, so the avoid_print lint is
+// suppressed for the whole file.
+//
 // Performance benchmark for the seed-accurate world-gen engine.
 //
 // Not a pass/fail test — it times the core DartWebBackend algorithm (the
