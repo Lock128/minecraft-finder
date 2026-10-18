@@ -46,21 +46,26 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
           child: Row(
             children: [
               Icon(Icons.history,
-                  size: 14, color: isDark ? Colors.white54 : Colors.grey[500]),
+                  size: 14,
+                  color:
+                      isDark ? Colors.white54 : GamerColors.mutedIcon(context)),
               const SizedBox(width: 4),
               Text(
                 l10n.searchHistoryTitle,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white54 : Colors.grey[500],
+                  color: isDark
+                      ? Colors.white54
+                      : GamerColors.mutedText(context),
                 ),
               ),
               const Spacer(),
               Icon(
                 _expanded ? Icons.expand_less : Icons.expand_more,
                 size: 16,
-                color: isDark ? Colors.white54 : Colors.grey[500],
+                color:
+                    isDark ? Colors.white54 : GamerColors.mutedIcon(context),
               ),
             ],
           ),
@@ -121,14 +126,17 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 10,
-                      color: isDark ? Colors.white54 : Colors.grey[500],
+                      color: isDark
+                          ? Colors.white54
+                          : GamerColors.mutedText(context),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 Text(
                   '${entry.resultCount} ${l10n.searchHistoryResults} - r${entry.radius}',
-                  style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                  style: TextStyle(
+                      fontSize: 10, color: GamerColors.mutedText(context)),
                 ),
               ],
             ),

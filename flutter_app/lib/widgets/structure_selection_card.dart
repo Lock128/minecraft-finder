@@ -42,9 +42,11 @@ class StructureSelectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final cardAccent =
+        GamerColors.adaptiveAccent(GamerColors.neonOrange, isDarkMode);
     return GamerCard(
       isDarkMode: isDarkMode,
-      accentColor: GamerColors.neonOrange,
+      accentColor: cardAccent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -52,7 +54,7 @@ class StructureSelectionCard extends StatelessWidget {
             emoji: '🏰',
             title: l10n.structureSearchTitle,
             isDarkMode: isDarkMode,
-            accentColor: GamerColors.neonOrange,
+            accentColor: cardAccent,
           ),
           const SizedBox(height: 16),
           _buildToggleButton(context),
@@ -141,7 +143,9 @@ class StructureSelectionCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _actionButton(l10n.clearAll, Colors.grey, () {
+              child: _actionButton(
+                  l10n.clearAll, GamerColors.mutedText(context, alpha: 0.75),
+                  () {
                 onStructuresChanged({});
               }),
             ),
@@ -172,7 +176,8 @@ class StructureSelectionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       color: StructureUtils.getRarityColor(
-                          structure['rarity'] as String),
+                          structure['rarity'] as String,
+                          isDark: isDarkMode),
                     ),
                   ),
                 ],
@@ -260,6 +265,9 @@ class StructureSelectionCard extends StatelessWidget {
   }
 
   Widget _actionButton(String label, Color color, VoidCallback onTap) {
+    // Keep the tinted fill/border from the source accent, but render the label
+    // in the readable light-mode variant so it stays legible on white.
+    final labelColor = GamerColors.adaptiveAccent(color, isDarkMode);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -272,7 +280,9 @@ class StructureSelectionCard extends StatelessWidget {
         child: Center(
           child: Text(label,
               style: TextStyle(
-                  color: color, fontWeight: FontWeight.w700, fontSize: 13)),
+                  color: labelColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13)),
         ),
       ),
     );

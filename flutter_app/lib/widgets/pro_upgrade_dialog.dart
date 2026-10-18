@@ -98,7 +98,9 @@ class ProUpgradeDialog extends StatelessWidget {
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
                 icon: Icon(Icons.close,
-                    color: isDarkMode ? Colors.white54 : Colors.grey[500]),
+                    color: isDarkMode
+                        ? Colors.white54
+                        : GamerColors.mutedIcon(context)),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -261,7 +263,7 @@ class ProUpgradeDialog extends StatelessWidget {
             'One-time purchase. No subscription.',
             style: TextStyle(
               fontSize: 11,
-              color: isDarkMode ? Colors.white38 : Colors.grey[500],
+              color: isDarkMode ? Colors.white38 : const Color(0xFF616161),
             ),
           ),
         ],
@@ -305,7 +307,8 @@ class ProUpgradeDialog extends StatelessWidget {
                 Text(subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                      color:
+                          isDarkMode ? Colors.white38 : const Color(0xFF616161),
                     )),
               ],
             ),
