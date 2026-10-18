@@ -75,9 +75,11 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final headerAccent =
+        GamerColors.adaptiveAccent(GamerColors.neonOrange, isDarkMode);
     return GamerCard(
       isDarkMode: isDarkMode,
-      accentColor: GamerColors.neonOrange,
+      accentColor: headerAccent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -92,7 +94,7 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
                     emoji: '🎮',
                     title: l10n.editionVersionTitle,
                     isDarkMode: isDarkMode,
-                    accentColor: GamerColors.neonOrange,
+                    accentColor: headerAccent,
                   ),
                 ),
                 if (!_expanded)
@@ -296,20 +298,18 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
     required String body,
     String? title,
   }) {
-    final textColor = isDarkMode ? color : _lightVariant(color);
+    final textColor = GamerColors.adaptiveAccent(color, isDarkMode);
     final bodyStyle = TextStyle(
-      color: isDarkMode
-          ? color.withValues(alpha: 0.8)
-          : textColor.withValues(alpha: 0.8),
+      color: textColor.withValues(alpha: 0.8),
       height: 1.4,
       fontSize: 11,
     );
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isDarkMode ? 0.1 : 0.06),
+        color: textColor.withValues(alpha: isDarkMode ? 0.1 : 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: textColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,11 +344,4 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
     );
   }
 
-  Color _lightVariant(Color c) {
-    if (c == GamerColors.neonOrange) return GamerColors.lightOrange;
-    if (c == GamerColors.neonPurple) return GamerColors.lightPurple;
-    if (c == GamerColors.neonGreen) return GamerColors.lightGreen;
-    if (c == GamerColors.neonCyan) return GamerColors.lightCyan;
-    return c;
-  }
 }

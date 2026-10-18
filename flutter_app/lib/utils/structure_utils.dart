@@ -76,20 +76,23 @@ class StructureUtils {
     }
   }
 
-  static Color getRarityColor(String rarity) {
+  /// Rarity accent color. In dark mode the vivid Material base colors are
+  /// kept; in light mode darker readable variants are returned so the small
+  /// rarity labels meet WCAG AA contrast on the near-white chip backgrounds.
+  static Color getRarityColor(String rarity, {bool isDark = true}) {
     switch (rarity) {
       case 'Very Common':
-        return Colors.green;
+        return isDark ? Colors.green : const Color(0xFF2E7D32);
       case 'Common':
-        return Colors.lightGreen;
+        return isDark ? Colors.lightGreen : const Color(0xFF4A7A28);
       case 'Uncommon':
-        return Colors.orange;
+        return isDark ? Colors.orange : const Color(0xFFB45309);
       case 'Rare':
-        return Colors.red;
+        return isDark ? Colors.red : const Color(0xFFC62828);
       case 'Very Rare':
-        return Colors.purple;
+        return isDark ? Colors.purple : const Color(0xFF7B2FA0);
       default:
-        return Colors.grey;
+        return isDark ? Colors.grey : const Color(0xFF616161);
     }
   }
 

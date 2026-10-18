@@ -88,7 +88,9 @@ class AppInfoDialog extends StatelessWidget {
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: Icon(Icons.close,
-                        color: isDarkMode ? Colors.white54 : Colors.grey[500]),
+                        color: isDarkMode
+                            ? Colors.white54
+                            : GamerColors.mutedIcon(context)),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -319,7 +321,8 @@ class AppInfoDialog extends StatelessWidget {
               Text(levels,
                   style: TextStyle(
                     fontSize: 10,
-                    color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                    color:
+                        isDarkMode ? Colors.white38 : const Color(0xFF616161),
                   )),
             ],
           ),

@@ -395,7 +395,9 @@ class _MapPainter extends CustomPainter {
       double maxX, double minZ, double maxZ) {
     final textStyle = TextStyle(
       fontSize: 9,
-      color: isDarkMode ? Colors.white38 : Colors.grey[400],
+      // Light-mode axis labels need a darker grey to stay legible on the
+      // near-white map canvas (Colors.grey[400] fails contrast here).
+      color: isDarkMode ? Colors.white38 : const Color(0xFF616161),
     );
 
     final drawW = size.width - padding * 2;
@@ -447,26 +449,31 @@ class _MapPainter extends CustomPainter {
   }
 
   Color _oreColor(OreType oreType) {
+    // Markers are plotted on a near-white canvas in light mode, so route the
+    // neon ore colors through the readable light variants for consistency with
+    // the rest of the UI. Dark mode keeps the neon dots.
+    final Color neon;
     switch (oreType) {
       case OreType.diamond:
-        return GamerColors.diamondNeon;
+        neon = GamerColors.diamondNeon;
       case OreType.gold:
-        return GamerColors.goldNeon;
+        neon = GamerColors.goldNeon;
       case OreType.netherite:
-        return GamerColors.netheriteNeon;
+        neon = GamerColors.netheriteNeon;
       case OreType.redstone:
-        return GamerColors.redstoneNeon;
+        neon = GamerColors.redstoneNeon;
       case OreType.iron:
-        return GamerColors.ironNeon;
+        neon = GamerColors.ironNeon;
       case OreType.coal:
-        return GamerColors.coalNeon;
+        neon = GamerColors.coalNeon;
       case OreType.lapis:
-        return GamerColors.lapisNeon;
+        neon = GamerColors.lapisNeon;
       case OreType.copper:
-        return GamerColors.neonOrange;
+        neon = GamerColors.neonOrange;
       case OreType.emerald:
-        return GamerColors.neonGreen;
+        neon = GamerColors.neonGreen;
     }
+    return GamerColors.adaptiveAccent(neon, isDarkMode);
   }
 
   @override

@@ -326,7 +326,7 @@ class _ResultsTabState extends State<ResultsTab> {
               style: TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
-                  color: Colors.grey[500]),
+                  color: GamerColors.mutedText(context)),
             ),
           ],
         ],
@@ -340,7 +340,8 @@ class _ResultsTabState extends State<ResultsTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+          Icon(Icons.search_off,
+              size: 64, color: GamerColors.mutedIcon(context, alpha: 0.55)),
           const SizedBox(height: 16),
           Text(l10n.noResultsYet,
               style: Theme.of(context).textTheme.headlineSmall),
@@ -357,7 +358,8 @@ class _ResultsTabState extends State<ResultsTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.filter_alt_off, size: 64, color: Colors.grey[400]),
+          Icon(Icons.filter_alt_off,
+              size: 64, color: GamerColors.mutedIcon(context, alpha: 0.55)),
           const SizedBox(height: 16),
           Text(l10n.noResultsMatchFilters,
               style: Theme.of(context).textTheme.headlineSmall),
@@ -424,7 +426,8 @@ class _ResultsTabState extends State<ResultsTab> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: color),
+          Icon(icon,
+              size: 16, color: GamerColors.adaptiveAccent(color, isDark)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -450,6 +453,8 @@ class _ResultsTabState extends State<ResultsTab> {
       List<OreLocation> filteredResults,
       List<StructureLocation> filteredStructureResults) {
     final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = GamerColors.greenText(isDark);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -471,8 +476,7 @@ class _ResultsTabState extends State<ResultsTab> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.place_outlined,
-                            size: 20, color: GamerColors.neonGreen),
+                        Icon(Icons.place_outlined, size: 20, color: accent),
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(
@@ -491,8 +495,7 @@ class _ResultsTabState extends State<ResultsTab> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.grid_on,
-                            size: 15, color: GamerColors.neonGreen),
+                        Icon(Icons.grid_on, size: 15, color: accent),
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(
@@ -532,8 +535,7 @@ class _ResultsTabState extends State<ResultsTab> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.info_outline,
-                              size: 13, color: GamerColors.neonGreen),
+                          Icon(Icons.info_outline, size: 13, color: accent),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
@@ -541,7 +543,7 @@ class _ResultsTabState extends State<ResultsTab> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: GamerColors.neonGreen,
+                                color: accent,
                               ),
                             ),
                           ),
@@ -903,7 +905,9 @@ class _ResultsTabState extends State<ResultsTab> {
                       'Upgrade to Pro for up to 500 results, unlimited radius, and more.',
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? Colors.white54 : Colors.grey[600],
+                        color: isDark
+                            ? Colors.white54
+                            : GamerColors.mutedText(context),
                       ),
                     ),
                   ],
@@ -972,7 +976,8 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             const SizedBox(height: 3),
             Text(l10n.chunkLabel(location.chunkX, location.chunkZ),
-                style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
             // In Accurate mode the fabricated probability % is omitted
             // (Req 12.3); instead the real vein size is surfaced (Req 12.4).
             if (widget.presentation.showProbability)
@@ -991,7 +996,8 @@ class _ResultsTabState extends State<ResultsTab> {
                       fontWeight: FontWeight.w600)),
             if (location.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, location.biome!)),
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                  style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
           ],
         ),
         trailing: Row(
@@ -999,7 +1005,8 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             _buildOreBookmarkButton(context, location),
             IconButton(
-              icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+              icon: Icon(Icons.copy,
+                  size: 18, color: GamerColors.mutedIcon(context)),
               onPressed: () =>
                   _copyCoordinates(context, location.x, location.y, location.z),
               tooltip: l10n.copyCoordinates,
@@ -1026,7 +1033,10 @@ class _ResultsTabState extends State<ResultsTab> {
       icon: Icon(
         isFav ? Icons.bookmark : Icons.bookmark_border,
         size: 18,
-        color: isFav ? GamerColors.neonPurple : Colors.grey[400],
+        color: isFav
+            ? GamerColors.purpleText(
+                Theme.of(context).brightness == Brightness.dark)
+            : GamerColors.mutedIcon(context),
       ),
       onPressed: () {
         if (isFav) {
@@ -1087,7 +1097,8 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             const SizedBox(height: 3),
             Text(l10n.chunkLabel(structure.chunkX, structure.chunkZ),
-                style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
             // In Accurate mode omit the fabricated probability % (Req 12.3);
             // surface the real structure variant where available (Req 12.4).
             if (widget.presentation.showProbability)
@@ -1108,7 +1119,8 @@ class _ResultsTabState extends State<ResultsTab> {
                       fontWeight: FontWeight.w600)),
             if (structure.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, structure.biome!)),
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                  style: TextStyle(
+                    fontSize: 13, color: GamerColors.mutedText(context))),
           ],
         ),
         trailing: Row(
@@ -1116,7 +1128,8 @@ class _ResultsTabState extends State<ResultsTab> {
           children: [
             _buildStructureBookmarkButton(context, structure),
             IconButton(
-              icon: Icon(Icons.copy, size: 18, color: Colors.grey[400]),
+              icon: Icon(Icons.copy,
+                  size: 18, color: GamerColors.mutedIcon(context)),
               onPressed: () => _copyCoordinates(
                   context, structure.x, structure.y, structure.z),
               tooltip: l10n.copyCoordinates,
@@ -1144,7 +1157,10 @@ class _ResultsTabState extends State<ResultsTab> {
       icon: Icon(
         isFav ? Icons.bookmark : Icons.bookmark_border,
         size: 18,
-        color: isFav ? GamerColors.neonPurple : Colors.grey[400],
+        color: isFav
+            ? GamerColors.purpleText(
+                Theme.of(context).brightness == Brightness.dark)
+            : GamerColors.mutedIcon(context),
       ),
       onPressed: () {
         if (isFav) {

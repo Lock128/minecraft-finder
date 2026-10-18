@@ -105,13 +105,13 @@ class _SearchButtonsState extends State<SearchButtons> {
     String? title,
     required String body,
   }) {
-    final textColor = isDarkMode ? color : _lightVariant(color);
+    final textColor = GamerColors.adaptiveAccent(color, isDarkMode);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isDarkMode ? 0.1 : 0.06),
+        color: textColor.withValues(alpha: isDarkMode ? 0.1 : 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: textColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,9 +142,7 @@ class _SearchButtonsState extends State<SearchButtons> {
               Expanded(
                 child: Text(body,
                     style: TextStyle(
-                      color: isDarkMode
-                          ? color.withValues(alpha: 0.8)
-                          : textColor.withValues(alpha: 0.8),
+                      color: textColor.withValues(alpha: 0.8),
                       height: 1.4,
                       fontSize: 11,
                     )),
@@ -154,14 +152,6 @@ class _SearchButtonsState extends State<SearchButtons> {
         ],
       ),
     );
-  }
-
-  Color _lightVariant(Color c) {
-    if (c == GamerColors.neonPurple) return GamerColors.lightPurple;
-    if (c == GamerColors.neonGreen) return GamerColors.lightGreen;
-    if (c == GamerColors.neonCyan) return GamerColors.lightCyan;
-    if (c == GamerColors.neonOrange) return GamerColors.lightOrange;
-    return c;
   }
 }
 

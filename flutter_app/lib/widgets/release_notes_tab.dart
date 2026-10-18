@@ -392,7 +392,8 @@ class ReleaseNotesTab extends StatelessWidget {
                   Text(highlight,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDarkMode ? Colors.white38 : Colors.grey[500],
+                        color:
+                            isDarkMode ? Colors.white38 : const Color(0xFF616161),
                       )),
                 ],
               ),

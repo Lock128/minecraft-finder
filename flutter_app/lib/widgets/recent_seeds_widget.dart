@@ -78,13 +78,16 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
         Row(
           children: [
             Icon(Icons.history,
-                size: 14, color: isDark ? Colors.white54 : Colors.grey[500]),
+                size: 14,
+                color: isDark ? Colors.white54 : GamerColors.mutedIcon(context)),
             const SizedBox(width: 4),
             Text(l10n.recentSeeds,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white54 : Colors.grey[500],
+                  color: isDark
+                      ? Colors.white54
+                      : GamerColors.mutedText(context),
                 )),
           ],
         ),

@@ -226,7 +226,8 @@ class _OreFinderScreenState extends State<OreFinderScreen>
         indicatorColor: GamerColors.neonGreen,
         indicatorWeight: 3,
         labelColor: isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
-        unselectedLabelColor: isDark ? Colors.white54 : Colors.grey[500],
+        unselectedLabelColor:
+            isDark ? Colors.white54 : const Color(0xFF616161),
         labelStyle: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5),
         unselectedLabelStyle:

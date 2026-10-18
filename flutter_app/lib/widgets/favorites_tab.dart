@@ -48,14 +48,15 @@ class FavoritesTab extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.bookmark_border, size: 64, color: Colors.grey[400]),
+          Icon(Icons.bookmark_border,
+              size: 64, color: GamerColors.mutedIcon(context, alpha: 0.55)),
           const SizedBox(height: 16),
           Text(l10n.favoritesEmpty,
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(l10n.favoritesEmptyHint,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500])),
+              style: TextStyle(color: GamerColors.mutedText(context))),
         ],
       ),
     );
@@ -65,7 +66,8 @@ class FavoritesTab extends StatelessWidget {
       List<FavoriteLocation> items, AppLocalizations l10n) {
     return GamerCard(
       isDarkMode: isDarkMode,
-      accentColor: GamerColors.neonPurple,
+      accentColor:
+          GamerColors.adaptiveAccent(GamerColors.neonPurple, isDarkMode),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +95,8 @@ class FavoritesTab extends StatelessWidget {
               ),
               Text(
                 '${items.length} ${items.length == 1 ? 'item' : 'items'}',
-                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                style: TextStyle(
+                    fontSize: 11, color: GamerColors.mutedText(context)),
               ),
             ],
           ),
@@ -157,7 +160,9 @@ class FavoritesTab extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontFamily: 'monospace',
-                      color: isDarkMode ? Colors.white70 : Colors.grey[600],
+                      color: isDarkMode
+                          ? Colors.white70
+                          : GamerColors.mutedText(context),
                     ),
                   ),
                   if (fav.label.isNotEmpty)
@@ -166,14 +171,15 @@ class FavoritesTab extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontStyle: FontStyle.italic,
-                        color: Colors.grey[500],
+                        color: GamerColors.mutedText(context),
                       ),
                     ),
                 ],
               ),
             ),
             IconButton(
-              icon: Icon(Icons.copy, size: 16, color: Colors.grey[400]),
+              icon: Icon(Icons.copy,
+                  size: 16, color: GamerColors.mutedIcon(context)),
               onPressed: () => _copyCoordinates(context, fav, l10n),
               tooltip: l10n.copyCoordinates,
               visualDensity: VisualDensity.compact,
