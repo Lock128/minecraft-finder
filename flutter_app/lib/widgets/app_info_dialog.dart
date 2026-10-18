@@ -217,7 +217,7 @@ class AppInfoDialog extends StatelessWidget {
           l10n.showQuickStartSubtitle,
           style: TextStyle(
             fontSize: 12,
-            color: isDarkMode ? Colors.white60 : Colors.grey[600],
+            color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
           ),
         ),
         trailing: TextButton(
@@ -268,7 +268,7 @@ class AppInfoDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: isDarkMode ? Colors.white60 : Colors.grey[600],
+                color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
               )),
         ],
       ),
@@ -497,7 +497,7 @@ class AppInfoDialog extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               height: 1.4,
-              color: isDarkMode ? Colors.white60 : Colors.grey[600],
+              color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
             ),
           ),
           const SizedBox(height: 12),

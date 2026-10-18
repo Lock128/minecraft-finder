@@ -180,7 +180,7 @@ class SearchCenterCard extends StatelessWidget {
                     l10n.wholeWorldNetheriteSubtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                      color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
                     ),
                   ),
                 ],
@@ -223,7 +223,7 @@ class SearchCenterCard extends StatelessWidget {
         suffixIcon: IconButton(
           icon: Icon(Icons.swap_horiz,
               size: 16,
-              color: isDarkMode ? GamerColors.neonCyan : Colors.grey[600]),
+              color: isDarkMode ? GamerColors.neonCyan : const Color(0xFF616161)),
           onPressed: () {
             final t = controller.text;
             if (t.isEmpty) return;

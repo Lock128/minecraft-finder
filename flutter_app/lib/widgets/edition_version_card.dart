@@ -125,7 +125,7 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
                 Icon(
                   _expanded ? Icons.expand_less : Icons.expand_more,
                   size: 20,
-                  color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                  color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
                 ),
               ],
             ),

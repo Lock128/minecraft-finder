@@ -318,7 +318,7 @@ class _GuideTabState extends State<GuideTab> {
             l10n.proTipBody,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isDarkMode ? Colors.white70 : Colors.grey[600],
+              color: isDarkMode ? Colors.white70 : const Color(0xFF616161),
               fontSize: 13,
               height: 1.5,
             ),

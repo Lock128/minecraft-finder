@@ -1062,7 +1062,7 @@ class _ResultsTabState extends State<ResultsTab> {
                       (location.probability * 100).toStringAsFixed(1)),
                   style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[500],
+                      color: GamerColors.mutedText(context),
                       fontWeight: FontWeight.w500)),
             if (location.biome != null)
               Text(l10n.biomeLabel(_getBiomeName(context, location.biome!)),

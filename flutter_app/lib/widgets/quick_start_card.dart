@@ -89,7 +89,7 @@ class _QuickStartCardState extends State<QuickStartCard> {
                   icon: const Icon(Icons.close, size: 18),
                   visualDensity: VisualDensity.compact,
                   tooltip: l10n.quickStartDismissTooltip,
-                  color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                  color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
                 ),
             ],
           ),
@@ -166,7 +166,7 @@ class _QuickStartCardState extends State<QuickStartCard> {
             style: TextStyle(
               fontSize: 11,
               height: 1.4,
-              color: isDarkMode ? Colors.white54 : Colors.grey[600],
+              color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
             ),
           ),
         ),

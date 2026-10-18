@@ -111,7 +111,7 @@ class ProUpgradeDialog extends StatelessWidget {
             'Unlock the full power of the finder',
             style: TextStyle(
               fontSize: 13,
-              color: isDarkMode ? Colors.white60 : Colors.grey[600],
+              color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
             ),
           ),
         ],
@@ -149,7 +149,7 @@ class ProUpgradeDialog extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: isDarkMode ? Colors.white60 : Colors.grey[600],
+              color: isDarkMode ? Colors.white60 : const Color(0xFF616161),
             ),
           ),
           const SizedBox(height: 20),
@@ -252,7 +252,7 @@ class ProUpgradeDialog extends StatelessWidget {
             child: Text(
               'Restore Purchase',
               style: TextStyle(
-                color: isDarkMode ? Colors.white54 : Colors.grey[600],
+                color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
                 fontSize: 13,
               ),
             ),

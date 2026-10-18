@@ -396,13 +396,15 @@ class _OreFinderScreenState extends State<OreFinderScreen>
               );
             },
             icon: Icon(Icons.info_outline,
-                color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+                color: isDark ? Colors.white70 : const Color(0xFF616161),
+                size: 20),
             tooltip: AppLocalizations.of(iconContext).appInfoTooltip,
           ),
         ),
         PopupMenuButton<Locale>(
           icon: Icon(Icons.language,
-              color: isDark ? Colors.white70 : Colors.grey[600], size: 20),
+              color: isDark ? Colors.white70 : const Color(0xFF616161),
+              size: 20),
           tooltip: AppLocalizations.of(context).languageTooltip,
           onSelected: (locale) => widget.onLocaleChanged(locale),
           itemBuilder: (context) => [
