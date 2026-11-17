@@ -77,7 +77,6 @@ void main() {
             l10n.resultsTab,
             l10n.favoritesTab,
             l10n.guideTab,
-            l10n.bedwarsTab,
           ];
 
           for (final label in expectedLabels) {

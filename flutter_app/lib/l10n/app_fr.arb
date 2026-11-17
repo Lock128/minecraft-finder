@@ -534,5 +534,9 @@
   "webExperimentalToggle": "Essayer le mode précis expérimental sur le web",
   "webExperimentalInfo": "Sur le web, le mode précis bascule normalement vers des estimations. Activez ceci pour exécuter le vrai moteur basé sur la seed dans votre navigateur. Les résultats sont expérimentaux et non vérifiés, et les grandes recherches peuvent être lentes.",
   "veinSizeLabel": "~{count} blocs dans ce filon",
-  "structureVariantLabel": "Variante : {variant}"
+  "structureVariantLabel": "Variante : {variant}",
+  "advancedOptionsTitle": "Options avancées",
+  "whatToFindTitle": "Que chercher",
+  "groupOres": "Minerais",
+  "groupStructures": "Structures"
 }

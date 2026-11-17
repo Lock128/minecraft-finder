@@ -534,5 +534,9 @@
   "webExperimentalToggle": "Experimentellen genauen Modus im Web testen",
   "webExperimentalInfo": "Im Web wechselt der genaue Modus normalerweise zu Schätzungen. Aktiviere dies, um die echte seed-basierte Engine in deinem Browser auszuführen. Die Ergebnisse sind experimentell und nicht verifiziert, und große Suchen können langsam sein.",
   "veinSizeLabel": "~{count} Blöcke in dieser Ader",
-  "structureVariantLabel": "Variante: {variant}"
+  "structureVariantLabel": "Variante: {variant}",
+  "advancedOptionsTitle": "Erweiterte Optionen",
+  "whatToFindTitle": "Was suchen?",
+  "groupOres": "Erze",
+  "groupStructures": "Strukturen"
 }

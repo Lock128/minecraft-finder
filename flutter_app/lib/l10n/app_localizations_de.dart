@@ -1622,7 +1622,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get whatToFindTitle => 'Was suchen';
+  String get whatToFindTitle => 'Was suchen?';
 
   @override
   String get oresToggleLabel => 'Erze';
@@ -1711,4 +1711,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String structureVariantLabel(String variant) {
     return 'Variante: $variant';
   }
+
+  @override
+  String get advancedOptionsTitle => 'Erweiterte Optionen';
+
+  @override
+  String get groupOres => 'Erze';
+
+  @override
+  String get groupStructures => 'Strukturen';
 }

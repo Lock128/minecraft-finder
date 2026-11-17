@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/gamer_theme.dart';
 
+/// Coordinates and radius of the search area, plus the whole-world Netherite
+/// scope. With [embedded] set, only the fields are built so the content can sit
+/// inside another section (the Advanced options).
 class SearchCenterCard extends StatelessWidget {
   final TextEditingController xController;
   final TextEditingController yController;
@@ -20,6 +23,9 @@ class SearchCenterCard extends StatelessWidget {
   /// Toggles the whole-world scope. The parent applies Pro gating.
   final ValueChanged<bool>? onWholeWorldChanged;
 
+  /// Build only the fields, without the surrounding card and title.
+  final bool embedded;
+
   const SearchCenterCard({
     super.key,
     required this.xController,
@@ -30,169 +36,133 @@ class SearchCenterCard extends StatelessWidget {
     this.netheriteSelected = false,
     this.wholeWorldNetherite = false,
     this.onWholeWorldChanged,
+    this.embedded = false,
   });
+
+  bool get wholeWorld => netheriteSelected && wholeWorldNetherite;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return GamerCard(
-      isDarkMode: isDarkMode,
-      accentColor: GamerColors.neonCyan,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!embedded) ...[
           GamerSectionHeader(
-            emoji: '📍',
+            icon: Icons.my_location_outlined,
             title: l10n.searchCenterTitle,
             isDarkMode: isDarkMode,
-            accentColor: GamerColors.neonCyan,
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildCoordField(
-                      context, xController, l10n.coordinateX, l10n)),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _buildCoordField(
-                      context, yController, l10n.coordinateY, l10n,
-                      hint: '-59')),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _buildCoordField(
-                      context, zController, l10n.coordinateZ, l10n)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: radiusController,
-            enabled: !wholeWorld,
-            decoration: InputDecoration(
-              labelText: l10n.searchRadiusLabel,
-              hintText: wholeWorld ? l10n.wholeWorldActiveHint : null,
-              prefixIcon: const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text('🔍', style: TextStyle(fontSize: 16)),
-              ),
-              filled: true,
-              fillColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: isDarkMode ? Colors.white12 : Colors.grey.shade300,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: GamerColors.neonCyan, width: 2),
+        ],
+        Row(
+          children: [
+            Expanded(
+              child: _buildCoordField(
+                context,
+                xController,
+                l10n.coordinateX,
+                l10n,
               ),
             ),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            validator: (value) {
-              // Radius is ignored when scanning the whole world.
-              if (wholeWorld) return null;
-              if (value == null || value.isEmpty) return l10n.errorEmptyRadius;
-              final radius = int.tryParse(value);
-              if (radius == null || radius <= 0) {
-                return l10n.errorRadiusPositive;
-              }
-              if (radius > 2000) return l10n.errorRadiusMax;
-              return null;
-            },
-          ),
-          // Whole-world scope option: only relevant for Netherite. Replaces the
-          // former separate "Find all Netherite" button by making scope an
-          // input rather than a second command.
-          if (netheriteSelected) ...[
-            const SizedBox(height: 10),
-            _buildWholeWorldToggle(context, l10n),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildCoordField(
+                context,
+                yController,
+                l10n.coordinateY,
+                l10n,
+                hint: '-59',
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildCoordField(
+                context,
+                zController,
+                l10n.coordinateZ,
+                l10n,
+              ),
+            ),
           ],
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: radiusController,
+          enabled: !wholeWorld,
+          decoration: InputDecoration(
+            labelText: l10n.searchRadiusLabel,
+            hintText: wholeWorld ? l10n.wholeWorldActiveHint : null,
+            prefixIcon: const Icon(Icons.radar),
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          validator: (value) {
+            // Radius is ignored when scanning the whole world.
+            if (wholeWorld) return null;
+            if (value == null || value.isEmpty) return l10n.errorEmptyRadius;
+            final radius = int.tryParse(value);
+            if (radius == null || radius <= 0) {
+              return l10n.errorRadiusPositive;
+            }
+            if (radius > 2000) return l10n.errorRadiusMax;
+            return null;
+          },
+        ),
+        // Whole-world scope is Netherite-specific, so it only appears when
+        // Netherite is selected.
+        if (netheriteSelected) ...[
+          const SizedBox(height: 12),
+          _buildWholeWorldToggle(context, l10n),
         ],
-      ),
+      ],
     );
+    if (embedded) return content;
+    return GamerCard(isDarkMode: isDarkMode, child: content);
   }
 
-  bool get wholeWorld => netheriteSelected && wholeWorldNetherite;
-
   Widget _buildWholeWorldToggle(BuildContext context, AppLocalizations l10n) {
-    final accent =
-        isDarkMode ? GamerColors.neonPurple : GamerColors.lightPurple;
-    return InkWell(
-      onTap: () => onWholeWorldChanged?.call(!wholeWorldNetherite),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
+    final scheme = Theme.of(context).colorScheme;
+    final accent = GamerColors.purpleText(isDarkMode);
+    return Material(
+      color: wholeWorldNetherite
+          ? accent.withValues(alpha: 0.10)
+          : Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
           color: wholeWorldNetherite
-              ? accent.withValues(alpha: isDarkMode ? 0.15 : 0.08)
-              : (isDarkMode ? GamerColors.darkSurface : Colors.white),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: wholeWorldNetherite
-                ? accent.withValues(alpha: 0.6)
-                : (isDarkMode ? Colors.white12 : Colors.grey.shade300),
-          ),
+              ? accent.withValues(alpha: 0.6)
+              : scheme.outlineVariant,
         ),
-        child: Row(
+      ),
+      child: SwitchListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        value: wholeWorldNetherite,
+        onChanged: (v) => onWholeWorldChanged?.call(v),
+        title: Row(
           children: [
-            const Text('🌍', style: TextStyle(fontSize: 16)),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        l10n.wholeWorldNetheriteTitle,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: wholeWorldNetherite
-                              ? accent
-                              : (isDarkMode ? Colors.white : Colors.grey[800]),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: accent.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'PRO',
-                          style: TextStyle(
-                            color: accent,
-                            fontSize: 8,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.wholeWorldNetheriteSubtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDarkMode ? Colors.white54 : const Color(0xFF616161),
-                    ),
-                  ),
-                ],
+            Flexible(child: Text(l10n.wholeWorldNetheriteTitle)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
               ),
-            ),
-            Switch(
-              value: wholeWorldNetherite,
-              activeTrackColor: accent,
-              onChanged: (v) => onWholeWorldChanged?.call(v),
+              child: Text(
+                'PRO',
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
           ],
         ),
+        subtitle: Text(l10n.wholeWorldNetheriteSubtitle),
       ),
     );
   }
@@ -209,21 +179,8 @@ class SearchCenterCard extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        filled: true,
-        fillColor: isDarkMode ? GamerColors.darkSurface : Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-              color: isDarkMode ? Colors.white12 : Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: GamerColors.neonCyan, width: 2),
-        ),
         suffixIcon: IconButton(
-          icon: Icon(Icons.swap_horiz,
-              size: 16,
-              color: isDarkMode ? GamerColors.neonCyan : const Color(0xFF616161)),
+          icon: const Icon(Icons.swap_horiz, size: 18),
           onPressed: () {
             final t = controller.text;
             if (t.isEmpty) return;
@@ -232,8 +189,10 @@ class SearchCenterCard extends StatelessWidget {
           tooltip: l10n.togglePlusMinus,
         ),
       ),
-      keyboardType:
-          TextInputType.numberWithOptions(signed: true, decimal: false),
+      keyboardType: const TextInputType.numberWithOptions(
+        signed: true,
+        decimal: false,
+      ),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*'))],
       validator: (value) {
         if (value == null || value.isEmpty) return l10n.errorFieldRequired;

@@ -1461,7 +1461,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get whatToFindTitle => '検索対象';
+  String get whatToFindTitle => '探すもの';
 
   @override
   String get oresToggleLabel => '鉱石';
@@ -1545,4 +1545,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String structureVariantLabel(String variant) {
     return 'バリアント: $variant';
   }
+
+  @override
+  String get advancedOptionsTitle => '詳細オプション';
+
+  @override
+  String get groupOres => '鉱石';
+
+  @override
+  String get groupStructures => '構造物';
 }

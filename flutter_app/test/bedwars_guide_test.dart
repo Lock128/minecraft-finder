@@ -159,20 +159,23 @@ void main() {
 
   /// **Validates: Requirements 1.1, 1.2**
   ///
-  /// Verify the Bedwars tab appears in the TabBar with the correct icon
+  /// Verify the Bedwars guide is reachable from the Guide destination with the correct icon
   /// (Icons.sports_esports) and "Bedwars" label.
-  group('Widget: Bedwars tab presence in TabBar', () {
-    testWidgets('TabBar contains Bedwars tab with correct icon and label',
+  group('Widget: Bedwars segment presence in Guide tab', () {
+    testWidgets('Guide tab contains Bedwars segment with correct icon and label',
         (WidgetTester tester) async {
       SharedPreferences.setMockInitialValues({});
 
       await tester.pumpWidget(_wrapOreFinderScreen(localeCode: 'en'));
       await tester.pumpAndSettle();
 
-      // Verify the "Bedwars" label text exists in the TabBar
+      // Open the Guide destination in the bottom navigation.
+      await tester.tap(find.text('User Guide'));
+      await tester.pumpAndSettle();
+      // Verify the "Bedwars" label text exists in the Guide switcher
       expect(find.text('Bedwars'), findsOneWidget);
 
-      // Verify the sports_esports icon exists in the TabBar
+      // Verify the sports_esports icon exists in the Guide switcher
       expect(find.byIcon(Icons.sports_esports), findsOneWidget);
     });
   });
@@ -188,7 +191,10 @@ void main() {
       await tester.pumpWidget(_wrapOreFinderScreen(localeCode: 'en'));
       await tester.pumpAndSettle();
 
-      // Tap the Bedwars tab
+      // Open the Guide destination, then switch to the Bedwars guide
+      await tester.tap(find.text('User Guide'));
+      await tester.pumpAndSettle();
+      // Tap the Bedwars segment
       await tester.tap(find.text('Bedwars'));
       await tester.pumpAndSettle();
 

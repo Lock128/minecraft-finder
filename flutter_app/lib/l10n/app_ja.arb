@@ -534,5 +534,9 @@
   "webExperimentalToggle": "ウェブで実験的な正確モードを試す",
   "webExperimentalInfo": "ウェブでは正確モードは通常、推定にフォールバックします。これをオンにすると、ブラウザで実際のシードベースのエンジンを実行します。結果は実験的で未検証であり、大規模な検索は遅くなる場合があります。",
   "veinSizeLabel": "この鉱脈に約{count}ブロック",
-  "structureVariantLabel": "バリアント: {variant}"
+  "structureVariantLabel": "バリアント: {variant}",
+  "advancedOptionsTitle": "詳細オプション",
+  "whatToFindTitle": "探すもの",
+  "groupOres": "鉱石",
+  "groupStructures": "構造物"
 }

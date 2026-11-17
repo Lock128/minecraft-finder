@@ -65,8 +65,10 @@ class _QuickStartCardState extends State<QuickStartCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final cardAccent =
-        GamerColors.adaptiveAccent(GamerColors.neonYellow, isDarkMode);
+    final cardAccent = GamerColors.adaptiveAccent(
+      GamerColors.neonYellow,
+      isDarkMode,
+    );
     return GamerCard(
       isDarkMode: isDarkMode,
       accentColor: cardAccent,
@@ -77,7 +79,7 @@ class _QuickStartCardState extends State<QuickStartCard> {
             children: [
               Expanded(
                 child: GamerSectionHeader(
-                  emoji: '\u26A1',
+                  icon: Icons.bolt_outlined,
                   title: l10n.quickStartTitle,
                   isDarkMode: isDarkMode,
                   accentColor: cardAccent,
@@ -93,46 +95,37 @@ class _QuickStartCardState extends State<QuickStartCard> {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ActionChip(
-              avatar: const Text('\u{1F48E}', style: TextStyle(fontSize: 14)),
-              label: Text(l10n.quickStartDiamondsNearSpawn),
-              onPressed: _applyDiamondsNearSpawn,
-              backgroundColor:
-                  isDarkMode ? GamerColors.darkSurface : Colors.white,
-              labelStyle: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: GamerColors.cyanText(isDarkMode),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              ActionChip(
+                avatar: const Icon(Icons.diamond_outlined, size: 18),
+                label: Text(l10n.quickStartDiamondsNearSpawn),
+                onPressed: _applyDiamondsNearSpawn,
               ),
-              side: BorderSide(
-                color: GamerColors.neonCyan
-                    .withValues(alpha: isDarkMode ? 0.4 : 0.3),
+              TextButton.icon(
+                onPressed: () => setState(() => _showTips = !_showTips),
+                icon: Icon(
+                  _showTips ? Icons.expand_less : Icons.lightbulb_outline,
+                  size: 16,
+                ),
+                label: Text(
+                  _showTips ? l10n.hideDetails : l10n.showTips,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: GamerColors.cyanText(isDarkMode),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => setState(() => _showTips = !_showTips),
-              icon: Icon(
-                _showTips ? Icons.expand_less : Icons.lightbulb_outline,
-                size: 16,
-              ),
-              label: Text(
-                _showTips ? l10n.hideDetails : l10n.showTips,
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: GamerColors.cyanText(isDarkMode),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-              ),
-            ),
+            ],
           ),
           if (_showTips) ...[
             const SizedBox(height: 4),
@@ -145,20 +138,24 @@ class _QuickStartCardState extends State<QuickStartCard> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildTip(context, '\u{1F331}', l10n.quickStartSeedTip),
+            _buildTip(context, Icons.grass_outlined, l10n.quickStartSeedTip),
             const SizedBox(height: 8),
-            _buildTip(context, '\u{1F4CD}', l10n.quickStartSpawnTip),
+            _buildTip(context, Icons.place_outlined, l10n.quickStartSpawnTip),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildTip(BuildContext context, String emoji, String text) {
+  Widget _buildTip(BuildContext context, IconData icon, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 12)),
+        Icon(
+          icon,
+          size: 14,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
         const SizedBox(width: 6),
         Expanded(
           child: Text(

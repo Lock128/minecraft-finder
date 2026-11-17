@@ -11,6 +11,7 @@ class PreferencesService {
   static const String _radiusKey = 'last_search_radius';
   static const String _recentSeedsKey = 'recent_world_seeds';
   static const String _localeKey = 'app_locale';
+  static const String _themeModeKey = 'theme_mode';
   static const String _editionKey = 'minecraft_edition';
   static const String _versionEraKey = 'version_era';
   static const String _monetizationOverrideKey = 'monetization_override_enabled';
@@ -139,6 +140,17 @@ class PreferencesService {
   static Future<void> saveLocale(String localeCode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_localeKey, localeCode);
+  }
+
+  // Theme preference: 'light', 'dark', or null to follow the system.
+  static Future<String?> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_themeModeKey);
+  }
+
+  static Future<void> saveThemeMode(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_themeModeKey, mode);
   }
 
   // Edition preferences

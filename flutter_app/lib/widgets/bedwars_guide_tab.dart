@@ -120,15 +120,7 @@ class _BedwarsGuideTabState extends State<BedwarsGuideTab> {
     final l10n = AppLocalizations.of(context);
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: widget.isDarkMode
-              ? [GamerColors.darkBg, GamerColors.darkSurface]
-              : [GamerColors.lightBg, GamerColors.lightCard],
-        ),
-      ),
+      color: widget.isDarkMode ? GamerColors.darkBg : GamerColors.lightBg,
       child: Column(
         children: [
           // Pinned TierSelector at top

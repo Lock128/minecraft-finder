@@ -1479,6 +1479,14 @@
   "@structureVariantLabel": {
     "description": "Label showing the real structure variant for an accurate structure result",
     "placeholders": { "variant": { "type": "String", "example": "plains" } }
-  }
+  },
+  "advancedOptionsTitle": "Advanced options",
+  "@advancedOptionsTitle": { "description": "Title of the collapsible section with edition, version and search area settings" },
+  "whatToFindTitle": "What to find",
+  "@whatToFindTitle": { "description": "Title of the card where ores and structures are selected" },
+  "groupOres": "Ores",
+  "@groupOres": { "description": "Group label above the ore chips" },
+  "groupStructures": "Structures",
+  "@groupStructures": { "description": "Group label above the structure chips" }
 }
 

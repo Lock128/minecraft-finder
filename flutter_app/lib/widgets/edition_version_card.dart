@@ -36,6 +36,11 @@ class EditionVersionCard extends StatefulWidget {
   /// Called when the user toggles the experimental "accurate on web" switch.
   final ValueChanged<bool> onWebExperimentalChanged;
 
+  /// Build only the selectors and caveats, always expanded and without the
+  /// surrounding card, title or the long "latest update" notes. Used inside the
+  /// Advanced options section.
+  final bool embedded;
+
   const EditionVersionCard({
     super.key,
     required this.selectedEdition,
@@ -50,6 +55,7 @@ class EditionVersionCard extends StatefulWidget {
     this.onSearchModeChanged = _noopMode,
     this.webExperimentalAccurate = true,
     this.onWebExperimentalChanged = _noopBool,
+    this.embedded = false,
   });
 
   static void _noopVersion(MinecraftVersion? _) {}
@@ -75,19 +81,27 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
 
   String _editionLabel(AppLocalizations l10n) =>
       selectedEdition == MinecraftEdition.java
-          ? l10n.editionJava
-          : l10n.editionBedrock;
+      ? l10n.editionJava
+      : l10n.editionBedrock;
 
   String _versionLabel(AppLocalizations l10n) =>
       selectedVersionEra == VersionEra.legacy
-          ? l10n.versionEraLegacy
-          : l10n.versionEraModern;
+      ? l10n.versionEraLegacy
+      : l10n.versionEraModern;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final headerAccent =
-        GamerColors.adaptiveAccent(GamerColors.neonOrange, isDarkMode);
+    if (widget.embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _detailChildren(l10n),
+      );
+    }
+    final headerAccent = GamerColors.adaptiveAccent(
+      GamerColors.neonOrange,
+      isDarkMode,
+    );
     return GamerCard(
       isDarkMode: isDarkMode,
       accentColor: headerAccent,
@@ -132,98 +146,106 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
           ),
           if (_expanded) ...[
             const SizedBox(height: 16),
-            // Edition selector
-            SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<MinecraftEdition>(
-                segments: [
-                  ButtonSegment(
-                    value: MinecraftEdition.java,
-                    label: Text(l10n.editionJava),
-                  ),
-                  ButtonSegment(
-                    value: MinecraftEdition.bedrock,
-                    label: Text(l10n.editionBedrock),
-                  ),
-                ],
-                selected: {selectedEdition},
-                onSelectionChanged: (selected) {
-                  widget.onEditionChanged(selected.first);
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Version era selector
-            SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<VersionEra>(
-                segments: [
-                  ButtonSegment(
-                    value: VersionEra.legacy,
-                    label: Text(l10n.versionEraLegacy),
-                  ),
-                  ButtonSegment(
-                    value: VersionEra.modern,
-                    label: Text(l10n.versionEraModern),
-                  ),
-                ],
-                selected: {selectedVersionEra},
-                onSelectionChanged: (selected) {
-                  widget.onVersionEraChanged(selected.first);
-                },
-              ),
-            ),
-            // Seed-accurate version picker (Req 12.1). Only shown when the
-            // registry supplies versions for the selected edition.
-            if (availableVersions.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              _buildVersionPicker(l10n),
-            ],
-            const SizedBox(height: 12),
-            // Accurate/Estimate search mode toggle (Req 12.2).
-            _buildModeToggle(l10n),
-            const SizedBox(height: 12),
-            _buildInfoBox(
-              icon: Icons.new_releases_outlined,
-              color: GamerColors.neonGreen,
-              title: l10n.latestUpdateTitle,
-              body: l10n.latestUpdateInfo,
-            ),
-            if (searchMode == SearchMode.accurate) ...[
-              const SizedBox(height: 12),
-              _buildInfoBox(
-                icon: Icons.verified_outlined,
-                color: GamerColors.neonGreen,
-                body: l10n.searchModeAccurateInfo,
-              ),
-            ],
-            // Experimental accurate-on-web opt-in. Only meaningful on the web
-            // (native already runs the accurate path) and only relevant when
-            // Accurate mode is selected.
-            if (kIsWeb && searchMode == SearchMode.accurate) ...[
-              const SizedBox(height: 12),
-              _buildWebExperimentalToggle(l10n),
-            ],
-            if (selectedEdition == MinecraftEdition.bedrock) ...[
-              const SizedBox(height: 12),
-              _buildInfoBox(
-                icon: Icons.info_outline,
-                color: GamerColors.neonOrange,
-                body: l10n.editionBedrockInfo,
-              ),
-            ],
-            if (selectedVersionEra == VersionEra.legacy) ...[
-              const SizedBox(height: 12),
-              _buildInfoBox(
-                icon: Icons.info_outline,
-                color: GamerColors.neonOrange,
-                body: l10n.versionLegacyInfo,
-              ),
-            ],
+            ..._detailChildren(l10n),
           ],
         ],
       ),
     );
+  }
+
+  List<Widget> _detailChildren(AppLocalizations l10n) {
+    return [
+      // Edition selector
+      SizedBox(
+        width: double.infinity,
+        child: SegmentedButton<MinecraftEdition>(
+          segments: [
+            ButtonSegment(
+              value: MinecraftEdition.java,
+              label: Text(l10n.editionJava),
+            ),
+            ButtonSegment(
+              value: MinecraftEdition.bedrock,
+              label: Text(l10n.editionBedrock),
+            ),
+          ],
+          selected: {selectedEdition},
+          onSelectionChanged: (selected) {
+            widget.onEditionChanged(selected.first);
+          },
+        ),
+      ),
+      const SizedBox(height: 12),
+      // Version era selector
+      SizedBox(
+        width: double.infinity,
+        child: SegmentedButton<VersionEra>(
+          segments: [
+            ButtonSegment(
+              value: VersionEra.legacy,
+              label: Text(l10n.versionEraLegacy),
+            ),
+            ButtonSegment(
+              value: VersionEra.modern,
+              label: Text(l10n.versionEraModern),
+            ),
+          ],
+          selected: {selectedVersionEra},
+          onSelectionChanged: (selected) {
+            widget.onVersionEraChanged(selected.first);
+          },
+        ),
+      ),
+      // Seed-accurate version picker (Req 12.1). Only shown when the
+      // registry supplies versions for the selected edition.
+      if (availableVersions.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        _buildVersionPicker(l10n),
+      ],
+      const SizedBox(height: 12),
+      // Accurate/Estimate search mode toggle (Req 12.2).
+      _buildModeToggle(l10n),
+      const SizedBox(height: 12),
+      if (!widget.embedded) ...[
+        _buildInfoBox(
+          icon: Icons.new_releases_outlined,
+          color: GamerColors.neonGreen,
+          title: l10n.latestUpdateTitle,
+          body: l10n.latestUpdateInfo,
+        ),
+        if (searchMode == SearchMode.accurate) ...[
+          const SizedBox(height: 12),
+          _buildInfoBox(
+            icon: Icons.verified_outlined,
+            color: GamerColors.neonGreen,
+            body: l10n.searchModeAccurateInfo,
+          ),
+        ],
+      ],
+      // Experimental accurate-on-web opt-in. Only meaningful on the web
+      // (native already runs the accurate path) and only relevant when
+      // Accurate mode is selected.
+      if (kIsWeb && searchMode == SearchMode.accurate) ...[
+        const SizedBox(height: 12),
+        _buildWebExperimentalToggle(l10n),
+      ],
+      if (selectedEdition == MinecraftEdition.bedrock) ...[
+        const SizedBox(height: 12),
+        _buildInfoBox(
+          icon: Icons.info_outline,
+          color: GamerColors.neonOrange,
+          body: l10n.editionBedrockInfo,
+        ),
+      ],
+      if (selectedVersionEra == VersionEra.legacy) ...[
+        const SizedBox(height: 12),
+        _buildInfoBox(
+          icon: Icons.info_outline,
+          color: GamerColors.neonOrange,
+          body: l10n.versionLegacyInfo,
+        ),
+      ],
+    ];
   }
 
   /// Dropdown version picker populated from [availableVersions] (Req 12.1).
@@ -352,10 +374,9 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
             style: TextStyle(
               fontSize: 11.5,
               height: 1.35,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.8),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -403,10 +424,7 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
                   ),
                   const SizedBox(height: 2),
                 ],
-                Text(
-                  body,
-                  style: bodyStyle,
-                ),
+                Text(body, style: bodyStyle),
               ],
             ),
           ),
@@ -414,5 +432,4 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
       ),
     );
   }
-
 }

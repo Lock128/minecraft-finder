@@ -2822,7 +2822,7 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 structure isn\'\'t in this version and is hidden} other{{count} structures aren\'\'t in this version and are hidden}}'**
   String structureUnavailableInVersion(int count);
 
-  /// Section header grouping ore and structure selection
+  /// Title of the card where ores and structures are selected
   ///
   /// In en, this message translates to:
   /// **'What to find'**
@@ -2959,6 +2959,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Variant: {variant}'**
   String structureVariantLabel(String variant);
+
+  /// Title of the collapsible section with edition, version and search area settings
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced options'**
+  String get advancedOptionsTitle;
+
+  /// Group label above the ore chips
+  ///
+  /// In en, this message translates to:
+  /// **'Ores'**
+  String get groupOres;
+
+  /// Group label above the structure chips
+  ///
+  /// In en, this message translates to:
+  /// **'Structures'**
+  String get groupStructures;
 }
 
 class _AppLocalizationsDelegate

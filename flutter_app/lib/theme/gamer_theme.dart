@@ -1,37 +1,38 @@
 import 'package:flutter/material.dart';
 
 /// Centralized gamer-themed color palette and styling constants.
-/// Neon accents on dark surfaces with sharp, angular aesthetics.
+/// Calm, flat Material 3 surfaces with soft accent colors (dark mode uses
+/// pastel accents instead of neon).
 class GamerColors {
   // Primary neon accents
-  static const neonGreen = Color(0xFF00FF88);
-  static const neonCyan = Color(0xFF00E5FF);
-  static const neonPurple = Color(0xFFBB86FC);
-  static const neonPink = Color(0xFFFF0080);
-  static const neonOrange = Color(0xFFFF6D00);
-  static const neonYellow = Color(0xFFFFEA00);
+  static const neonGreen = Color(0xFF5EE0A0);
+  static const neonCyan = Color(0xFF5CCBE6);
+  static const neonPurple = Color(0xFFB39DFA);
+  static const neonPink = Color(0xFFFF7BAE);
+  static const neonOrange = Color(0xFFFFA05A);
+  static const neonYellow = Color(0xFFF2D14B);
 
   // Surface colors (dark mode)
-  static const darkBg = Color(0xFF0D0D0D);
-  static const darkSurface = Color(0xFF1A1A2E);
-  static const darkCard = Color(0xFF16213E);
-  static const darkCardAlt = Color(0xFF0F3460);
+  static const darkBg = Color(0xFF0E1311);
+  static const darkSurface = Color(0xFF151B18);
+  static const darkCard = Color(0xFF1B2320);
+  static const darkCardAlt = Color(0xFF243029);
 
   // Surface colors (light mode)
   // Intentional elevation hierarchy (lightest sits on top):
   //   lightBg (scaffold) < lightCard (cards) < lightSurface (inputs/headers).
-  static const lightBg = Color(0xFFF0F2F5);
+  static const lightBg = Color(0xFFF4F6F3);
   static const lightSurface = Color(0xFFFFFFFF);
-  static const lightCard = Color(0xFFF8F9FC);
+  static const lightCard = Color(0xFFFFFFFF);
 
   // Ore-specific neon colors
-  static const diamondNeon = Color(0xFF00E5FF);
-  static const goldNeon = Color(0xFFFFD600);
-  static const netheriteNeon = Color(0xFFE040FB);
+  static const diamondNeon = Color(0xFF4FD8EB);
+  static const goldNeon = Color(0xFFF5C842);
+  static const netheriteNeon = Color(0xFFD58BF5);
   static const ironNeon = Color(0xFFB0BEC5);
-  static const redstoneNeon = Color(0xFFFF1744);
+  static const redstoneNeon = Color(0xFFFF6B6B);
   static const coalNeon = Color(0xFF90A4AE);
-  static const lapisNeon = Color(0xFF448AFF);
+  static const lapisNeon = Color(0xFF6C9BFF);
 
   // Light-mode-safe accent colors (darker variants for readable text on white).
   // Every value below is tuned to meet WCAG AA (>=4.5:1 for normal text)
@@ -101,138 +102,213 @@ class GamerColors {
   static Color mutedIcon(BuildContext context, {double alpha = 0.70}) =>
       Theme.of(context).colorScheme.onSurface.withValues(alpha: alpha);
 
-  // Glow shadow helper
-  static List<BoxShadow> neonGlow(Color color,
-      {double blur = 12, double spread = 0}) {
-    return [
-      BoxShadow(
-        color: color.withValues(alpha: 0.4),
-        blurRadius: blur,
-        spreadRadius: spread,
-      ),
-    ];
-  }
+  // Glow helpers are kept for source compatibility but return no shadows: the
+  // UI is flat, and depth comes from surface tone and a hairline outline.
+  static List<BoxShadow> neonGlow(
+    Color color, {
+    double blur = 12,
+    double spread = 0,
+  }) => const [];
 
-  static List<BoxShadow> subtleGlow(Color color) {
-    return [
-      BoxShadow(
-        color: color.withValues(alpha: 0.2),
-        blurRadius: 8,
-        spreadRadius: 0,
-      ),
-    ];
-  }
+  static List<BoxShadow> subtleGlow(Color color) => const [];
 }
 
 class GamerTheme {
-  static ThemeData buildLight() {
-    return ThemeData(
-      useMaterial3: true,
+  static ThemeData buildLight() => _build(
+    ColorScheme.fromSeed(
+      seedColor: GamerColors.lightGreen,
       brightness: Brightness.light,
-      fontFamily: null,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: GamerColors.neonGreen,
-        brightness: Brightness.light,
-      ).copyWith(
-        primary: GamerColors.lightGreen,
-        secondary: GamerColors.lightCyan,
-        surface: GamerColors.lightSurface,
-        onSurface: const Color(0xFF1A1A2E),
-      ),
-      scaffoldBackgroundColor: GamerColors.lightBg,
-      cardTheme: CardThemeData(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        color: GamerColors.lightCard,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: GamerColors.lightGreen, width: 2),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        centerTitle: false,
-      ),
-    );
-  }
+    ).copyWith(
+      primary: GamerColors.lightGreen,
+      onPrimary: Colors.white,
+      primaryContainer: const Color(0xFFD7F0E0),
+      onPrimaryContainer: const Color(0xFF00391A),
+      secondary: GamerColors.lightCyan,
+      secondaryContainer: const Color(0xFFDDEBEC),
+      onSecondaryContainer: const Color(0xFF002F35),
+      surface: GamerColors.lightBg,
+      onSurface: const Color(0xFF171C19),
+      onSurfaceVariant: const Color(0xFF45504A),
+      surfaceContainerLowest: Colors.white,
+      surfaceContainerLow: const Color(0xFFFFFFFF),
+      surfaceContainer: const Color(0xFFEEF2EE),
+      surfaceContainerHigh: const Color(0xFFE7ECE7),
+      surfaceContainerHighest: const Color(0xFFE0E6E0),
+      outline: const Color(0xFF727D76),
+      outlineVariant: const Color(0xFFDCE3DC),
+    ),
+    scaffold: GamerColors.lightBg,
+  );
 
-  static ThemeData buildDark() {
+  static ThemeData buildDark() => _build(
+    ColorScheme.fromSeed(
+      seedColor: GamerColors.neonGreen,
+      brightness: Brightness.dark,
+    ).copyWith(
+      primary: GamerColors.neonGreen,
+      onPrimary: const Color(0xFF00391F),
+      primaryContainer: const Color(0xFF1F4A35),
+      onPrimaryContainer: const Color(0xFFC4F5DA),
+      secondaryContainer: const Color(0xFF1E414A),
+      onSecondaryContainer: const Color(0xFFCDEFF7),
+      surface: GamerColors.darkBg,
+      onSurface: const Color(0xFFE6EBE8),
+      onSurfaceVariant: const Color(0xFFB0BBB5),
+      surfaceContainerLowest: const Color(0xFF0A0E0C),
+      surfaceContainerLow: GamerColors.darkCard,
+      surfaceContainer: GamerColors.darkSurface,
+      surfaceContainerHigh: GamerColors.darkCardAlt,
+      surfaceContainerHighest: const Color(0xFF2C3A33),
+      outline: const Color(0xFF7D8A83),
+      outlineVariant: const Color(0xFF2A3630),
+      secondary: GamerColors.neonCyan,
+    ),
+    scaffold: GamerColors.darkBg,
+  );
+
+  static ThemeData _build(ColorScheme scheme, {required Color scaffold}) {
+    final isDark = scheme.brightness == Brightness.dark;
+    final radius = BorderRadius.circular(12);
+    OutlineInputBorder border(Color color, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: radius,
+          borderSide: BorderSide(color: color, width: width),
+        );
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
-      fontFamily: null,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: GamerColors.neonGreen,
-        brightness: Brightness.dark,
-      ).copyWith(
-        primary: GamerColors.neonGreen,
-        secondary: GamerColors.neonCyan,
-        surface: GamerColors.darkSurface,
-        onSurface: Colors.white,
+      brightness: scheme.brightness,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scaffold,
+      visualDensity: VisualDensity.standard,
+      dividerTheme: DividerThemeData(
+        color: scheme.outlineVariant,
+        space: 1,
+        thickness: 1,
       ),
-      scaffoldBackgroundColor: GamerColors.darkBg,
       cardTheme: CardThemeData(
         elevation: 0,
+        margin: EdgeInsets.zero,
+        color: scheme.surfaceContainerLow,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: scheme.outlineVariant),
         ),
-        color: GamerColors.darkCard,
+      ),
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        backgroundColor: scaffold,
+        foregroundColor: scheme.onSurface,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: scheme.onSurface,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 64,
+        elevation: 0,
+        backgroundColor: scheme.surfaceContainerLow,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: scheme.primaryContainer,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return TextStyle(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
+          );
+        }),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: scheme.surfaceContainerLow,
+        indicatorColor: scheme.primaryContainer,
+        selectedIconTheme: IconThemeData(color: scheme.onPrimaryContainer),
+        unselectedIconTheme: IconThemeData(color: scheme.onSurfaceVariant),
+        labelType: NavigationRailLabelType.all,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: scheme.surfaceContainerLow,
+        selectedColor: scheme.primaryContainer,
+        checkmarkColor: scheme.onPrimaryContainer,
+        side: BorderSide(color: scheme.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        labelStyle: TextStyle(
+          color: scheme.onSurface,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+        secondaryLabelStyle: TextStyle(
+          color: scheme.onPrimaryContainer,
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          side: WidgetStatePropertyAll(
+            BorderSide(color: scheme.outlineVariant),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.primaryContainer
+                : Colors.transparent,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.onPrimaryContainer
+                : scheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          elevation: 0,
+          minimumSize: const Size(0, 52),
+          shape: RoundedRectangleBorder(borderRadius: radius),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: radius),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: GamerColors.darkSurface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        fillColor: isDark
+            ? scheme.surfaceContainerHigh.withValues(alpha: 0.5)
+            : scheme.surfaceContainerLowest,
+        border: border(scheme.outlineVariant),
+        enabledBorder: border(scheme.outlineVariant),
+        focusedBorder: border(scheme.primary, 2),
+        errorBorder: border(scheme.error),
+        focusedErrorBorder: border(scheme.error, 2),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: GamerColors.neonGreen, width: 2),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        centerTitle: false,
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 }
 
-/// Reusable gamer-styled card wrapper with neon border glow.
+/// Flat surface used for every section on the screen: tonal fill with a
+/// hairline outline, no glow and no shadow.
 class GamerCard extends StatelessWidget {
   final Widget child;
   final bool isDarkMode;
+
+  /// Kept for source compatibility. Sections no longer draw accent borders.
   final Color accentColor;
   final EdgeInsetsGeometry padding;
 
@@ -246,42 +322,36 @@ class GamerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
+    final scheme = Theme.of(context).colorScheme;
+    // Material (not a decorated Container) so ListTile children can paint
+    // their ink and splashes on the card surface.
+    return Material(
+      color: isDarkMode ? GamerColors.darkCard : GamerColors.lightCard,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        color: isDarkMode ? GamerColors.darkCard : GamerColors.lightCard,
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDarkMode ? 0.5 : 0.3),
-          width: 1.5,
-        ),
-        boxShadow: isDarkMode
-            ? GamerColors.subtleGlow(accentColor)
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        side: BorderSide(color: scheme.outlineVariant),
       ),
-      child: Padding(
-        padding: padding,
-        child: child,
-      ),
+      child: Padding(padding: padding, child: child),
     );
   }
 }
 
-/// Section header with neon accent bar.
+/// Plain section title. Shows an optional Material [icon] or legacy [emoji]
+/// before the text.
 class GamerSectionHeader extends StatelessWidget {
-  final String emoji;
+  final String? emoji;
+  final IconData? icon;
   final String title;
   final bool isDarkMode;
+
+  /// Kept for source compatibility. The header no longer draws an accent bar.
   final Color accentColor;
 
   const GamerSectionHeader({
     super.key,
-    required this.emoji,
+    this.emoji,
+    this.icon,
     required this.title,
     required this.isDarkMode,
     this.accentColor = GamerColors.neonGreen,
@@ -289,28 +359,22 @@ class GamerSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Container(
-          width: 4,
-          height: 28,
-          decoration: BoxDecoration(
-            color: accentColor,
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: isDarkMode ? GamerColors.subtleGlow(accentColor) : null,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(emoji, style: const TextStyle(fontSize: 18)),
-        const SizedBox(width: 8),
+        if (icon != null) ...[
+          Icon(icon, size: 20, color: scheme.primary),
+          const SizedBox(width: 10),
+        ] else if (emoji != null) ...[
+          Text(emoji!, style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: 10),
+        ],
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
-              fontSize: 18,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              color: isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-              letterSpacing: 0.5,
+              color: scheme.onSurface,
             ),
           ),
         ),

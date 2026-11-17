@@ -93,36 +93,22 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
         ),
         const SizedBox(height: 8),
         Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: _recentSeeds.map((seed) {
-            return GestureDetector(
-              onTap: () => _selectSeed(seed),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? GamerColors.neonGreen.withValues(alpha: 0.1)
-                      : GamerColors.neonGreen.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: GamerColors.neonGreen.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Text(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final seed in _recentSeeds)
+              ActionChip(
+                label: Text(
                   seed,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color:
-                        isDark ? GamerColors.neonGreen : GamerColors.lightGreen,
-                    fontWeight: FontWeight.w600,
+                  style: const TextStyle(
+                    fontSize: 12,
                     fontFamily: 'monospace',
                   ),
                 ),
+                visualDensity: VisualDensity.compact,
+                onPressed: () => _selectSeed(seed),
               ),
-            );
-          }).toList(),
+          ],
         ),
       ],
     );

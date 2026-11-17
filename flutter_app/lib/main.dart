@@ -43,7 +43,7 @@ class GemOreStructFinderApp extends StatelessWidget {
             title:
                 'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
             debugShowCheckedModeBanner: false,
-            themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: settings.themeMode,
             theme: GamerTheme.buildLight(),
             darkTheme: GamerTheme.buildDark(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -1726,4 +1726,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String structureVariantLabel(String variant) {
     return 'Variante: $variant';
   }
+
+  @override
+  String get advancedOptionsTitle => 'Opciones avanzadas';
+
+  @override
+  String get groupOres => 'Minerales';
+
+  @override
+  String get groupStructures => 'Estructuras';
 }

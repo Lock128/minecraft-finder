@@ -536,5 +536,9 @@
   "webExperimentalToggle": "Probar el modo preciso experimental en la web",
   "webExperimentalInfo": "En la web, el modo preciso normalmente recurre a estimaciones. Activa esto para ejecutar el motor real basado en la semilla en tu navegador. Los resultados son experimentales y no verificados, y las búsquedas grandes pueden ser lentas.",
   "veinSizeLabel": "~{count} bloques en esta veta",
-  "structureVariantLabel": "Variante: {variant}"
+  "structureVariantLabel": "Variante: {variant}",
+  "advancedOptionsTitle": "Opciones avanzadas",
+  "whatToFindTitle": "Qué buscar",
+  "groupOres": "Minerales",
+  "groupStructures": "Estructuras"
 }

@@ -98,11 +98,9 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: isDark
-            ? GamerColors.neonCyan.withValues(alpha: 0.08)
-            : GamerColors.neonCyan.withValues(alpha: 0.04),
+        color: Theme.of(context).colorScheme.surfaceContainer,
         border: Border.all(
-          color: GamerColors.neonCyan.withValues(alpha: 0.2),
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Row(
@@ -117,8 +115,7 @@ class _SearchHistoryWidgetState extends State<SearchHistoryWidget> {
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'monospace',
-                    color:
-                        isDark ? GamerColors.neonCyan : GamerColors.lightCyan,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 if (subtitle.isNotEmpty)
