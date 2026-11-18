@@ -22,7 +22,7 @@
 - ✅ Created APP_STORE_RESPONSE.md with specific answers to Apple's questions
 - ✅ Documented that the app has NO third-party analytics
 - ✅ Documented that the app has NO advertising
-- ✅ Documented that NO data is shared with third parties
+- ✅ Documented that data is not sold and only technical diagnostics go to the processor Dash0
 - ✅ Explained minimal local storage (only user preferences)
 
 ## Files Modified
@@ -57,7 +57,7 @@
 
 ## Key Changes Summary
 - **No more Minecraft references** anywhere in the app
-- **Clear privacy stance**: No data collection, no third-party services
+- **Clear privacy stance**: No accounts, no advertising, no sale of data; technical diagnostics go to Dash0 (see PRIVACY_POLICY.md)
 - **Generic terminology**: Uses "block-based games" and "world generation"
 - **Maintained functionality**: All features work exactly the same
 

@@ -88,4 +88,4 @@ erz finder, diamanten finder, gold finder, eisen finder, redstone finder, kohle 
 Vielen Dank für dein Feedback! Wir arbeiten kontinuierlich daran, die App zu verbessern. Falls du Probleme hast oder Vorschläge machst, kontaktiere uns bitte unter [Support-E-Mail]. Wir schätzen deine Unterstützung der Gaming-Community!
 
 ## Datenschutzrichtlinien-Zusammenfassung
-Diese App sammelt, speichert oder überträgt keine persönlichen Daten. Alle Berechnungen werden lokal auf deinem Gerät durchgeführt. Keine Kontoregistrierung erforderlich.
+Diese App hat keine Konten und keine Werbung, und wir verkaufen keine Daten. Eingaben wie Seeds und Koordinaten bleiben auf deinem Gerät. Offizielle Builds senden technische Diagnosedaten (Fehlerberichte, Seitenaufrufe, Leistungsdaten, Gerätemodell, Betriebssystemversion, App-Version und eine zufällige Sitzungs-ID) an unseren Auftragsverarbeiter Dash0 in der EU, zur Diagnose und Zuverlässigkeit. IP-Adressen werden anonymisiert und nur der ungefähre Standort auf Stadtebene wird gespeichert. Die Daten werden 30 Tage aufbewahrt (Metriken 13 Monate). Vollständige Richtlinie: PRIVACY_POLICY.md. Keine Kontoregistrierung erforderlich.
