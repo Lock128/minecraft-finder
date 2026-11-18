@@ -93,22 +93,33 @@ echo
 
 echo "== 2. Optional build variables =="
 echo
-echo "The app reads only these dart-defines (see flutter_app/lib/main.dart and"
-echo "utils/dash0_config.dart on feat/dash0-otel):"
-echo "  OTEL_EXPORTER_OTLP_ENDPOINT  required, set by the step below from <ENV>_FLUTTER_OTLP_ENDPOINT"
-echo "  OTEL_EXPORTER_OTLP_HEADERS   required, set by the step below from <ENV>_FLUTTER_OTLP_HEADERS"
-echo "  DASH0_ENVIRONMENT            optional, default empty (see above)"
+echo "Required dart-defines (written by the step in section 3):"
+echo "  OTEL_EXPORTER_OTLP_ENDPOINT  from <ENV>_FLUTTER_OTLP_ENDPOINT"
+echo "  OTEL_EXPORTER_OTLP_HEADERS   from <ENV>_FLUTTER_OTLP_HEADERS"
 echo "Telemetry is off unless both the endpoint and a bearer token are compiled in."
+echo
+echo "Optional dart-defines. flutter-dash0-sdk reads them through String.fromEnvironment"
+echo "(lib/src/vcs.dart), so --dart-define-from-file is enough. Empty values are ignored."
+echo "Codemagic source in brackets; the step in section 3 fills them in when non-empty:"
+echo "  DASH0_ENVIRONMENT               [DASH0_ENVIRONMENT, see above]"
+echo "  DASH0_DEPLOYMENT_NAME           [minecraft-finder-\$DASH0_ENVIRONMENT]"
+echo "  DASH0_DEPLOYMENT_ID             [\$BUILD_NUMBER]"
+echo "  DASH0_VCS_REF_HEAD_REVISION     [\$FCI_COMMIT]"
+echo "  DASH0_VCS_REF_HEAD_NAME         [\$FCI_BRANCH]"
+echo "  DASH0_VCS_REPOSITORY_URL_FULL   [\$FCI_REPOSITORY_URL, else https://github.com/Lock128/minecraft-finder]"
+echo "  DASH0_VCS_PROVIDER_NAME         [derived from the repository URL, set only to override]"
+echo "  DASH0_VCS_OWNER_NAME            [derived from the repository URL, set only to override]"
+echo "  DASH0_VCS_REPOSITORY_NAME       [derived from the repository URL, set only to override]"
+echo "  DASH0_VCS_CHANGE_ID             [pull request number, if your workflow has one]"
+echo "Credentials in the repository URL are stripped by the SDK."
 echo
 echo "Set automatically, nothing to configure:"
 echo "  service.version              <version>+<build number> from package_info_plus"
 echo
-echo "Not read by this app (setting them has no effect): DASH0_DEPLOYMENT_NAME,"
-echo "DASH0_DEPLOYMENT_ID, DASH0_VCS_REF_HEAD_REVISION, DASH0_VCS_REF_HEAD_NAME,"
-echo "DASH0_VCS_REPOSITORY_URL_FULL, DASH0_METRIC_EXPORT_INTERVAL_SECONDS."
-echo "Session replay, profiling, HTTP overrides and trace header propagation are"
-echo "deliberately off (the app handles user input such as world seeds) and have"
-echo "no variable."
+echo "Session replay, profiling, HTTP overrides, trace header propagation and the"
+echo "metric export interval have no dart-define. They are set in main.dart on the"
+echo "feat/dash0-otel branch, not by variable. Session replay, profiling and"
+echo "propagation are deliberately off (the app handles user input such as world seeds)."
 echo
 
 echo "== 3. Codemagic script step (put it before the build steps) =="
@@ -134,9 +145,24 @@ cat <<'STEP'
         *Dash0-Dataset=*) ;;
         *) echo "ERROR: OTLP headers lack Dash0-Dataset="; exit 1 ;;
       esac
-      jq -n --arg e "$endpoint" --arg h "$headers" --arg env "${DASH0_ENVIRONMENT:-}" \
+      repo_url="${FCI_REPOSITORY_URL:-https://github.com/Lock128/minecraft-finder}"
+      dep_name=""
+      [ -n "${DASH0_ENVIRONMENT:-}" ] && dep_name="minecraft-finder-${DASH0_ENVIRONMENT}"
+      jq -n --arg e "$endpoint" --arg h "$headers" \
+        --arg env "${DASH0_ENVIRONMENT:-}" \
+        --arg dname "$dep_name" \
+        --arg did "${BUILD_NUMBER:-}" \
+        --arg rev "${FCI_COMMIT:-}" \
+        --arg branch "${FCI_BRANCH:-}" \
+        --arg url "$repo_url" \
         '{OTEL_EXPORTER_OTLP_ENDPOINT: $e, OTEL_EXPORTER_OTLP_HEADERS: $h}
-         + (if $env != "" then {DASH0_ENVIRONMENT: $env} else {} end)' > otlp_config.json
+         + ({DASH0_ENVIRONMENT: $env,
+             DASH0_DEPLOYMENT_NAME: $dname,
+             DASH0_DEPLOYMENT_ID: $did,
+             DASH0_VCS_REF_HEAD_REVISION: $rev,
+             DASH0_VCS_REF_HEAD_NAME: $branch,
+             DASH0_VCS_REPOSITORY_URL_FULL: $url}
+            | with_entries(select(.value != "")))' > otlp_config.json
       echo "Dash0 config written (values not printed)"
     fi
 STEP
