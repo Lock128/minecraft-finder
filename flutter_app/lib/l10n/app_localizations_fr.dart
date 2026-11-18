@@ -1741,4 +1741,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get groupStructures => 'Structures';
+
+  @override
+  String get favoritesAdd => 'Ajouter aux favoris';
+
+  @override
+  String get favoritesRemove => 'Retirer des favoris';
+
+  @override
+  String get favoritesRemoved => 'Retiré des favoris';
+
+  @override
+  String get undoAction => 'Annuler';
 }

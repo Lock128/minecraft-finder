@@ -538,5 +538,9 @@
   "advancedOptionsTitle": "詳細オプション",
   "whatToFindTitle": "探すもの",
   "groupOres": "鉱石",
-  "groupStructures": "構造物"
+  "groupStructures": "構造物",
+  "favoritesAdd": "お気に入りに追加",
+  "favoritesRemove": "お気に入りから削除",
+  "favoritesRemoved": "お気に入りから削除しました",
+  "undoAction": "元に戻す"
 }

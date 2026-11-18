@@ -538,5 +538,9 @@
   "advancedOptionsTitle": "Options avancées",
   "whatToFindTitle": "Que chercher",
   "groupOres": "Minerais",
-  "groupStructures": "Structures"
+  "groupStructures": "Structures",
+  "favoritesAdd": "Ajouter aux favoris",
+  "favoritesRemove": "Retirer des favoris",
+  "favoritesRemoved": "Retiré des favoris",
+  "undoAction": "Annuler"
 }

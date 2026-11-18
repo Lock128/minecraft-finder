@@ -540,5 +540,9 @@
   "advancedOptionsTitle": "Opciones avanzadas",
   "whatToFindTitle": "Qué buscar",
   "groupOres": "Minerales",
-  "groupStructures": "Estructuras"
+  "groupStructures": "Estructuras",
+  "favoritesAdd": "Añadir a favoritos",
+  "favoritesRemove": "Quitar de favoritos",
+  "favoritesRemoved": "Quitado de favoritos",
+  "undoAction": "Deshacer"
 }

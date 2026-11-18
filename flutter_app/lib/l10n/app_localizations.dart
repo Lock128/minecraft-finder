@@ -2978,6 +2978,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Structures'**
   String get groupStructures;
+
+  /// Tooltip for the bookmark button when a result is not a favorite
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get favoritesAdd;
+
+  /// Tooltip for the button that removes a favorite
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get favoritesRemove;
+
+  /// Snackbar shown after a favorite was removed
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get favoritesRemoved;
+
+  /// Snackbar action that undoes the last removal
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undoAction;
 }
 
 class _AppLocalizationsDelegate

@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/search_state.dart';
-import '../theme/gamer_theme.dart';
 import '../utils/preferences_service.dart';
 
 class RecentSeedsWidget extends StatefulWidget {
@@ -21,12 +20,21 @@ class RecentSeedsWidget extends StatefulWidget {
 
 class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
   List<String> _recentSeeds = [];
+  bool _expanded = false;
   ValueNotifier<int>? _refreshNotifier;
 
   @override
   void initState() {
     super.initState();
     _loadRecentSeeds();
+    PreferencesService.getRecentSeedsExpanded().then((v) {
+      if (mounted && v != _expanded) setState(() => _expanded = v);
+    });
+  }
+
+  void _toggle() {
+    setState(() => _expanded = !_expanded);
+    PreferencesService.setRecentSeedsExpanded(_expanded);
   }
 
   @override
@@ -69,46 +77,68 @@ class _RecentSeedsWidgetState extends State<RecentSeedsWidget> {
   Widget build(BuildContext context) {
     if (_recentSeeds.isEmpty) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
-    final isDark = widget.isDarkMode;
-
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Icon(Icons.history,
-                size: 14,
-                color: isDark ? Colors.white54 : GamerColors.mutedIcon(context)),
-            const SizedBox(width: 4),
-            Text(l10n.recentSeeds,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? Colors.white54
-                      : GamerColors.mutedText(context),
-                )),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: [
-            for (final seed in _recentSeeds)
-              ActionChip(
-                label: Text(
-                  seed,
-                  style: const TextStyle(
+        const SizedBox(height: 4),
+        // One compact, tappable row. The seeds only take space when expanded.
+        InkWell(
+          onTap: _toggle,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                Icon(Icons.history, size: 16, color: muted),
+                const SizedBox(width: 6),
+                Text(
+                  '${l10n.recentSeeds} (${_recentSeeds.length})',
+                  style: TextStyle(
                     fontSize: 12,
-                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w600,
+                    color: muted,
                   ),
                 ),
-                visualDensity: VisualDensity.compact,
-                onPressed: () => _selectSeed(seed),
-              ),
-          ],
+                const Spacer(),
+                AnimatedRotation(
+                  turns: _expanded ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(Icons.expand_more, size: 18, color: muted),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: _expanded
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 2, bottom: 4),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final seed in _recentSeeds)
+                        ActionChip(
+                          label: Text(
+                            seed,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          onPressed: () => _selectSeed(seed),
+                        ),
+                    ],
+                  ),
+                )
+              : const SizedBox(width: double.infinity),
         ),
       ],
     );

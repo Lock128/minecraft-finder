@@ -1722,4 +1722,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get groupStructures => 'Strukturen';
+
+  @override
+  String get favoritesAdd => 'Zu Favoriten hinzufügen';
+
+  @override
+  String get favoritesRemove => 'Aus Favoriten entfernen';
+
+  @override
+  String get favoritesRemoved => 'Aus Favoriten entfernt';
+
+  @override
+  String get undoAction => 'Rückgängig';
 }

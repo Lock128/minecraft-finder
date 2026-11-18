@@ -100,6 +100,15 @@ class FavoritesProvider extends ChangeNotifier {
     await _saveFavorites();
   }
 
+  /// Put a removed favorite back at [index] (used by "Undo"). Does nothing if
+  /// it is already present.
+  Future<void> restoreFavorite(FavoriteLocation favorite, int index) async {
+    if (_favorites.any((f) => f.id == favorite.id)) return;
+    _favorites.insert(index.clamp(0, _favorites.length), favorite);
+    notifyListeners();
+    await _saveFavorites();
+  }
+
   /// Remove a favorite by ID.
   Future<void> removeFavorite(String id) async {
     _favorites.removeWhere((f) => f.id == id);

@@ -236,7 +236,9 @@ class GamerTheme {
         selectedColor: scheme.primaryContainer,
         checkmarkColor: scheme.onPrimaryContainer,
         side: BorderSide(color: scheme.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
         labelStyle: TextStyle(
           color: scheme.onSurface,
           fontSize: 13,
@@ -291,8 +293,8 @@ class GamerTheme {
         errorBorder: border(scheme.error),
         focusedErrorBorder: border(scheme.error, 2),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+          horizontal: 14,
+          vertical: 12,
         ),
       ),
       snackBarTheme: const SnackBarThemeData(
@@ -317,7 +319,7 @@ class GamerCard extends StatelessWidget {
     required this.child,
     required this.isDarkMode,
     this.accentColor = GamerColors.neonGreen,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(12),
   });
 
   @override

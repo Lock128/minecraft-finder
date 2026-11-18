@@ -1708,4 +1708,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupStructures => 'Structures';
+
+  @override
+  String get favoritesAdd => 'Add to favorites';
+
+  @override
+  String get favoritesRemove => 'Remove from favorites';
+
+  @override
+  String get favoritesRemoved => 'Removed from favorites';
+
+  @override
+  String get undoAction => 'Undo';
 }

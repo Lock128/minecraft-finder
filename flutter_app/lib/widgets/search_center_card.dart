@@ -4,8 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/gamer_theme.dart';
 
 /// Coordinates and radius of the search area, plus the whole-world Netherite
-/// scope. With [embedded] set, only the fields are built so the content can sit
-/// inside another section (the Advanced options).
+/// scope.
 class SearchCenterCard extends StatelessWidget {
   final TextEditingController xController;
   final TextEditingController yController;
@@ -23,9 +22,6 @@ class SearchCenterCard extends StatelessWidget {
   /// Toggles the whole-world scope. The parent applies Pro gating.
   final ValueChanged<bool>? onWholeWorldChanged;
 
-  /// Build only the fields, without the surrounding card and title.
-  final bool embedded;
-
   const SearchCenterCard({
     super.key,
     required this.xController,
@@ -36,7 +32,6 @@ class SearchCenterCard extends StatelessWidget {
     this.netheriteSelected = false,
     this.wholeWorldNetherite = false,
     this.onWholeWorldChanged,
-    this.embedded = false,
   });
 
   bool get wholeWorld => netheriteSelected && wholeWorldNetherite;
@@ -47,14 +42,12 @@ class SearchCenterCard extends StatelessWidget {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!embedded) ...[
-          GamerSectionHeader(
-            icon: Icons.my_location_outlined,
-            title: l10n.searchCenterTitle,
-            isDarkMode: isDarkMode,
-          ),
-          const SizedBox(height: 16),
-        ],
+        GamerSectionHeader(
+          icon: Icons.my_location_outlined,
+          title: l10n.searchCenterTitle,
+          isDarkMode: isDarkMode,
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -86,7 +79,7 @@ class SearchCenterCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         TextFormField(
           controller: radiusController,
           enabled: !wholeWorld,
@@ -117,7 +110,6 @@ class SearchCenterCard extends StatelessWidget {
         ],
       ],
     );
-    if (embedded) return content;
     return GamerCard(isDarkMode: isDarkMode, child: content);
   }
 

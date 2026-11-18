@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/game_random.dart';
 import '../models/ore_location.dart';
+import '../models/worldgen/engine_selector.dart';
 import '../providers/search_state.dart';
 import '../theme/gamer_theme.dart';
 import 'edition_version_card.dart';
@@ -13,9 +14,9 @@ import 'search_history_widget.dart';
 import 'what_to_find_card.dart';
 import 'world_settings_card.dart';
 
-/// The search form: seed, what to find, and a collapsed "Advanced options"
-/// section (edition, version, search area). The Find button stays pinned at the
-/// bottom.
+/// The search form: seed, what to find, search center, and a collapsed
+/// "Advanced options" section (edition, version, search mode). The Find button
+/// stays pinned at the bottom.
 ///
 /// All form state lives in [SearchState]. Each section reads only the values it
 /// shows, so typing in one field or toggling a chip does not rebuild the rest.
@@ -44,15 +45,6 @@ class _SearchTabState extends State<SearchTab> {
 
   bool get _isDark => widget.isDarkMode;
 
-  void _find(bool wholeWorld) {
-    // Fields inside the collapsed Advanced section are still part of the form.
-    // If one of them is invalid, open the section so the error is visible.
-    final state = context.read<SearchState>();
-    final valid = state.formKey.currentState?.validate() ?? true;
-    if (!valid && !_advancedOpen) setState(() => _advancedOpen = true);
-    widget.onFindOres(wholeWorld);
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = context.read<SearchState>();
@@ -76,7 +68,7 @@ class _SearchTabState extends State<SearchTab> {
             behavior: HitTestBehavior.translucent,
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
@@ -96,17 +88,19 @@ class _SearchTabState extends State<SearchTab> {
                             onDismiss: state.hideQuickStart,
                             isDarkMode: _isDark,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                         ],
                         WorldSettingsCard(
                           seedController: state.seedController,
                           isDarkMode: _isDark,
                         ),
                         SearchHistoryWidget(isDarkMode: _isDark),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         WhatToFindCard(isDarkMode: _isDark),
-                        const SizedBox(height: 12),
-                        _buildAdvanced(context, state),
+                        const SizedBox(height: 10),
+                        _buildSearchCenter(),
+                        const SizedBox(height: 10),
+                        _buildAdvanced(context),
                         const SizedBox(height: 8),
                       ],
                     ),
@@ -119,19 +113,37 @@ class _SearchTabState extends State<SearchTab> {
         SearchActionBar(
           isLoading: isLoading,
           wholeWorldActive: wholeWorldActive,
-          onFindOres: _find,
+          onFindOres: widget.onFindOres,
         ),
       ],
     );
   }
 
-  Widget _buildAdvanced(BuildContext context, SearchState state) {
+  /// Search center: coordinates, radius and the whole-world Netherite scope.
+  /// Always visible because nearly every search depends on it.
+  Widget _buildSearchCenter() {
+    final state = context.read<SearchState>();
+    final netheriteSelected = context.select<SearchState, bool>(
+      (s) => s.includeOres && s.selectedOreTypes.contains(OreType.netherite),
+    );
+    final wholeWorld = context.select<SearchState, bool>(
+      (s) => s.wholeWorldNetherite,
+    );
+    return SearchCenterCard(
+      xController: state.xController,
+      yController: state.yController,
+      zController: state.zController,
+      radiusController: state.radiusController,
+      isDarkMode: _isDark,
+      netheriteSelected: netheriteSelected,
+      wholeWorldNetherite: wholeWorld,
+      onWholeWorldChanged: widget.onWholeWorldChanged,
+    );
+  }
+
+  Widget _buildAdvanced(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final labelStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
-      color: scheme.onSurfaceVariant,
-      fontWeight: FontWeight.w700,
-    );
 
     return GamerCard(
       isDarkMode: _isDark,
@@ -143,7 +155,7 @@ class _SearchTabState extends State<SearchTab> {
             borderRadius: BorderRadius.circular(16),
             onTap: () => setState(() => _advancedOpen = !_advancedOpen),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Icon(Icons.tune, size: 20, color: scheme.primary),
@@ -176,22 +188,14 @@ class _SearchTabState extends State<SearchTab> {
               ),
             ),
           ),
-          // Offstage keeps the fields (and their validators) alive while the
-          // section is collapsed, so form validation still covers them.
           AnimatedSize(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
             alignment: Alignment.topCenter,
-            child: Offstage(
-              offstage: !_advancedOpen,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(l10n.editionVersionTitle, style: labelStyle),
-                    const SizedBox(height: 8),
-                    Consumer<SearchState>(
+            child: _advancedOpen
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: Consumer<SearchState>(
                       builder: (context, s, _) => EditionVersionCard(
                         embedded: true,
                         isDarkMode: _isDark,
@@ -208,28 +212,8 @@ class _SearchTabState extends State<SearchTab> {
                         onWebExperimentalChanged: s.setWebExperimentalAccurate,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(l10n.searchCenterTitle, style: labelStyle),
-                    const SizedBox(height: 8),
-                    Consumer<SearchState>(
-                      builder: (context, s, _) => SearchCenterCard(
-                        embedded: true,
-                        xController: s.xController,
-                        yController: s.yController,
-                        zController: s.zController,
-                        radiusController: s.radiusController,
-                        isDarkMode: _isDark,
-                        netheriteSelected:
-                            s.includeOres &&
-                            s.selectedOreTypes.contains(OreType.netherite),
-                        wholeWorldNetherite: s.wholeWorldNetherite,
-                        onWholeWorldChanged: widget.onWholeWorldChanged,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox(width: double.infinity),
           ),
         ],
       ),
@@ -238,53 +222,37 @@ class _SearchTabState extends State<SearchTab> {
 }
 
 /// One-line summary of the collapsed Advanced options, for example
-/// `Java Edition · 1.18+ · 0, -59, 0 · r50`.
+/// `Java Edition · 1.18+ (Modern) · Accurate`.
 class _AdvancedSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = context.read<SearchState>();
     final meta = context.select<SearchState, _SummaryMeta>(
       (s) => (
         edition: s.selectedEdition,
         era: s.selectedVersionEra,
         version: s.selectedVersion?.release,
-        wholeWorld:
-            s.wholeWorldNetherite &&
-            s.includeOres &&
-            s.selectedOreTypes.contains(OreType.netherite),
+        mode: s.searchMode,
       ),
     );
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-    );
-    return ListenableBuilder(
-      listenable: Listenable.merge([
-        state.xController,
-        state.yController,
-        state.zController,
-        state.radiusController,
-      ]),
-      builder: (context, _) {
-        final edition = meta.edition == MinecraftEdition.java
-            ? l10n.editionJava
-            : l10n.editionBedrock;
-        final era =
-            meta.version ??
-            (meta.era == VersionEra.legacy
-                ? l10n.versionEraLegacy
-                : l10n.versionEraModern);
-        final area = meta.wholeWorld
-            ? l10n.wholeWorldNetheriteTitle
-            : '${state.xController.text}, ${state.yController.text}, '
-                  '${state.zController.text} · r${state.radiusController.text}';
-        return Text(
-          '$edition · $era · $area',
-          style: style,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        );
-      },
+    final edition = meta.edition == MinecraftEdition.java
+        ? l10n.editionJava
+        : l10n.editionBedrock;
+    final era =
+        meta.version ??
+        (meta.era == VersionEra.legacy
+            ? l10n.versionEraLegacy
+            : l10n.versionEraModern);
+    final mode = meta.mode == SearchMode.accurate
+        ? l10n.searchModeAccurate
+        : l10n.searchModeEstimate;
+    return Text(
+      '$edition · $era · $mode',
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -293,5 +261,5 @@ typedef _SummaryMeta = ({
   MinecraftEdition edition,
   VersionEra era,
   String? version,
-  bool wholeWorld,
+  SearchMode mode,
 });

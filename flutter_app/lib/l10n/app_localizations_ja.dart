@@ -1556,4 +1556,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get groupStructures => '構造物';
+
+  @override
+  String get favoritesAdd => 'お気に入りに追加';
+
+  @override
+  String get favoritesRemove => 'お気に入りから削除';
+
+  @override
+  String get favoritesRemoved => 'お気に入りから削除しました';
+
+  @override
+  String get undoAction => '元に戻す';
 }

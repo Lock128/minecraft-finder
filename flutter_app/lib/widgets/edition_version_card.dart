@@ -249,49 +249,59 @@ class _EditionVersionCardState extends State<EditionVersionCard> {
   }
 
   /// Dropdown version picker populated from [availableVersions] (Req 12.1).
+  /// Newest first, comparing the numeric parts of the release (1.21 > 1.9).
+  static List<MinecraftVersion> _newestFirst(List<MinecraftVersion> versions) {
+    List<int> parts(MinecraftVersion v) =>
+        v.release.split('.').map((p) => int.tryParse(p) ?? 0).toList();
+    int compare(MinecraftVersion a, MinecraftVersion b) {
+      final pa = parts(a), pb = parts(b);
+      for (var i = 0; i < pa.length || i < pb.length; i++) {
+        final x = i < pa.length ? pa[i] : 0;
+        final y = i < pb.length ? pb[i] : 0;
+        if (x != y) return y.compareTo(x);
+      }
+      return 0;
+    }
+
+    return [...versions]..sort(compare);
+  }
+
+  /// Version picker populated from [availableVersions] (Req 12.1). With a
+  /// single version there is nothing to choose, so it is shown as plain text.
   Widget _buildVersionPicker(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.minecraftVersionLabel,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: GamerColors.orangeText(isDarkMode),
+    final scheme = Theme.of(context).colorScheme;
+    if (availableVersions.length == 1) {
+      return Row(
+        children: [
+          Text(
+            '${l10n.minecraftVersionLabel}: ',
+            style: TextStyle(color: scheme.onSurfaceVariant),
           ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: (isDarkMode ? Colors.white54 : Colors.grey).withValues(
-                alpha: 0.5,
-              ),
-            ),
+          Text(
+            availableVersions.single.release,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
-          child: DropdownButton<MinecraftVersion>(
-            // Only use the current value when it is in the list, else null.
-            value: availableVersions.contains(selectedVersion)
-                ? selectedVersion
-                : null,
-            isExpanded: true,
-            underline: const SizedBox.shrink(),
-            hint: Text(l10n.minecraftVersionLabel),
-            items: [
-              for (final version in availableVersions)
-                DropdownMenuItem<MinecraftVersion>(
-                  value: version,
-                  child: Text(version.release),
-                ),
-            ],
-            onChanged: widget.onVersionChanged,
+        ],
+      );
+    }
+    final versions = _newestFirst(availableVersions);
+    return DropdownButtonFormField<MinecraftVersion>(
+      // initialValue is read once; the key rebuilds the field when the
+      // selection changes from outside (e.g. replaying a search).
+      key: ValueKey(selectedVersion?.id),
+      // Only use the current value when it is in the list, else null.
+      initialValue: versions.contains(selectedVersion) ? selectedVersion : null,
+      isExpanded: true,
+      isDense: true,
+      decoration: InputDecoration(labelText: l10n.minecraftVersionLabel),
+      items: [
+        for (final version in versions)
+          DropdownMenuItem<MinecraftVersion>(
+            value: version,
+            child: Text(version.release),
           ),
-        ),
       ],
+      onChanged: widget.onVersionChanged,
     );
   }
 

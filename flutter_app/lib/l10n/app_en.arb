@@ -1487,6 +1487,13 @@
   "groupOres": "Ores",
   "@groupOres": { "description": "Group label above the ore chips" },
   "groupStructures": "Structures",
-  "@groupStructures": { "description": "Group label above the structure chips" }
+  "@groupStructures": { "description": "Group label above the structure chips" },
+  "favoritesAdd": "Add to favorites",
+  "@favoritesAdd": { "description": "Tooltip for the bookmark button when a result is not a favorite" },
+  "favoritesRemove": "Remove from favorites",
+  "@favoritesRemove": { "description": "Tooltip for the button that removes a favorite" },
+  "favoritesRemoved": "Removed from favorites",
+  "@favoritesRemoved": { "description": "Snackbar shown after a favorite was removed" },
+  "undoAction": "Undo",
+  "@undoAction": { "description": "Snackbar action that undoes the last removal" }
 }
-

@@ -1115,6 +1115,9 @@ class _ResultsTabState extends State<ResultsTab> {
           favProvider!.addOreFavorite(location, seed);
         }
       },
+      tooltip: isFav
+          ? AppLocalizations.of(context).favoritesRemove
+          : AppLocalizations.of(context).favoritesAdd,
       visualDensity: VisualDensity.compact,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -1239,6 +1242,9 @@ class _ResultsTabState extends State<ResultsTab> {
           favProvider!.addStructureFavorite(structure, seed);
         }
       },
+      tooltip: isFav
+          ? AppLocalizations.of(context).favoritesRemove
+          : AppLocalizations.of(context).favoritesAdd,
       visualDensity: VisualDensity.compact,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),

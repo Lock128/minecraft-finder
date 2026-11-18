@@ -28,8 +28,9 @@ Pod::Spec.new do |s|
   s.public_header_files = 'mc_finder_ffi.h', 'cubiomes_core.h'
   s.requires_arc     = false
 
-  s.ios.deployment_target  = '12.0'
-  s.osx.deployment_target  = '10.14'
+  # Xcode 27 rejects lower targets (iOS 15 / macOS 12 minimum).
+  s.ios.deployment_target  = '15.0'
+  s.osx.deployment_target  = '12.0'
 
   # Keep the shim symbols visible so DynamicLibrary.process() can find them.
   s.pod_target_xcconfig = {

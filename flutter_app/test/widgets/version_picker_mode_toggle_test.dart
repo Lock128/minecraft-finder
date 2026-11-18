@@ -96,6 +96,29 @@ void main() {
       expect(picked, target);
     });
 
+    testWidgets('a single version is shown as text, not a dropdown',
+        (tester) async {
+      await tester.pumpWidget(buildTestWidget(
+          availableVersions: const [MinecraftVersion('bedrock-1.21')]));
+      await tester.pumpAndSettle();
+      await expandCard(tester);
+      expect(find.byType(DropdownButton<MinecraftVersion>), findsNothing);
+      expect(find.text('1.21'), findsOneWidget);
+    });
+    testWidgets('versions are listed newest first', (tester) async {
+      await tester.pumpWidget(buildTestWidget(availableVersions: const [
+        MinecraftVersion('java-1.18'),
+        MinecraftVersion('java-1.9'),
+        MinecraftVersion('java-1.21'),
+        MinecraftVersion('java-1.16'),
+      ]));
+      await tester.pumpAndSettle();
+      await expandCard(tester);
+      final dropdown = tester.widget<DropdownButton<MinecraftVersion>>(
+          find.byType(DropdownButton<MinecraftVersion>));
+      expect(dropdown.items!.map((i) => i.value!.release).toList(),
+          ['1.21', '1.18', '1.16', '1.9']);
+    });
     testWidgets('picker is hidden when there are no versions', (tester) async {
       await tester.pumpWidget(buildTestWidget(availableVersions: const []));
       await tester.pumpAndSettle();

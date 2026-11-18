@@ -14,8 +14,10 @@ class PreferencesService {
   static const String _themeModeKey = 'theme_mode';
   static const String _editionKey = 'minecraft_edition';
   static const String _versionEraKey = 'version_era';
-  static const String _monetizationOverrideKey = 'monetization_override_enabled';
+  static const String _monetizationOverrideKey =
+      'monetization_override_enabled';
   static const String _quickStartHiddenKey = 'quick_start_hidden';
+  static const String _recentSeedsExpandedKey = 'recent_seeds_expanded';
   static const String _webExperimentalAccurateKey =
       'web_experimental_accurate_enabled';
 
@@ -199,6 +201,18 @@ class PreferencesService {
   // Quick Start card visibility. Defaults to visible (false == not hidden) so
   // first-time users always see the onboarding affordance; once they dismiss
   // it, the choice is remembered across launches.
+  /// Whether the recent-seeds list under the seed field is expanded.
+  /// Collapsed by default so it does not push the form down.
+  static Future<bool> getRecentSeedsExpanded() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_recentSeedsExpandedKey) ?? false;
+  }
+
+  static Future<void> setRecentSeedsExpanded(bool expanded) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_recentSeedsExpandedKey, expanded);
+  }
+
   static Future<bool> getQuickStartHidden() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_quickStartHiddenKey) ?? false;

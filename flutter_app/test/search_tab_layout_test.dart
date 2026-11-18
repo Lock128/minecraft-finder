@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/localization_delegates.dart';
+import 'package:gem_ore_struct_finder_mc/models/game_random.dart';
 import 'package:gem_ore_struct_finder_mc/models/ore_location.dart';
 import 'package:gem_ore_struct_finder_mc/providers/favorites_provider.dart';
 import 'package:gem_ore_struct_finder_mc/providers/monetization_config.dart';
@@ -70,7 +71,7 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   group('Search tab layout', () {
-    testWidgets('shows seed and what-to-find, hides advanced fields', (
+    testWidgets('shows seed, what-to-find and search center; hides advanced', (
       tester,
     ) async {
       _usePhone(tester);
@@ -79,12 +80,15 @@ void main() {
 
       expect(find.text(_l10n.worldSeedLabel), findsOneWidget);
       expect(find.text(_l10n.whatToFindTitle), findsOneWidget);
+      // Search center is part of the main form, not the Advanced options.
+      expect(find.text(_l10n.searchCenterTitle), findsOneWidget);
+      expect(find.text(_l10n.searchRadiusLabel), findsOneWidget);
       expect(find.text(_l10n.advancedOptionsTitle), findsOneWidget);
-      expect(find.text(_l10n.searchRadiusLabel), findsNothing);
+      expect(find.byType(SegmentedButton<MinecraftEdition>), findsNothing);
 
       await _tap(tester, find.text(_l10n.advancedOptionsTitle));
       await tester.pumpAndSettle();
-      expect(find.text(_l10n.searchRadiusLabel), findsOneWidget);
+      expect(find.byType(SegmentedButton<MinecraftEdition>), findsOneWidget);
     });
 
     testWidgets('ore chips drive includeOres without a separate toggle', (
@@ -113,9 +117,7 @@ void main() {
       expect(state.selectedOreTypes, {OreType.iron});
     });
 
-    testWidgets('invalid collapsed field opens Advanced options on Find', (
-      tester,
-    ) async {
+    testWidgets('invalid radius shows an error on Find', (tester) async {
       _usePhone(tester);
       await tester.pumpWidget(_app());
       await tester.pumpAndSettle();

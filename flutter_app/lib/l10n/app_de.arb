@@ -538,5 +538,9 @@
   "advancedOptionsTitle": "Erweiterte Optionen",
   "whatToFindTitle": "Was suchen?",
   "groupOres": "Erze",
-  "groupStructures": "Strukturen"
+  "groupStructures": "Strukturen",
+  "favoritesAdd": "Zu Favoriten hinzufügen",
+  "favoritesRemove": "Aus Favoriten entfernen",
+  "favoritesRemoved": "Aus Favoriten entfernt",
+  "undoAction": "Rückgängig"
 }

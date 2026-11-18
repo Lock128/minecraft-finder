@@ -172,16 +172,22 @@ class _WhatToFindCardState extends State<WhatToFindCard> {
             title: l10n.whatToFindTitle,
             isDarkMode: _isDark,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           Text(l10n.groupOres, style: labelStyle),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             children: [
               for (final ore in availableOres)
                 FilterChip(
-                  avatar: _Dot(color: _oreColor(ore)),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  showCheckmark: false,
+                  avatar: _Dot(
+                    color: _oreColor(ore),
+                    checked: selectedOres.contains(ore),
+                  ),
                   label: Text(_oreLabel(l10n, ore)),
                   selected: selectedOres.contains(ore),
                   onSelected: (v) => _toggleOre(state, ore, v, selectedOres),
@@ -206,7 +212,7 @@ class _WhatToFindCardState extends State<WhatToFindCard> {
               onChanged: (v) => state.setIncludeNether(v ?? false),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           InkWell(
             borderRadius: BorderRadius.circular(8),
             onTap: () => setState(() => _structuresOpen = !_structuresOpen),
@@ -280,8 +286,8 @@ class _WhatToFindCardState extends State<WhatToFindCard> {
                           ],
                         ),
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                          spacing: 6,
+                          runSpacing: 6,
                           children: [
                             for (final s in structureInfo)
                               Builder(
@@ -291,10 +297,17 @@ class _WhatToFindCardState extends State<WhatToFindCard> {
                                   return Tooltip(
                                     message: rarity,
                                     child: FilterChip(
+                                      visualDensity: VisualDensity.compact,
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      showCheckmark: false,
                                       avatar: _Dot(
                                         color: StructureUtils.getRarityColor(
                                           rarity,
                                           isDark: _isDark,
+                                        ),
+                                        checked: selectedStructures.contains(
+                                          type,
                                         ),
                                       ),
                                       label: Text(s['name'] as String),
@@ -358,16 +371,23 @@ typedef _Slice = ({
   VersionEra era,
 });
 
+/// Chip avatar: a dot in the item's color, or a check in that color when the
+/// chip is selected. Replaces Material's checkmark, which is drawn on top of
+/// the avatar and hides it.
 class _Dot extends StatelessWidget {
   final Color color;
-  const _Dot({required this.color});
+  final bool checked;
+  const _Dot({required this.color, this.checked = false});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    if (checked) return Icon(Icons.check, size: 16, color: color);
+    return Center(
+      child: Container(
+        width: 12,
+        height: 12,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
     );
   }
 }

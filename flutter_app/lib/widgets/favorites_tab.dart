@@ -122,9 +122,7 @@ class FavoritesTab extends StatelessWidget {
         color: Colors.red.withValues(alpha: 0.2),
         child: const Icon(Icons.delete, color: Colors.red),
       ),
-      onDismissed: (_) {
-        context.read<FavoritesProvider>().removeFavorite(fav.id);
-      },
+      onDismissed: (_) => _remove(context, fav, l10n),
       child: Container(
         margin: const EdgeInsets.only(top: 6),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -184,6 +182,15 @@ class FavoritesTab extends StatelessWidget {
               tooltip: l10n.copyCoordinates,
               visualDensity: VisualDensity.compact,
             ),
+            // Visible remove button: swiping is not discoverable, and does not
+            // work well with a mouse.
+            IconButton(
+              icon: Icon(Icons.delete_outline,
+                  size: 18, color: GamerColors.mutedIcon(context)),
+              onPressed: () => _remove(context, fav, l10n),
+              tooltip: l10n.favoritesRemove,
+              visualDensity: VisualDensity.compact,
+            ),
           ],
         ),
       ),
@@ -215,6 +222,26 @@ class FavoritesTab extends StatelessWidget {
       case OreType.emerald:
         return isDarkMode ? GamerColors.neonGreen : GamerColors.lightGreen;
     }
+  }
+
+  /// Removes [fav] and offers "Undo" in a snackbar.
+  void _remove(
+      BuildContext context, FavoriteLocation fav, AppLocalizations l10n) {
+    final provider = context.read<FavoritesProvider>();
+    final index = provider.favorites.indexWhere((f) => f.id == fav.id);
+    provider.removeFavorite(fav.id);
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.favoritesRemoved),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: l10n.undoAction,
+          onPressed: () => provider.restoreFavorite(fav, index),
+        ),
+      ),
+    );
   }
 
   void _copyCoordinates(
