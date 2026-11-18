@@ -16,23 +16,117 @@ Deliberately **not** enabled: session replay, profiling, `HttpOverrides` and tra
 ## Actions required (in order)
 
 ### 1. Dash0 account and dataset
-1. In Dash0, create a dataset for the app, for example `minecraft-finder` (optionally one per environment such as `minecraft-finder-beta`).
-2. Note the OTLP/HTTP ingress URL of your Dash0 region, for example `https://ingress.eu-west-1.aws.dash0.com`. A trailing `/v1/traces` is accepted and stripped.
+Two datasets exist in the Dash0 region `eu-west-1`:
+
+| Dataset slug | Used for |
+| --- | --- |
+| `minecraft-finder` | Production |
+| `nonprod-minecraft-finder` | Every non-production environment (dev, staging, sandbox, beta) |
+
+The OTLP/HTTP ingress URL is `https://ingress.eu-west-1.aws.dash0.com`. A trailing `/v1/traces` is accepted and stripped. The Dash0 API URL is `https://api.eu-west-1.aws.dash0.com`.
+
+To create them yourself (for another region or account), use the [dash0 CLI](#set-up-dash0-with-the-dash0-cli) below, or the Dash0 UI.
 
 ### 2. Auth token
-1. In Dash0 go to Settings, Auth Tokens, and create a token with **ingest only** permission, limited to the dataset from step 1.
-2. Treat it as public-ish: it ends up in the compiled web bundle and in app binaries. Use a dedicated ingest-only token, never an admin or API token, and rotate it if abused.
+One ingest-only token per dataset already exists: `minecraft-finder-flutter-ingest` (dataset `minecraft-finder`) and `nonprod-minecraft-finder-flutter-ingest` (dataset `nonprod-minecraft-finder`). Each has the action `ingest:*` and is restricted to its dataset.
+
+Treat the tokens as public: they end up in the compiled web bundle and in app binaries. Use only dedicated ingest-only, dataset-restricted tokens, never an admin or API token, and rotate a token if it is abused. The production bundle must never contain the nonprod token and vice versa.
 
 ### 3. GitHub configuration (web deployment)
-`.github/workflows/deploy-web-hosting.yml` passes these to `flutter build web --release`:
+`.github/workflows/deploy-web-hosting.yml` passes these to `flutter build web --release`. The `prod` environment uses only the `PROD_*` secrets (no fallback to `NONPROD_*`). Every other environment (`dev`, `staging`) uses only the `NONPROD_*` secrets.
 
 | Name | Kind | Value |
 | --- | --- | --- |
-| `FLUTTER_OTLP_ENDPOINT` | Repository secret | Ingress URL from step 1 |
-| `FLUTTER_OTLP_HEADERS` | Repository secret | `Authorization=Bearer <token>,Dash0-Dataset=<dataset>` |
-| `DASH0_ENVIRONMENT` | Repository variable (optional) | Defaults to `production` |
+| `NONPROD_FLUTTER_OTLP_ENDPOINT` | Repository secret | `https://ingress.eu-west-1.aws.dash0.com` |
+| `NONPROD_FLUTTER_OTLP_HEADERS` | Repository secret | `Authorization=Bearer <nonprod token>,Dash0-Dataset=nonprod-minecraft-finder` |
+| `PROD_FLUTTER_OTLP_ENDPOINT` | Repository secret | `https://ingress.eu-west-1.aws.dash0.com` |
+| `PROD_FLUTTER_OTLP_HEADERS` | Repository secret | `Authorization=Bearer <prod token>,Dash0-Dataset=minecraft-finder` |
+| `DASH0_ENVIRONMENT` | Repository variable (optional) | Overrides `deployment.environment.name`. Defaults to `production` for `prod` and to the environment name (`dev`, `staging`) otherwise |
 
-Secret names match nexus-share, so the same naming can be reused. Without the secrets the web build is produced with telemetry disabled.
+The maintainer sets these secrets with a script (the token values are not stored in this repository). Without the secrets the web build is produced with telemetry disabled.
+
+## Set up Dash0 with the dash0 CLI
+The datasets and tokens above can be created with the [dash0 CLI](https://github.com/dash0hq/dash0-cli) (syntax verified with v1.22.1). `--dry-run` previews a creation.
+
+### Install
+```bash
+brew install --cask dash0hq/dash0-cli/dash0
+```
+Or download a release binary from the [releases page](https://github.com/dash0hq/dash0-cli/releases) and put it on your `PATH`.
+
+### Authenticate
+Use an admin token that may create datasets and auth tokens (keep it out of git):
+```bash
+export DASH0_API_URL=https://api.eu-west-1.aws.dash0.com
+export DASH0_AUTH_TOKEN=<admin token>
+```
+Alternatively run `dash0 login` and follow the prompts. Check access with `dash0 -X datasets list`.
+
+### Create the dataset
+Save as `ds.yaml` (repeat with slug `nonprod-minecraft-finder` for nonprod):
+```yaml
+apiVersion: dash0.com/v1alpha1
+kind: Dash0Dataset
+metadata:
+  name: minecraft-finder
+  labels:
+    dash0.com/id: minecraft-finder
+spec:
+  slug: minecraft-finder
+  preferred: false
+  permissions:
+    - actions: [dataset:read]
+      role: basic_member
+  privacy:
+    geoLocation:
+      endUser:
+        storage: up_to_city
+    ipAddresses:
+      endUser:
+        storage: anonymize
+  retention:
+    logs: 30d
+    metrics: 13M
+    profiles: 30d
+    traces: 30d
+    webEvents: 30d
+```
+```bash
+dash0 -X datasets create -f ds.yaml --dry-run
+dash0 -X datasets create -f ds.yaml
+dash0 -X datasets list
+```
+
+### Create the ingest-only token
+Save as `tok.yaml` (repeat with `nonprod-minecraft-finder` names for nonprod):
+```yaml
+apiVersion: dash0.com/v1alpha1
+kind: Dash0AuthToken
+metadata:
+  name: minecraft-finder-flutter-ingest
+spec:
+  actions: [ingest:*]
+  ingestion:
+    defaultDataset: minecraft-finder
+  scope:
+    datasets:
+      restriction: restricted
+      slugs: [minecraft-finder]
+    signals:
+      restriction: unrestricted
+      types: []
+```
+```bash
+dash0 -X auth-tokens create -f tok.yaml --secret-file ./token.secret
+dash0 -X auth-tokens list
+```
+`--secret-file` must point to a new file. Write it outside the repository or in a gitignored path, and delete it once the GitHub secrets are set. Never commit it.
+
+### Build the header value
+```bash
+printf 'Authorization=Bearer %s,Dash0-Dataset=%s' "$(cat ./token.secret)" minecraft-finder
+```
+The result is the value for `PROD_FLUTTER_OTLP_HEADERS` (use `nonprod-minecraft-finder` and the nonprod token for `NONPROD_FLUTTER_OTLP_HEADERS`). Set the secrets with `gh secret set <NAME> --repo Lock128/minecraft-finder`.
 
 ### 4. Android and iOS release builds
 **No iOS or Android build is defined in this repository.** There is no `codemagic.yaml`, fastlane setup or GitHub workflow that builds an app bundle or iOS app, so mobile builds run in the Codemagic UI (or by hand). The telemetry configuration must be added to that build. Without it the app starts with telemetry disabled.
@@ -55,15 +149,15 @@ flutter build appbundle --release --dart-define-from-file=otlp_config.json
 flutter build ios --release --dart-define-from-file=otlp_config.json
 ```
 
-Do not commit `otlp_config.json`.
+Do not commit `otlp_config.json`. Set `FLUTTER_OTLP_ENDPOINT` and `FLUTTER_OTLP_HEADERS` from the `PROD_*` values for store release builds and from the `NONPROD_*` values for test builds (beta, sandbox). Never put the nonprod token into a production build or the other way round.
 
 #### Codemagic secrets
 Add these as secure environment variables in the Codemagic workflow:
 
 | Variable | Purpose |
 | --- | --- |
-| `FLUTTER_OTLP_ENDPOINT` | Dash0 ingress URL |
-| `FLUTTER_OTLP_HEADERS` | Headers for the build |
+| `FLUTTER_OTLP_ENDPOINT` | Dash0 ingress URL (same for both) |
+| `FLUTTER_OTLP_HEADERS` | Headers of the matching environment: prod token with dataset `minecraft-finder`, or nonprod token with dataset `nonprod-minecraft-finder` |
 | `DASH0_ENVIRONMENT` | Value of `deployment.environment.name` (for example `production`) |
 
 The headers value must contain both `Authorization=Bearer <token>` and `Dash0-Dataset=<dataset>`, for example `Authorization=Bearer auth_xxx,Dash0-Dataset=minecraft-finder`.
@@ -86,7 +180,7 @@ The CSP in `infrastructure/src/constructs/cloudfront-distribution.ts` uses `conn
 
 ## Verify
 1. Build or run with the dart-defines above and open a few screens.
-2. In Dash0, filter by service `minecraft-finder` (and the dataset). Within about a minute you should see navigation spans and `app.client.type` set to `web-*`, `ios` or `android`.
+2. In Dash0, filter by service `minecraft-finder` (and the matching dataset). Within about a minute you should see navigation spans and `app.client.type` set to `web-*`, `ios` or `android`.
 3. Trigger a test error in a debug build and look for it in Logs/Errors.
 4. In debug builds, the SDK `debug` flag prints export status in the console.
 

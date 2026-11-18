@@ -82,11 +82,25 @@ jobs:
         working-directory: flutter_app
         env:
           # Optional. Telemetry is disabled when the endpoint or token is empty.
-          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.FLUTTER_OTLP_ENDPOINT }}
-          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.FLUTTER_OTLP_HEADERS }}
-          DASH0_ENVIRONMENT: ${{ vars.DASH0_ENVIRONMENT || 'production' }}
+          # Production uses only the PROD_* secrets (no fallback to NONPROD_*), every other
+          # environment (dev, staging) uses only the NONPROD_* secrets.
+          TARGET_ENVIRONMENT: ${{ inputs.environment || 'dev' }}
+          PROD_OTLP_ENDPOINT: ${{ secrets.PROD_FLUTTER_OTLP_ENDPOINT }}
+          PROD_OTLP_HEADERS: ${{ secrets.PROD_FLUTTER_OTLP_HEADERS }}
+          NONPROD_OTLP_ENDPOINT: ${{ secrets.NONPROD_FLUTTER_OTLP_ENDPOINT }}
+          NONPROD_OTLP_HEADERS: ${{ secrets.NONPROD_FLUTTER_OTLP_HEADERS }}
+          DASH0_ENVIRONMENT_OVERRIDE: ${{ vars.DASH0_ENVIRONMENT }}
         run: |
           echo "🏗️ Building Flutter web application..."
+          if [ "$TARGET_ENVIRONMENT" = "prod" ]; then
+            OTEL_EXPORTER_OTLP_ENDPOINT="$PROD_OTLP_ENDPOINT"
+            OTEL_EXPORTER_OTLP_HEADERS="$PROD_OTLP_HEADERS"
+            DASH0_ENVIRONMENT="${DASH0_ENVIRONMENT_OVERRIDE:-production}"
+          else
+            OTEL_EXPORTER_OTLP_ENDPOINT="$NONPROD_OTLP_ENDPOINT"
+            OTEL_EXPORTER_OTLP_HEADERS="$NONPROD_OTLP_HEADERS"
+            DASH0_ENVIRONMENT="${DASH0_ENVIRONMENT_OVERRIDE:-$TARGET_ENVIRONMENT}"
+          fi
           flutter build web --release \
             --dart-define=OTEL_EXPORTER_OTLP_ENDPOINT="$OTEL_EXPORTER_OTLP_ENDPOINT" \
             --dart-define=OTEL_EXPORTER_OTLP_HEADERS="$OTEL_EXPORTER_OTLP_HEADERS" \
