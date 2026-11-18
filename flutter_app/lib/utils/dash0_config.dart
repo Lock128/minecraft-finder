@@ -81,6 +81,16 @@ String? currentDash0Environment() => resolveDash0Environment(
   isDebug: kDebugMode,
 );
 
+/// Builds the `service.version` value `<version>+<buildNumber>`. Returns just
+/// the version when the build number is empty and null when the version is
+/// empty.
+String? resolveDash0ServiceVersion(String? version, String? buildNumber) {
+  final v = version?.trim() ?? '';
+  if (v.isEmpty) return null;
+  final b = buildNumber?.trim() ?? '';
+  return b.isEmpty ? v : '$v+$b';
+}
+
 /// Service name reported to Dash0 (shown as the site name). Returns
 /// [baseName] for production (null, empty, `production` or `prod`), otherwise
 /// `<baseName>-<environment>`.

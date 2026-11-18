@@ -1,6 +1,6 @@
 # OpenTelemetry (Dash0) setup for Minecraft Finder
 
-The Flutter app in `flutter_app/` reports telemetry with [flutter-dash0-sdk](https://github.com/Lock128/flutter-dash0-sdk) (`v0.9.0`, same version as nexus-share). The app has no backend, so the SDK exports directly from the client to Dash0 over OTLP/HTTP.
+The Flutter app in `flutter_app/` reports telemetry with [flutter-dash0-sdk](https://github.com/Lock128/flutter-dash0-sdk) (`v0.10.0`, same version as nexus-share). The app has no backend, so the SDK exports directly from the client to Dash0 over OTLP/HTTP.
 
 Telemetry is off unless **both** an endpoint and an auth token are compiled in. Local runs, tests and CI builds without the secrets send nothing.
 
@@ -35,20 +35,44 @@ Deliberately **not** enabled: session replay, profiling, `HttpOverrides` and tra
 Secret names match nexus-share, so the same naming can be reused. Without the secrets the web build is produced with telemetry disabled.
 
 ### 4. Android and iOS release builds
-Release builds are not in CI, so pass the same values by hand (never commit them):
+**No iOS or Android build is defined in this repository.** There is no `codemagic.yaml`, fastlane setup or GitHub workflow that builds an app bundle or iOS app, so mobile builds run in the Codemagic UI (or by hand). The telemetry configuration must be added to that build. Without it the app starts with telemetry disabled.
+
+The app reads its OTLP settings from build-time variables. Generate `otlp_config.json` with `jq` and pass it with `--dart-define-from-file`:
 
 ```bash
 cd flutter_app
-flutter build appbundle --release \
-  --dart-define=OTEL_EXPORTER_OTLP_ENDPOINT=https://ingress.<region>.dash0.com \
-  --dart-define=OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer <token>,Dash0-Dataset=minecraft-finder" \
-  --dart-define=DASH0_ENVIRONMENT=production
-# same --dart-define flags for: flutter build ios --release
+jq -n \
+  --arg endpoint "$FLUTTER_OTLP_ENDPOINT" \
+  --arg headers "$FLUTTER_OTLP_HEADERS" \
+  --arg environment "$DASH0_ENVIRONMENT" \
+  '{
+    OTEL_EXPORTER_OTLP_ENDPOINT: $endpoint,
+    OTEL_EXPORTER_OTLP_HEADERS: $headers,
+    DASH0_ENVIRONMENT: $environment
+  }' > otlp_config.json
+
+flutter build appbundle --release --dart-define-from-file=otlp_config.json
+flutter build ios --release --dart-define-from-file=otlp_config.json
 ```
+
+Do not commit `otlp_config.json`.
+
+#### Codemagic secrets
+Add these as secure environment variables in the Codemagic workflow:
+
+| Variable | Purpose |
+| --- | --- |
+| `FLUTTER_OTLP_ENDPOINT` | Dash0 ingress URL |
+| `FLUTTER_OTLP_HEADERS` | Headers for the build |
+| `DASH0_ENVIRONMENT` | Value of `deployment.environment.name` (for example `production`) |
+
+The headers value must contain both `Authorization=Bearer <token>` and `Dash0-Dataset=<dataset>`, for example `Authorization=Bearer auth_xxx,Dash0-Dataset=minecraft-finder`.
+
+Native apps send `service.version` as `<version>+<build number>` (from `package_info_plus`) and a synthetic user agent built by the SDK. Web builds send the browser user agent.
 
 The Android main manifest declares `android.permission.INTERNET`, which release builds need to export telemetry. Test one release build and check that data arrives in Dash0.
 
-For local debugging use the same flags with `flutter run` and `DASH0_ENVIRONMENT=development` (the default in debug builds). Debug builds also enable SDK debug logging.
+For local debugging use `flutter run` with the same `--dart-define-from-file` and `DASH0_ENVIRONMENT=development` (the default in debug builds). Debug builds also enable SDK debug logging.
 
 ### 5. Privacy and store listings
 - `flutter_app/PRIVACY_POLICY.md` was updated to describe the diagnostics. Publish the updated policy at its public URL.

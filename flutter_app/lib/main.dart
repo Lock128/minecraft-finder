@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dash0_flutter_sdk/dash0_flutter_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/localization_delegates.dart';
@@ -54,9 +55,23 @@ Future<void> _initializeOpenTelemetry() async {
     }
 
     final environment = currentDash0Environment();
+    String? serviceVersion;
+    try {
+      final info = await PackageInfo.fromPlatform();
+      serviceVersion = resolveDash0ServiceVersion(
+        info.version,
+        info.buildNumber,
+      );
+    } catch (_) {
+      // The version is optional.
+    }
+
     await Dash0.init(
       Dash0Options(
         serviceName: resolveDash0ServiceName('minecraft-finder', environment),
+        serviceVersion: serviceVersion,
+        // Native apps have no browser user agent, so the SDK builds one.
+        syntheticUserAgent: !kIsWeb,
         endpoint: Dash0Endpoint(
           url: normalizeOtlpEndpoint(otlpEndpoint),
           authToken: authToken,
@@ -68,6 +83,7 @@ Future<void> _initializeOpenTelemetry() async {
         compression: Dash0Compression.gzip,
       ),
     );
+    debugPrint('Dash0: initialized, serviceVersion=$serviceVersion');
   } catch (e) {
     // Telemetry must never prevent the app from starting.
     debugPrint('Failed to initialize Dash0: $e');
