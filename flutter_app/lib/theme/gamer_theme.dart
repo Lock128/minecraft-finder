@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Centralized gamer-themed color palette and styling constants.
 /// Calm, flat Material 3 surfaces with soft accent colors (dark mode uses

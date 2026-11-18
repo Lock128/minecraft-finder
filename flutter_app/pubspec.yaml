@@ -43,6 +43,8 @@ dependencies:
   url_launcher: ^6.3.2
   in_app_purchase: ^3.3.1
 
+  cupertino_ui: any
+  material_ui: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../models/game_random.dart';
 import '../models/ore_location.dart';
 import '../models/search_runner.dart';

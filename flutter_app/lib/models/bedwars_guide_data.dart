@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../theme/gamer_theme.dart';
 
 /// Skill tier levels for Bedwars guide content.

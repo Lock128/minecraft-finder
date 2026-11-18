@@ -4,7 +4,7 @@
 // Validates: Requirements 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4,
 //            7.1, 7.2, 7.3, 7.4
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
 import 'package:gem_ore_struct_finder_mc/models/game_random.dart';

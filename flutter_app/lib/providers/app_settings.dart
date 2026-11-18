@@ -1,5 +1,5 @@
 import 'dart:ui' show PlatformDispatcher;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../utils/preferences_service.dart';
 
 /// Holds app-level settings: theme mode and locale.

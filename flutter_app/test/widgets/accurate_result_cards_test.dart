@@ -2,7 +2,8 @@
 // Widget tests for the accurate result cards + mode notices in ResultsTab.
 // Validates: Requirements 12.3, 12.4, 12.5, 5.4.
 
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
@@ -13,6 +14,7 @@ import 'package:gem_ore_struct_finder_mc/models/worldgen/worldgen_engine.dart';
 import 'package:gem_ore_struct_finder_mc/providers/monetization_config.dart';
 import 'package:gem_ore_struct_finder_mc/providers/pro_status_provider.dart';
 import 'package:gem_ore_struct_finder_mc/widgets/results_tab.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 final AppLocalizations enL10n = lookupAppLocalizations(const Locale('en'));
