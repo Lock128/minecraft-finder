@@ -18,28 +18,15 @@ import 'widgets/ore_finder_screen.dart';
 export 'widgets/ore_finder_screen.dart' show OreFinderScreen;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await _initializeOpenTelemetry();
-
-  // Report uncaught errors to Dash0 (no-op until the SDK is initialized) and
-  // keep the default behavior.
-  final previousOnError = FlutterError.onError;
-  FlutterError.onError = (FlutterErrorDetails details) {
-    Dash0.reportError(details.exception, stackTrace: details.stack);
-    if (previousOnError != null) {
-      previousOnError(details);
-    } else {
-      FlutterError.presentError(details);
-    }
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    Dash0.reportError(error, stackTrace: stack);
-    return false;
-  };
-
-  runZonedGuarded(
-    () => runApp(const GemOreStructFinderApp()),
+  // Binding, SDK init and runApp share one zone to avoid a zone mismatch.
+  // The SDK installs the FlutterError and PlatformDispatcher handlers itself;
+  // the zone callback only covers uncaught async errors.
+  await runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await _initializeOpenTelemetry();
+      runApp(const GemOreStructFinderApp());
+    },
     (error, stack) => Dash0.reportError(error, stackTrace: stack),
   );
 }
@@ -77,11 +64,7 @@ Future<void> _initializeOpenTelemetry() async {
         ),
         debug: kDebugMode,
         environment: environment,
-        enabledInstrumentations: buildDash0Instrumentations(
-          httpOverrides: false,
-          sessionReplay: false,
-          profiling: false,
-        ),
+        enabledInstrumentations: dash0Instrumentations,
         compression: Dash0Compression.gzip,
       ),
     );

@@ -46,13 +46,16 @@ flutter build appbundle --release \
 # same --dart-define flags for: flutter build ios --release
 ```
 
+The Android main manifest declares `android.permission.INTERNET`, which release builds need to export telemetry. Test one release build and check that data arrives in Dash0.
+
 For local debugging use the same flags with `flutter run` and `DASH0_ENVIRONMENT=development` (the default in debug builds). Debug builds also enable SDK debug logging.
 
 ### 5. Privacy and store listings
 - `flutter_app/PRIVACY_POLICY.md` was updated to describe the diagnostics. Publish the updated policy at its public URL.
 - **App Store Connect, App Privacy:** declare Diagnostics data (Crash Data, Performance Data) as collected, not linked to the user, not used for tracking.
 - **Google Play, Data safety:** declare Crash logs and Diagnostics as collected. The service provider (Dash0) processes the data on our behalf.
-- Review any "no data collected" statements in store descriptions and in `flutter_app/APP_STORE_*.md`, which now conflict if diagnostics are enabled.
+- `flutter_app/APP_STORE_RESPONSE.md` and `store_listings/english.md` were updated to mention diagnostics. Re-read them before submitting.
+- Review any other "no data collected" statements in store descriptions and in `flutter_app/APP_STORE_*.md`, which now conflict if diagnostics are enabled.
 
 ### 6. Web hosting (CloudFront)
 The CSP in `infrastructure/src/constructs/cloudfront-distribution.ts` uses `connect-src 'self' https:`, so the browser can already reach the Dash0 ingress. No CDK change is needed. If you tighten that directive later, add the Dash0 ingress origin. Confirm in the browser network tab that OTLP requests from the web build are not blocked by CORS (nexus-share exports from the browser the same way).

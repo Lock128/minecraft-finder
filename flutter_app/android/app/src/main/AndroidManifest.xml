@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cloud.lockhead.minecraft_finder">
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Gem, Ore &amp; Struct Finder for MC"
         android:name="${applicationName}"

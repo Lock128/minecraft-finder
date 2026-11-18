@@ -66,42 +66,6 @@ String normalizeOtlpEndpoint(String endpoint) {
   return url;
 }
 
-/// Parses a boolean build-time flag (`true`, `1`, `yes`, `on` and their
-/// negatives, case insensitive). Returns [defaultValue] when [raw] is empty or
-/// not recognized.
-bool parseBoolFlag(String raw, {required bool defaultValue}) {
-  switch (raw.trim().toLowerCase()) {
-    case 'true':
-    case '1':
-    case 'yes':
-    case 'on':
-      return true;
-    case 'false':
-    case '0':
-    case 'no':
-    case 'off':
-      return false;
-    default:
-      return defaultValue;
-  }
-}
-
-/// Parses a sampling percentage. The result is clamped to 0..100. Returns
-/// [defaultValue] when [raw] is empty or not a number.
-num parseSamplingRate(String raw, {num defaultValue = 0}) {
-  final value = num.tryParse(raw.trim());
-  if (value == null || value.isNaN) return defaultValue;
-  return value.clamp(0, 100);
-}
-
-/// Parses a whole number of seconds into a [Duration]. Returns null when
-/// [raw] is empty, not a number or not positive.
-Duration? parseSeconds(String raw) {
-  final value = int.tryParse(raw.trim());
-  if (value == null || value <= 0) return null;
-  return Duration(seconds: value);
-}
-
 /// Resolves the `deployment.environment.name` value from the
 /// `DASH0_ENVIRONMENT` build-time variable. Returns the trimmed value, or
 /// `development` in debug builds and null in release builds when it is empty.
@@ -129,23 +93,16 @@ String resolveDash0ServiceName(String baseName, String? environment) {
   return '$baseName-$env';
 }
 
-/// Instrumentations always enabled for the app. `enabledInstrumentations` of
-/// the SDK is an allow-list, so every wanted instrumentation must be listed.
-Set<Dash0Instrumentation> buildDash0Instrumentations({
-  required bool httpOverrides,
-  required bool sessionReplay,
-  required bool profiling,
-}) {
-  return {
-    Dash0Instrumentation.navigation,
-    Dash0Instrumentation.error,
-    Dash0Instrumentation.http,
-    Dash0Instrumentation.lifecycle,
-    Dash0Instrumentation.metrics,
-    Dash0Instrumentation.vitals,
-    Dash0Instrumentation.rageClicks,
-    if (httpOverrides) Dash0Instrumentation.httpOverrides,
-    if (sessionReplay) Dash0Instrumentation.sessionReplay,
-    if (profiling) Dash0Instrumentation.profiling,
-  };
-}
+/// Instrumentations enabled for the app. `enabledInstrumentations` of the SDK
+/// is an allow-list, so every wanted instrumentation must be listed. Session
+/// replay, profiling and HTTP overrides are intentionally left out: the app
+/// has no backend and handles user input such as world seeds.
+const Set<Dash0Instrumentation> dash0Instrumentations = {
+  Dash0Instrumentation.navigation,
+  Dash0Instrumentation.error,
+  Dash0Instrumentation.http,
+  Dash0Instrumentation.lifecycle,
+  Dash0Instrumentation.metrics,
+  Dash0Instrumentation.vitals,
+  Dash0Instrumentation.rageClicks,
+};

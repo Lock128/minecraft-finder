@@ -40,37 +40,9 @@ void main() {
   });
 
   group('Dash0 feature config', () {
-    test('parseBoolFlag handles values and defaults', () {
-      expect(parseBoolFlag('true', defaultValue: false), isTrue);
-      expect(parseBoolFlag(' ON ', defaultValue: false), isTrue);
-      expect(parseBoolFlag('0', defaultValue: true), isFalse);
-      expect(parseBoolFlag('', defaultValue: true), isTrue);
-      expect(parseBoolFlag('maybe', defaultValue: false), isFalse);
-    });
-
-    test('parseSamplingRate defaults to 0 and clamps', () {
-      expect(parseSamplingRate(''), 0);
-      expect(parseSamplingRate('abc'), 0);
-      expect(parseSamplingRate('12.5'), 12.5);
-      expect(parseSamplingRate('250'), 100);
-      expect(parseSamplingRate('-3'), 0);
-    });
-
-    test('parseSeconds only accepts positive integers', () {
-      expect(parseSeconds('45'), const Duration(seconds: 45));
-      expect(parseSeconds('0'), isNull);
-      expect(parseSeconds(''), isNull);
-      expect(parseSeconds('x'), isNull);
-    });
-
-    test('buildDash0Instrumentations keeps opt-ins out by default', () {
-      final set = buildDash0Instrumentations(
-        httpOverrides: false,
-        sessionReplay: false,
-        profiling: false,
-      );
+    test('dash0Instrumentations keeps opt-ins out', () {
       expect(
-        set,
+        dash0Instrumentations,
         containsAll([
           Dash0Instrumentation.navigation,
           Dash0Instrumentation.error,
@@ -81,20 +53,18 @@ void main() {
           Dash0Instrumentation.rageClicks,
         ]),
       );
-      expect(set, isNot(contains(Dash0Instrumentation.httpOverrides)));
-      expect(set, isNot(contains(Dash0Instrumentation.sessionReplay)));
-      expect(set, isNot(contains(Dash0Instrumentation.profiling)));
-    });
-
-    test('buildDash0Instrumentations adds opt-ins when requested', () {
-      final set = buildDash0Instrumentations(
-        httpOverrides: true,
-        sessionReplay: true,
-        profiling: true,
+      expect(
+        dash0Instrumentations,
+        isNot(contains(Dash0Instrumentation.httpOverrides)),
       );
-      expect(set, contains(Dash0Instrumentation.httpOverrides));
-      expect(set, contains(Dash0Instrumentation.sessionReplay));
-      expect(set, contains(Dash0Instrumentation.profiling));
+      expect(
+        dash0Instrumentations,
+        isNot(contains(Dash0Instrumentation.sessionReplay)),
+      );
+      expect(
+        dash0Instrumentations,
+        isNot(contains(Dash0Instrumentation.profiling)),
+      );
     });
 
     test('resolveDash0Environment returns the trimmed value when set', () {

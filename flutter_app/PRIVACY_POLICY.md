@@ -1,6 +1,6 @@
 # Privacy Policy for Gem, Ore & Struct Finder for MC
 
-**Last Updated: July 3, 2025**
+**Last Updated: November 18, 2026**
 
 ## Data Collection and Usage
 
@@ -12,7 +12,7 @@ Ore & Structure Finder is designed with privacy in mind. The app:
 - **Does NOT send world seeds, coordinates or search settings anywhere**
 
 ### Diagnostics (Optional, Release Builds Only)
-Official builds can send anonymous technical diagnostics to our observability provider, Dash0, using the OpenTelemetry standard. This covers crash and error reports, screen navigation, app performance (startup and rendering timings), and basic device information (app version, operating system, device type). It contains no account data, no advertising identifiers, no screen recordings, and none of your search inputs. Builds without diagnostics configured send nothing.
+Official builds can send anonymous technical diagnostics to our observability provider, Dash0, using the OpenTelemetry standard. This covers crash and error reports, screen navigation, app performance (startup and rendering timings), and basic device information (app version, operating system, device type, user agent). Reports carry a random session identifier stored on your device, and the receiving server sees the IP address of the request. It contains no account data, no advertising identifiers, no screen recordings, and none of your search inputs. Builds without diagnostics configured send nothing.
 
 ### Local Data Storage
 Gem, Ore & Struct Finder for MC only stores data locally on your device:

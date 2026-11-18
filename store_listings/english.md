@@ -88,4 +88,4 @@ ore finder, diamond finder, gold finder, iron finder, redstone finder, coal find
 Thank you for your feedback! We're constantly working to improve the app. If you encounter any issues or have suggestions, please contact us at [support email]. We appreciate your support of the gaming community!
 
 ## Privacy Policy Summary
-This app does not collect, store, or transmit any personal data. All calculations are performed locally on your device. No account registration required.
+This app does not collect personal data. All calculations are performed locally on your device. Official builds can send anonymous diagnostics (crashes, performance, basic device info, random session ID) to our provider Dash0. No account registration required.
