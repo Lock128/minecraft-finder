@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:dash0_flutter_sdk/dash0_flutter_sdk.dart';
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
@@ -8,12 +12,83 @@ import 'providers/monetization_config.dart';
 import 'providers/pro_status_provider.dart';
 import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
+import 'utils/dash0_config.dart';
 import 'widgets/ore_finder_screen.dart';
 
 export 'widgets/ore_finder_screen.dart' show OreFinderScreen;
 
-void main() {
-  runApp(const GemOreStructFinderApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await _initializeOpenTelemetry();
+
+  // Report uncaught errors to Dash0 (no-op until the SDK is initialized) and
+  // keep the default behavior.
+  final previousOnError = FlutterError.onError;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    Dash0.reportError(details.exception, stackTrace: details.stack);
+    if (previousOnError != null) {
+      previousOnError(details);
+    } else {
+      FlutterError.presentError(details);
+    }
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    Dash0.reportError(error, stackTrace: stack);
+    return false;
+  };
+
+  runZonedGuarded(
+    () => runApp(const GemOreStructFinderApp()),
+    (error, stack) => Dash0.reportError(error, stackTrace: stack),
+  );
+}
+
+/// Initializes the Dash0 SDK from `--dart-define` values. Does nothing when
+/// the endpoint or the auth token is missing, so local and test builds send
+/// no telemetry. Session replay, profiling, HTTP overrides and trace header
+/// propagation are intentionally not enabled: the app has no backend and
+/// handles user input such as world seeds.
+Future<void> _initializeOpenTelemetry() async {
+  try {
+    const otlpEndpoint = String.fromEnvironment(
+      'OTEL_EXPORTER_OTLP_ENDPOINT',
+      defaultValue: '',
+    );
+    const otlpHeaders = String.fromEnvironment(
+      'OTEL_EXPORTER_OTLP_HEADERS',
+      defaultValue: '',
+    );
+    final headers = parseOtlpHeaders(otlpHeaders);
+    final authToken = extractBearerToken(headers);
+    if (otlpEndpoint.isEmpty || authToken == null) {
+      debugPrint('Dash0: no OTLP endpoint or auth token, telemetry disabled');
+      return;
+    }
+
+    final environment = currentDash0Environment();
+    await Dash0.init(
+      Dash0Options(
+        serviceName: resolveDash0ServiceName('minecraft-finder', environment),
+        endpoint: Dash0Endpoint(
+          url: normalizeOtlpEndpoint(otlpEndpoint),
+          authToken: authToken,
+          dataset: extractDash0Dataset(headers),
+        ),
+        debug: kDebugMode,
+        environment: environment,
+        enabledInstrumentations: buildDash0Instrumentations(
+          httpOverrides: false,
+          sessionReplay: false,
+          profiling: false,
+        ),
+        compression: Dash0Compression.gzip,
+      ),
+    );
+  } catch (e) {
+    // Telemetry must never prevent the app from starting.
+    debugPrint('Failed to initialize Dash0: $e');
+  }
 }
 
 class GemOreStructFinderApp extends StatelessWidget {
@@ -44,6 +119,7 @@ class GemOreStructFinderApp extends StatelessWidget {
             title:
                 'Gem, Ore & Struct Finder for MC - Find Diamonds, Gold, Netherite & More',
             debugShowCheckedModeBanner: false,
+            navigatorObservers: [Dash0.navigatorObserver],
             themeMode: settings.themeMode,
             theme: GamerTheme.buildLight(),
             darkTheme: GamerTheme.buildDark(),

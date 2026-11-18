@@ -8,9 +8,11 @@
 Ore & Structure Finder is designed with privacy in mind. The app:
 
 - **Does NOT collect any personal information**
-- **Does NOT use third-party analytics**
 - **Does NOT include advertising**
-- **Does NOT transmit data to external servers**
+- **Does NOT send world seeds, coordinates or search settings anywhere**
+
+### Diagnostics (Optional, Release Builds Only)
+Official builds can send anonymous technical diagnostics to our observability provider, Dash0, using the OpenTelemetry standard. This covers crash and error reports, screen navigation, app performance (startup and rendering timings), and basic device information (app version, operating system, device type). It contains no account data, no advertising identifiers, no screen recordings, and none of your search inputs. Builds without diagnostics configured send nothing.
 
 ### Local Data Storage
 Gem, Ore & Struct Finder for MC only stores data locally on your device:

@@ -80,9 +80,17 @@ jobs:
           
       - name: Build Flutter web
         working-directory: flutter_app
+        env:
+          # Optional. Telemetry is disabled when the endpoint or token is empty.
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.FLUTTER_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.FLUTTER_OTLP_HEADERS }}
+          DASH0_ENVIRONMENT: ${{ vars.DASH0_ENVIRONMENT || 'production' }}
         run: |
           echo "🏗️ Building Flutter web application..."
-          flutter build web --release
+          flutter build web --release \
+            --dart-define=OTEL_EXPORTER_OTLP_ENDPOINT="$OTEL_EXPORTER_OTLP_ENDPOINT" \
+            --dart-define=OTEL_EXPORTER_OTLP_HEADERS="$OTEL_EXPORTER_OTLP_HEADERS" \
+            --dart-define=DASH0_ENVIRONMENT="$DASH0_ENVIRONMENT"
           
       - name: Generate build info
         id: build-info
