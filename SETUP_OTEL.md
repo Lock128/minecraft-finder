@@ -43,9 +43,44 @@ Treat the tokens as public: they end up in the compiled web bundle and in app bi
 | `PROD_FLUTTER_OTLP_HEADERS` | Repository secret | `Authorization=Bearer <prod token>,Dash0-Dataset=minecraft-finder` |
 | `DASH0_ENVIRONMENT` | Repository variable (optional) | Overrides `deployment.environment.name`. Defaults to `production` for `prod` and to the environment name (`dev`, `staging`) otherwise |
 
-The maintainer sets these secrets with a script (the token values are not stored in this repository). Without the secrets the web build is produced with telemetry disabled.
+Run [`scripts/setup-otel.sh`](#automated-setup-with-scriptssetup-otelsh) from your own machine to create these secrets (the token values are never stored in this repository). Without the secrets the web build is produced with telemetry disabled.
 
-## Set up Dash0 with the dash0 CLI
+## Automated setup with `scripts/setup-otel.sh`
+The script does the whole setup below (datasets, ingest-only tokens, GitHub secrets) from your own machine, with your own `gh` login. Use it when setting secrets through an agent or gateway fails with HTTP 403.
+
+### Prerequisites
+- `dash0` CLI 1.22 or newer, `jq`, and `gh`
+- `DASH0_AUTH_TOKEN`: a Dash0 admin token, read from the environment only (the script rejects it as an argument). `DASH0_API_URL` defaults to `https://api.eu-west-1.aws.dash0.com`
+- `gh` logged in with permission to write Actions secrets on `Lock128/minecraft-finder`: a classic token with the `repo` scope, or a fine-grained token for that repository with Repository permission **Secrets: Read and write**
+
+The script checks all of this first, including `gh api repos/Lock128/minecraft-finder/actions/secrets/public-key`.
+
+### Usage
+```bash
+export DASH0_AUTH_TOKEN=<admin token>      # keep out of shell history, for example by using read -s
+scripts/setup-otel.sh --dry-run            # validate and print the plan, sets nothing
+scripts/setup-otel.sh                      # nonprod and prod
+scripts/setup-otel.sh --only nonprod       # or: --only prod
+scripts/setup-otel.sh --rotate             # replace existing tokens
+scripts/setup-otel.sh --help
+```
+
+### What it does
+For each environment (`nonprod-minecraft-finder` and `minecraft-finder`):
+1. Creates or updates the dataset with `dash0 -X datasets create -f` (upsert by slug, same YAML as below).
+2. Creates the ingest-only token `<slug>-flutter-ingest` (`ingest:*`, restricted to that dataset). The secret is written with `--secret-file` into a private temporary directory that is removed on exit. It is never printed or passed on a command line.
+3. Sets `<NONPROD|PROD>_FLUTTER_OTLP_ENDPOINT` and `<NONPROD|PROD>_FLUTTER_OTLP_HEADERS` (`Authorization=Bearer <token>,Dash0-Dataset=<slug>`) on `Lock128/minecraft-finder` through `gh secret set`, reading the value from stdin.
+
+### Rotation
+Dash0 returns a token secret only when the token is created. If `<slug>-flutter-ingest` already exists, the script stops with an error before it changes anything. Run it with `--rotate` to delete the existing token (it stops working at once) and create a new one. Re-run the web deployment afterwards, and update the mobile build variables (Codemagic) with the new values.
+
+### Troubleshooting HTTP 403
+`gh` fails with 403 when its token cannot write Actions secrets, or when `GH_TOKEN`/`GITHUB_TOKEN` in the environment overrides your login. Unset those variables, run `gh auth login` with a classic `repo`-scope token or a fine-grained token with **Secrets: Read and write** on this repository, and check with `gh api repos/Lock128/minecraft-finder/actions/secrets/public-key`. A newly created token needs to be selected during `gh auth login` (or exported as `GH_TOKEN`); org SSO may also require authorizing the token.
+
+### Secrets never touch the repository
+The script contains no token values. Temporary files live in a `mktemp -d` directory with mode 700 and are deleted by an `EXIT` trap.
+
+## Set up Dash0 manually with the dash0 CLI
 The datasets and tokens above can be created with the [dash0 CLI](https://github.com/dash0hq/dash0-cli) (syntax verified with v1.22.1). `--dry-run` previews a creation.
 
 ### Install
@@ -168,12 +203,13 @@ The Android main manifest declares `android.permission.INTERNET`, which release 
 
 For local debugging use `flutter run` with the same `--dart-define-from-file` and `DASH0_ENVIRONMENT=development` (the default in debug builds). Debug builds also enable SDK debug logging.
 
-### 5. Privacy and store listings
-- `flutter_app/PRIVACY_POLICY.md` was updated to describe the diagnostics. Publish the updated policy at its public URL.
-- **App Store Connect, App Privacy:** declare Diagnostics data (Crash Data, Performance Data) as collected, not linked to the user, not used for tracking.
-- **Google Play, Data safety:** declare Crash logs and Diagnostics as collected. The service provider (Dash0) processes the data on our behalf.
-- `flutter_app/APP_STORE_RESPONSE.md` and `store_listings/english.md` were updated to mention diagnostics. Re-read them before submitting.
-- Review any other "no data collected" statements in store descriptions and in `flutter_app/APP_STORE_*.md`, which now conflict if diagnostics are enabled.
+### 5. Privacy and store listings (release gate)
+**Do not ship a build with the `PROD_*` secrets until the policy is public.** Deploy or publish the updated `flutter_app/PRIVACY_POLICY.md` at its public URL before, or together with, the first production build (web, App Store, Google Play) that has the `PROD_*` secrets.
+
+- The policy, `flutter_app/APP_STORE_RESPONSE.md` and `store_listings/{english,german,french}.md` disclose the telemetry: usage and performance data, error reports, page views, device model, OS version and app version (native builds also send a synthetic user agent with app version, OS version and device model identifier), a random session ID and no user ID. Dash0 anonymizes IP addresses and keeps city-level approximate location. Session replay and profiling are off. Processor Dash0, EU (eu-west-1), retention 30 days (metrics 13 months), purpose diagnostics and reliability, no advertising, no sale of data. If the SDK settings or dataset privacy settings change, update all of them together.
+- **App Store Connect, App Privacy (manual, maintainer):** declare Crash Data, Performance Data and Product Interaction (page views) as collected, not linked to the user, not used for tracking.
+- **Google Play, Data safety (manual, maintainer):** declare Crash logs and Diagnostics as collected, and Dash0 as a service provider processing data on our behalf.
+- Neither store declaration can be changed from this repository. Update them before releasing.
 
 ### 6. Web hosting (CloudFront)
 The CSP in `infrastructure/src/constructs/cloudfront-distribution.ts` uses `connect-src 'self' https:`, so the browser can already reach the Dash0 ingress. No CDK change is needed. If you tighten that directive later, add the Dash0 ingress origin. Confirm in the browser network tab that OTLP requests from the web build are not blocked by CORS (nexus-share exports from the browser the same way).
