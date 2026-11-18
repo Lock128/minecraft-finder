@@ -166,36 +166,45 @@ The result is the value for `PROD_FLUTTER_OTLP_HEADERS` (use `nonprod-minecraft-
 ### 4. Android and iOS release builds
 **No iOS or Android build is defined in this repository.** There is no `codemagic.yaml`, fastlane setup or GitHub workflow that builds an app bundle or iOS app, so mobile builds run in the Codemagic UI (or by hand). The telemetry configuration must be added to that build. Without it the app starts with telemetry disabled.
 
-The app reads its OTLP settings from build-time variables. Generate `otlp_config.json` with `jq` and pass it with `--dart-define-from-file`:
+The app reads its OTLP settings from build-time variables, passed with `--dart-define-from-file=otlp_config.json`. The script `scripts/codemagic-otel-prebuild.sh` writes that file.
+
+#### 1. Get the variable values (once, on your machine)
+`scripts/codemagic-otel-vars.sh` creates dedicated ingest-only tokens `<slug>-codemagic-ingest` (separate from the GitHub `-flutter-ingest` tokens, which it never changes) and prints the Codemagic variables as `NAME=value` lines to copy and paste:
 
 ```bash
-cd flutter_app
-jq -n \
-  --arg endpoint "$FLUTTER_OTLP_ENDPOINT" \
-  --arg headers "$FLUTTER_OTLP_HEADERS" \
-  --arg environment "$DASH0_ENVIRONMENT" \
-  '{
-    OTEL_EXPORTER_OTLP_ENDPOINT: $endpoint,
-    OTEL_EXPORTER_OTLP_HEADERS: $headers,
-    DASH0_ENVIRONMENT: $environment
-  }' > otlp_config.json
+export DASH0_AUTH_TOKEN=<admin token>   # environment only, never an argument
+scripts/codemagic-otel-vars.sh --env all          # or dev, staging, production
+scripts/codemagic-otel-vars.sh --dry-run          # validate only, creates nothing
+```
 
+Dash0 returns a token secret only when the token is created and never again. If `<slug>-codemagic-ingest` already exists, the script prints everything else and tells you so. Add `--rotate` to delete it and create a new one (the old secret stops working, so update Codemagic right away). Secrets are printed to the terminal only. The script refuses to print them when stdout is not a terminal (unless you pass `--print-secrets-to-pipe`) or when `CI` or `CM_BUILD_ID` is set. Without `DASH0_AUTH_TOKEN` it prints placeholders. Needs the dash0 CLI 1.22 or newer and `jq`.
+
+#### 2. Codemagic variables
+Add these in a variable group (for example `dash0`) and mark the `*_HEADERS` ones as Secure:
+
+| Variable | Purpose |
+| --- | --- |
+| `NONPROD_FLUTTER_OTLP_ENDPOINT`, `NONPROD_FLUTTER_OTLP_HEADERS` | Dev, staging and other non-production builds (dataset `nonprod-minecraft-finder`) |
+| `PROD_FLUTTER_OTLP_ENDPOINT`, `PROD_FLUTTER_OTLP_HEADERS` | Production store builds only (dataset `minecraft-finder`). No fallback to `NONPROD_*` |
+| `DASH0_ENVIRONMENT` | `production` selects the `PROD_*` pair, anything else the `NONPROD_*` pair. Becomes `deployment.environment.name` |
+
+The headers value must contain both `Authorization=Bearer <token>` and `Dash0-Dataset=<dataset>`, for example `Authorization=Bearer auth_xxx,Dash0-Dataset=minecraft-finder`. Optional variables are listed by `scripts/codemagic-otel-vars.sh` (section 2).
+
+#### 3. Pre-build step and build commands
+Call the script from the Codemagic pre-build step (it works from any directory, needs `jq`, bash 3.2 is enough):
+
+```bash
+bash scripts/codemagic-otel-prebuild.sh
+```
+
+It picks the variables for `DASH0_ENVIRONMENT`, checks the headers, and writes `flutter_app/otlp_config.json` (mode 600, gitignored) with the OTLP settings, `DASH0_ENVIRONMENT`, `DASH0_DEPLOYMENT_NAME`, `DASH0_DEPLOYMENT_ID` (`$BUILD_NUMBER`) and the `DASH0_VCS_*` values from `FCI_*` (credentials stripped from the repository URL). It never prints header values. If the endpoint or headers are not set, it warns and writes `{}`, so the build succeeds with telemetry off. Invalid headers fail the step. Then build from `flutter_app/`:
+
+```bash
 flutter build appbundle --release --dart-define-from-file=otlp_config.json
 flutter build ios --release --dart-define-from-file=otlp_config.json
 ```
 
-Do not commit `otlp_config.json`. Set `FLUTTER_OTLP_ENDPOINT` and `FLUTTER_OTLP_HEADERS` from the `PROD_*` values for store release builds and from the `NONPROD_*` values for test builds (beta, sandbox). Never put the nonprod token into a production build or the other way round.
-
-#### Codemagic secrets
-Add these as secure environment variables in the Codemagic workflow:
-
-| Variable | Purpose |
-| --- | --- |
-| `FLUTTER_OTLP_ENDPOINT` | Dash0 ingress URL (same for both) |
-| `FLUTTER_OTLP_HEADERS` | Headers of the matching environment: prod token with dataset `minecraft-finder`, or nonprod token with dataset `nonprod-minecraft-finder` |
-| `DASH0_ENVIRONMENT` | Value of `deployment.environment.name` (for example `production`) |
-
-The headers value must contain both `Authorization=Bearer <token>` and `Dash0-Dataset=<dataset>`, for example `Authorization=Bearer auth_xxx,Dash0-Dataset=minecraft-finder`.
+Never put the nonprod token into a production build or the other way round.
 
 Native apps send `service.version` as `<version>+<build number>` (from `package_info_plus`) and a synthetic user agent built by the SDK. Web builds send the browser user agent.
 
