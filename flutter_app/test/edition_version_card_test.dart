@@ -7,6 +7,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
+import 'package:gem_ore_struct_finder_mc/l10n/localization_delegates.dart';
 import 'package:gem_ore_struct_finder_mc/models/game_random.dart';
 import 'package:gem_ore_struct_finder_mc/widgets/edition_version_card.dart';
 
@@ -30,7 +31,7 @@ Widget buildTestWidget({
   bool isDarkMode = false,
 }) {
   return MaterialApp(
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    localizationsDelegates: appLocalizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('en'),
     home: Scaffold(

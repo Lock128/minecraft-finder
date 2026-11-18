@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
+import 'l10n/localization_delegates.dart';
 import 'providers/app_settings.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/monetization_config.dart';
@@ -46,7 +47,7 @@ class GemOreStructFinderApp extends StatelessWidget {
             themeMode: settings.themeMode,
             theme: GamerTheme.buildLight(),
             darkTheme: GamerTheme.buildDark(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            localizationsDelegates: appLocalizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: settings.locale,
             home: OreFinderScreen(

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
+import 'package:gem_ore_struct_finder_mc/l10n/localization_delegates.dart';
 import 'package:gem_ore_struct_finder_mc/main.dart';
 import 'package:gem_ore_struct_finder_mc/models/bedwars_guide_data.dart';
 import 'package:gem_ore_struct_finder_mc/providers/favorites_provider.dart';
@@ -32,7 +33,7 @@ Widget _wrapOreFinderScreen({required String localeCode}) {
       ),
     ],
     child: MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: Locale(localeCode),
       home: OreFinderScreen(
@@ -216,7 +217,7 @@ void main() {
   group('Widget: Tier selector and content', () {
     Widget buildBedwarsGuideTab({bool isDarkMode = false}) {
       return MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
         theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),

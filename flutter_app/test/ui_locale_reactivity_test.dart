@@ -8,6 +8,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gem_ore_struct_finder_mc/l10n/app_localizations.dart';
+import 'package:gem_ore_struct_finder_mc/l10n/localization_delegates.dart';
 import 'package:gem_ore_struct_finder_mc/main.dart';
 import 'package:gem_ore_struct_finder_mc/providers/favorites_provider.dart';
 import 'package:gem_ore_struct_finder_mc/providers/monetization_config.dart';
@@ -56,7 +57,7 @@ void main() {
             MultiProvider(
               providers: _appProviders(),
               child: MaterialApp(
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                localizationsDelegates: appLocalizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
                 locale: Locale(localeCode),
                 home: OreFinderScreen(
@@ -103,7 +104,7 @@ void main() {
               builder: (context, setState) {
                 return MaterialApp(
                   localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
+                      appLocalizationsDelegates,
                   supportedLocales: AppLocalizations.supportedLocales,
                   locale: currentLocale,
                   home: OreFinderScreen(

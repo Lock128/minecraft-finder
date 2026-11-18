@@ -3,3 +3,7 @@ template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 nullable-getter: false
+# The generated delegate list still uses the flutter_localizations delegates,
+# which are deprecated now that the widgets come from material_ui/cupertino_ui.
+# The app uses lib/l10n/localization_delegates.dart instead.
+header: "// ignore_for_file: deprecated_member_use"
