@@ -258,7 +258,6 @@ export class WebHostingStack extends Stack {
 
     // Add stack-specific tags
     cdk.Tags.of(this).add('StackName', this.stackName);
-    cdk.Tags.of(this).add('StackId', this.stackId);
     cdk.Tags.of(this).add('Component', 'WebHostingInfrastructure');
     cdk.Tags.of(this).add('Purpose', 'FlutterWebHosting');
     cdk.Tags.of(this).add('CreatedBy', 'CDK');
