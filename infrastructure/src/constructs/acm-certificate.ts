@@ -20,29 +20,32 @@ export interface AcmCertificateConstructProps {
 
 /**
  * ACM certificate construct with cross-account DNS validation
- * 
- * This construct creates an ACM certificate in us-east-1 region (required for CloudFront)
- * and handles DNS validation by creating validation records in Route53 hosted zone
- * located in a different AWS account using cross-account role assumption.
- * 
- * Features:
- * - Certificate creation in us-east-1 region
- * - Cross-account role assumption for Route53 access
- * - DNS validation record creation in external AWS account
- * - Certificate validation waiting logic with proper error handling
- * - Automatic cleanup of validation records
+ *
+ * The certificate is requested by a custom resource Lambda (ACM RequestCertificate)
+ * instead of an AWS::CertificateManager::Certificate resource. A CloudFormation
+ * certificate resource only reaches CREATE_COMPLETE once the certificate is ISSUED,
+ * which requires the DNS validation records to exist. Because the hosted zone lives in
+ * another AWS account, those records can only be written by our own Lambda, which needs
+ * the certificate's validation CNAMEs first. Using a CloudFormation certificate here
+ * would therefore deadlock until the deployment times out.
+ *
+ * Flow (all inside the custom resource):
+ * 1. onEvent: request the certificate, read the validation CNAMEs, upsert them into the
+ *    Route53 zone using the cross-account role. PhysicalResourceId is the certificate ARN.
+ * 2. isComplete: poll until the certificate status is ISSUED (fails on FAILED etc.).
+ * 3. On delete: remove the validation records and delete the certificate.
  */
 export class AcmCertificateConstruct extends Construct {
-  /** The ACM certificate instance */
-  public readonly certificate: acm.Certificate;
-  
-  /** The certificate ARN */
+  /** The ACM certificate (imported by ARN from the custom resource) */
+  public readonly certificate: acm.ICertificate;
+
+  /** The certificate ARN (resolves once the certificate is ISSUED) */
   public readonly certificateArn: string;
-  
+
   /** The domain name for the certificate */
   public readonly domainName: string;
-  
-  /** Custom resource for cross-account DNS operations */
+
+  /** Custom resource that requests and validates the certificate */
   private readonly dnsValidationResource: CustomResource;
 
   constructor(scope: Construct, id: string, props: AcmCertificateConstructProps) {
@@ -54,12 +57,15 @@ export class AcmCertificateConstruct extends Construct {
     // Validate that we're in the correct region for CloudFront certificates
     this.validateRegion(domainConfig.certificateRegion);
 
-    // Create the certificate with DNS validation
-    this.certificate = this.createCertificate(domainConfig);
-    this.certificateArn = this.certificate.certificateArn;
+    // Validate domain name format
+    if (!domainConfig.domainName || domainConfig.domainName.trim() === '') {
+      throw new Error('Domain name cannot be empty');
+    }
 
-    // Create custom resource for cross-account DNS validation
+    // Custom resource requests the certificate and creates the cross-account DNS records
     this.dnsValidationResource = this.createDnsValidationResource(domainConfig);
+    this.certificateArn = this.dnsValidationResource.getAttString('CertificateArn');
+    this.certificate = acm.Certificate.fromCertificateArn(this, 'Certificate', this.certificateArn);
 
     // Apply tags
     this.applyTags(tags);
@@ -80,43 +86,6 @@ export class AcmCertificateConstruct extends Construct {
   }
 
   /**
-   * Creates the ACM certificate with DNS validation
-   */
-  private createCertificate(domainConfig: DomainConfig): acm.Certificate {
-    // Validate domain name format
-    if (!domainConfig.domainName || domainConfig.domainName.trim() === '') {
-      throw new Error('Domain name cannot be empty');
-    }
-
-    return new acm.Certificate(this, 'Certificate', {
-      domainName: domainConfig.domainName,
-      
-      // Use DNS validation (required for cross-account setup)
-      validation: acm.CertificateValidation.fromDns(),
-      
-      // Subject Alternative Names (if needed for multiple subdomains)
-      subjectAlternativeNames: this.getSubjectAlternativeNames(domainConfig.domainName),
-      
-      // Certificate transparency logging
-      transparencyLoggingEnabled: true,
-      
-      // Key algorithm
-      keyAlgorithm: acm.KeyAlgorithm.RSA_2048,
-    });
-  }
-
-  /**
-   * Gets subject alternative names for the certificate
-   * This allows the certificate to work with both www and non-www versions
-   */
-  private getSubjectAlternativeNames(_domainName: string): string[] | undefined {
-    // For subdomains like app.minecraft.lockhead.cloud, we might want to include
-    // the wildcard version *.minecraft.lockhead.cloud if needed
-    // For now, we'll keep it simple and only include the exact domain
-    return undefined;
-  }
-
-  /**
    * Creates a custom resource for cross-account DNS validation
    */
   private createDnsValidationResource(domainConfig: DomainConfig): CustomResource {
@@ -126,25 +95,24 @@ export class AcmCertificateConstruct extends Construct {
     // Create the Lambda functions
     const onEventHandler = this.createLambdaFunction(lambdaRole);
     const isCompleteHandler = this.createStatusCheckLambdaFunction(lambdaRole);
-    
+
     // Create the custom resource provider
     const provider = new cr.Provider(this, 'DnsValidationProvider', {
       onEventHandler,
       isCompleteHandler,
-      totalTimeout: Duration.minutes(30), // Allow up to 30 minutes for DNS propagation
-      queryInterval: Duration.seconds(30), // Check every 30 seconds
+      // DNS validation normally completes within a few minutes. Fail well before the
+      // CI job timeout so CloudFormation reports a clear error and rolls back.
+      totalTimeout: Duration.minutes(20),
+      queryInterval: Duration.seconds(30),
     });
-    
-    // Create the custom resource
+
+    // No Timestamp property: the resource only updates when its inputs change
     return new CustomResource(this, 'DnsValidationResource', {
       serviceToken: provider.serviceToken,
       properties: {
-        CertificateArn: this.certificate.certificateArn,
         DomainName: domainConfig.domainName,
         HostedZoneId: domainConfig.hostedZoneId,
         CrossAccountRoleArn: domainConfig.crossAccountRoleArn,
-        // Add a timestamp to force updates when needed
-        Timestamp: Date.now().toString(),
       },
     });
   }
@@ -161,11 +129,13 @@ export class AcmCertificateConstruct extends Construct {
       ],
     });
 
-    // Add permissions to describe the certificate
+    // Add permissions to request, describe and delete the certificate
     role.addToPolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: [
+        'acm:RequestCertificate',
         'acm:DescribeCertificate',
+        'acm:DeleteCertificate',
         'acm:ListCertificates',
       ],
       resources: ['*'], // ACM doesn't support resource-level permissions for describe operations
@@ -193,7 +163,7 @@ export class AcmCertificateConstruct extends Construct {
       role,
       code: lambda.Code.fromInline(this.getLambdaCode()),
       timeout: Duration.minutes(5),
-      description: 'ACM Certificate DNS validation with cross-account Route53 access',
+      description: 'ACM Certificate request and DNS validation with cross-account Route53 access',
       environment: {
         LOG_LEVEL: 'INFO',
       },
@@ -222,173 +192,112 @@ export class AcmCertificateConstruct extends Construct {
    */
   private getLambdaCode(): string {
     return `
-import json
 import boto3
 import time
 from botocore.exceptions import ClientError
 
-def lambda_handler(event, context):
-    """
-    Lambda function to handle ACM certificate DNS validation
-    using cross-account Route53 access
-    """
-    try:
-        request_type = event['RequestType']
-        properties = event['ResourceProperties']
-        
-        certificate_arn = properties['CertificateArn']
-        domain_name = properties['DomainName']
-        hosted_zone_id = properties['HostedZoneId']
-        cross_account_role_arn = properties['CrossAccountRoleArn']
-        
-        if request_type == 'Create' or request_type == 'Update':
-            return handle_create_update(certificate_arn, domain_name, hosted_zone_id, cross_account_role_arn)
-        elif request_type == 'Delete':
-            return handle_delete(certificate_arn, domain_name, hosted_zone_id, cross_account_role_arn)
-            
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return {
-            'Status': 'FAILED',
-            'Reason': str(e),
-            'PhysicalResourceId': event.get('PhysicalResourceId', 'dns-validation-failed')
-        }
+def get_route53(role_arn, session_name):
+    creds = boto3.client('sts').assume_role(
+        RoleArn=role_arn, RoleSessionName=session_name)['Credentials']
+    return boto3.client(
+        'route53',
+        aws_access_key_id=creds['AccessKeyId'],
+        aws_secret_access_key=creds['SecretAccessKey'],
+        aws_session_token=creds['SessionToken'])
 
-def handle_create_update(certificate_arn, domain_name, hosted_zone_id, cross_account_role_arn):
-    """Handle certificate creation/update"""
-    try:
-        # Get certificate validation records
-        acm_client = boto3.client('acm')
-        cert_details = acm_client.describe_certificate(CertificateArn=certificate_arn)
-        
-        validation_records = []
-        for domain_validation in cert_details['Certificate']['DomainValidationOptions']:
-            if 'ResourceRecord' in domain_validation:
-                validation_records.append(domain_validation['ResourceRecord'])
-        
-        if not validation_records:
-            # Certificate might not be ready yet, return in progress
-            return {
-                'Status': 'IN_PROGRESS',
-                'PhysicalResourceId': f'dns-validation-{domain_name}'
-            }
-        
-        # Assume cross-account role
-        sts_client = boto3.client('sts')
-        assumed_role = sts_client.assume_role(
-            RoleArn=cross_account_role_arn,
-            RoleSessionName='ACMCertificateValidation'
-        )
-        
-        # Create Route53 client with assumed role credentials
-        route53_client = boto3.client(
-            'route53',
-            aws_access_key_id=assumed_role['Credentials']['AccessKeyId'],
-            aws_secret_access_key=assumed_role['Credentials']['SecretAccessKey'],
-            aws_session_token=assumed_role['Credentials']['SessionToken']
-        )
-        
-        # Create DNS validation records
-        changes = []
-        for record in validation_records:
-            changes.append({
+def wait_for_validation_records(acm_client, arn, timeout=120):
+    """ACM populates ResourceRecord a few seconds after RequestCertificate"""
+    deadline = time.time() + timeout
+    while True:
+        cert = acm_client.describe_certificate(CertificateArn=arn)['Certificate']
+        records = [o['ResourceRecord'] for o in cert.get('DomainValidationOptions', [])
+                   if 'ResourceRecord' in o]
+        if records or time.time() > deadline:
+            return records
+        time.sleep(5)
+
+def lambda_handler(event, context):
+    request_type = event['RequestType']
+    props = event['ResourceProperties']
+    domain_name = props['DomainName']
+    hosted_zone_id = props['HostedZoneId']
+    role_arn = props['CrossAccountRoleArn']
+    acm_client = boto3.client('acm')
+
+    old_domain = event.get('OldResourceProperties', {}).get('DomainName')
+    if request_type == 'Create' or (request_type == 'Update' and old_domain != domain_name):
+        token = ''.join(c for c in event['RequestId'] if c.isalnum())[:32]
+        arn = acm_client.request_certificate(
+            DomainName=domain_name,
+            ValidationMethod='DNS',
+            IdempotencyToken=token,
+            Options={'CertificateTransparencyLoggingPreference': 'ENABLED'},
+        )['CertificateArn']
+        records = wait_for_validation_records(acm_client, arn)
+        if not records:
+            raise Exception(f'ACM did not return DNS validation records for {arn}')
+        route53 = get_route53(role_arn, 'ACMCertificateValidation')
+        route53.change_resource_record_sets(
+            HostedZoneId=hosted_zone_id,
+            ChangeBatch={'Changes': [{
                 'Action': 'UPSERT',
                 'ResourceRecordSet': {
-                    'Name': record['Name'],
-                    'Type': record['Type'],
-                    'TTL': 300,
-                    'ResourceRecords': [{'Value': record['Value']}]
-                }
-            })
-        
-        if changes:
-            response = route53_client.change_resource_record_sets(
-                HostedZoneId=hosted_zone_id,
-                ChangeBatch={'Changes': changes}
-            )
-            
-            change_id = response['ChangeInfo']['Id']
-            
-            return {
-                'Status': 'SUCCESS',
-                'PhysicalResourceId': f'dns-validation-{domain_name}',
-                'Data': {
-                    'ChangeId': change_id,
-                    'ValidationRecords': validation_records
-                }
-            }
-        
-        return {
-            'Status': 'SUCCESS',
-            'PhysicalResourceId': f'dns-validation-{domain_name}'
-        }
-        
-    except Exception as e:
-        print(f"Error in handle_create_update: {str(e)}")
-        raise
+                    'Name': r['Name'], 'Type': r['Type'], 'TTL': 300,
+                    'ResourceRecords': [{'Value': r['Value']}],
+                }} for r in records]})
+        return {'PhysicalResourceId': arn, 'Data': {'CertificateArn': arn}}
 
-def handle_delete(certificate_arn, domain_name, hosted_zone_id, cross_account_role_arn):
-    """Handle certificate deletion - clean up DNS records"""
+    arn = event['PhysicalResourceId']
+
+    if request_type == 'Update':
+        # A domain change is handled above as a new request; CloudFormation then
+        # deletes the old certificate via the Delete cleanup
+        return {'PhysicalResourceId': arn, 'Data': {'CertificateArn': arn}}
+
+    # Delete: best-effort cleanup, never leave the stack stuck
     try:
-        # For deletion, we'll attempt to clean up the validation records
-        # but won't fail if they're already gone
-        
-        # Assume cross-account role
-        sts_client = boto3.client('sts')
-        assumed_role = sts_client.assume_role(
-            RoleArn=cross_account_role_arn,
-            RoleSessionName='ACMCertificateValidationCleanup'
-        )
-        
-        # Create Route53 client with assumed role credentials
-        route53_client = boto3.client(
-            'route53',
-            aws_access_key_id=assumed_role['Credentials']['AccessKeyId'],
-            aws_secret_access_key=assumed_role['Credentials']['SecretAccessKey'],
-            aws_session_token=assumed_role['Credentials']['SessionToken']
-        )
-        
-        # List existing records to find validation records to delete
-        # This is a best-effort cleanup
-        try:
-            records_response = route53_client.list_resource_record_sets(
-                HostedZoneId=hosted_zone_id
-            )
-            
-            changes = []
-            for record_set in records_response['ResourceRecordSets']:
-                # Look for CNAME records that might be validation records
-                # ACM validation records typically start with an underscore and contain the domain
-                if (record_set['Type'] == 'CNAME' and 
-                    record_set['Name'].startswith('_') and
-                    domain_name.replace('.', '') in record_set['Name'].replace('.', '')):
-                    changes.append({
-                        'Action': 'DELETE',
-                        'ResourceRecordSet': record_set
-                    })
-            
-            if changes:
-                route53_client.change_resource_record_sets(
-                    HostedZoneId=hosted_zone_id,
-                    ChangeBatch={'Changes': changes}
-                )
-                
-        except ClientError as e:
-            # Ignore errors during cleanup
-            print(f"Warning: Could not clean up validation records: {str(e)}")
-        
-        return {
-            'Status': 'SUCCESS',
-            'PhysicalResourceId': f'dns-validation-{domain_name}'
-        }
-        
+        if arn.startswith('arn:'):
+            cleanup(acm_client, arn, hosted_zone_id, role_arn)
     except Exception as e:
-        print(f"Error in handle_delete: {str(e)}")
-        # Don't fail deletion even if cleanup fails
-        return {
-            'Status': 'SUCCESS',
-            'PhysicalResourceId': f'dns-validation-{domain_name}'
-        }
+        print(f'Warning: cleanup failed: {e}')
+    return {'PhysicalResourceId': arn}
+
+def cleanup(acm_client, arn, hosted_zone_id, role_arn):
+    try:
+        cert = acm_client.describe_certificate(CertificateArn=arn)['Certificate']
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceNotFoundException':
+            return
+        raise
+    records = [o['ResourceRecord'] for o in cert.get('DomainValidationOptions', [])
+               if 'ResourceRecord' in o]
+    # Delete the certificate first (retry while CloudFront still releases it)
+    for _ in range(20):
+        try:
+            acm_client.delete_certificate(CertificateArn=arn)
+            break
+        except ClientError as e:
+            code = e.response['Error']['Code']
+            if code == 'ResourceNotFoundException':
+                break
+            if code != 'ResourceInUseException':
+                raise
+            time.sleep(10)
+    else:
+        print(f'Warning: certificate {arn} still in use, leaving it in place')
+        return
+    if not records:
+        return
+    route53 = get_route53(role_arn, 'ACMCertificateValidationCleanup')
+    for r in records:
+        sets = route53.list_resource_record_sets(
+            HostedZoneId=hosted_zone_id, StartRecordName=r['Name'],
+            StartRecordType=r['Type'], MaxItems='1')['ResourceRecordSets']
+        for rs in sets:
+            if rs['Name'].rstrip('.') == r['Name'].rstrip('.') and rs['Type'] == r['Type']:
+                route53.change_resource_record_sets(
+                    HostedZoneId=hosted_zone_id,
+                    ChangeBatch={'Changes': [{'Action': 'DELETE', 'ResourceRecordSet': rs}]})
 `;
   }
 
@@ -397,57 +306,23 @@ def handle_delete(certificate_arn, domain_name, hosted_zone_id, cross_account_ro
    */
   private getStatusCheckLambdaCode(): string {
     return `
-import json
 import boto3
-from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
-    """
-    Lambda function to check ACM certificate validation status
-    """
-    try:
-        properties = event['ResourceProperties']
-        certificate_arn = properties['CertificateArn']
-        
-        # Check certificate status
-        acm_client = boto3.client('acm')
-        cert_details = acm_client.describe_certificate(CertificateArn=certificate_arn)
-        
-        certificate_status = cert_details['Certificate']['Status']
-        
-        if certificate_status == 'ISSUED':
-            return {
-                'IsComplete': True,
-                'Data': {
-                    'CertificateStatus': certificate_status,
-                    'CertificateArn': certificate_arn
-                }
-            }
-        elif certificate_status in ['PENDING_VALIDATION', 'VALIDATION_TIMED_OUT']:
-            return {
-                'IsComplete': False,
-                'Data': {
-                    'CertificateStatus': certificate_status
-                }
-            }
-        else:
-            # Failed, expired, etc.
-            return {
-                'IsComplete': True,
-                'Data': {
-                    'CertificateStatus': certificate_status,
-                    'Error': f'Certificate validation failed with status: {certificate_status}'
-                }
-            }
-            
-    except Exception as e:
-        print(f"Error checking certificate status: {str(e)}")
-        return {
-            'IsComplete': False,
-            'Data': {
-                'Error': str(e)
-            }
-        }
+    """Poll ACM until the certificate is ISSUED (called by the CDK Provider framework)"""
+    if event['RequestType'] != 'Create':
+        return {'IsComplete': True}
+
+    arn = event['PhysicalResourceId']
+    status = boto3.client('acm').describe_certificate(CertificateArn=arn)['Certificate']['Status']
+    print(f'Certificate {arn} status: {status}')
+
+    if status == 'ISSUED':
+        return {'IsComplete': True}
+    if status == 'PENDING_VALIDATION':
+        return {'IsComplete': False}
+    # FAILED, VALIDATION_TIMED_OUT, REVOKED, ... : fail the deployment with a clear reason
+    raise Exception(f'Certificate {arn} entered unexpected status {status}')
 `;
   }
 
@@ -455,16 +330,14 @@ def lambda_handler(event, context):
    * Applies tags to the certificate and related resources
    */
   private applyTags(tags: Record<string, string>): void {
-    // Apply tags to the certificate
     Object.entries(tags).forEach(([key, value]) => {
-      this.certificate.node.addMetadata(key, value);
+      this.dnsValidationResource.node.addMetadata(key, value);
     });
 
-    // Add component-specific tags
-    this.certificate.node.addMetadata('Component', 'ACMCertificate');
-    this.certificate.node.addMetadata('Purpose', 'CloudFrontSSL');
-    this.certificate.node.addMetadata('ValidationMethod', 'DNS');
-    this.certificate.node.addMetadata('CrossAccount', 'true');
+    this.dnsValidationResource.node.addMetadata('Component', 'ACMCertificate');
+    this.dnsValidationResource.node.addMetadata('Purpose', 'CloudFrontSSL');
+    this.dnsValidationResource.node.addMetadata('ValidationMethod', 'DNS');
+    this.dnsValidationResource.node.addMetadata('CrossAccount', 'true');
   }
 
   /**
