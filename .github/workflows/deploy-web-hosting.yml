@@ -6,6 +6,8 @@ on:
     paths:
       - 'flutter_app/**'
       - 'infrastructure/**'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/deploy-web-hosting.yml'
   workflow_dispatch:
     inputs:
