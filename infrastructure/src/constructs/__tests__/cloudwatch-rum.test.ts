@@ -48,7 +48,7 @@ describe('CloudWatchRumConstruct', () => {
           ExcludedPages: [],
           FavoritePages: ['/'],
           SessionSampleRate: 0.1,
-          Telemetries: Match.arrayWith(['errors', 'performance', 'http', 'navigation', 'interaction']),
+          Telemetries: ['errors', 'performance', 'http'],
         },
         CustomEvents: {
           Status: 'ENABLED',
@@ -190,7 +190,7 @@ describe('CloudWatchRumConstruct', () => {
       
       template.hasResourceProperties('AWS::RUM::AppMonitor', {
         AppMonitorConfiguration: {
-          Telemetries: ['errors', 'performance', 'http'], // No navigation/interaction without extended
+          Telemetries: ['errors', 'performance', 'http'], // navigation/interaction are not valid RUM telemetries
         },
       });
     });
