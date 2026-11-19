@@ -295,6 +295,60 @@ describe('CloudFrontDistributionConstruct', () => {
     });
   });
 
+  describe('CloudFront validation rules', () => {
+    const build = () => {
+      new CloudFrontDistributionConstruct(stack, 'TestCloudFront', {
+        s3Bucket,
+        cachingConfig,
+        environment: 'dev',
+      });
+      return Template.fromStack(stack);
+    };
+
+    test('should put CSP and XSS protection in security headers, not custom headers', () => {
+      const template = build();
+      const policies = template.findResources('AWS::CloudFront::ResponseHeadersPolicy');
+      const config = Object.values(policies)[0].Properties.ResponseHeadersPolicyConfig;
+      const csp = config.SecurityHeadersConfig.ContentSecurityPolicy;
+      expect(csp.Override).toBe(true);
+      expect(csp.ContentSecurityPolicy.length).toBeLessThanOrEqual(1783);
+      expect(config.SecurityHeadersConfig.XSSProtection).toEqual({
+        Protection: true,
+        ModeBlock: true,
+        Override: true,
+      });
+
+      const reserved = [
+        'content-security-policy',
+        'strict-transport-security',
+        'x-content-type-options',
+        'x-frame-options',
+        'x-xss-protection',
+        'referrer-policy',
+        'server',
+      ];
+      const customNames = config.CustomHeadersConfig.Items.map((i: any) => i.Header.toLowerCase());
+      for (const name of reserved) {
+        expect(customNames).not.toContain(name);
+      }
+      expect(customNames).toContain('permissions-policy');
+      expect(config.RemoveHeadersConfig.Items).toEqual([{ Header: 'Server' }]);
+    });
+
+    test('should not enable Accept-Encoding on cache policies with all TTLs 0', () => {
+      const template = build();
+      const policies = template.findResources('AWS::CloudFront::CachePolicy');
+      for (const policy of Object.values(policies)) {
+        const cfg = policy.Properties.CachePolicyConfig;
+        if (cfg.MinTTL === 0 && cfg.DefaultTTL === 0 && cfg.MaxTTL === 0) {
+          const params = cfg.ParametersInCacheKeyAndForwardedToOrigin;
+          expect(params.EnableAcceptEncodingGzip).toBe(false);
+          expect(params.EnableAcceptEncodingBrotli).toBe(false);
+        }
+      }
+    });
+  });
+
   describe('Environment-Specific Configuration', () => {
     test('should use appropriate price class for production', () => {
       // Act
