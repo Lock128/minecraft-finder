@@ -29,51 +29,36 @@ describe('AcmCertificateConstruct', () => {
   });
 
   describe('Certificate Creation', () => {
-    test('should create ACM certificate with correct properties', () => {
-      // Act
-      new AcmCertificateConstruct(stack, 'TestCertificate', {
-        domainConfig,
-        environment: 'test',
-      });
-
-      // Assert
-      const template = Template.fromStack(stack);
-
-      template.hasResourceProperties('AWS::CertificateManager::Certificate', {
-        DomainName: 'test.minecraft.lockhead.cloud',
-        ValidationMethod: 'DNS',
-        DomainValidationOptions: Match.absent(), // Should use default DNS validation
-      });
+    test('should not create an AWS::CertificateManager::Certificate (it would deadlock on cross-account DNS validation)', () => {
+      new AcmCertificateConstruct(stack, 'TestCertificate', { domainConfig, environment: 'test' });
+      Template.fromStack(stack).resourceCountIs('AWS::CertificateManager::Certificate', 0);
     });
 
-    test('should create certificate with transparency logging enabled', () => {
-      // Act
-      new AcmCertificateConstruct(stack, 'TestCertificate', {
-        domainConfig,
-        environment: 'test',
-      });
-
-      // Assert
+    test('custom resource does not depend on a CloudFormation certificate and has no Timestamp', () => {
+      new AcmCertificateConstruct(stack, 'TestCertificate', { domainConfig, environment: 'test' });
       const template = Template.fromStack(stack);
-
-      template.hasResourceProperties('AWS::CertificateManager::Certificate', {
-        CertificateTransparencyLoggingPreference: 'ENABLED',
-      });
+      const resources = template.findResources('AWS::CloudFormation::CustomResource');
+      const props = Object.values(resources)[0].Properties;
+      expect(props.Timestamp).toBeUndefined();
+      expect(props.CertificateArn).toBeUndefined();
+      expect(Object.values(resources)[0].DependsOn ?? []).toEqual([]);
     });
 
-    test('should use RSA 2048 key algorithm', () => {
-      // Act
-      new AcmCertificateConstruct(stack, 'TestCertificate', {
-        domainConfig,
-        environment: 'test',
-      });
+    test('certificate ARN comes from the custom resource attribute', () => {
+      const construct = new AcmCertificateConstruct(stack, 'TestCertificate', { domainConfig, environment: 'test' });
+      const resolved = stack.resolve(construct.certificateArn);
+      expect(resolved).toHaveProperty('Fn::GetAtt');
+      expect(resolved['Fn::GetAtt'][1]).toBe('CertificateArn');
+    });
 
-      // Assert
-      const template = Template.fromStack(stack);
-
-      template.hasResourceProperties('AWS::CertificateManager::Certificate', {
-        KeyAlgorithm: 'RSA_2048',
-      });
+    test('Lambda code requests the certificate with DNS validation and polls for ISSUED', () => {
+      new AcmCertificateConstruct(stack, 'TestCertificate', { domainConfig, environment: 'test' });
+      const fns = Template.fromStack(stack).findResources('AWS::Lambda::Function');
+      const code = Object.values(fns).map((f: any) => f.Properties.Code?.ZipFile ?? '').join('\n');
+      expect(code).toContain("request_certificate(");
+      expect(code).toContain("ValidationMethod='DNS'");
+      expect(code).toContain("status == 'ISSUED'");
+      expect(code).toContain('delete_certificate');
     });
   });
 
@@ -121,7 +106,12 @@ describe('AcmCertificateConstruct', () => {
           Statement: Match.arrayWith([
             {
               Effect: 'Allow',
-              Action: ['acm:DescribeCertificate', 'acm:ListCertificates'],
+              Action: [
+                'acm:RequestCertificate',
+                'acm:DescribeCertificate',
+                'acm:DeleteCertificate',
+                'acm:ListCertificates',
+              ],
               Resource: '*',
             },
           ]),
@@ -156,7 +146,7 @@ describe('AcmCertificateConstruct', () => {
         Runtime: 'python3.11',
         Handler: 'index.lambda_handler',
         Timeout: 300, // 5 minutes
-        Description: 'ACM Certificate DNS validation with cross-account Route53 access',
+        Description: 'ACM Certificate request and DNS validation with cross-account Route53 access',
         Environment: {
           Variables: {
             LOG_LEVEL: 'INFO',
@@ -303,7 +293,7 @@ describe('AcmCertificateConstruct', () => {
       // Assert - Tags are applied as metadata, which is harder to test directly
       // The construct should not throw errors when tags are provided
       const template = Template.fromStack(stack);
-      template.hasResourceProperties('AWS::CertificateManager::Certificate', {
+      template.hasResourceProperties('AWS::CloudFormation::CustomResource', {
         DomainName: 'test.minecraft.lockhead.cloud',
       });
     });
@@ -418,7 +408,7 @@ describe('AcmCertificateConstruct', () => {
       // DNS validation function should have 5 minute timeout
       template.hasResourceProperties('AWS::Lambda::Function', {
         Timeout: 300,
-        Description: 'ACM Certificate DNS validation with cross-account Route53 access',
+        Description: 'ACM Certificate request and DNS validation with cross-account Route53 access',
       });
 
       // Status check function should have 2 minute timeout

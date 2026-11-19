@@ -220,10 +220,10 @@ describe('WebHostingStack', () => {
   });
 
   describe('ACM Certificate', () => {
-    test('should create ACM certificate', () => {
-      template.hasResourceProperties('AWS::CertificateManager::Certificate', {
+    test('should request the certificate via custom resource (no CFN certificate, avoids validation deadlock)', () => {
+      template.resourceCountIs('AWS::CertificateManager::Certificate', 0);
+      template.hasResourceProperties('AWS::CloudFormation::CustomResource', {
         DomainName: testConfig.domainConfig.domainName,
-        ValidationMethod: 'DNS',
       });
     });
 
@@ -471,7 +471,6 @@ describe('WebHostingStack', () => {
       const expectedResourceTypes = [
         'AWS::S3::Bucket',
         'AWS::CloudFront::Distribution',
-        'AWS::CertificateManager::Certificate',
         'AWS::RUM::AppMonitor',
         'AWS::Lambda::Function',
         'AWS::IAM::Role',

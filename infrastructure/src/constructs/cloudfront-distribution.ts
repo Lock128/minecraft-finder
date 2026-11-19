@@ -219,6 +219,19 @@ export class CloudFrontDistributionConstruct extends Construct {
           override: true,
         },
         
+        // Content Security Policy - Prevent XSS and injection attacks
+        contentSecurityPolicy: {
+          contentSecurityPolicy: this.createContentSecurityPolicy(),
+          override: true,
+        },
+
+        // X-XSS-Protection - Legacy XSS protection (for older browsers)
+        xssProtection: {
+          protection: true,
+          modeBlock: true,
+          override: true,
+        },
+
         // Strict Transport Security (HSTS) - Force HTTPS
         strictTransportSecurity: {
           accessControlMaxAge: Duration.seconds(31536000), // 1 year
@@ -231,31 +244,10 @@ export class CloudFrontDistributionConstruct extends Construct {
       // Enhanced custom headers for comprehensive security
       customHeadersBehavior: {
         customHeaders: [
-          // Content Security Policy - Prevent XSS and injection attacks
-          {
-            header: 'Content-Security-Policy',
-            value: this.createContentSecurityPolicy(),
-            override: true,
-          },
-          
           // Permissions Policy - Control browser features
           {
             header: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), ambient-light-sensor=()',
-            override: true,
-          },
-          
-          // X-Content-Type-Options - Additional MIME type protection
-          {
-            header: 'X-Content-Type-Options',
-            value: 'nosniff',
-            override: true,
-          },
-          
-          // X-XSS-Protection - Legacy XSS protection (for older browsers)
-          {
-            header: 'X-XSS-Protection',
-            value: '1; mode=block',
             override: true,
           },
           
@@ -280,13 +272,6 @@ export class CloudFrontDistributionConstruct extends Construct {
             override: true,
           },
           
-          // Server identification removal
-          {
-            header: 'Server',
-            value: '',
-            override: true,
-          },
-          
           // Cache control for HTML files
           {
             header: 'Cache-Control',
@@ -296,6 +281,9 @@ export class CloudFrontDistributionConstruct extends Construct {
         ],
       },
       
+      // Server identification removal
+      removeHeaders: ['Server'],
+
       // Note: CORS configuration can be added separately if needed
     });
   }
@@ -433,8 +421,9 @@ export class CloudFrontDistributionConstruct extends Construct {
       minTtl: Duration.seconds(0),
       
       cachePolicyName: `service-worker-cache-policy-${this.node.addr}`,
-      enableAcceptEncodingGzip: true,
-      enableAcceptEncodingBrotli: true,
+      // CloudFront rejects Accept-Encoding normalization when caching is disabled (all TTLs 0)
+      enableAcceptEncodingGzip: false,
+      enableAcceptEncodingBrotli: false,
       
       queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
       headerBehavior: cloudfront.CacheHeaderBehavior.none(),
