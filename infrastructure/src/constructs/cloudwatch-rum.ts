@@ -148,17 +148,9 @@ export class CloudWatchRumConstruct extends Construct {
       telemetries.push('http');
     }
     
-    if (config.enableExtendedMetrics) {
-      // Add extended metrics for detailed monitoring
-      if (config.enabledMetrics.includes('navigation')) {
-        telemetries.push('navigation');
-      }
-      
-      if (config.enabledMetrics.includes('interaction')) {
-        telemetries.push('interaction');
-      }
-    }
-    
+    // AWS::RUM::AppMonitor only accepts errors, performance and http.
+    // Extended metrics such as navigation/interaction are not valid Telemetries values.
+
     return telemetries;
   }
 
