@@ -1,6 +1,6 @@
 # OpenTelemetry (Dash0) setup for Minecraft Finder
 
-The Flutter app in `flutter_app/` reports telemetry with [flutter-dash0-sdk](https://github.com/Lock128/flutter-dash0-sdk) (`v0.10.0`, same version as nexus-share). The app has no backend, so the SDK exports directly from the client to Dash0 over OTLP/HTTP.
+The Flutter app in `flutter_app/` reports telemetry with [flutter-dash0-sdk](https://github.com/Lock128/flutter-dash0-sdk) (`v0.11.0`, same version as nexus-share). The app has no backend, so the SDK exports directly from the client to Dash0 over OTLP/HTTP.
 
 Telemetry is off unless **both** an endpoint and an auth token are compiled in. Local runs, tests and CI builds without the secrets send nothing.
 
