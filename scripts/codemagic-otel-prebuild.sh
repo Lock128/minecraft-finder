@@ -14,6 +14,7 @@
 #   DASH0_ENVIRONMENT                  "production" selects the PROD_ pair, anything else NONPROD_
 #   NONPROD_FLUTTER_OTLP_ENDPOINT / NONPROD_FLUTTER_OTLP_HEADERS
 #   PROD_FLUTTER_OTLP_ENDPOINT    / PROD_FLUTTER_OTLP_HEADERS   (no fallback to NONPROD_)
+#   DASH0_SDK_DEBUG                    optional, "true" prints SDK export warnings in release builds
 #   BUILD_NUMBER, FCI_COMMIT, FCI_BRANCH, FCI_REPOSITORY_URL    (set by Codemagic)
 #
 # If the endpoint or headers are not set, it writes {} so the build still works
@@ -98,13 +99,15 @@ jq -n --arg e "$endpoint" --arg h "$headers" \
     --arg rev "${FCI_COMMIT:-}" \
     --arg branch "${FCI_BRANCH:-}" \
     --arg url "$repo_url" \
+    --arg sdkdebug "${DASH0_SDK_DEBUG:-}" \
     '{OTEL_EXPORTER_OTLP_ENDPOINT: $e, OTEL_EXPORTER_OTLP_HEADERS: $h}
      + ({DASH0_ENVIRONMENT: $env,
          DASH0_DEPLOYMENT_NAME: $dname,
          DASH0_DEPLOYMENT_ID: $did,
          DASH0_VCS_REF_HEAD_REVISION: $rev,
          DASH0_VCS_REF_HEAD_NAME: $branch,
-         DASH0_VCS_REPOSITORY_URL_FULL: $url}
+         DASH0_VCS_REPOSITORY_URL_FULL: $url,
+         DASH0_SDK_DEBUG: $sdkdebug}
         | with_entries(select(.value != "")))' > "$out"
 chmod 600 "$out"
 echo "Dash0 config written to flutter_app/otlp_config.json (values not printed)"

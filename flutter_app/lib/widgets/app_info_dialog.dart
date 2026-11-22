@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/monetization_config.dart';
 import '../theme/gamer_theme.dart';
+import 'dash0_diagnostics_screen.dart';
 
 class AppInfoDialog extends StatelessWidget {
   final bool isDarkMode;
@@ -75,13 +76,26 @@ class AppInfoDialog extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      l10n.aboutTitle,
-                      style: TextStyle(
-                        color:
-                            isDarkMode ? Colors.white : const Color(0xFF1A1A2E),
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
+                    // Hidden entry point to the Dash0 diagnostics screen.
+                    child: GestureDetector(
+                      onLongPress: () {
+                        final navigator = Navigator.of(context);
+                        navigator.pop();
+                        navigator.push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const Dash0DiagnosticsScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        l10n.aboutTitle,
+                        style: TextStyle(
+                          color: isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF1A1A2E),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),

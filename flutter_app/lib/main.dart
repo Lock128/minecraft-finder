@@ -14,6 +14,7 @@ import 'providers/pro_status_provider.dart';
 import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
 import 'utils/dash0_config.dart';
+import 'utils/dash0_diagnostics.dart';
 import 'widgets/ore_finder_screen.dart';
 
 export 'widgets/ore_finder_screen.dart' show OreFinderScreen;
@@ -38,6 +39,8 @@ Future<void> main() async {
 /// propagation are intentionally not enabled: the app has no backend and
 /// handles user input such as world seeds.
 Future<void> _initializeOpenTelemetry() async {
+  final diagnostics = Dash0Diagnostics.instance;
+  diagnostics.initRan = true;
   try {
     const otlpEndpoint = String.fromEnvironment(
       'OTEL_EXPORTER_OTLP_ENDPOINT',
@@ -49,7 +52,18 @@ Future<void> _initializeOpenTelemetry() async {
     );
     final headers = parseOtlpHeaders(otlpHeaders);
     final authToken = extractBearerToken(headers);
+    diagnostics.recordConfig(
+      endpoint: otlpEndpoint.isEmpty ? null : normalizeOtlpEndpoint(otlpEndpoint),
+      authToken: authToken,
+      dataset: extractDash0Dataset(headers),
+      environment: null,
+      serviceName: null,
+      serviceVersion: null,
+      instrumentations: dash0Instrumentations.map((i) => i.name),
+      compression: Dash0Compression.gzip.name,
+    );
     if (otlpEndpoint.isEmpty || authToken == null) {
+      diagnostics.recordBranch('no endpoint or token');
       debugPrint('Dash0: no OTLP endpoint or auth token, telemetry disabled');
       return;
     }
@@ -66,9 +80,20 @@ Future<void> _initializeOpenTelemetry() async {
       // The version is optional.
     }
 
+    final serviceName = resolveDash0ServiceName('minecraft-finder', environment);
+    diagnostics.recordConfig(
+      endpoint: normalizeOtlpEndpoint(otlpEndpoint),
+      authToken: authToken,
+      dataset: extractDash0Dataset(headers),
+      environment: environment,
+      serviceName: serviceName,
+      serviceVersion: serviceVersion,
+      instrumentations: dash0Instrumentations.map((i) => i.name),
+      compression: Dash0Compression.gzip.name,
+    );
     await Dash0.init(
       Dash0Options(
-        serviceName: resolveDash0ServiceName('minecraft-finder', environment),
+        serviceName: serviceName,
         serviceVersion: serviceVersion,
         // Native apps have no browser user agent, so the SDK builds one.
         syntheticUserAgent: !kIsWeb,
@@ -77,14 +102,16 @@ Future<void> _initializeOpenTelemetry() async {
           authToken: authToken,
           dataset: extractDash0Dataset(headers),
         ),
-        debug: kDebugMode,
+        debug: kDebugMode || dash0SdkDebug,
         environment: environment,
         enabledInstrumentations: dash0Instrumentations,
         compression: Dash0Compression.gzip,
       ),
     );
+    diagnostics.recordBranch('initialized');
     debugPrint('Dash0: initialized, serviceVersion=$serviceVersion');
   } catch (e) {
+    diagnostics.recordBranch('init failed: $e', error: e);
     // Telemetry must never prevent the app from starting.
     debugPrint('Failed to initialize Dash0: $e');
   }
