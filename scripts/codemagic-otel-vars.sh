@@ -343,6 +343,7 @@ echo "  DASH0_VCS_PROVIDER_NAME         [derived from the repository URL, set on
 echo "  DASH0_VCS_OWNER_NAME            [derived from the repository URL, set only to override]"
 echo "  DASH0_VCS_REPOSITORY_NAME       [derived from the repository URL, set only to override]"
 echo "  DASH0_VCS_CHANGE_ID             [pull request number, if your workflow has one]"
+echo "  DASH0_SDK_DEBUG                 [set to true to print SDK export warnings in release builds; see SETUP_OTEL.md]"
 echo "Credentials in the repository URL are stripped by the SDK."
 echo
 echo "Set automatically, nothing to configure:"

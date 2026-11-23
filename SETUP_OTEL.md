@@ -41,6 +41,7 @@ Treat the tokens as public: they end up in the compiled web bundle and in app bi
 | `NONPROD_FLUTTER_OTLP_HEADERS` | Repository secret | `Authorization=Bearer <nonprod token>,Dash0-Dataset=nonprod-minecraft-finder` |
 | `PROD_FLUTTER_OTLP_ENDPOINT` | Repository secret | `https://ingress.eu-west-1.aws.dash0.com` |
 | `PROD_FLUTTER_OTLP_HEADERS` | Repository secret | `Authorization=Bearer <prod token>,Dash0-Dataset=minecraft-finder` |
+| `DASH0_SDK_DEBUG` | Codemagic variable (optional) | `true` makes the SDK print export warnings (with HTTP status) in release builds. Written to `otlp_config.json` by the pre-build script |
 | `DASH0_ENVIRONMENT` | Repository variable (optional) | Overrides `deployment.environment.name`. Defaults to `production` for `prod` and to the environment name (`dev`, `staging`) otherwise |
 
 Run [`scripts/setup-otel.sh`](#automated-setup-with-scriptssetup-otelsh) from your own machine to create these secrets (the token values are never stored in this repository). Without the secrets the web build is produced with telemetry disabled.
@@ -228,6 +229,17 @@ The CSP in `infrastructure/src/constructs/cloudfront-distribution.ts` uses `conn
 2. In Dash0, filter by service `minecraft-finder` (and the matching dataset). Within about a minute you should see navigation spans and `app.client.type` set to `web-*`, `ios` or `android`.
 3. Trigger a test error in a debug build and look for it in Logs/Errors.
 4. In debug builds, the SDK `debug` flag prints export status in the console.
+
+## Troubleshooting on a device
+Release builds hide SDK diagnostics. To see what happens on a device (TestFlight, App Store, Play):
+
+1. Open the screen: open the About dialog and long-press its title. The screen shows the init state, endpoint, dataset, masked token, session and SDK state.
+2. **Send test event** sends `dash0.diagnostics.test` through the SDK and flushes. "Done" only means the SDK accepted it.
+3. **Test connection** POSTs a log record to `<endpoint>/v1/logs` without the SDK, with the compiled-in headers. HTTP 200 means network and token work. 401/403 means a wrong token or dataset. An exception means the device cannot reach Dash0. The record has `service.name` `<service>-diagnostics`.
+4. **Copy** copies a plain-text report. It contains only the masked token.
+5. Set `DASH0_SDK_DEBUG=true` in Codemagic and rebuild to print SDK export failures. Read them in Xcode (Window > Devices and Simulators > Open Console) or Console.app, filtered by `[dash0]`. On Android use `adb logcat | grep dash0`.
+
+This app enables gzip compression (`Dash0Compression.gzip`). If Test connection succeeds but SDK exports fail, gzip is the first suspect.
 
 ## Local SDK development
 In `flutter_app/pubspec.yaml` switch the `dash0_flutter_sdk` dependency to `path: ../../flutter-dash0-sdk`.
