@@ -14,6 +14,7 @@ import 'providers/pro_status_provider.dart';
 import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
 import 'utils/dash0_config.dart';
+import 'utils/dash0_device.dart';
 import 'widgets/ore_finder_screen.dart';
 
 export 'widgets/ore_finder_screen.dart' show OreFinderScreen;
@@ -72,6 +73,8 @@ Future<void> _initializeOpenTelemetry() async {
         serviceVersion: serviceVersion,
         // Native apps have no browser user agent, so the SDK builds one.
         syntheticUserAgent: !kIsWeb,
+        // Device model and OS version for the synthetic user agent.
+        resourceAttributes: await loadDash0DeviceAttributes(),
         endpoint: Dash0Endpoint(
           url: normalizeOtlpEndpoint(otlpEndpoint),
           authToken: authToken,
