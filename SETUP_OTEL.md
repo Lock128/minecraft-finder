@@ -11,7 +11,10 @@ Telemetry is off unless **both** an endpoint and an auth token are compiled in. 
 - App lifecycle, metrics, web vitals (web), rage clicks, and SDK HTTP spans
 - Service name `minecraft-finder` (production) or `minecraft-finder-<environment>` otherwise
 
-Deliberately **not** enabled: session replay, profiling, `HttpOverrides` and trace header propagation. The app takes world seeds and coordinates as input, and has no own backend to propagate to. Do not add seeds, coordinates or purchase data as span or log attributes.
+- The RUM session id is persisted with `shared_preferences` (`Dash0SessionStore`), so page reloads and app resumes keep one session. Without it, web builds could start a new session on every load.
+- Automated browsers (`navigator.webdriver` or a headless/Playwright/Puppeteer/Selenium user agent) send no telemetry, because each run starts with empty storage and counts as a new session. Build with `--dart-define=DASH0_RECORD_AUTOMATED_BROWSERS=true` to record them, for example when debugging a test run.
+
+Deliberately **not** enabled: the `console` log capture, session replay, profiling, `HttpOverrides` and trace header propagation. The app takes world seeds and coordinates as input, and has no own backend to propagate to. Do not add seeds, coordinates or purchase data as span or log attributes.
 
 ## Actions required (in order)
 
