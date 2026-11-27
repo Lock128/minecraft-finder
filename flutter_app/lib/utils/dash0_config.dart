@@ -66,6 +66,53 @@ String normalizeOtlpEndpoint(String endpoint) {
   return url;
 }
 
+/// Parses a boolean build-time flag (`true`, `1`, `yes`, `on` and their
+/// negatives, case insensitive). Returns [defaultValue] when [raw] is empty or
+/// not recognized.
+bool parseBoolFlag(String raw, {required bool defaultValue}) {
+  switch (raw.trim().toLowerCase()) {
+    case 'true':
+    case '1':
+    case 'yes':
+    case 'on':
+      return true;
+    case 'false':
+    case '0':
+    case 'no':
+    case 'off':
+      return false;
+    default:
+      return defaultValue;
+  }
+}
+
+/// True for user agents of headless browsers (`HeadlessChrome`, PhantomJS)
+/// and common automation tools.
+bool isAutomatedUserAgent(String? userAgent) {
+  final ua = userAgent?.toLowerCase() ?? '';
+  if (ua.isEmpty) return false;
+  return const [
+    'headlesschrome',
+    'phantomjs',
+    'playwright',
+    'puppeteer',
+    'selenium',
+  ].any(ua.contains);
+}
+
+/// Whether telemetry is recorded in this browser. Automated browsers (end to
+/// end tests, screenshot jobs, crawlers driving headless Chrome) start with an
+/// empty storage every run, so each run is a new Dash0 session. They are
+/// skipped unless [recordAutomatedFlag] (`DASH0_RECORD_AUTOMATED_BROWSERS`)
+/// is true.
+bool shouldRecordDash0Telemetry({
+  required bool automatedBrowser,
+  required String recordAutomatedFlag,
+}) {
+  if (!automatedBrowser) return true;
+  return parseBoolFlag(recordAutomatedFlag, defaultValue: false);
+}
+
 /// Resolves the `deployment.environment.name` value from the
 /// `DASH0_ENVIRONMENT` build-time variable. Returns the trimmed value, or
 /// `development` in debug builds and null in release builds when it is empty.

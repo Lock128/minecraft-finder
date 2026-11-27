@@ -122,5 +122,56 @@ void main() {
       expect(resolveDash0ServiceVersion('', '45'), isNull);
       expect(resolveDash0ServiceVersion(null, null), isNull);
     });
+
+    test('isAutomatedUserAgent matches headless and automation agents', () {
+      expect(
+        isAutomatedUserAgent(
+          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+          '(KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36',
+        ),
+        isTrue,
+      );
+      expect(isAutomatedUserAgent('Mozilla/5.0 PhantomJS/2.1.1'), isTrue);
+      expect(
+        isAutomatedUserAgent(
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+          '(KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+        ),
+        isFalse,
+      );
+      expect(isAutomatedUserAgent(''), isFalse);
+      expect(isAutomatedUserAgent(null), isFalse);
+    });
+
+    test('shouldRecordDash0Telemetry skips automated browsers by default', () {
+      expect(
+        shouldRecordDash0Telemetry(
+          automatedBrowser: false,
+          recordAutomatedFlag: '',
+        ),
+        isTrue,
+      );
+      expect(
+        shouldRecordDash0Telemetry(
+          automatedBrowser: true,
+          recordAutomatedFlag: '',
+        ),
+        isFalse,
+      );
+      expect(
+        shouldRecordDash0Telemetry(
+          automatedBrowser: true,
+          recordAutomatedFlag: 'true',
+        ),
+        isTrue,
+      );
+    });
+
+    test('parseBoolFlag parses flags and falls back to the default', () {
+      expect(parseBoolFlag('TRUE', defaultValue: false), isTrue);
+      expect(parseBoolFlag('off', defaultValue: true), isFalse);
+      expect(parseBoolFlag('', defaultValue: true), isTrue);
+      expect(parseBoolFlag('maybe', defaultValue: false), isFalse);
+    });
   });
 }

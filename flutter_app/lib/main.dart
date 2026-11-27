@@ -13,9 +13,11 @@ import 'providers/monetization_config.dart';
 import 'providers/pro_status_provider.dart';
 import 'providers/search_history_provider.dart';
 import 'theme/gamer_theme.dart';
+import 'utils/automated_browser.dart';
 import 'utils/dash0_config.dart';
 import 'utils/dash0_diagnostics.dart';
 import 'utils/dash0_device.dart';
+import 'utils/dash0_session_store.dart';
 import 'widgets/ore_finder_screen.dart';
 
 export 'widgets/ore_finder_screen.dart' show OreFinderScreen;
@@ -24,14 +26,11 @@ Future<void> main() async {
   // Binding, SDK init and runApp share one zone to avoid a zone mismatch.
   // The SDK installs the FlutterError and PlatformDispatcher handlers itself;
   // the zone callback only covers uncaught async errors.
-  await runZonedGuarded(
-    () async {
-      WidgetsFlutterBinding.ensureInitialized();
-      await _initializeOpenTelemetry();
-      runApp(const GemOreStructFinderApp());
-    },
-    (error, stack) => Dash0.reportError(error, stackTrace: stack),
-  );
+  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await _initializeOpenTelemetry();
+    runApp(const GemOreStructFinderApp());
+  }, (error, stack) => Dash0.reportError(error, stackTrace: stack));
 }
 
 /// Initializes the Dash0 SDK from `--dart-define` values. Does nothing when
@@ -54,7 +53,9 @@ Future<void> _initializeOpenTelemetry() async {
     final headers = parseOtlpHeaders(otlpHeaders);
     final authToken = extractBearerToken(headers);
     diagnostics.recordConfig(
-      endpoint: otlpEndpoint.isEmpty ? null : normalizeOtlpEndpoint(otlpEndpoint),
+      endpoint: otlpEndpoint.isEmpty
+          ? null
+          : normalizeOtlpEndpoint(otlpEndpoint),
       authToken: authToken,
       dataset: extractDash0Dataset(headers),
       environment: null,
@@ -66,6 +67,21 @@ Future<void> _initializeOpenTelemetry() async {
     if (otlpEndpoint.isEmpty || authToken == null) {
       diagnostics.recordBranch('no endpoint or token');
       debugPrint('Dash0: no OTLP endpoint or auth token, telemetry disabled');
+      return;
+    }
+
+    // Headless and WebDriver-controlled browsers start with empty storage on
+    // every run, so each run would become a new RUM session.
+    const recordAutomatedFlag = String.fromEnvironment(
+      'DASH0_RECORD_AUTOMATED_BROWSERS',
+      defaultValue: '',
+    );
+    if (!shouldRecordDash0Telemetry(
+      automatedBrowser: isAutomatedBrowser(),
+      recordAutomatedFlag: recordAutomatedFlag,
+    )) {
+      diagnostics.recordBranch('automated browser');
+      debugPrint('Dash0: automated browser detected, telemetry disabled');
       return;
     }
 
@@ -81,7 +97,10 @@ Future<void> _initializeOpenTelemetry() async {
       // The version is optional.
     }
 
-    final serviceName = resolveDash0ServiceName('minecraft-finder', environment);
+    final serviceName = resolveDash0ServiceName(
+      'minecraft-finder',
+      environment,
+    );
     diagnostics.recordConfig(
       endpoint: normalizeOtlpEndpoint(otlpEndpoint),
       authToken: authToken,
@@ -110,6 +129,9 @@ Future<void> _initializeOpenTelemetry() async {
         enabledInstrumentations: dash0Instrumentations,
         compression: Dash0Compression.gzip,
       ),
+      // Persist the session id so reloads and resumes keep the same RUM
+      // session instead of starting a new one each time.
+      sessionStore: Dash0SessionStore(),
     );
     diagnostics.recordBranch('initialized');
     debugPrint('Dash0: initialized, serviceVersion=$serviceVersion');
@@ -133,8 +155,7 @@ class GemOreStructFinderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MonetizationConfig()),
         ChangeNotifierProxyProvider<MonetizationConfig, ProStatusProvider>(
           create: (context) => ProStatusProvider(
-            monetizationEnabled:
-                context.read<MonetizationConfig>().isEnabled,
+            monetizationEnabled: context.read<MonetizationConfig>().isEnabled,
           ),
           update: (_, monetization, proStatus) {
             proStatus!.updateMonetization(monetization.isEnabled);
