@@ -42,7 +42,7 @@ dependencies:
   shared_preferences: ^2.5.5
   url_launcher: ^6.3.2
   in_app_purchase: ^3.3.1
-  package_info_plus: ^8.3.0
+  package_info_plus: ^10.2.2
   device_info_plus: ">=11.5.0 <14.0.0"
   # For local SDK development switch to: path: ../../flutter-dash0-sdk
   dash0_flutter_sdk:
